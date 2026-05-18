@@ -7,6 +7,7 @@ import { StatusBar, StyleSheet, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SplashGate } from './src/components/SplashGate';
+import { AuthProvider } from './src/navigation/AuthStacks/AuthContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
 
 function App() {
@@ -17,9 +18,11 @@ function App() {
       <SafeAreaProvider>
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <SplashGate>
-          <NavigationContainer>
-            <RootNavigator />
-          </NavigationContainer>
+          <AuthProvider>
+            <NavigationContainer>
+              <RootNavigator />
+            </NavigationContainer>
+          </AuthProvider>
         </SplashGate>
       </SafeAreaProvider>
     </GestureHandlerRootView>
