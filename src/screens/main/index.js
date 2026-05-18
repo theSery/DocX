@@ -1,2 +1,4 @@
-export { HomeScreen } from './HomeScreen';
-export { SettingsScreen } from './SettingsScreen';
+export * from './home';
+export * from './documents';
+export * from './files';
+export * from './account';

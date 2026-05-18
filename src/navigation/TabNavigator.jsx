@@ -1,6 +1,8 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { HomeScreen, SettingsScreen } from '../screens/main';
+import { DocumentsScreen } from '../screens/main/documents';
+import { FilesScreen } from '../screens/main/files';
 import { colors } from '../theme/colors';
+import { AccountStackNavigator, HomeStackNavigator } from './stacks';
 
 const Tab = createBottomTabNavigator();
 
@@ -9,6 +11,7 @@ export function TabNavigator() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
+        animation: 'fade',
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
@@ -18,13 +21,23 @@ export function TabNavigator() {
       }}>
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
+        component={HomeStackNavigator}
         options={{ title: 'Home' }}
       />
       <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{ title: 'Settings' }}
+        name="Documents"
+        component={DocumentsScreen}
+        options={{ title: 'Documents' }}
+      />
+      <Tab.Screen
+        name="Files"
+        component={FilesScreen}
+        options={{ title: 'Files' }}
+      />
+      <Tab.Screen
+        name="Account"
+        component={AccountStackNavigator}
+        options={{ title: 'Account' }}
       />
     </Tab.Navigator>
   );
