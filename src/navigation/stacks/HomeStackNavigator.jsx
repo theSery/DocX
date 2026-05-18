@@ -4,19 +4,13 @@ import {
   FillInDetailsScreen,
   HomeScreen,
 } from '../../screens/main/home';
-import { colors } from '../../theme/colors';
+import { useStackScreenOptions } from '../../hooks';
 
 const Stack = createNativeStackNavigator();
 
-const nestedScreenOptions = {
-  headerShown: true,
-  headerTintColor: colors.primary,
-  headerStyle: { backgroundColor: colors.background },
-  headerTitleStyle: { color: colors.text, fontWeight: '600' },
-  headerShadowVisible: false,
-};
-
 export function HomeStackNavigator() {
+  const nestedScreenOptions = useStackScreenOptions();
+
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="HomeMain" component={HomeScreen} />

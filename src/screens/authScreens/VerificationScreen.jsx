@@ -1,7 +1,9 @@
 import { Pressable, Text, View } from 'react-native';
-import { authScreenStyles as styles } from './authScreenStyles';
+import { useAuthScreenStyles } from '../../hooks';
 
 export function VerificationScreen({ navigation }) {
+  const styles = useAuthScreenStyles();
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Verification</Text>

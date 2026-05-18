@@ -1,8 +1,9 @@
 import { Pressable, Text, View } from 'react-native';
 import { useAuth } from '../../contexts';
-import { authScreenStyles as styles } from './authScreenStyles';
+import { useAuthScreenStyles } from '../../hooks';
 
 export function OnboardingScreen({ navigation }) {
+  const styles = useAuthScreenStyles();
   const { completeOnboarding } = useAuth();
 
   const handleContinue = async () => {

@@ -1,8 +1,9 @@
 import { Pressable, Text, View } from 'react-native';
 import { useAuth } from '../../contexts';
-import { authScreenStyles as styles } from './authScreenStyles';
+import { useAuthScreenStyles } from '../../hooks';
 
 export function PinCodeScreen() {
+  const styles = useAuthScreenStyles();
   const { setIsSign } = useAuth();
 
   const handleComplete = async () => {

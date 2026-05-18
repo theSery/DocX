@@ -1,6 +1,6 @@
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useAuth } from '../../../contexts';
-import { mainScreenStyles as styles } from '../mainScreenStyles';
+import { useMainScreenStyles } from '../../../hooks';
 
 const ACCOUNT_MENU = [
   { label: 'Profile info', screen: 'ProfileInfo' },
@@ -12,6 +12,7 @@ const ACCOUNT_MENU = [
 ];
 
 export function AccountScreen({ navigation }) {
+  const styles = useMainScreenStyles();
   const { setIsSign } = useAuth();
 
   const handleLogout = async () => {

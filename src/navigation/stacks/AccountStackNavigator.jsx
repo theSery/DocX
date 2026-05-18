@@ -8,19 +8,13 @@ import {
   SettingsScreen,
   SignatureScreen,
 } from '../../screens/main/account';
-import { colors } from '../../theme/colors';
+import { useStackScreenOptions } from '../../hooks';
 
 const Stack = createNativeStackNavigator();
 
-const nestedScreenOptions = {
-  headerShown: true,
-  headerTintColor: colors.primary,
-  headerStyle: { backgroundColor: colors.background },
-  headerTitleStyle: { color: colors.text, fontWeight: '600' },
-  headerShadowVisible: false,
-};
-
 export function AccountStackNavigator() {
+  const nestedScreenOptions = useStackScreenOptions();
+
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="AccountMain" component={AccountScreen} />

@@ -1,12 +1,15 @@
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeBottomTabNavigator } from '@react-navigation/bottom-tabs/unstable';
+
 import { DocumentsScreen } from '../screens/main/documents';
 import { FilesScreen } from '../screens/main/files';
-import { colors } from '../theme/colors';
+import { useTheme } from '../hooks';
 import { AccountStackNavigator, HomeStackNavigator } from './stacks';
 
-const Tab = createBottomTabNavigator();
+const Tab = createNativeBottomTabNavigator();
 
 export function TabNavigator() {
+  const { colors } = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={{

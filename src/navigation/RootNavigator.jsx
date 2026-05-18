@@ -1,18 +1,19 @@
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../contexts';
+import { useTheme } from '../hooks';
 import { AuthNavigator } from './authStacks/AuthNavigator';
 import { TabNavigator } from './TabNavigator';
-import { colors } from '../theme/colors';
 
 const Stack = createNativeStackNavigator();
 
 export function RootNavigator() {
   const { isSign, isReady } = useAuth();
+  const { colors } = useTheme();
 
   if (!isReady) {
     return (
-      <View style={styles.loading}>
+      <View style={[styles.loading, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
@@ -34,6 +35,5 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.background,
   },
 });

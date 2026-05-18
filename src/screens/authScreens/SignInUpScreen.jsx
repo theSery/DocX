@@ -1,8 +1,9 @@
 import { Pressable, Text, View } from 'react-native';
 import { useAuth } from '../../contexts';
-import { authScreenStyles as styles } from './authScreenStyles';
+import { useAuthScreenStyles } from '../../hooks';
 
 export function SignInUpScreen({ navigation }) {
+  const styles = useAuthScreenStyles();
   const { setIsSign } = useAuth();
 
   const handleSignIn = async () => {

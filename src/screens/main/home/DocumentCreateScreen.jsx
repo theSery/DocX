@@ -1,7 +1,8 @@
 import { Text, View } from 'react-native';
-import { mainScreenStyles as styles } from '../mainScreenStyles';
+import { useMainScreenStyles } from '../../../hooks';
 
 export function DocumentCreateScreen() {
+  const styles = useMainScreenStyles();
   return (
     <View style={styles.centered}>
       <Text style={styles.title}>Create document</Text>

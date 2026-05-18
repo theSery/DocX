@@ -27,6 +27,27 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   removeItem: jest.fn(() => Promise.resolve()),
 }));
 
+jest.mock('@shopify/react-native-skia', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    Canvas: ({ children }) => React.createElement(View, null, children),
+    Circle: View,
+    Image: View,
+    ImageShader: View,
+    makeImageFromView: jest.fn(() => Promise.resolve(null)),
+    mix: jest.fn((a, b, c) => c),
+    vec: jest.fn((x, y) => ({ x, y })),
+    dist: jest.fn(() => 0),
+  };
+});
+
+jest.mock('react-native-reanimated', () => {
+  const Reanimated = require('react-native-reanimated/mock');
+  Reanimated.default.call = () => {};
+  return Reanimated;
+});
+
 import App from '../App';
 
 test('renders correctly', async () => {

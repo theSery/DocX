@@ -1,7 +1,6 @@
-export const colors = {
-  primary: '#1D4ED8',
-  background: '#FFFFFF',
-  text: '#0F172A',
-  textSecondary: '#64748B',
-  border: '#E2E8F0',
-};
+import { lightColors } from './palettes';
+
+export { darkColors, getPalette, lightColors } from './palettes';
+
+/** @deprecated Use `useTheme()` for theme-aware colors. */
+export const colors = lightColors;
