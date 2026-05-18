@@ -1,0 +1,12 @@
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { TabNavigator } from './TabNavigator';
+
+const Stack = createNativeStackNavigator();
+
+export function RootNavigator() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Main" component={TabNavigator} />
+    </Stack.Navigator>
+  );
+}

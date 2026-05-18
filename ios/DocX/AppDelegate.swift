@@ -14,6 +14,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
+    showSplashScreen()
+
     let delegate = ReactNativeDelegate()
     let factory = RCTReactNativeFactory(delegate: delegate)
     delegate.dependencyProvider = RCTAppDependencyProvider()
@@ -30,6 +32,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     )
 
     return true
+  }
+
+  private func showSplashScreen() {
+    if let splashClass = NSClassFromString("SplashView") as? NSObject.Type,
+       let splashInstance = splashClass.perform(NSSelectorFromString("sharedInstance"))?
+         .takeUnretainedValue() as? NSObject {
+      splashInstance.perform(NSSelectorFromString("showSplash"))
+    }
   }
 }
 
