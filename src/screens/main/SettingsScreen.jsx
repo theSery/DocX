@@ -1,11 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors } from '../theme/colors';
+import { colors } from '../../theme/colors';
 
-export function HomeScreen() {
+export function SettingsScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>DocX</Text>
-      <Text style={styles.subtitle}>Your documents, organized</Text>
+      <Text style={styles.title}>Settings</Text>
+      <Text style={styles.subtitle}>App preferences will appear here.</Text>
     </View>
   );
 }
@@ -19,9 +19,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: colors.primary,
+    fontSize: 24,
+    fontWeight: '600',
+    color: colors.text,
     marginBottom: 8,
   },
   subtitle: {

@@ -1,6 +1,5 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { HomeScreen } from '../screens/HomeScreen';
-import { SettingsScreen } from '../screens/SettingsScreen';
+import { HomeScreen, SettingsScreen } from '../screens/main';
 import { colors } from '../theme/colors';
 
 const Tab = createBottomTabNavigator();

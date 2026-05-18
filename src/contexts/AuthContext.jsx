@@ -1,8 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const ONBOARDING_KEY = '@docx/onboarding_complete';
-const SIGN_KEY = '@docx/is_sign';
+import { STORAGE_KEYS } from '../utils/storageKeys';
 
 const AuthContext = createContext(null);
 
@@ -15,8 +13,8 @@ export function AuthProvider({ children }) {
     async function hydrate() {
       try {
         const [onboarding, sign] = await Promise.all([
-          AsyncStorage.getItem(ONBOARDING_KEY),
-          AsyncStorage.getItem(SIGN_KEY),
+          AsyncStorage.getItem(STORAGE_KEYS.ONBOARDING),
+          AsyncStorage.getItem(STORAGE_KEYS.SIGN),
         ]);
         setHasCompletedOnboarding(onboarding === 'true');
         setIsSignState(sign === 'true');
@@ -28,15 +26,15 @@ export function AuthProvider({ children }) {
   }, []);
 
   const completeOnboarding = useCallback(async () => {
-    await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+    await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING, 'true');
     setHasCompletedOnboarding(true);
   }, []);
 
   const setIsSign = useCallback(async value => {
     if (value) {
-      await AsyncStorage.setItem(SIGN_KEY, 'true');
+      await AsyncStorage.setItem(STORAGE_KEYS.SIGN, 'true');
     } else {
-      await AsyncStorage.removeItem(SIGN_KEY);
+      await AsyncStorage.removeItem(STORAGE_KEYS.SIGN);
     }
     setIsSignState(value);
   }, []);

@@ -1,5 +1,5 @@
 import { Pressable, Text, View } from 'react-native';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../../contexts';
 import { authScreenStyles as styles } from './authScreenStyles';
 
 export function SignInUpScreen({ navigation }) {

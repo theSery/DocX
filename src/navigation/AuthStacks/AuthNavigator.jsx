@@ -1,11 +1,13 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useAuth } from './AuthContext';
-import { AccountTypeScreen } from './AccountTypeScreen';
-import { OnboardingScreen } from './OnboardingScreen';
-import { PinCodeScreen } from './PinCodeScreen';
-import { RegistrationScreen } from './RegistrationScreen';
-import { SignInUpScreen } from './SignInUpScreen';
-import { VerificationScreen } from './VerificationScreen';
+import { useAuth } from '../../contexts';
+import {
+  AccountTypeScreen,
+  OnboardingScreen,
+  PinCodeScreen,
+  RegistrationScreen,
+  SignInUpScreen,
+  VerificationScreen,
+} from '../../screens/authScreens';
 
 const Stack = createNativeStackNavigator();
 

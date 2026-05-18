@@ -1,7 +1,7 @@
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { AuthNavigator } from './AuthStacks/AuthNavigator';
-import { useAuth } from './AuthStacks/AuthContext';
+import { useAuth } from '../contexts';
+import { AuthNavigator } from './authStacks/AuthNavigator';
 import { TabNavigator } from './TabNavigator';
 import { colors } from '../theme/colors';
 
