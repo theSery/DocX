@@ -1,20 +1,21 @@
 import { StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../contexts';
-import { useTheme } from '../hooks';
 import { AuthNavigator } from './authStacks/AuthNavigator';
 import { TabNavigator } from './TabNavigator';
-import OnboardingBackground from '../components/OnboardingBackground';
+import GradientBackground from '../components/GradientBackground';
+import LogoIcon from '../components/icons/LogoIcon';
 
 const Stack = createNativeStackNavigator();
 
 export function RootNavigator() {
   const { isSign, isReady } = useAuth();
-  const { colors } = useTheme();
 
   if (!isReady) {
     return (
-      <OnboardingBackground />
+      <GradientBackground isLight={false}>
+          <LogoIcon width={140} height={140} />
+      </GradientBackground>
     );
   }
 
@@ -35,4 +36,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
 });
