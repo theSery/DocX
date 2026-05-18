@@ -1,9 +1,10 @@
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../contexts';
 import { useTheme } from '../hooks';
 import { AuthNavigator } from './authStacks/AuthNavigator';
 import { TabNavigator } from './TabNavigator';
+import OnboardingBackground from '../components/OnboardingBackground';
 
 const Stack = createNativeStackNavigator();
 
@@ -13,9 +14,7 @@ export function RootNavigator() {
 
   if (!isReady) {
     return (
-      <View style={[styles.loading, { backgroundColor: colors.background }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
+      <OnboardingBackground />
     );
   }
 
