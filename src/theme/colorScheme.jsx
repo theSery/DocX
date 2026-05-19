@@ -21,7 +21,7 @@ import {
 import { Appearance, Dimensions, StatusBar, StyleSheet, View } from 'react-native';
 import { useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
 import { STORAGE_KEYS } from '../utils/storageKeys';
-import { getPalette } from './palettes';
+import { getPalette, lightColors } from './palettes';
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -59,7 +59,8 @@ export function useColorSchemeContext() {
     throw new Error('useColorSchemeContext must be used inside ColorSchemeProvider.');
   }
 
-  const { colorScheme, dispatch, ref, transition, circle, active, colors } = ctx;
+  const { colorScheme, dispatch, ref, transition, circle, active, colors, isLightModeLocked } =
+    ctx;
 
   const toggle = useCallback(
     async (x, y) => {
@@ -106,12 +107,37 @@ export function useColorSchemeContext() {
 
   return {
     colorScheme,
-    isDarkMode: colorScheme === 'dark',
+    isDarkMode: isLightModeLocked ? false : colorScheme === 'dark',
+    isLightModeLocked: Boolean(isLightModeLocked),
     isAnimating: active,
     active,
     colors,
     toggle,
   };
+}
+
+/**
+ * Locks theme-aware UI to the light palette (auth / onboarding flows).
+ * Global color scheme preference is unchanged when the user leaves this scope.
+ */
+export function LightThemeScope({ children }) {
+  const parent = useContext(ColorSchemeContext);
+  if (!parent) {
+    throw new Error('LightThemeScope must be used inside ColorSchemeProvider.');
+  }
+
+  const value = useMemo(
+    () => ({
+      ...parent,
+      colors: lightColors,
+      isLightModeLocked: true,
+    }),
+    [parent],
+  );
+
+  return (
+    <ColorSchemeContext.Provider value={value}>{children}</ColorSchemeContext.Provider>
+  );
 }
 
 export function ColorSchemeProvider({ children }) {

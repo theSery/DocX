@@ -1,4 +1,4 @@
-export { ColorSchemeProvider, useColorSchemeContext } from './colorScheme';
+export { ColorSchemeProvider, LightThemeScope, useColorSchemeContext } from './colorScheme';
 export {
   colors,
   createGlobalStyles,

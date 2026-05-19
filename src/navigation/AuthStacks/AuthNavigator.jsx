@@ -1,5 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../../contexts';
+import { LightThemeScope } from '../../theme';
 import {
   // AccountTypeScreen,
   OnboardingScreen,
@@ -16,15 +17,17 @@ export function AuthNavigator() {
   const { hasCompletedOnboarding } = useAuth();
 
   return (
-    <Stack.Navigator
-      initialRouteName={hasCompletedOnboarding ? 'AccountType' : 'Onboarding'}
-      screenOptions={{ headerShown: false, animation: 'fade' }}>
-      <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-      <Stack.Screen name="AccountType" component={AccountTypeScreen} />
-      <Stack.Screen name="SignInUp" component={SignInUpScreen} />
-      <Stack.Screen name="Registration" component={RegistrationScreen} />
-      <Stack.Screen name="Verification" component={VerificationScreen} />
-      <Stack.Screen name="PinCode" component={PinCodeScreen} />
-    </Stack.Navigator>
+    <LightThemeScope>
+      <Stack.Navigator
+        initialRouteName={hasCompletedOnboarding ? 'AccountType' : 'Onboarding'}
+        screenOptions={{ headerShown: false, animation: 'fade' }}>
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+        <Stack.Screen name="AccountType" component={AccountTypeScreen} />
+        <Stack.Screen name="SignInUp" component={SignInUpScreen} />
+        <Stack.Screen name="Registration" component={RegistrationScreen} />
+        <Stack.Screen name="Verification" component={VerificationScreen} />
+        <Stack.Screen name="PinCode" component={PinCodeScreen} />
+      </Stack.Navigator>
+    </LightThemeScope>
   );
 }
