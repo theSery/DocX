@@ -1,12 +1,9 @@
 import { useCallback, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
-  runOnJS,
   useAnimatedRef,
   useAnimatedScrollHandler,
-  useAnimatedStyle,
   useSharedValue,
-  withTiming,
 } from 'react-native-reanimated';
 import { AuthScreenLayout } from '../../../components/layout';
 import { useAuth } from '../../../contexts';
@@ -20,12 +17,10 @@ export function OnboardingScreen({ navigation }) {
   const { completeOnboarding } = useAuth();
   const flatListRef = useAnimatedRef();
   const x = useSharedValue(0);
-  const flatListIndex = useSharedValue(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMainContainer, setIsMainContainer] = useState(true);
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
     if (viewableItems[0]?.index != null) {
-      flatListIndex.value = viewableItems[0].index;
       setCurrentIndex(viewableItems[0].index);
     }
   }).current;
@@ -77,7 +72,6 @@ export function OnboardingScreen({ navigation }) {
           <View style={styles.bottomContainer}>
             <CustomButton
               flatListRef={flatListRef}
-              flatListIndex={flatListIndex}
               currentIndex={currentIndex}
               dataLength={onboardingData.length}
               x={x}
@@ -87,7 +81,6 @@ export function OnboardingScreen({ navigation }) {
             <Pagination data={onboardingData} x={x} />
             <CustomButton
               flatListRef={flatListRef}
-              flatListIndex={flatListIndex}
               currentIndex={currentIndex}
               dataLength={onboardingData.length}
               x={x}
@@ -119,7 +112,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginHorizontal: 10,
+    marginHorizontal: 30,
     paddingVertical: 30,
     position: 'absolute',
     bottom: 20,

@@ -2,23 +2,31 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   useWindowDimensions,
-  View,
 } from 'react-native';
 import Animated, {
+  Extrapolation,
+  interpolate,
   interpolateColor,
   useAnimatedStyle,
   useDerivedValue,
-  withSpring,
-  withTiming,
 } from 'react-native-reanimated';
 import { Typography } from '../../../../components/typography';
 import GradientButton from '../../../../components/buttons/GradientButton';
+import Chevron from '../../../../components/icons/Chevron';
 
-const BUTTON_SIZE = 60;
+const BUTTON_SIZE = 44;
+const EXPANDED_WIDTH = 140;
+const GRADIENT_FALLBACK = '#386FE5';
+const BACK_FADE_END = 0.3;
+const BACK_ZONE_EXIT = 0.4;
+
+function smoothstep(t) {
+  'worklet';
+  return t * t * (3 - 2 * t);
+}
 
 export function CustomButton({
   flatListRef,
-  flatListIndex,
   dataLength,
   x,
   onComplete,
@@ -26,131 +34,258 @@ export function CustomButton({
   isBackButton = false,
 }) {
   const { width: SCREEN_WIDTH } = useWindowDimensions();
-  const isHidden = isBackButton && currentIndex === 0;
+  const gradientWidth = isBackButton ? BUTTON_SIZE : EXPANDED_WIDTH;
 
-  const buttonAnimationStyle = useAnimatedStyle(() => ({
-    width: isBackButton
-      ? BUTTON_SIZE
-      : flatListIndex.value === dataLength - 1
-        ? withSpring(140)
-        : withSpring(BUTTON_SIZE),
-    height: BUTTON_SIZE,
-  }));
+  const expandProgress = useDerivedValue(() => {
+    if (isBackButton || dataLength <= 1) {
+      return 0;
+    }
+
+    const lastSlideStart = (dataLength - 2) * SCREEN_WIDTH;
+    const lastSlideEnd = (dataLength - 1) * SCREEN_WIDTH;
+
+    if (x.value < lastSlideStart) {
+      return 0;
+    }
+
+    const raw = interpolate(
+      x.value,
+      [lastSlideStart, lastSlideEnd],
+      [0, 1],
+      Extrapolation.CLAMP,
+    );
+
+    return smoothstep(raw);
+  });
+
+  const backVisibility = useDerivedValue(() => {
+    if (!isBackButton) {
+      return 1;
+    }
+
+    if (x.value > SCREEN_WIDTH * BACK_ZONE_EXIT) {
+      return 1;
+    }
+
+    const raw = interpolate(
+      x.value,
+      [0, SCREEN_WIDTH * BACK_FADE_END],
+      [0, 1],
+      Extrapolation.CLAMP,
+    );
+
+    return smoothstep(raw);
+  });
+
+  const buttonAnimationStyle = useAnimatedStyle(() => {
+    if (isBackButton) {
+      return {
+        width: BUTTON_SIZE,
+        height: BUTTON_SIZE,
+      };
+    }
+
+    const progress = expandProgress.value;
+
+    return {
+      width: interpolate(progress, [0, 1], [BUTTON_SIZE, EXPANDED_WIDTH]),
+      height: BUTTON_SIZE,
+    };
+  });
+
+  const backButtonWrapperStyle = useAnimatedStyle(() => {
+    const visibility = backVisibility.value;
+
+    return {
+      opacity: visibility,
+      transform: [
+        {
+          translateX: interpolate(visibility, [0, 1], [-BUTTON_SIZE * 0.55, 0]),
+        },
+        {
+          scale: interpolate(visibility, [0, 1], [0.7, 1]),
+        },
+      ],
+    };
+  });
 
   const arrowAnimationStyle = useAnimatedStyle(() => {
     if (isBackButton) {
-      return { opacity: 1, transform: [{ translateX: 0 }] };
+      return {
+        opacity: 1,
+        transform: [{ translateX: 0 }, { scale: 1 }],
+      };
     }
 
+    const progress = expandProgress.value;
+    const opacity = interpolate(
+      progress,
+      [0, 0.38, 0.52],
+      [1, 1, 0],
+      Extrapolation.CLAMP,
+    );
+    const scale = interpolate(progress, [0, 0.52], [1, 0.82], Extrapolation.CLAMP);
+
     return {
-      opacity:
-        flatListIndex.value === dataLength - 1 ? withTiming(0) : withTiming(1),
+      opacity,
       transform: [
         {
-          translateX:
-            flatListIndex.value === dataLength - 1
-              ? withTiming(100)
-              : withTiming(0),
+          translateX: interpolate(progress, [0, 0.52], [0, 10]),
         },
+        { scale },
       ],
     };
   });
 
   const textAnimationStyle = useAnimatedStyle(() => {
     if (isBackButton) {
-      return { opacity: 0, transform: [{ translateX: -100 }] };
+      return {
+        opacity: 0,
+        transform: [{ translateX: 8 }, { scale: 0.82 }],
+      };
     }
 
+    const progress = expandProgress.value;
+    const opacity = interpolate(
+      progress,
+      [0.48, 0.62, 1],
+      [0, 0, 1],
+      Extrapolation.CLAMP,
+    );
+    const scale = interpolate(progress, [0.48, 1], [0.82, 1], Extrapolation.CLAMP);
+
     return {
-      opacity:
-        flatListIndex.value === dataLength - 1 ? withTiming(1) : withTiming(0),
+      opacity,
       transform: [
         {
-          translateX:
-            flatListIndex.value === dataLength - 1
-              ? withTiming(0)
-              : withTiming(-100),
+          translateX: interpolate(progress, [0.48, 1], [-10, 0]),
         },
+        { scale },
       ],
     };
   });
 
-  const gradientColors = useDerivedValue(() => {
-    const backgroundColor = interpolateColor(
-      x.value,
-      [0, SCREEN_WIDTH, 2 * SCREEN_WIDTH],
-      ['#386FE5', '#1D4ED8', '#60A5FA'],
-    );
 
-    return [backgroundColor, '#000B26'];
-  });
+  const scrollToIndex = (index) => {
+    flatListRef.current?.scrollToIndex({ index, animated: true });
+  };
 
   const handlePress = () => {
     if (isBackButton) {
       if (currentIndex > 0) {
-        flatListRef.current?.scrollToIndex({ index: currentIndex - 1 });
+        scrollToIndex(currentIndex - 1);
       }
       return;
     }
 
     if (currentIndex < dataLength - 1) {
-      flatListRef.current?.scrollToIndex({ index: currentIndex + 1 });
+      scrollToIndex(currentIndex + 1);
     } else {
       onComplete();
     }
   };
 
-  if (isHidden) {
-    return <View style={styles.placeholder} />;
-  }
-
-  return (
-    <TouchableWithoutFeedback onPress={handlePress} accessibilityRole="button">
-      <Animated.View style={[styles.container, buttonAnimationStyle]}>
+  const buttonContent = (
+    <TouchableWithoutFeedback
+      onPress={handlePress}
+      disabled={isBackButton && currentIndex === 0}
+      accessibilityRole="button"
+    >
+      <Animated.View
+        style={[
+          styles.container,
+          isBackButton && styles.backButtonContainer,
+          buttonAnimationStyle,
+        ]}
+      >
         <GradientButton
+          width={gradientWidth}
           height={BUTTON_SIZE}
-          gradientColors={gradientColors}
+          isLight={isBackButton}
+          
+          gradientColors={isBackButton ? ['#FFFFFF', '#FFFFFF'] : ['#1B4FBE', '#01174D']}
           style={styles.gradientButton}
+          childrenStyle={styles.gradientContent}
         >
-          <Animated.View style={[styles.textWrapper, textAnimationStyle]}>
+          <Animated.View
+            style={[styles.labelLayer, textAnimationStyle]}
+            pointerEvents="none"
+          >
             <Typography variant="h5" style={styles.textButton}>
               Շարունակել
             </Typography>
           </Animated.View>
 
-          <Animated.View style={[styles.arrowWrapper, arrowAnimationStyle]}>
-            <Typography variant="h4" style={styles.arrow}>
-              {isBackButton ? '←' : '→'}
-            </Typography>
+          <Animated.View
+            style={[styles.labelLayer, arrowAnimationStyle]}
+            pointerEvents="none"
+          >
+            <Chevron
+              width={18}
+              height={18}
+              fill={isBackButton ? '#1D3D81' : '#FFFFFF'}
+              rotate={isBackButton ? 180 : 0}
+            />
           </Animated.View>
         </GradientButton>
       </Animated.View>
     </TouchableWithoutFeedback>
   );
+
+  if (isBackButton) {
+    return (
+      <Animated.View
+        style={[styles.backButtonOuter, backButtonWrapperStyle]}
+        pointerEvents={currentIndex === 0 ? 'none' : 'auto'}
+      >
+        {buttonContent}
+      </Animated.View>
+    );
+  }
+
+  return buttonContent;
 }
 
 const styles = StyleSheet.create({
-  placeholder: {
+  backButtonSlot: {
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  backButtonOuter: {
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: BUTTON_SIZE / 2,
+    overflow: 'hidden',
+  },
+  backButtonContainer: {
+    backgroundColor: '#FFFFFF',
   },
   container: {
     borderRadius: 100,
     overflow: 'hidden',
+    backgroundColor: GRADIENT_FALLBACK,
   },
   gradientButton: {
-    flex: 1,
     borderRadius: 100,
+    // backgroundColor: 'blue',
+    height: '100%',
+    width: '100%',  
     overflow: 'hidden',
   },
-  arrowWrapper: {
-    position: 'absolute',
+  gradientContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  arrow: {
-    color: '#FFFFFF',
-  },
-  textWrapper: {
-    position: 'absolute',
+  labelLayer: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // backgroundColor: 'red',
   },
   textButton: {
     color: '#FFFFFF',

@@ -55,7 +55,7 @@ export default function GradientButton({
 }
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {backgroundColor: 'transparent'},
   fill: {
     flex: 1,
     alignSelf: 'stretch',
