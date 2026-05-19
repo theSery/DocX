@@ -1,4 +1,4 @@
-import { Image, StatusBar, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StatusBar, StyleSheet, View } from 'react-native';
 import { AnimatedView, Typography } from '../../../components';
 import { AuthScreenLayout } from '../../../components/layout';
 import { useTheme } from '../../../hooks/useTheme';
@@ -15,7 +15,7 @@ export function AccountTypeScreen({ navigation }) {
       gradientHeight={'32%'}
       contentStyle={styles.screen}>
 
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="light-content" />
       <View style={styles.container}>
         <AnimatedView animation="fadeInUp" duration={500} style={styles.logoContainer}>
           <Image source={whiteLogo} style={styles.logo} />
@@ -27,6 +27,27 @@ export function AccountTypeScreen({ navigation }) {
           Շարունակելու և փաստաթղթերի ստեղծման համար ընտրեք Ձեզ համապատասխանող իրավաբանական
           կարգավիճակը
         </Typography>
+        <Pressable
+         onPress={() => navigation.navigate('SignInUp')}
+         style={[styles.button, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View>
+            <Typography variant="h4">Ֆիզիկական անձ</Typography>
+          </View>
+          <Typography variant="h6" tone="secondary">Անհատներ, ՀՀ քաղաքացիներ</Typography>
+          <View>
+            <Typography variant="h5">Ընտրել</Typography>
+          </View>
+        </Pressable>
+        <View style={styles.buttonsContainer}></View>
+        <Pressable style={styles.button}>
+          <View>
+            <Typography variant="h4">Ֆիզիկական անձ</Typography>
+          </View>
+          <Typography variant="h6" tone="secondary">Անհատներ, ՀՀ քաղաքացիներ</Typography>
+          <View>
+            <Typography variant="h5">Ընտրել</Typography>
+          </View>
+        </Pressable>
       </View>
 
     </AuthScreenLayout>
@@ -54,13 +75,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingHorizontal: 30,
-    paddingBottom: 24,
   },
   title: {
     marginBottom: 16,
+    textAlign: 'center',
   },
   subtitle: {
     marginBottom: 32,
+    textAlign: 'center',
+  },
+  button: {
+    // flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 10,
+    // backgroundColor: colors.background,
   },
 });

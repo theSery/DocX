@@ -1,10 +1,11 @@
+import { ColorScheme } from './constants';
 import { gradients, palette } from './tokens';
 
 const darkSurface = '#1A1B2E';
 
 /** @typedef {typeof lightColors} ThemeColors */
 
-export const lightColors = {
+export const lightColors = Object.freeze({
   text: palette.black,
   textOnDark: palette.white,
   textSecondary: palette.gray,
@@ -19,10 +20,10 @@ export const lightColors = {
   skyBlue: palette.skyBlue,
   primary: palette.skyBlue,
   accent: palette.green,
-  gradient: [gradients.lightSky.start, gradients.lightSky.end],
-};
+  gradient: Object.freeze([gradients.lightSky.start, gradients.lightSky.end]),
+});
 
-export const darkColors = {
+export const darkColors = Object.freeze({
   text: palette.white,
   textOnDark: palette.white,
   textSecondary: palette.lightGray,
@@ -37,13 +38,16 @@ export const darkColors = {
   skyBlue: palette.skyBlue,
   primary: palette.skyBlue,
   accent: palette.green,
-  gradient: [gradients.darkSky.start, gradients.darkSky.end],
-};
+  gradient: Object.freeze([gradients.darkSky.start, gradients.darkSky.end]),
+});
 
 /**
- * @param {'light' | 'dark'} scheme
+ * Semantic color map for the active color scheme.
+ * Use `useTheme().colors` in components instead of calling this directly.
+ *
+ * @param {import('./constants').ColorSchemeName} scheme
  * @returns {ThemeColors}
  */
 export function getPalette(scheme) {
-  return scheme === 'dark' ? darkColors : lightColors;
+  return scheme === ColorScheme.DARK ? darkColors : lightColors;
 }

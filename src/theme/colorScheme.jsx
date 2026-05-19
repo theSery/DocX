@@ -21,16 +21,22 @@ import {
 import { Appearance, Dimensions, StatusBar, StyleSheet, View } from 'react-native';
 import { useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
 import { STORAGE_KEYS } from '../utils/storageKeys';
+import { ColorScheme, isColorScheme } from './constants';
 import { getPalette, lightColors } from './palettes';
+
+const TRANSITION_MS = 650;
+const FRAME_MS = 16;
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-const getSystemScheme = () => (Appearance.getColorScheme() === 'dark' ? 'dark' : 'light');
+const getSystemScheme = () =>
+  Appearance.getColorScheme() === ColorScheme.DARK ? ColorScheme.DARK : ColorScheme.LIGHT;
 
 const defaultScheme = getSystemScheme();
-const defaultValue = {
+
+const defaultContextValue = {
   active: false,
-  statusBarStyle: defaultScheme === 'light' ? 'dark' : 'light',
+  statusBarStyle: defaultScheme === ColorScheme.LIGHT ? 'dark' : 'light',
   colorScheme: defaultScheme,
   overlay1: null,
   overlay2: null,
@@ -49,7 +55,7 @@ function buildState(scheme, { active = false, overlay1 = null, overlay2 = null }
     colorScheme: scheme,
     overlay1,
     overlay2,
-    statusBarStyle: scheme === 'light' ? 'dark' : 'light',
+    statusBarStyle: scheme === ColorScheme.LIGHT ? 'dark' : 'light',
   };
 }
 
@@ -59,12 +65,21 @@ export function useColorSchemeContext() {
     throw new Error('useColorSchemeContext must be used inside ColorSchemeProvider.');
   }
 
-  const { colorScheme, dispatch, ref, transition, circle, active, colors, isLightModeLocked } =
-    ctx;
+  const {
+    colorScheme,
+    dispatch,
+    ref,
+    transition,
+    circle,
+    active,
+    colors,
+    isLightModeLocked,
+  } = ctx;
 
   const toggle = useCallback(
     async (x, y) => {
-      const newColorScheme = colorScheme === 'light' ? 'dark' : 'light';
+      const nextScheme =
+        colorScheme === ColorScheme.LIGHT ? ColorScheme.DARK : ColorScheme.LIGHT;
 
       dispatch(buildState(colorScheme, { active: true }));
 
@@ -76,38 +91,38 @@ export function useColorSchemeContext() {
         ...buildState(colorScheme, { active: true }),
         overlay1,
         overlay2: null,
-        statusBarStyle: newColorScheme,
+        statusBarStyle: nextScheme,
       });
 
-      await wait(16);
+      await wait(FRAME_MS);
       dispatch({
-        ...buildState(newColorScheme, { active: true }),
+        ...buildState(nextScheme, { active: true }),
         overlay1,
         overlay2: null,
-        statusBarStyle: newColorScheme,
+        statusBarStyle: nextScheme,
       });
 
-      await wait(16);
+      await wait(FRAME_MS);
       const overlay2 = await makeImageFromView(ref);
       dispatch({
-        ...buildState(newColorScheme, { active: true }),
+        ...buildState(nextScheme, { active: true }),
         overlay1,
         overlay2,
-        statusBarStyle: newColorScheme,
+        statusBarStyle: nextScheme,
       });
 
       transition.value = 0;
-      transition.value = withTiming(1, { duration: 650 });
-      await wait(650);
-      dispatch(buildState(newColorScheme));
-      await AsyncStorage.setItem(STORAGE_KEYS.COLOR_SCHEME, newColorScheme);
+      transition.value = withTiming(1, { duration: TRANSITION_MS });
+      await wait(TRANSITION_MS);
+      dispatch(buildState(nextScheme));
+      await AsyncStorage.setItem(STORAGE_KEYS.COLOR_SCHEME, nextScheme);
     },
     [circle, colorScheme, dispatch, ref, transition],
   );
 
   return {
     colorScheme,
-    isDarkMode: isLightModeLocked ? false : colorScheme === 'dark',
+    isDarkMode: isLightModeLocked ? false : colorScheme === ColorScheme.DARK,
     isLightModeLocked: Boolean(isLightModeLocked),
     isAnimating: active,
     active,
@@ -117,8 +132,7 @@ export function useColorSchemeContext() {
 }
 
 /**
- * Locks theme-aware UI to the light palette (auth / onboarding flows).
- * Global color scheme preference is unchanged when the user leaves this scope.
+ * Forces light palette for auth/onboarding while preserving the user's global scheme preference.
  */
 export function LightThemeScope({ children }) {
   const parent = useContext(ColorSchemeContext);
@@ -147,9 +161,9 @@ export function ColorSchemeProvider({ children }) {
   const hasHydratedRef = useRef(false);
   const [{ colorScheme, overlay1, overlay2, active, statusBarStyle }, dispatch] = useReducer(
     colorSchemeReducer,
-    defaultValue,
+    defaultContextValue,
   );
-  const r = useDerivedValue(() => mix(transition.value, 0, circle.value.r));
+  const revealRadius = useDerivedValue(() => mix(transition.value, 0, circle.value.r));
   const colors = useMemo(() => getPalette(colorScheme), [colorScheme]);
 
   useEffect(() => {
@@ -160,7 +174,7 @@ export function ColorSchemeProvider({ children }) {
         return;
       }
       hasHydratedRef.current = true;
-      if (stored === 'light' || stored === 'dark') {
+      if (isColorScheme(stored)) {
         dispatch(buildState(stored));
       }
     });
@@ -198,7 +212,7 @@ export function ColorSchemeProvider({ children }) {
       <Canvas style={StyleSheet.absoluteFill} pointerEvents="none">
         <Image image={overlay1} x={0} y={0} width={width} height={height} />
         {overlay2 ? (
-          <Circle c={circle} r={r}>
+          <Circle c={circle} r={revealRadius}>
             <ImageShader image={overlay2} x={0} y={0} width={width} height={height} fit="cover" />
           </Circle>
         ) : null}

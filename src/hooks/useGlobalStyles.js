@@ -1,8 +1,6 @@
-import { useMemo } from 'react';
 import { createGlobalStyles } from '../theme/globalStyles';
-import { useTheme } from './useTheme';
+import { useThemedStyles } from './useThemedStyles';
 
 export function useGlobalStyles() {
-  const { colors } = useTheme();
-  return useMemo(() => createGlobalStyles(colors), [colors]);
+  return useThemedStyles(createGlobalStyles);
 }

@@ -2,15 +2,22 @@ import { StyleSheet } from 'react-native';
 
 /**
  * Theme-aware layout and text utilities.
- * Default text color is Black in light mode and Pure White in dark mode.
+ * Pair with local `StyleSheet.create` for screen-specific layout; use these for colors.
  *
  * @param {import('./palettes').ThemeColors} colors
  */
 export function createGlobalStyles(colors) {
   return StyleSheet.create({
+    fill: {
+      flex: 1,
+    },
     screen: {
       flex: 1,
       backgroundColor: colors.background,
+    },
+    centered: {
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     surface: {
       backgroundColor: colors.surface,

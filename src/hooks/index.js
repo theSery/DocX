@@ -1,6 +1,7 @@
+export { useAuthScreenStyles } from './useAuthScreenStyles';
 export { useGlobalStyles } from './useGlobalStyles';
-export { useTheme } from './useTheme';
+export { useMainScreenStyles } from './useMainScreenStyles';
 export { useNavigationTheme } from './useNavigationTheme';
 export { useStackScreenOptions } from './useStackScreenOptions';
-export { useMainScreenStyles } from './useMainScreenStyles';
-export { useAuthScreenStyles } from './useAuthScreenStyles';
+export { useTheme } from './useTheme';
+export { useThemedStyles } from './useThemedStyles';

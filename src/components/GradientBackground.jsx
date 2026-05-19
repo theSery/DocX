@@ -79,7 +79,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 });
-
 // import React from 'react';
 // import { StyleSheet, useWindowDimensions, View } from 'react-native';
 // import { Canvas, RoundedRect, LinearGradient, vec } from '@shopify/react-native-skia';

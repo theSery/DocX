@@ -1,8 +1,6 @@
-import { useMemo } from 'react';
 import { createAuthScreenStyles } from '../screens/authScreens/authScreenStyles';
-import { useTheme } from './useTheme';
+import { useThemedStyles } from './useThemedStyles';
 
 export function useAuthScreenStyles() {
-  const { colors } = useTheme();
-  return useMemo(() => createAuthScreenStyles(colors), [colors]);
+  return useThemedStyles(createAuthScreenStyles);
 }

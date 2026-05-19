@@ -1,8 +1,6 @@
-import { useMemo } from 'react';
 import { createMainScreenStyles } from '../screens/main/mainScreenStyles';
-import { useTheme } from './useTheme';
+import { useThemedStyles } from './useThemedStyles';
 
 export function useMainScreenStyles() {
-  const { colors } = useTheme();
-  return useMemo(() => createMainScreenStyles(colors), [colors]);
+  return useThemedStyles(createMainScreenStyles);
 }
