@@ -1,0 +1,41 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/Montserratarm-Black.otf",
+      "sha1": "8b016f853e75b144a9a261b59df3a5f0cd541f14"
+    },
+    {
+      "path": "src/assets/fonts/Montserratarm-Bold.otf",
+      "sha1": "f29cef0c40f5c88f9762e8aa1ccefefc9158bba6"
+    },
+    {
+      "path": "src/assets/fonts/Montserratarm-ExtraBold.otf",
+      "sha1": "6e70f0c86416beeaedd740cba961cc31fbfb9975"
+    },
+    {
+      "path": "src/assets/fonts/Montserratarm-ExtraLight.otf",
+      "sha1": "360f5715853b9e6d4f09f1ff53d89757777529b6"
+    },
+    {
+      "path": "src/assets/fonts/Montserratarm-Light.otf",
+      "sha1": "fe13d08ee10875df0e7bd03815a4a4760210b0f4"
+    },
+    {
+      "path": "src/assets/fonts/Montserratarm-Medium.otf",
+      "sha1": "fa1724ead208418fa8b3187b0025d06325847b8a"
+    },
+    {
+      "path": "src/assets/fonts/Montserratarm-Regular.otf",
+      "sha1": "7f20df4e91e966f68513453fb12c595cf6381fc3"
+    },
+    {
+      "path": "src/assets/fonts/Montserratarm-SemiBold.otf",
+      "sha1": "3ed06a3704ac8aa90e69d96078e102b9153a521e"
+    },
+    {
+      "path": "src/assets/fonts/Montserratarm-Thin.otf",
+      "sha1": "3d40ee18a0c06ec23a466e682d4ec3d86542427f"
+    }
+  ]
+}

@@ -34,7 +34,7 @@
 		<true/>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string/>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -56,5 +56,17 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Montserratarm-Light.otf</string>
+		<string>Montserratarm-ExtraBold.otf</string>
+		<string>Montserratarm-ExtraLight.otf</string>
+		<string>Montserratarm-Regular.otf</string>
+		<string>Montserratarm-Medium.otf</string>
+		<string>Montserratarm-Bold.otf</string>
+		<string>Montserratarm-Thin.otf</string>
+		<string>Montserratarm-SemiBold.otf</string>
+		<string>Montserratarm-Black.otf</string>
+	</array>
 </dict>
 </plist>
