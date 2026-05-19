@@ -1,4 +1,4 @@
-export { AccountTypeScreen } from './AccountTypeScreen';
+export { AccountTypeScreen } from './signInUP/AccountTypeScreen';
 export { OnboardingScreen } from './onboarding/OnboardingScreen';
 export { PinCodeScreen } from './PinCodeScreen';
 export { RegistrationScreen } from './RegistrationScreen';

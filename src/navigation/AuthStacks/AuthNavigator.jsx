@@ -1,13 +1,14 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../../contexts';
 import {
-  AccountTypeScreen,
+  // AccountTypeScreen,
   OnboardingScreen,
   PinCodeScreen,
   RegistrationScreen,
   SignInUpScreen,
   VerificationScreen,
 } from '../../screens/authScreens';
+import { AccountTypeScreen } from '../../screens/authScreens/signInUP/AccountTypeScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -16,14 +17,14 @@ export function AuthNavigator() {
 
   return (
     <Stack.Navigator
-      initialRouteName={hasCompletedOnboarding ? 'Onboarding' : 'Onboarding'}
+      initialRouteName={hasCompletedOnboarding ? 'AccountType' : 'Onboarding'}
       screenOptions={{ headerShown: false, animation: 'fade' }}>
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-      {/* <Stack.Screen name="AccountType" component={AccountTypeScreen} />
+      <Stack.Screen name="AccountType" component={AccountTypeScreen} />
       <Stack.Screen name="SignInUp" component={SignInUpScreen} />
       <Stack.Screen name="Registration" component={RegistrationScreen} />
       <Stack.Screen name="Verification" component={VerificationScreen} />
-      <Stack.Screen name="PinCode" component={PinCodeScreen} /> */}
+      <Stack.Screen name="PinCode" component={PinCodeScreen} />
     </Stack.Navigator>
   );
 }

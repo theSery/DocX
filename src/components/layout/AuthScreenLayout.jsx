@@ -17,6 +17,9 @@ export function AuthScreenLayout({
   edges = ['top', 'left', 'right'],
   withGradient,
   gradientIsLight,
+  gradientHeight,
+  animatedGradientHeight,
+  // gradientRadius,
 }) {
   const safeAreaContent = (
     <SafeAreaView style={[styles.safeArea, style]} edges={edges}>
@@ -26,7 +29,11 @@ export function AuthScreenLayout({
 
   if (withGradient) {
     return (
-      <GradientBackground isLight={gradientIsLight} centered={false}>
+      <GradientBackground
+        isLight={gradientIsLight}
+        centered={false}
+        gradientHeight={gradientHeight}
+        animatedGradientHeight={animatedGradientHeight}>
         {safeAreaContent}
       </GradientBackground>
     );

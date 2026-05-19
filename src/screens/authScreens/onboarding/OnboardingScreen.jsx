@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StatusBar, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedRef,
   useAnimatedScrollHandler,
@@ -48,6 +48,7 @@ export function OnboardingScreen({ navigation }) {
   }, []);
   return (
     <AuthScreenLayout withGradient gradientIsLight={!isMainContainer} contentStyle={styles.layoutContent}>
+      <StatusBar barStyle={!isMainContainer ? 'dark-content' : 'light-content'} />
       {isMainContainer ?
         <MainContainer handlePress={handlePress} />
         :
