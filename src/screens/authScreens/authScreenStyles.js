@@ -44,7 +44,7 @@ export function createAuthScreenStyles(colors) {
       maxWidth: 320,
     },
     primaryButtonText: {
-      color: '#FFFFFF',
+      color: colors.textOnDark,
       fontSize: 16,
       fontWeight: '600',
       textAlign: 'center',

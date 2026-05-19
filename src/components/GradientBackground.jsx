@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Canvas, Rect, LinearGradient, vec, RoundedRect } from '@shopify/react-native-skia';
+import { gradients } from '../theme/tokens';
 
 
 const BOTTOM_RADIUS = 30;
@@ -32,9 +33,8 @@ export default function GradientBackground({
     bottomLeft: { x: BOTTOM_RADIUS, y: BOTTOM_RADIUS },
   };
 
-  // Color conversions from your HSBA values
-  const startColor = isLight ? '#FFFFFF' : '#386FE5'; // hsba(221, 76%, 90%, 1)
-  const endColor = isLight ? '#CFF1FF' : '#000B26';   // hsba(223, 100%, 15%, 1)
+  const startColor = isLight ? gradients.lightSky.start : gradients.darkSky.start;
+  const endColor = isLight ? gradients.lightSky.end : gradients.darkSky.end;
 
   return (
     <View style={styles.container}>

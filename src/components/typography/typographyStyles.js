@@ -15,6 +15,7 @@ export const TYPOGRAPHY_VARIANT_DEFINITIONS = {
     fontSize: 24,
     lineHeight: 32,
     letterSpacing: 0.8,
+    fontFamily: FONT_FAMILY.semiBold,
   },
   h3: {
     fontSize: 20,

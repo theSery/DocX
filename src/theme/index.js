@@ -1,3 +1,11 @@
 export { ColorSchemeProvider, useColorSchemeContext } from './colorScheme';
-export { colors, darkColors, getPalette, lightColors } from './colors';
+export {
+  colors,
+  createGlobalStyles,
+  darkColors,
+  getPalette,
+  gradients,
+  lightColors,
+  palette,
+} from './colors';
 export { FONT_FAMILY } from './fonts';

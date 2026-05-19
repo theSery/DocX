@@ -1,27 +1,49 @@
+import { gradients, palette } from './tokens';
+
+const darkSurface = '#1A1B2E';
+
+/** @typedef {typeof lightColors} ThemeColors */
+
 export const lightColors = {
-  background: '#f8fafc',
-  surface: '#ffffff',
-  text: '#0f172a',
-  textSecondary: '#475569',
-  subtleText: '#475569',
-  border: '#cbd5e1',
-  primary: '#1D4ED8',
-  accent: '#0f766e',
-  input: '#f1f5f9',
+  text: palette.black,
+  textOnDark: palette.white,
+  textSecondary: palette.gray,
+  textDisabled: palette.lightGray,
+  background: palette.backgroundWhite,
+  surface: palette.white,
+  border: palette.lightGray,
+  input: palette.backgroundWhite,
+  error: palette.red,
+  success: palette.green,
+  tag: palette.green,
+  skyBlue: palette.skyBlue,
+  primary: palette.skyBlue,
+  accent: palette.green,
+  gradient: [gradients.lightSky.start, gradients.lightSky.end],
 };
 
 export const darkColors = {
-  background: '#020617',
-  surface: '#0f172a',
-  text: '#f8fafc',
-  textSecondary: '#cbd5e1',
-  subtleText: '#cbd5e1',
-  border: '#334155',
-  primary: '#3b82f6',
-  accent: '#14b8a6',
-  input: '#1e293b',
+  text: palette.white,
+  textOnDark: palette.white,
+  textSecondary: palette.lightGray,
+  textDisabled: palette.gray,
+  background: palette.black,
+  surface: darkSurface,
+  border: palette.gray,
+  input: darkSurface,
+  error: palette.red,
+  success: palette.green,
+  tag: palette.green,
+  skyBlue: palette.skyBlue,
+  primary: palette.skyBlue,
+  accent: palette.green,
+  gradient: [gradients.darkSky.start, gradients.darkSky.end],
 };
 
+/**
+ * @param {'light' | 'dark'} scheme
+ * @returns {ThemeColors}
+ */
 export function getPalette(scheme) {
   return scheme === 'dark' ? darkColors : lightColors;
 }
