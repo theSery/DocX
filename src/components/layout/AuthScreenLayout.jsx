@@ -15,8 +15,8 @@ export function AuthScreenLayout({
   style,
   contentStyle,
   edges = ['top', 'left', 'right'],
-  withGradient = false,
-  gradientIsLight = false,
+  withGradient,
+  gradientIsLight,
 }) {
   const safeAreaContent = (
     <SafeAreaView style={[styles.safeArea, style]} edges={edges}>

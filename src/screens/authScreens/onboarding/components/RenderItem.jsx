@@ -47,7 +47,7 @@ export function RenderItem({ index, x, item }) {
   return (
     <View style={[styles.itemContainer, { width: SCREEN_WIDTH }]}>
       <View style={styles.circleContainer}>
-        <Animated.View
+        {/* <Animated.View
           style={[
             {
               width: SCREEN_WIDTH,
@@ -57,7 +57,7 @@ export function RenderItem({ index, x, item }) {
             },
             circleAnimation,
           ]}
-        />
+        /> */}
       </View>
       <Animated.View style={imageAnimationStyle}>
         <Image source={foldersImage} style={styles.image} />
@@ -86,7 +86,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   circleContainer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'flex-end',
   },

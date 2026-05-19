@@ -1,11 +1,39 @@
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useEffect } from 'react';
+import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import Animated, {
+
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import foldersImage from '../../../../assets/images/folders.webp';
 import whiteLogo from '../../../../assets/images/whiteLogo.webp';
 import { Typography } from '../../../../components/typography';
+import { runOnJS } from 'react-native-worklets';
 
-export function MainContainer({ navigation }) {
+const FADE_DURATION = 300;
+
+export function MainContainer({ handlePress }) {
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    opacity.value = withTiming(1, { duration: FADE_DURATION });
+  }, [opacity]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  const onPress = () => {
+    opacity.value = withTiming(0, { duration: FADE_DURATION }, (finished) => {
+      if (finished) {
+        runOnJS(handlePress)();
+      }
+    });
+  };
+
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, animatedStyle]}>
       <Image source={whiteLogo} style={styles.logo} />
       <Image source={foldersImage} style={styles.image} />
       <Typography
@@ -14,16 +42,12 @@ export function MainContainer({ navigation }) {
         Ընդամենը 3 քայլ և Դուք կստեղծեք Ձեր դիմումները, բողոքներն ու այլ
         փաստաթղթերը
       </Typography>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => {
-          navigation?.navigate('SignInUp');
-        }}>
+      <TouchableOpacity style={styles.button} onPress={onPress}>
         <Typography variant="h5" style={{ color: '#1D3D81' }}>
           Ինչպե՞ս
         </Typography>
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   );
 }
 

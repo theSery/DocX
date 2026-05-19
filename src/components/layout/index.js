@@ -3,4 +3,4 @@ export {
   AUTH_SCREEN_CONTENT_PADDING_VERTICAL,
   AUTH_SCREEN_HORIZONTAL_PADDING,
 } from './authLayoutConstants';
-export { SplashGate } from './SplashGate';
+export { SplashGate, useSplash } from './SplashGate';
