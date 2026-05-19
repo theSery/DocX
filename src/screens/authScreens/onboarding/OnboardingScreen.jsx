@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   layoutContent: {
     paddingHorizontal: 0,
     paddingVertical: 0,
-    marginTop: '40%'
+    marginTop: '25%'
   },
   container: {
     flex: 1,
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginHorizontal: 30,
+    marginHorizontal: 10,
     paddingVertical: 30,
     position: 'absolute',
     bottom: 20,

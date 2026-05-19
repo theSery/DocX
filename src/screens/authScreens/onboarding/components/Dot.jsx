@@ -10,24 +10,22 @@ export function Dot({ index, x }) {
   const { width: SCREEN_WIDTH } = useWindowDimensions();
 
   const animatedDotStyle = useAnimatedStyle(() => {
+    const inputRange = [
+      (index - 1) * SCREEN_WIDTH,
+      index * SCREEN_WIDTH,
+      (index + 1) * SCREEN_WIDTH,
+    ];
+
     const widthAnimation = interpolate(
       x.value,
-      [
-        (index - 1) * SCREEN_WIDTH,
-        index * SCREEN_WIDTH,
-        (index + 1) * SCREEN_WIDTH,
-      ],
-      [10, 20, 10],
+      inputRange,
+      [12, 28, 12],
       Extrapolation.CLAMP,
     );
 
     const opacityAnimation = interpolate(
       x.value,
-      [
-        (index - 1) * SCREEN_WIDTH,
-        index * SCREEN_WIDTH,
-        (index + 1) * SCREEN_WIDTH,
-      ],
+      inputRange,
       [0.5, 1, 0.5],
       Extrapolation.CLAMP,
     );
@@ -42,12 +40,10 @@ export function Dot({ index, x }) {
     const backgroundColor = interpolateColor(
       x.value,
       [0, SCREEN_WIDTH, 2 * SCREEN_WIDTH],
-      ['#386FE5', '#1D4ED8', '#60A5FA'],
+      ['#82C8E5A3', '#82C8E5A3', '#82C8E5A3'],
     );
 
-    return {
-      backgroundColor,
-    };
+    return { backgroundColor };
   });
 
   return (
@@ -57,8 +53,8 @@ export function Dot({ index, x }) {
 
 const styles = StyleSheet.create({
   dot: {
-    height: 10,
-    marginHorizontal: 10,
-    borderRadius: 5,
+    height: 8,
+    marginHorizontal: 6,
+    borderRadius: 4,
   },
 });

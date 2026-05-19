@@ -6,6 +6,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Typography } from '../../../../components/typography';
 import foldersImage from '../../../../assets/images/folders.webp';
+import darkLogo from '../../../../assets/images/darkLogo.webp'
 
 export function RenderItem({ index, x, item }) {
   const { width: SCREEN_WIDTH } = useWindowDimensions();
@@ -27,42 +28,16 @@ export function RenderItem({ index, x, item }) {
     };
   });
 
-  const circleAnimation = useAnimatedStyle(() => {
-    const scale = interpolate(
-      x.value,
-      [
-        (index - 1) * SCREEN_WIDTH,
-        index * SCREEN_WIDTH,
-        (index + 1) * SCREEN_WIDTH,
-      ],
-      [1, 4, 4],
-      Extrapolation.CLAMP,
-    );
 
-    return {
-      transform: [{ scale }],
-    };
-  });
 
   return (
-    <View style={[styles.itemContainer, { width: SCREEN_WIDTH }]}>
-      <View style={styles.circleContainer}>
-        {/* <Animated.View
-          style={[
-            {
-              width: SCREEN_WIDTH,
-              height: SCREEN_WIDTH,
-              borderRadius: SCREEN_WIDTH / 2,
-              backgroundColor: item.backgroundColor,
-            },
-            circleAnimation,
-          ]}
-        /> */}
-      </View>
+    <View style={[styles.itemContainer, {width: SCREEN_WIDTH}]}>
+      <Image source={darkLogo} style={styles.logo} />
+
       <Animated.View style={imageAnimationStyle}>
         <Image source={foldersImage} style={styles.image} />
       </Animated.View>
-      <Typography variant="h4" style={[styles.itemText, { color: item.textColor }]}>
+      <Typography variant="h4" style={[styles.itemText, { color: '#002340', fontFamily: 'Poppins-Regular', letterSpacing: 2.4}]}>
         {item.text}
       </Typography>
     </View>
@@ -72,9 +47,12 @@ export function RenderItem({ index, x, item }) {
 const styles = StyleSheet.create({
   itemContainer: {
     flex: 1,
-    justifyContent: 'space-around',
+    width: '100%',
+    height: '70%',
     alignItems: 'center',
-    marginBottom: 120,
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    // paddingBottom: 24,
   },
   image: {
     width: 280,
@@ -85,9 +63,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginHorizontal: 20,
   },
+  logo: {
+    height: 58,
+    width: 250,
+  },
   circleContainer: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'flex-end',
   },

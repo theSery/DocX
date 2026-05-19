@@ -1,12 +1,20 @@
-import { StyleSheet, TouchableWithoutFeedback, useWindowDimensions } from 'react-native';
+import {
+  StyleSheet,
+  TouchableWithoutFeedback,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import Animated, {
   interpolateColor,
-  runOnJS,
   useAnimatedStyle,
+  useDerivedValue,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import { Typography } from '../../../../components/typography';
+import GradientButton from '../../../../components/buttons/GradientButton';
+
+const BUTTON_SIZE = 60;
 
 export function CustomButton({
   flatListRef,
@@ -14,95 +22,125 @@ export function CustomButton({
   dataLength,
   x,
   onComplete,
+  currentIndex,
+  isBackButton = false,
 }) {
   const { width: SCREEN_WIDTH } = useWindowDimensions();
-  const buttonWidth = flatListIndex.value === dataLength - 1 ? SCREEN_WIDTH * 0.8 : 140;
-  // console.log(flatListIndex.value === dataLength - 1, 'ppp')
-  // const buttonAnimationStyle = useAnimatedStyle(() => ({
-  //   width:
-  //     flatListIndex.value === dataLength - 1 ? withSpring(140) : withSpring(60),
-  //   height: 60,
-  // }));
-  const buttonAnimationStyle = useAnimatedStyle(() => {
-    // 1. Выносим условие в отдельную переменную для удобства
-    const isLastElement = flatListIndex.value === dataLength - 1;
-  
+  const isHidden = isBackButton && currentIndex === 0;
+
+  const buttonAnimationStyle = useAnimatedStyle(() => ({
+    width: isBackButton
+      ? BUTTON_SIZE
+      : flatListIndex.value === dataLength - 1
+        ? withSpring(140)
+        : withSpring(BUTTON_SIZE),
+    height: BUTTON_SIZE,
+  }));
+
+  const arrowAnimationStyle = useAnimatedStyle(() => {
+    if (isBackButton) {
+      return { opacity: 1, transform: [{ translateX: 0 }] };
+    }
 
     return {
-      width: isLastElement ? withSpring(140) : withSpring(60),
-      height: 60,
+      opacity:
+        flatListIndex.value === dataLength - 1 ? withTiming(0) : withTiming(1),
+      transform: [
+        {
+          translateX:
+            flatListIndex.value === dataLength - 1
+              ? withTiming(100)
+              : withTiming(0),
+        },
+      ],
     };
   });
-  const arrowAnimationStyle = useAnimatedStyle(() => ({
-    opacity:
-      flatListIndex.value === dataLength - 1 ? withTiming(0) : withTiming(1),
-    transform: [
-      {
-        translateX:
-          flatListIndex.value === dataLength - 1
-            ? withTiming(100)
-            : withTiming(0),
-      },
-    ],
-  }));
 
-  const textAnimationStyle = useAnimatedStyle(() => ({
-    opacity:
-      flatListIndex.value === dataLength - 1 ? withTiming(1) : withTiming(0),
-    transform: [
-      {
-        translateX:
-          flatListIndex.value === dataLength - 1
-            ? withTiming(0)
-            : withTiming(-100),
-      },
-    ],
-  }));
+  const textAnimationStyle = useAnimatedStyle(() => {
+    if (isBackButton) {
+      return { opacity: 0, transform: [{ translateX: -100 }] };
+    }
 
-  const animatedColor = useAnimatedStyle(() => {
+    return {
+      opacity:
+        flatListIndex.value === dataLength - 1 ? withTiming(1) : withTiming(0),
+      transform: [
+        {
+          translateX:
+            flatListIndex.value === dataLength - 1
+              ? withTiming(0)
+              : withTiming(-100),
+        },
+      ],
+    };
+  });
+
+  const gradientColors = useDerivedValue(() => {
     const backgroundColor = interpolateColor(
       x.value,
       [0, SCREEN_WIDTH, 2 * SCREEN_WIDTH],
       ['#386FE5', '#1D4ED8', '#60A5FA'],
     );
 
-    return { backgroundColor };
+    return [backgroundColor, '#000B26'];
   });
 
   const handlePress = () => {
-    if (flatListIndex.value < dataLength - 1) {
-      flatListRef.current?.scrollToIndex({ index: flatListIndex.value + 1 });
+    if (isBackButton) {
+      if (currentIndex > 0) {
+        flatListRef.current?.scrollToIndex({ index: currentIndex - 1 });
+      }
+      return;
+    }
+
+    if (currentIndex < dataLength - 1) {
+      flatListRef.current?.scrollToIndex({ index: currentIndex + 1 });
     } else {
       onComplete();
     }
   };
 
+  if (isHidden) {
+    return <View style={styles.placeholder} />;
+  }
+
   return (
-    <TouchableWithoutFeedback onPress={handlePress}>
-      <Animated.View
-        style={[styles.container, buttonAnimationStyle, animatedColor]}
-      >
-        <Animated.View style={[styles.textWrapper, textAnimationStyle]}>
-          <Typography variant="h5" style={styles.textButton}>
-            Շարունակել
-          </Typography>
-        </Animated.View>
-        <Animated.View style={[styles.arrowWrapper, arrowAnimationStyle]}>
-          <Typography variant="h4" style={styles.arrow}>
-            →
-          </Typography>
-        </Animated.View>
+    <TouchableWithoutFeedback onPress={handlePress} accessibilityRole="button">
+      <Animated.View style={[styles.container, buttonAnimationStyle]}>
+        <GradientButton
+          height={BUTTON_SIZE}
+          gradientColors={gradientColors}
+          style={styles.gradientButton}
+        >
+          <Animated.View style={[styles.textWrapper, textAnimationStyle]}>
+            <Typography variant="h5" style={styles.textButton}>
+              Շարունակել
+            </Typography>
+          </Animated.View>
+
+          <Animated.View style={[styles.arrowWrapper, arrowAnimationStyle]}>
+            <Typography variant="h4" style={styles.arrow}>
+              {isBackButton ? '←' : '→'}
+            </Typography>
+          </Animated.View>
+        </GradientButton>
       </Animated.View>
     </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
+  placeholder: {
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
+  },
   container: {
-    padding: 10,
     borderRadius: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  gradientButton: {
+    flex: 1,
+    borderRadius: 100,
     overflow: 'hidden',
   },
   arrowWrapper: {
