@@ -38,6 +38,7 @@ export const TYPOGRAPHY_VARIANT_DEFINITIONS = {
     fontSize: 12,
     lineHeight: 16,
     letterSpacing: 0,
+    fontFamily: FONT_FAMILY.regular,
   },
 };
 
