@@ -3,7 +3,11 @@ import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Canvas, Rect, LinearGradient, vec } from '@shopify/react-native-skia';
 
 
-export default function GradientBackground({ children, isLight = false }) {
+export default function GradientBackground({
+  children,
+  isLight = false,
+  centered = true,
+}) {
   const { width, height } = useWindowDimensions();
 
   // Color conversions from your HSBA values
@@ -21,8 +25,8 @@ export default function GradientBackground({ children, isLight = false }) {
           />
         </Rect>
       </Canvas>
-      <View style={styles.content}>
-      {children}
+      <View style={[styles.content, !centered && styles.contentFill]}>
+        {children}
       </View>
 
     </View>
@@ -37,5 +41,9 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  contentFill: {
+    justifyContent: 'flex-start',
+    alignItems: 'stretch',
   },
 });

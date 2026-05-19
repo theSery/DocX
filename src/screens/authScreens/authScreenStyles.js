@@ -2,12 +2,14 @@ import { StyleSheet } from 'react-native';
 
 export function createAuthScreenStyles(colors) {
   return StyleSheet.create({
-    container: {
+    screen: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    content: {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: colors.background,
-      paddingHorizontal: 24,
     },
     title: {
       fontSize: 28,
