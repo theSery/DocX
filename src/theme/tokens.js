@@ -10,18 +10,44 @@ export const palette = Object.freeze({
   lightGray: '#9DA6BA',
   green: '#00A88C',
   red: '#FF5C5C',
-  skyBlue: '#82C8E5',
+  /** Light sky accent — also used as light gradient end stop */
+  skyBlue: '#CFF1FF',
+  /** Main solid brand blue */
+  mainBlue: '#1D3D81',
+  blueMainStart: '#1B4FBE',
+  blueMainEnd: '#01174D',
+  blueLargeStart: '#386FE5',
+  blueLargeEnd: '#000B26',
 });
 
 export const gradients = Object.freeze({
+  /** Light background: white → sky blue */
   lightSky: {
     start: '#FFFFFF',
-    end: '#CFF1FF',
+    end: palette.skyBlue,
     angle: 135,
   },
-  darkSky: {
-    start: '#386FE5',
-    end: '#000B26',
+  /** Blue gradient main */
+  blueMain: {
+    start: palette.blueMainStart,
+    end: palette.blueMainEnd,
+    angle: 135,
+  },
+  /** Blue gradient large */
+  blueLarge: {
+    start: palette.blueLargeStart,
+    end: palette.blueLargeEnd,
+    angle: 135,
+  },
+  /** BG large — inversed */
+  bgLargeInversed: {
+    start: palette.blueLargeEnd,
+    end: palette.blueLargeStart,
     angle: 135,
   },
 });
+
+/** @param {{ start: string, end: string }} gradient */
+export function gradientStops(gradient) {
+  return [gradient.start, gradient.end];
+}

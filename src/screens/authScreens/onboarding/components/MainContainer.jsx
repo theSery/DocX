@@ -9,6 +9,7 @@ import Animated, {
 import foldersImage from '../../../../assets/images/folders.webp';
 import whiteLogo from '../../../../assets/images/whiteLogo.webp';
 import { Typography } from '../../../../components/typography';
+import { palette } from '../../../../theme';
 import { runOnJS } from 'react-native-worklets';
 
 const FADE_DURATION = 300;
@@ -43,7 +44,7 @@ export function MainContainer({ handlePress }) {
         փաստաթղթերը
       </Typography>
       <TouchableOpacity style={styles.button} onPress={onPress}>
-        <Typography variant="h5" style={{ color: '#1D3D81' }}>
+        <Typography variant="h5" style={{ color: palette.mainBlue }}>
           Ինչպե՞ս
         </Typography>
       </TouchableOpacity>

@@ -33,8 +33,9 @@ export default function GradientBackground({
     bottomLeft: { x: BOTTOM_RADIUS, y: BOTTOM_RADIUS },
   };
 
-  const startColor = isLight ? gradients.lightSky.start : gradients.darkSky.start;
-  const endColor = isLight ? gradients.lightSky.end : gradients.darkSky.end;
+  const gradient = isLight ? gradients.lightSky : gradients.blueLarge;
+  const startColor = gradient.start;
+  const endColor = gradient.end;
 
   return (
     <View style={styles.container}>

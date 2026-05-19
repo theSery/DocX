@@ -13,10 +13,11 @@ import Animated, {
 import { Typography } from '../../../../components/typography';
 import GradientButton from '../../../../components/buttons/GradientButton';
 import Chevron from '../../../../components/icons/Chevron';
+import { gradientStops, gradients, palette } from '../../../../theme';
 
 const BUTTON_SIZE = 44;
 const EXPANDED_WIDTH = 140;
-const GRADIENT_FALLBACK = '#386FE5';
+const GRADIENT_FALLBACK = gradients.blueLarge.start;
 const BACK_FADE_END = 0.3;
 const BACK_ZONE_EXIT = 0.4;
 
@@ -203,7 +204,11 @@ export function CustomButton({
           height={BUTTON_SIZE}
           isLight={isBackButton}
           
-          gradientColors={isBackButton ? ['#FFFFFF', '#FFFFFF'] : ['#1B4FBE', '#01174D']}
+          gradientColors={
+            isBackButton
+              ? [palette.white, palette.white]
+              : gradientStops(gradients.blueMain)
+          }
           style={styles.gradientButton}
           childrenStyle={styles.gradientContent}
         >
@@ -223,7 +228,7 @@ export function CustomButton({
             <Chevron
               width={18}
               height={18}
-              fill={isBackButton ? '#1D3D81' : '#FFFFFF'}
+              fill={isBackButton ? palette.mainBlue : palette.white}
               rotate={isBackButton ? 180 : 0}
             />
           </Animated.View>
@@ -258,12 +263,12 @@ const styles = StyleSheet.create({
     height: BUTTON_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: palette.white,
     borderRadius: BUTTON_SIZE / 2,
     overflow: 'hidden',
   },
   backButtonContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: palette.white,
   },
   container: {
     borderRadius: 100,
@@ -288,6 +293,6 @@ const styles = StyleSheet.create({
     // backgroundColor: 'red',
   },
   textButton: {
-    color: '#FFFFFF',
+    color: palette.white,
   },
 });

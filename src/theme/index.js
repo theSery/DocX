@@ -7,6 +7,7 @@ export {
   darkColors,
   FONT_FAMILY,
   getPalette,
+  gradientStops,
   gradients,
   isColorScheme,
   lightColors,

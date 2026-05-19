@@ -5,6 +5,9 @@ import Animated, {
   interpolateColor,
   useAnimatedStyle,
 } from 'react-native-reanimated';
+import { palette } from '../../../../theme';
+
+const SKY_BLUE_FADED = `${palette.skyBlue}A3`;
 
 export function Dot({ index, x }) {
   const { width: SCREEN_WIDTH } = useWindowDimensions();
@@ -40,7 +43,7 @@ export function Dot({ index, x }) {
     const backgroundColor = interpolateColor(
       x.value,
       [0, SCREEN_WIDTH, 2 * SCREEN_WIDTH],
-      ['#82C8E5A3', '#82C8E5A3', '#82C8E5A3'],
+      [SKY_BLUE_FADED, SKY_BLUE_FADED, SKY_BLUE_FADED],
     );
 
     return { backgroundColor };

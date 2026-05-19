@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Canvas, Rect, LinearGradient, vec } from '@shopify/react-native-skia';
+import { gradientStops, gradients } from '../../theme/tokens';
 
 export default function GradientButton({
   children,
@@ -17,9 +18,9 @@ export default function GradientButton({
   const canvasWidth = width ?? layout.width;
   const canvasHeight = height ?? layout.height;
 
-  const startColor = isLight ? '#FFFFFF' : '#386FE5';
-  const endColor = isLight ? '#CFF1FF' : '#000B26';
-  const staticColors = [startColor, endColor];
+  const staticColors = isLight
+    ? gradientStops(gradients.lightSky)
+    : gradientStops(gradients.blueLarge);
   const colors = gradientColors ?? staticColors;
 
   return (

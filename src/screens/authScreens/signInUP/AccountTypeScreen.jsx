@@ -3,7 +3,7 @@ import { AnimatedView, Typography } from '../../../components';
 import { AuthScreenLayout } from '../../../components/layout';
 import { useTheme } from '../../../hooks/useTheme';
 import whiteLogo from '../../../assets/images/whiteLogo.webp';
-
+import { palette } from '../../../theme';
 export function AccountTypeScreen({ navigation }) {
   const { colors } = useTheme();
 
@@ -21,15 +21,15 @@ export function AccountTypeScreen({ navigation }) {
           <Image source={whiteLogo} style={styles.logo} />
         </AnimatedView>
       </View>
-      <View style={[styles.content, { backgroundColor: colors.background }]}>
+      <View style={[styles.content,]}>
         <Typography variant="h2" style={styles.title}>Ընտրեք հաշվի տեսակը`</Typography>
         <Typography variant="h5" tone="secondary" style={styles.subtitle}>
           Շարունակելու և փաստաթղթերի ստեղծման համար ընտրեք Ձեզ համապատասխանող իրավաբանական
           կարգավիճակը
         </Typography>
         <Pressable
-         onPress={() => navigation.navigate('SignInUp')}
-         style={[styles.button, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          onPress={() => navigation.navigate('SignInUp')}
+          style={[styles.button]}>
           <View>
             <Typography variant="h4">Ֆիզիկական անձ</Typography>
           </View>
@@ -85,11 +85,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   button: {
-    // flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: palette.lightGray,
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    borderRadius: 10,
-    // backgroundColor: colors.background,
+    borderRadius: 16,
+    width: '100%',
+    gap: 16,
   },
 });

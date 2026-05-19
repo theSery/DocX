@@ -1,5 +1,5 @@
 import { ColorScheme } from './constants';
-import { gradients, palette } from './tokens';
+import { gradientStops, gradients, palette } from './tokens';
 
 const darkSurface = '#1A1B2E';
 
@@ -18,9 +18,13 @@ export const lightColors = Object.freeze({
   success: palette.green,
   tag: palette.green,
   skyBlue: palette.skyBlue,
-  primary: palette.skyBlue,
+  mainBlue: palette.mainBlue,
+  primary: palette.mainBlue,
   accent: palette.green,
-  gradient: Object.freeze([gradients.lightSky.start, gradients.lightSky.end]),
+  gradient: Object.freeze(gradientStops(gradients.lightSky)),
+  gradientBlueMain: Object.freeze(gradientStops(gradients.blueMain)),
+  gradientBlueLarge: Object.freeze(gradientStops(gradients.blueLarge)),
+  gradientBgLargeInversed: Object.freeze(gradientStops(gradients.bgLargeInversed)),
 });
 
 export const darkColors = Object.freeze({
@@ -36,9 +40,13 @@ export const darkColors = Object.freeze({
   success: palette.green,
   tag: palette.green,
   skyBlue: palette.skyBlue,
-  primary: palette.skyBlue,
+  mainBlue: palette.mainBlue,
+  primary: palette.mainBlue,
   accent: palette.green,
-  gradient: Object.freeze([gradients.darkSky.start, gradients.darkSky.end]),
+  gradient: Object.freeze(gradientStops(gradients.blueLarge)),
+  gradientBlueMain: Object.freeze(gradientStops(gradients.blueMain)),
+  gradientBlueLarge: Object.freeze(gradientStops(gradients.blueLarge)),
+  gradientBgLargeInversed: Object.freeze(gradientStops(gradients.bgLargeInversed)),
 });
 
 /**
