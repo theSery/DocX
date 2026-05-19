@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedRef,
@@ -11,19 +11,22 @@ import onboardingData from './data';
 import { CustomButton } from './components/CustomButton';
 import { Pagination } from './components/Pagination';
 import { RenderItem } from './components/RenderItem';
+import { CustomButtonBack } from './components/CustomButtonBack';
 
 export function OnboardingScreen({ navigation }) {
   const { completeOnboarding } = useAuth();
   const flatListRef = useAnimatedRef();
   const x = useSharedValue(0);
   const flatListIndex = useSharedValue(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
     if (viewableItems[0]?.index != null) {
       flatListIndex.value = viewableItems[0].index;
+      setCurrentIndex(viewableItems[0].index);
     }
   }).current;
-
+console.log(currentIndex, 'currentIndex');
   const onScroll = useAnimatedScrollHandler({
     onScroll: (event) => {
       x.value = event.contentOffset.x;
@@ -43,7 +46,7 @@ export function OnboardingScreen({ navigation }) {
   const keyExtractor = useCallback((item) => item.id.toString(), []);
 
   return (
-    <GradientBackground isLight={false}>
+    <GradientBackground isLight={true}>
       <View style={styles.container}>
         <Animated.FlatList
           ref={flatListRef}
@@ -63,13 +66,24 @@ export function OnboardingScreen({ navigation }) {
           }}
         />
         <View style={styles.bottomContainer}>
-          <Pagination data={onboardingData} x={x} />
-          <CustomButton
+        <CustomButton
             flatListRef={flatListRef}
             flatListIndex={flatListIndex}
+            currentIndex={currentIndex}
             dataLength={onboardingData.length}
             x={x}
             onComplete={handleComplete}
+            isBackButton={true}
+          />
+        <Pagination data={onboardingData} x={x} />
+          <CustomButton
+            flatListRef={flatListRef}
+            flatListIndex={flatListIndex}
+            currentIndex={currentIndex}
+            dataLength={onboardingData.length}
+            x={x}
+            onComplete={handleComplete}
+            isBackButton={false}
           />
         </View>
       </View>
@@ -92,5 +106,6 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 0,
     right: 0,
+    // backgroundColor: 'red',
   },
 });

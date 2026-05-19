@@ -31,6 +31,7 @@ export const TYPOGRAPHY_VARIANT_DEFINITIONS = {
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0,
+    fontFamily: FONT_FAMILY.regular,
   },
   h6: {
     fontSize: 12,

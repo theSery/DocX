@@ -1,6 +1,7 @@
 import { StyleSheet, TouchableWithoutFeedback, useWindowDimensions } from 'react-native';
 import Animated, {
   interpolateColor,
+  runOnJS,
   useAnimatedStyle,
   withSpring,
   withTiming,
@@ -15,13 +16,23 @@ export function CustomButton({
   onComplete,
 }) {
   const { width: SCREEN_WIDTH } = useWindowDimensions();
+  const buttonWidth = flatListIndex.value === dataLength - 1 ? SCREEN_WIDTH * 0.8 : 140;
+  // console.log(flatListIndex.value === dataLength - 1, 'ppp')
+  // const buttonAnimationStyle = useAnimatedStyle(() => ({
+  //   width:
+  //     flatListIndex.value === dataLength - 1 ? withSpring(140) : withSpring(60),
+  //   height: 60,
+  // }));
+  const buttonAnimationStyle = useAnimatedStyle(() => {
+    // 1. Выносим условие в отдельную переменную для удобства
+    const isLastElement = flatListIndex.value === dataLength - 1;
+  
 
-  const buttonAnimationStyle = useAnimatedStyle(() => ({
-    width:
-      flatListIndex.value === dataLength - 1 ? withSpring(140) : withSpring(60),
-    height: 60,
-  }));
-
+    return {
+      width: isLastElement ? withSpring(140) : withSpring(60),
+      height: 60,
+    };
+  });
   const arrowAnimationStyle = useAnimatedStyle(() => ({
     opacity:
       flatListIndex.value === dataLength - 1 ? withTiming(0) : withTiming(1),
