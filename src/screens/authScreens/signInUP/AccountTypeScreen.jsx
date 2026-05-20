@@ -18,14 +18,17 @@ export function AccountTypeScreen({ navigation }) {
       <StatusBar barStyle="light-content" />
       <View style={styles.container}>
         <AnimatedView
-          animation="fadeInUp"
+          animation="fadeIn"
           duration={500}
           style={styles.logoContainer}
         >
           <Image source={whiteLogo} style={styles.logo} />
         </AnimatedView>
       </View>
-      <View style={[styles.content]}>
+      <AnimatedView 
+       animation="fadeIn"
+       duration={500}
+      style={[styles.content]}>
         <Typography variant="h2" style={styles.title}>
           Ընտրեք հաշվի տեսակը`
         </Typography>
@@ -70,7 +73,7 @@ export function AccountTypeScreen({ navigation }) {
             <ArrowSvg width={13} height={13} fill={palette.black} />
           </View>
         </Pressable>
-      </View>
+      </AnimatedView>
     </AuthScreenLayout>
   );
 }
