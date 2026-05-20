@@ -5,6 +5,7 @@ import { AuthNavigator } from './authStacks/AuthNavigator';
 import { TabNavigator } from './TabNavigator';
 import GradientBackground from '../components/GradientBackground';
 import LogoIcon from '../components/icons/LogoIcon';
+import LottieView from 'lottie-react-native';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,6 +16,13 @@ export function RootNavigator() {
   if (!isSplashDone || !isReady) {
     return (
       <GradientBackground isLight={false}>
+
+<LottieView
+  source={require('../assets/lottie/Law.json')}
+  autoPlay
+  loop
+  style={{ width: 150, height: 150, position: 'absolute', bottom: 30, left: 30 }}
+/>
           <LogoIcon width={140} height={140} />
       </GradientBackground>
     );

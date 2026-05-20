@@ -1,0 +1,92 @@
+import React from 'react';
+import { Controller } from 'react-hook-form';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { Typography } from '../typography';
+import { FONT_FAMILY, palette } from '../../theme';
+
+const INPUT_RADIUS = 16;
+
+export function FormField({
+  control,
+  name,
+  label,
+  placeholder,
+  rules,
+  secureTextEntry,
+  startIcon,
+  keyboardType,
+  autoCapitalize = 'none',
+  labelVariant = 'h6',
+}) {
+  const resolvedKeyboardType =
+    keyboardType ?? (name === 'email' ? 'email-address' : 'default');
+
+  return (
+    <Controller
+      control={control}
+      name={name}
+      rules={rules}
+      render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+        <View style={styles.field}>
+          <Typography variant={labelVariant}>{label}</Typography>
+          <View style={[styles.inputRow, error && styles.inputError]}>
+            {startIcon ? <View style={styles.inputIcon}>{startIcon}</View> : null}
+            <TextInput
+              style={styles.input}
+              placeholder={placeholder}
+              placeholderTextColor={palette.lightGray}
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              autoCapitalize={autoCapitalize}
+              autoCorrect={false}
+              keyboardType={resolvedKeyboardType}
+              secureTextEntry={secureTextEntry}
+            />
+          </View>
+          {error?.message ? (
+            <Text style={styles.errorText}>{error.message}</Text>
+          ) : null}
+        </View>
+      )}
+    />
+  );
+}
+
+const styles = StyleSheet.create({
+  field: {
+    gap: 8,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 45,
+    borderWidth: 1,
+    borderColor: palette.lightGray,
+    borderRadius: INPUT_RADIUS,
+    backgroundColor: palette.backgroundWhite,
+    paddingHorizontal: 16,
+    gap: 10,
+  },
+  inputIcon: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  input: {
+    flex: 1,
+    height: '100%',
+    padding: 0,
+    fontSize: 15,
+    fontFamily: FONT_FAMILY.regular,
+    color: palette.black,
+  },
+  inputError: {
+    borderColor: palette.red,
+  },
+  errorText: {
+    fontSize: 12,
+    fontFamily: FONT_FAMILY.regular,
+    color: palette.red,
+    marginTop: -4,
+  },
+});

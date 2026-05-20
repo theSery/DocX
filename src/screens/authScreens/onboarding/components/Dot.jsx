@@ -43,7 +43,7 @@ export function Dot({ index, x }) {
     const backgroundColor = interpolateColor(
       x.value,
       [0, SCREEN_WIDTH, 2 * SCREEN_WIDTH],
-      [SKY_BLUE_FADED, SKY_BLUE_FADED, SKY_BLUE_FADED],
+      ['#82C8E5A3', '#82C8E5A3', '#82C8E5A3'],
     );
 
     return { backgroundColor };

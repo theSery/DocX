@@ -5,7 +5,8 @@ import { AnimatedView, Typography } from '../../../components';
 import whiteLogo from '../../../assets/images/whiteLogo.webp';
 import { palette } from '../../../theme';
 import backButton from '../../../assets/images/backButton.webp';
-import { AnimatedTabs } from './AnimatedTabs';
+import { SignInUpTab } from './components/SignInUpTab';
+import { Easing } from 'react-native-reanimated';
 
 export function SignInUpScreen({ navigation }) {
   // const styles = useAuthScreenStyles();
@@ -36,14 +37,20 @@ export function SignInUpScreen({ navigation }) {
         </View>
         <AnimatedView
           animation="fadeIn"
-          duration={700}
+          duration={500}
           style={styles.logoContainer}
         >
           <Image source={whiteLogo} style={styles.logo} />
         </AnimatedView>
       </View>
-      <View style={styles.tabsSection}>
-        <AnimatedTabs />
+            <View
+        // animation='slideInDown'
+        // duration={700}
+        // // delay={100}
+        // easing={Easing.inOut(Easing.ease)}
+        style={styles.tabsSection}
+      >
+        <SignInUpTab />
       </View>
     </AuthScreenLayout>
 
@@ -78,7 +85,7 @@ export const styles = StyleSheet.create({
   },
   tabsSection: {
     flex: 1,
- marginBottom: -30,
+ marginBottom: -80,
     width: '100%',
     marginTop: '20%',
   },

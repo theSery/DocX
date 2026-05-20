@@ -11,6 +11,7 @@ import whiteLogo from '../../../../assets/images/whiteLogo.webp';
 import { Typography } from '../../../../components/typography';
 import { palette } from '../../../../theme';
 import { runOnJS } from 'react-native-worklets';
+import { AnimatedView } from '../../../../components';
 
 const FADE_DURATION = 300;
 
@@ -34,7 +35,12 @@ export function MainContainer({ handlePress }) {
   };
 
   return (
-    <Animated.View style={[styles.container, animatedStyle]}>
+    <AnimatedView
+    animation="fadeIn"
+    duration={700}
+    style={styles.container}
+  >
+
       <Image source={whiteLogo} style={styles.logo} />
       <Image source={foldersImage} style={styles.image} />
       <Typography
@@ -48,7 +54,7 @@ export function MainContainer({ handlePress }) {
           Ինչպե՞ս
         </Typography>
       </TouchableOpacity>
-    </Animated.View>
+    </AnimatedView>
   );
 }
 
@@ -59,7 +65,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 30,
-    paddingBottom: 24,
+    paddingBottom: '5%',
   },
   logo: {
     height: 58,
