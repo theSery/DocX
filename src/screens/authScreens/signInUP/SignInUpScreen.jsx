@@ -7,33 +7,34 @@ import { palette } from '../../../theme';
 import backButton from '../../../assets/images/backButton.webp';
 import { SignInUpTab } from './components/SignInUpTab';
 import { Easing } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function SignInUpScreen({ navigation }) {
   // const styles = useAuthScreenStyles();
   // signUpBg
   const { setIsSign } = useAuth();
-
+  const insets = useSafeAreaInsets();
   const handleSignIn = async () => {
     await setIsSign(true);
   };
 
   return (
     <AuthScreenLayout
-    withGradient
-    isReversed
-    gradientIsLight={false}
-    gradientHeight={'100%'}
-    contentStyle={styles.screen}
-  >
+      withGradient
+      isReversed
+      gradientIsLight={false}
+      gradientHeight={'100%'}
+      contentStyle={styles.screen}
+    >
       <View style={styles.headerContainer}>
         <View style={styles.headerContent}>
           <Pressable onPress={() => navigation.goBack()}>
-          <Image source={backButton} style={styles.image}  resizeMode="cover"/>
+            <Image source={backButton} style={styles.image} resizeMode="cover" />
           </Pressable>
           <Pressable onPress={() => navigation.goBack()}>
-          <Typography variant="h5" style={styles.headerCloseButton}>Փակել</Typography>
+            <Typography variant="h5" style={styles.headerCloseButton}>Փակել</Typography>
           </Pressable>
-        
+
         </View>
         <AnimatedView
           animation="fadeIn"
@@ -43,12 +44,12 @@ export function SignInUpScreen({ navigation }) {
           <Image source={whiteLogo} style={styles.logo} />
         </AnimatedView>
       </View>
-            <View
+      <View
         // animation='slideInDown'
         // duration={700}
         // // delay={100}
         // easing={Easing.inOut(Easing.ease)}
-        style={styles.tabsSection}
+        style={[styles.tabsSection, {marginBottom: -insets.bottom}]}
       >
         <SignInUpTab />
       </View>
@@ -85,8 +86,8 @@ export const styles = StyleSheet.create({
   },
   tabsSection: {
     flex: 1,
- marginBottom: -80,
-    width: '100%',
+    // marginBottom: -80,
+    width: '100%',  
     marginTop: '20%',
   },
   headerContainer: {
@@ -112,7 +113,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
-    marginBottom:'10%',
+    marginBottom: '10%',
   },
   headerTitle: {
     fontSize: 24,

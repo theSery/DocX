@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Platform,
+  Dimensions,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Canvas, Path, Skia } from '@shopify/react-native-skia';
 import { useForm } from 'react-hook-form';
+import MailIconSvg from '../../../../components/icons/MailIconSvg';
 import Animated, {
   interpolate,
   interpolateColor,
@@ -20,14 +21,16 @@ import Animated, {
 } from 'react-native-reanimated';
 import { AUTH_SCREEN_HORIZONTAL_PADDING } from '../../../../components/layout/authLayoutConstants';
 import { FONT_FAMILY, palette } from '../../../../theme';
-import { FormField } from '../../../../components';
+import { FormField, Typography } from '../../../../components';
 import { LoginTabs } from './LoginTabs';
+import LockIconSbg from '../../../../components/icons/LockIconSbg';
+import GradientButton from '../../../../components/buttons/GradientButton';
 
 const CORNER_RADIUS = 30;
 const CONTAINER_TOP = 56;
 const TAB_TIMING = { duration: 350 };
 const CONTENT_PADDING = 24;
-
+const SCREEN_HEIGHT = Dimensions.get('window').height / 2;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function TabLabel({ activeTab, index, label }) {
@@ -42,7 +45,9 @@ function TabLabel({ activeTab, index, label }) {
   }));
 
   return (
-    <Animated.Text style={[styles.tabLabel, animatedStyle]}>{label}</Animated.Text>
+    <Animated.Text style={[styles.tabLabel, animatedStyle]}>
+      {label}
+    </Animated.Text>
   );
 }
 
@@ -53,45 +58,84 @@ function RegistrationForm() {
   });
 
   return (
-    <View style={styles.form}>
-      <Text style={styles.registerHeading}>ՍՏԵՂԾԵԼ ՆՈՐ ՀԱՇԻՎ</Text>
-      <FormField
-        control={control}
-        name="email"
-        label="Էլ.-փոստ *"
-        placeholder="example@docx.am"
-        rules={{
-          required: 'Էլ.-փոստը պարտադիր է',
-          pattern: { value: EMAIL_PATTERN, message: 'Մուտքագրեք վավեր էլ.-փոստ' },
-        }}
-      />
-      <FormField
-        control={control}
-        name="password"
-        label="Ստեղծել նոր գաղտնաբառ *"
-        placeholder="********"
-        secureTextEntry
-        rules={{
-          required: 'Գաղտնաբառը պարտադիր է',
-          minLength: { value: 6, message: 'Առնվազն 6 նիշ' },
-        }}
-      />
-      <FormField
-        control={control}
-        name="confirmPassword"
-        label="Կրկնել գաղտնաբառը *"
-        placeholder="********"
-        secureTextEntry
-        rules={{
-          required: 'Կրկնեք գաղտնաբառը',
-          validate: value =>
-            value === getValues('password') || 'Գաղտնաբառերը չեն համընկնում',
-        }}
-      />
-      <Text style={styles.privacyText}>
-        Գրանցվելով դուք համաձայնում եք մեր Գաղտնիության քաղաքականության և
-        Օգտագործման պայմաններին։
-      </Text>
+    <View
+      style={[
+        styles.form,
+        { height: SCREEN_HEIGHT, justifyContent: 'space-between' },
+      ]}
+    >
+      <>
+        <Typography variant="h4" style={styles.loginTitle}>
+          ՍՏԵՂԾԵԼ ՆՈՐ ՀԱՇԻՎ
+        </Typography>
+        <FormField
+          control={control}
+          name="email"
+          label="Էլ.-փոստ *"
+          startIcon={<MailIconSvg width={19} height={15} />}
+          placeholder="example@docx.am"
+          rules={{
+            required: 'Էլ.-փոստը պարտադիր է',
+            pattern: {
+              value: EMAIL_PATTERN,
+              message: 'Մուտքագրեք վավեր էլ.-փոստ',
+            },
+          }}
+        />
+        <View style={{ marginVertical: 20 }}>
+          <FormField
+            control={control}
+            name="password"
+            label="Ստեղծել նոր գաղտնաբառ *"
+            placeholder="********"
+            startIcon={<LockIconSbg width={17} height={19} />}
+            secureTextEntry
+            rules={{
+              required: 'Գաղտնաբառը պարտադիր է',
+              minLength: { value: 6, message: 'Առնվազն 6 նիշ' },
+            }}
+          />
+        </View>
+        <FormField
+          control={control}
+          name="confirmPassword"
+          label="Կրկնել գաղտնաբառը *"
+          placeholder="********"
+          startIcon={<LockIconSbg width={17} height={19} />}
+          secureTextEntry
+          rules={{
+            required: 'Կրկնեք գաղտնաբառը',
+            validate: value =>
+              value === getValues('password') || 'Գաղտնաբառերը չեն համընկնում',
+          }}
+        />
+      </>
+
+      <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+        <Text style={styles.privacyText}>
+          Գրանցվելով՝ Դուք համաձայնվում եք{'  '}
+          <Text style={styles.privacyTextBold} onPress={() => Linking.openURL('https://www.google.com')}>
+            Օգտագործման պայմաններին և դրույթներին
+          </Text>
+          {'  '} և{'  '}
+          <Text style={styles.privacyTextBold} Press={() => Linking.openURL('https://www.google.com')}>
+            Գաղտնիության քաղաքականությանը
+          </Text>
+        </Text>
+        <Pressable
+        // onPress={}
+          style={({ pressed }) => [
+            styles.primaryButton,
+            pressed && styles.buttonPressed,
+          ]}
+        >
+          <GradientButton height={45} isLight={false}>
+            <Typography variant="h5" style={styles.primaryButtonText}>
+              Հաստատել կոդը
+            </Typography>
+          </GradientButton>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -211,31 +255,36 @@ export function SignInUpTab({ onPhoneLogin }) {
         </Pressable>
       </View>
 
-      <KeyboardAvoidingView
+      <ScrollView
         style={styles.formArea}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={styles.scrollContent}>
-          <View style={styles.formsStack}>
-            {tabIndex === 0 ? (
-              <Animated.View
-                style={[styles.formPanel, loginFormStyle]}
-                pointerEvents={tabIndex === 0 ? 'auto' : 'none'}>
-                <LoginTabs onPhoneLogin={onPhoneLogin} />
-              </Animated.View>
-            ) : (
-              <Animated.View
-                style={[styles.formPanel, styles.formPanelOverlay, registerFormStyle]}
-                pointerEvents={tabIndex === 1 ? 'auto' : 'none'}>
-                <RegistrationForm />
-              </Animated.View>
-            )}
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        automaticallyAdjustKeyboardInsets
+        contentContainerStyle={styles.scrollContent}
+      >
+        <View style={styles.formsStack}>
+          {tabIndex === 0 ? (
+            <Animated.View
+              style={[styles.formPanel, loginFormStyle]}
+              pointerEvents={tabIndex === 0 ? 'auto' : 'none'}
+            >
+              <LoginTabs onPhoneLogin={onPhoneLogin} />
+            </Animated.View>
+          ) : (
+            <Animated.View
+              style={[
+                styles.formPanel,
+                styles.formPanelOverlay,
+                registerFormStyle,
+              ]}
+              pointerEvents={tabIndex === 1 ? 'auto' : 'none'}
+            >
+              <RegistrationForm />
+            </Animated.View>
+          )}
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -243,8 +292,8 @@ export function SignInUpTab({ onPhoneLogin }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    height: '100%',
     marginHorizontal: -AUTH_SCREEN_HORIZONTAL_PADDING,
-    minHeight: 420,
   },
   tabRow: {
     flexDirection: 'row',
@@ -266,37 +315,56 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   scrollContent: {
-    flexGrow: 1,
     paddingHorizontal: CONTENT_PADDING,
     paddingTop: 8,
-    paddingBottom: 32,
   },
   formsStack: {
-    minHeight: 360,
+    height: '100%',
   },
   formPanel: {
     width: '100%',
+    height: '100%',
   },
   formPanelOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     top: 0,
   },
   form: {
-    gap: 16,
+    marginTop: 20,
   },
-  registerHeading: {
-    fontSize: 13,
-    fontFamily: FONT_FAMILY.semiBold,
-    color: palette.gray,
+  loginTitle: {
+    fontFamily: FONT_FAMILY.medium,
     letterSpacing: 1.2,
-    marginBottom: 4,
+    textAlign: 'center',
+    marginBottom: 20,
   },
+
   privacyText: {
-    fontSize: 12,
+    fontSize: 10,
     lineHeight: 18,
     fontFamily: FONT_FAMILY.regular,
     color: palette.gray,
     marginTop: 4,
-    marginBottom: 8,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  primaryButton: {
+    height: 45,
+    overflow: 'hidden',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
+  primaryButtonText: {
+    fontFamily: FONT_FAMILY.regular,
+    color: palette.white,
+    letterSpacing: 1.2,
+  },
+  privacyTextBold: {
+    fontFamily: FONT_FAMILY.semiBold,
+    color: palette.mainBlue,
+    textDecorationLine: 'underline',
+    // marginHorizontal: 4,
   },
 });

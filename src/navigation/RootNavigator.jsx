@@ -17,12 +17,12 @@ export function RootNavigator() {
     return (
       <GradientBackground isLight={false}>
 
-<LottieView
+{/* <LottieView
   source={require('../assets/lottie/Law.json')}
   autoPlay
   loop
   style={{ width: 150, height: 150, position: 'absolute', bottom: 30, left: 30 }}
-/>
+/> */}
           <LogoIcon width={140} height={140} />
       </GradientBackground>
     );
