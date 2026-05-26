@@ -6,11 +6,13 @@ import { TabNavigator } from './TabNavigator';
 import GradientBackground from '../components/GradientBackground';
 import LogoIcon from '../components/icons/LogoIcon';
 import LottieAnimation from '../components/animation/LottieAnimation';
+import { PinCodeScreen } from '../screens/authScreens';
+import { FaceIdScreen } from '../screens/main/home/FaceIdScreen';
 
 const Stack = createNativeStackNavigator();
 
 export function RootNavigator() {
-  const { isSign, isReady } = useAuth();
+  const { isSign, isReady, isFaceID } = useAuth();
   const { isSplashDone } = useSplash();
 
   if (!isSplashDone || !isReady) {
@@ -23,9 +25,13 @@ export function RootNavigator() {
   }
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
       {isSign ? (
-        <Stack.Screen name="Main" component={TabNavigator} />
+        isFaceID ? (
+          <Stack.Screen name="Main" component={TabNavigator} />
+        ) : (
+          <Stack.Screen name="FaceId" component={FaceIdScreen} />
+        )
       ) : (
         <Stack.Screen name="Auth" component={AuthNavigator} />
       )}

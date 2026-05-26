@@ -1,30 +1,53 @@
-
-import {  useState } from 'react';
-import { Pressable, StyleSheet,  View } from 'react-native';
+import { useEffect, useState } from 'react';
+import {  StyleSheet, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthScreenLayout } from '../../../components/layout';
 import { useAuthScreenStyles } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
-import { Typography } from '../../../components';
 import { useAuth } from '../../../contexts';
-import GradientButton from '../../../components/buttons/GradientButton';
 import { FONT_FAMILY, palette } from '../../../theme';
 import { STORAGE_KEYS } from '../../../utils/storageKeys';
-import { Passcode } from './components/Passcode';
+import { Passcode } from '../../authScreens/signInUP/components/Passcode';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
-// import LottieAnimation from '../../../components/animation/LottieAnimation';
+import LottieAnimation from '../../../components/animation/LottieAnimation';
 
-export function PinCodeScreen({ navigation }) {
+export function FaceIdScreen({ navigation }) {
   const styles = useAuthScreenStyles();
   const { setIsSign, setIsFaceID } = useAuth();
   const [passcode, setPasscode] = useState([]);
+  const [hasExistingPin, setHasExistingPin] = useState(true);
+  useEffect(() => {
 
-  const handleComplete = async () => {
-    if (passcode.length > 0) {
-      await AsyncStorage.setItem(STORAGE_KEYS.PIN_CODE, passcode.join(''));
-    }
-    await setIsSign(true);
-  };
+    const timeout = setTimeout(async () => {
+        setHasExistingPin(false);
+      // your logic here
+    //   await setIsSign(true);
+      await setIsFaceID(true);
+ 
+    }, 2000);
+  
+    return () => clearTimeout(timeout);
+  
+  }, [setIsSign, setIsFaceID]);
+//   useEffect(() => {
+//     let isMounted = true;
+//     (async () => {
+//       const storedPin = await AsyncStorage.getItem(STORAGE_KEYS.PIN_CODE);
+//       if (isMounted) {
+//         setHasExistingPin(Boolean(storedPin));
+//       }
+//     })();
+//     return () => {
+//       isMounted = false;
+//     };
+//   }, []);
+
+//   const handleComplete = async () => {
+//     if (passcode.length > 0) {
+//       await AsyncStorage.setItem(STORAGE_KEYS.PIN_CODE, passcode.join(''));
+//     }
+//     await setIsSign(true);
+//   };
 
   const handleBiometric = () => {
     console.log('Handle biometrics');
@@ -35,17 +58,17 @@ export function PinCodeScreen({ navigation }) {
       style={[styles.screen, { backgroundColor: palette.mainWhite }]}
     >
       <MainHeader onPress={() => navigation.goBack()} />
-      {/* {hasExistingPin ?
+      {hasExistingPin ?
         <View style={registrationScreenStyles.lottieContainer}>
 
           <LottieAnimation source={require('../../../assets/lottie/FaceID.json')} autoPlay loop style={{ width: 150, height: 150, }} />
         </View> : <></>
-      } */}
+      }
       <View style={registrationScreenStyles.content}>
 
         <View style={registrationScreenStyles.formContainer}>
           <ContentTiltes
-            title={'Սահմանել PIN կոդը'}
+            title={ 'Մուտքագրեք PIN'}
             subtitle={'Մուտք լինելու համար խնդրում ենք մուտքագրել PIN-ը'} />
           <View style={registrationScreenStyles.passcodeContainer}>
             <Passcode
@@ -59,26 +82,10 @@ export function PinCodeScreen({ navigation }) {
         </View>
 
         <View style={{ flex: 1, justifyContent: 'flex-end', width: '100%' }}>
-
-            <Pressable
-              onPress={handleComplete}
-              style={({ pressed }) => [
-                registrationScreenStyles.primaryButton,
-                pressed && registrationScreenStyles.buttonPressed,
-              ]}
-            >
-              <GradientButton height={45} isLight={false}>
-                <Typography
-                  variant="h5"
-                  style={registrationScreenStyles.primaryButtonText}
-                >
-                  Սահմանել PIN կոդը
-                </Typography>
-              </GradientButton>
-            </Pressable>
-        
+            <Text style={registrationScreenStyles.privacyText}> Մուտքագրեք PIN</Text>
         </View>
       </View>
+
     </AuthScreenLayout>
   );
 }

@@ -21,6 +21,7 @@ import openMail from '../../../assets/images/openMail.webp';
 import { useState } from 'react';
 import { OtpInputRowCode } from './components/OtpInputRowCode';
 import LottieAnimation from '../../../components/animation/LottieAnimation';
+import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 
 
 
@@ -105,15 +106,9 @@ export function EmailVerificationScreen({ navigation }) {
       >
         <View style={registrationScreenStyles.content}>
           <View style={registrationScreenStyles.formContainer}>
-            <Typography
-              variant="h2"
-              style={registrationScreenStyles.loginTitle}
-            >
-              Էլ-փոստի հաստատում
-            </Typography>
-            <Typography variant="h6" style={registrationScreenStyles.subTitle}>
-              Մուտքագրեք Ձեր էլ-փոստին ուղարկված կոդը
-            </Typography>
+          <ContentTiltes
+           title={'Էլ-փոստի հաստատում'} 
+           subtitle={'Մուտքագրեք Ձեր էլ-փոստին ուղարկված կոդը'} />
             {isSuccess ? <SuccessEmailVerification /> : <CompletedEmailVerification
               digits={digits}
               handleChangeDigit={handleChangeDigit}
@@ -156,15 +151,6 @@ const registrationScreenStyles = StyleSheet.create({
   container: {
     flex: 1,
     height: '100%',
-  },
-  loginTitle: {
-    letterSpacing: 2,
-    marginTop: 20,
-  },
-  subTitle: {
-    color: palette.gray,
-    marginBottom: 30,
-    letterSpacing: 0.6,
   },
   formContainer: {
     width: '100%',

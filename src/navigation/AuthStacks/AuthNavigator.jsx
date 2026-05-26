@@ -12,7 +12,7 @@ import { PinCodeScreen } from '../../screens/authScreens/signInUP/PinCodeScreen'
 const Stack = createNativeStackNavigator();
 
 export function AuthNavigator() {
-  const { hasCompletedOnboarding } = useAuth();
+  const { hasCompletedOnboarding, isSign } = useAuth();
 
   return (
     <LightThemeScope>

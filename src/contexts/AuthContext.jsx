@@ -6,6 +6,7 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [isSign, setIsSignState] = useState(false);
+  const [isFaceID, setIsFaceIDState] = useState(false);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
@@ -39,15 +40,22 @@ export function AuthProvider({ children }) {
     setIsSignState(value);
   }, []);
 
+  const setIsFaceID = useCallback(async value => {
+    // await AsyncStorage.setItem(STORAGE_KEYS.FACE_ID, value);
+    setIsFaceIDState(value);
+  }, []);
+
   const value = useMemo(
     () => ({
       isSign,
       setIsSign,
       hasCompletedOnboarding,
       completeOnboarding,
+      isFaceID,
+      setIsFaceID,
       isReady,
     }),
-    [isSign, setIsSign, hasCompletedOnboarding, completeOnboarding, isReady],
+    [isSign, setIsSign, hasCompletedOnboarding, completeOnboarding, isReady, isFaceID, setIsFaceID],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

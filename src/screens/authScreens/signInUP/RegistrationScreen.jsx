@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import GradientButton from '../../../components/buttons/GradientButton';
 import UserSvg from '../../../components/icons/UserSvg';
 import { FONT_FAMILY, palette } from '../../../theme';
+import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 
 export function RegistrationScreen({ navigation }) {
   const styles = useAuthScreenStyles();
@@ -32,12 +33,7 @@ export function RegistrationScreen({ navigation }) {
       <MainHeader onPress={() => navigation.goBack()} />
         <View style={registrationScreenStyles.content}>
         <View style={registrationScreenStyles.formContainer}>
-        <Typography variant="h2" style={registrationScreenStyles.loginTitle}>
-        Անձնական տվյալներ
-        </Typography>
-        <Typography variant="h6" style={registrationScreenStyles.subTitle}>
-        Գրանցումն ավարտելու համար լրացրեք տվյալները
-        </Typography>
+        <ContentTiltes title={'Անձնական տվյալներ'} subtitle={'Գրանցումն ավարտելու համար լրացրեք տվյալները'} />
         <FormField
           control={control}
           name="name"
@@ -115,15 +111,7 @@ const registrationScreenStyles = StyleSheet.create({
     flex: 1,
     height: '100%',
   },
-  loginTitle: {
-    letterSpacing: 2,
-        marginTop: 20,
-      },
-      subTitle: {
-        color: palette.gray,
-        marginBottom: 30,
-        letterSpacing: .4,
-      },
+
   formContainer:{
     width: '100%',
     // backgroundColor: 'blue',
