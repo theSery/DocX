@@ -5,8 +5,8 @@ export function createMainScreenStyles(colors) {
     container: {
       flex: 1,
       backgroundColor: colors.background,
-      paddingHorizontal: 24,
-      paddingTop: 16,
+      paddingHorizontal: 20,
+      // paddingTop: 16,
   
     },
     centered: {
