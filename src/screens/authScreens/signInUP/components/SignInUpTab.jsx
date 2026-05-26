@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Canvas, Path, Skia } from '@shopify/react-native-skia';
 import { useForm } from 'react-hook-form';
+import { useNavigation } from '@react-navigation/native';
 import MailIconSvg from '../../../../components/icons/MailIconSvg';
 import Animated, {
   interpolate,
@@ -52,9 +53,22 @@ function TabLabel({ activeTab, index, label }) {
 }
 
 function RegistrationForm() {
-  const { control, getValues } = useForm({
+  const navigation = useNavigation();
+  const {
+    control,
+    getValues,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm({
     defaultValues: { email: '', password: '', confirmPassword: '' },
     mode: 'onBlur',
+  });
+
+  const onSubmit = handleSubmit(values => {
+    navigation.navigate('Registration', {
+      email: values.email,
+      password: values.password,
+    });
   });
 
   return (
@@ -123,7 +137,8 @@ function RegistrationForm() {
           </Text>
         </Text>
         <Pressable
-        // onPress={}
+          onPress={onSubmit}
+          disabled={isSubmitting}
           style={({ pressed }) => [
             styles.primaryButton,
             pressed && styles.buttonPressed,
@@ -131,7 +146,7 @@ function RegistrationForm() {
         >
           <GradientButton height={45} isLight={false}>
             <Typography variant="h5" style={styles.primaryButtonText}>
-              Հաստատել կոդը
+            Գրանցվել
             </Typography>
           </GradientButton>
         </Pressable>

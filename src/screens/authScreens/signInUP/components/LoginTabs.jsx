@@ -5,7 +5,6 @@ import {
     Image,
     Pressable,
     StyleSheet,
-    TextInput,
     View,
 } from 'react-native';
 import { useForm } from 'react-hook-form';
@@ -16,8 +15,9 @@ import MailIconSvg from '../../../../components/icons/MailIconSvg';
 import LockIconSbg from '../../../../components/icons/LockIconSbg';
 import PhoneSvg from '../../../../components/icons/PhoneSvg';
 import bg from '../../../../assets/images/bg.webp'
+import { OtpInputRowCode } from './OtpInputRowCode';
 const INPUT_RADIUS = 16;
-const OTP_LENGTH = 6;
+
 const OTP_BOX_SIZE = 48;
 const OTP_BORDER_COLOR = '#B8C4D9';
 
@@ -57,61 +57,14 @@ function OutlineButton({ title, onPress, icon }) {
 }
 
 function OtpInputRow({ digits, onChangeDigit, focusedIndex, onFocusIndex }) {
-    const inputRefs = useRef([]);
-
-    const handleChange = (text, index) => {
-        const digit = text.replace(/\D/g, '').slice(-1);
-        onChangeDigit(index, digit);
-
-        if (digit && index < OTP_LENGTH - 1) {
-            inputRefs.current[index + 1]?.focus();
-            onFocusIndex(index + 1);
-        }
-    };
-
-    const handleKeyPress = (event, index) => {
-        if (event.nativeEvent.key === 'Backspace' && !digits[index] && index > 0) {
-            inputRefs.current[index - 1]?.focus();
-            onFocusIndex(index - 1);
-        }
-    };
 
     return (
-        <View style={styles.otpRow}>
-            {digits.map((digit, index) => {
-                const isFocused = focusedIndex === index;
-                const isEmpty = !digit;
+        <OtpInputRowCode 
+        digits={digits}
+         onChangeDigit={onChangeDigit}
+          focusedIndex={focusedIndex}
+           onFocusIndex={onFocusIndex} />
 
-                return (
-                    <View
-                        key={index}
-                        style={[
-                            styles.otpBox,
-                            isFocused && styles.otpBoxFocused,
-                        ]}>
-                        <TextInput
-                            ref={ref => {
-                                inputRefs.current[index] = ref;
-                            }}
-                            style={[
-                                styles.otpInput,
-                                isEmpty && !isFocused && styles.otpInputPlaceholder,
-                            ]}
-                            value={digit}
-                            onChangeText={text => handleChange(text, index)}
-                            onKeyPress={event => handleKeyPress(event, index)}
-                            onFocus={() => onFocusIndex(index)}
-                            keyboardType="number-pad"
-                            maxLength={1}
-                            selectTextOnFocus
-                            caretHidden={isEmpty && !isFocused}
-                            placeholder={isEmpty && !isFocused ? '—' : ''}
-                            placeholderTextColor={palette.lightGray}
-                        />
-                    </View>
-                );
-            })}
-        </View>
     );
 }
 
@@ -193,25 +146,25 @@ function MailLogin({ handleTabPress }) {
                         }}
                     />
                 </View>
-<View style={{ marginBottom: 0 }}>
-<FormField
-                    control={control}
-                    name="password"
-                    label="Գաղտնաբառ"
-                    placeholder="********"
-                    startIcon={<LockIconSbg width={17} height={19} />}
-                    secureTextEntry
-                    rules={{
-                        required: 'Գաղտնաբառը պարտադիր է',
-                        minLength: { value: 6, message: 'Առնվազն 6 նիշ' },
-                    }}
-                />
-                <Pressable style={styles.forgotLink} hitSlop={8}>
-                    <Typography style={styles.forgotLinkText}>Մոռացե՞լ եք գաղտնաբառը</Typography>
-                </Pressable>
+                <View style={{ marginBottom: 0 }}>
+                    <FormField
+                        control={control}
+                        name="password"
+                        label="Գաղտնաբառ"
+                        placeholder="********"
+                        startIcon={<LockIconSbg width={17} height={19} />}
+                        secureTextEntry
+                        rules={{
+                            required: 'Գաղտնաբառը պարտադիր է',
+                            minLength: { value: 6, message: 'Առնվազն 6 նիշ' },
+                        }}
+                    />
+                    <Pressable style={styles.forgotLink} hitSlop={8}>
+                        <Typography style={styles.forgotLinkText}>Մոռացե՞լ եք գաղտնաբառը</Typography>
+                    </Pressable>
 
-</View>
-       
+                </View>
+
             </>
 
             <>

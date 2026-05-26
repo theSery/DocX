@@ -18,6 +18,7 @@ export const palette = Object.freeze({
   blueMainEnd: '#01174D',
   blueLargeStart: '#386FE5',
   blueLargeEnd: '#000B26',
+  mainWhite: '#FFFFFF',
 });
 
 export const gradients = Object.freeze({

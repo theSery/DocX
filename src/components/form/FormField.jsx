@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Controller } from 'react-hook-form';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Typography } from '../typography';
 import { FONT_FAMILY, palette } from '../../theme';
+import EyeIconSvg from '../icons/EyeIconSvg';
 
 const INPUT_RADIUS = 16;
 const ARMENIA_PHONE_PREFIX = '+374 ';
@@ -50,6 +51,7 @@ export function FormField({
   rules,
   secureTextEntry,
   startIcon,
+  endButton,
   keyboardType,
   autoCapitalize = 'none',
   labelVariant = 'h6',
@@ -58,6 +60,10 @@ export function FormField({
     keyboardType ??
     (name === 'email' ? 'email-address' : name === 'phone' ? 'phone-pad' : 'default');
   const isPhoneField = name === 'phone';
+  const [isSecureVisible, setIsSecureVisible] = useState(false);
+
+  const showDefaultEyeToggle = secureTextEntry && endButton == null;
+  const isMasked = secureTextEntry && !isSecureVisible;
 
   return (
     <Controller
@@ -91,8 +97,28 @@ export function FormField({
                 autoCapitalize={autoCapitalize}
                 autoCorrect={false}
                 keyboardType={resolvedKeyboardType}
-                secureTextEntry={secureTextEntry}
+                secureTextEntry={isMasked}
               />
+              {showDefaultEyeToggle ? (
+                <Pressable
+                  onPress={() => setIsSecureVisible(prev => !prev)}
+                  hitSlop={8}
+                  style={styles.endButton}
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    isSecureVisible ? 'Թաքցնել գաղտնաբառը' : 'Ցույց տալ գաղտնաբառը'
+                  }
+                >
+                  <EyeIconSvg
+                    width={20}
+                    height={20}
+                    fill={palette.gray}
+                    visible={isSecureVisible}
+                  />
+                </Pressable>
+              ) : endButton ? (
+                <View style={styles.endButton}>{endButton}</View>
+              ) : null}
             </View>
             {error?.message ? (
               <Text style={styles.errorText}>{error.message}</Text>
@@ -122,6 +148,11 @@ const styles = StyleSheet.create({
   inputIcon: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  endButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingLeft: 8,
   },
   input: {
     flex: 1,

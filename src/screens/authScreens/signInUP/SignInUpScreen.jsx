@@ -45,10 +45,6 @@ export function SignInUpScreen({ navigation }) {
         </AnimatedView>
       </View>
       <View
-        // animation='slideInDown'
-        // duration={700}
-        // // delay={100}
-        // easing={Easing.inOut(Easing.ease)}
         style={[styles.tabsSection, {marginBottom: -insets.bottom}]}
       >
         <SignInUpTab />
