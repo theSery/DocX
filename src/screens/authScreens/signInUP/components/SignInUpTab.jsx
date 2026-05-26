@@ -166,10 +166,10 @@ export function SignInUpTab({ onPhoneLogin }) {
     const height = layoutHeight.value;
 
     if (width <= 0 || height <= 0) {
-      return Skia.Path.Make();
+      return Skia.PathBuilder.Make().detach();
     }
 
-    const customPath = Skia.Path.Make();
+    const builder = Skia.PathBuilder.Make();
     const tabWidth = width / 2;
 
     const cutoutLeft = interpolate(activeTab.value, [0, 1], [0, tabWidth]);
@@ -181,37 +181,37 @@ export function SignInUpTab({ onPhoneLogin }) {
       [CORNER_RADIUS, 0],
     );
 
-    customPath.moveTo(0, height);
-    customPath.lineTo(0, CONTAINER_TOP + leftRadius);
-    customPath.quadTo(0, CONTAINER_TOP, leftRadius, CONTAINER_TOP);
+    builder.moveTo(0, height);
+    builder.lineTo(0, CONTAINER_TOP + leftRadius);
+    builder.quadTo(0, CONTAINER_TOP, leftRadius, CONTAINER_TOP);
 
     if (cutoutLeft > leftRadius) {
-      customPath.lineTo(cutoutLeft - leftRadius, CONTAINER_TOP);
+      builder.lineTo(cutoutLeft - leftRadius, CONTAINER_TOP);
     }
 
-    customPath.quadTo(
+    builder.quadTo(
       cutoutLeft,
       CONTAINER_TOP,
       cutoutLeft,
       CONTAINER_TOP - leftRadius,
     );
 
-    customPath.lineTo(cutoutLeft, CORNER_RADIUS);
-    customPath.quadTo(cutoutLeft, 0, cutoutLeft + CORNER_RADIUS, 0);
-    customPath.lineTo(cutoutRight - CORNER_RADIUS, 0);
+    builder.lineTo(cutoutLeft, CORNER_RADIUS);
+    builder.quadTo(cutoutLeft, 0, cutoutLeft + CORNER_RADIUS, 0);
+    builder.lineTo(cutoutRight - CORNER_RADIUS, 0);
 
-    customPath.quadTo(cutoutRight, 0, cutoutRight, CORNER_RADIUS);
-    customPath.lineTo(cutoutRight, CONTAINER_TOP - CORNER_RADIUS);
+    builder.quadTo(cutoutRight, 0, cutoutRight, CORNER_RADIUS);
+    builder.lineTo(cutoutRight, CONTAINER_TOP - CORNER_RADIUS);
 
     if (cutoutRight < width - rightRadius) {
-      customPath.quadTo(
+      builder.quadTo(
         cutoutRight,
         CONTAINER_TOP,
         cutoutRight + CORNER_RADIUS,
         CONTAINER_TOP,
       );
     } else {
-      customPath.quadTo(
+      builder.quadTo(
         cutoutRight,
         CONTAINER_TOP,
         width - rightRadius,
@@ -220,14 +220,14 @@ export function SignInUpTab({ onPhoneLogin }) {
     }
 
     if (cutoutRight < width - rightRadius) {
-      customPath.lineTo(width - rightRadius, CONTAINER_TOP);
+      builder.lineTo(width - rightRadius, CONTAINER_TOP);
     }
 
-    customPath.quadTo(width, CONTAINER_TOP, width, CONTAINER_TOP + rightRadius);
-    customPath.lineTo(width, height);
-    customPath.close();
+    builder.quadTo(width, CONTAINER_TOP, width, CONTAINER_TOP + rightRadius);
+    builder.lineTo(width, height);
+    builder.close();
 
-    return customPath;
+    return builder.detach();
   });
 
   const handleTabPress = useCallback(

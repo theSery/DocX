@@ -10,10 +10,10 @@ export const CONTAINER_TOP = 100;
  * @param {number} flip 1 = left tab active, 0 = right tab active
  */
 export function buildFlippableBackgroundPath(width, height, flip) {
-  const path = Skia.Path.Make();
+  const builder = Skia.PathBuilder.Make();
 
   if (width <= 0 || height <= 0) {
-    return path;
+    return builder.detach();
   }
 
   const r = CORNER_RADIUS;
@@ -23,25 +23,25 @@ export function buildFlippableBackgroundPath(width, height, flip) {
   const tabH = CONTAINER_TOP;
 
   if (flip >= 0.5) {
-    path.moveTo(0, h);
-    path.lineTo(0, r);
-    path.quadTo(0, 0, r, 0);
-    path.lineTo(mid - r, 0);
-    path.cubicTo(mid - r * 0.55, 0, mid - r * 0.55, r, mid, r);
-    path.lineTo(mid, tabH);
-    path.lineTo(mid, h);
-    path.lineTo(0, h);
+    builder.moveTo(0, h);
+    builder.lineTo(0, r);
+    builder.quadTo(0, 0, r, 0);
+    builder.lineTo(mid - r, 0);
+    builder.cubicTo(mid - r * 0.55, 0, mid - r * 0.55, r, mid, r);
+    builder.lineTo(mid, tabH);
+    builder.lineTo(mid, h);
+    builder.lineTo(0, h);
   } else {
-    path.moveTo(w, h);
-    path.lineTo(w, r);
-    path.quadTo(w, 0, w - r, 0);
-    path.lineTo(mid + r, 0);
-    path.cubicTo(mid + r * 0.55, 0, mid + r * 0.55, r, mid, r);
-    path.lineTo(mid, tabH);
-    path.lineTo(mid, h);
-    path.lineTo(w, h);
+    builder.moveTo(w, h);
+    builder.lineTo(w, r);
+    builder.quadTo(w, 0, w - r, 0);
+    builder.lineTo(mid + r, 0);
+    builder.cubicTo(mid + r * 0.55, 0, mid + r * 0.55, r, mid, r);
+    builder.lineTo(mid, tabH);
+    builder.lineTo(mid, h);
+    builder.lineTo(w, h);
   }
 
-  path.close();
-  return path;
+  builder.close();
+  return builder.detach();
 }

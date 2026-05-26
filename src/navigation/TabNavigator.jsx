@@ -1,46 +1,41 @@
-import { createNativeBottomTabNavigator } from '@react-navigation/bottom-tabs/unstable';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { DocumentsScreen } from '../screens/main/documents';
 import { FilesScreen } from '../screens/main/files';
-import { useTheme } from '../hooks';
 import { AccountStackNavigator, HomeStackNavigator } from './stacks';
+import { BlurTabBar } from './BlurTabBar';
 
-const Tab = createNativeBottomTabNavigator();
+const Tab = createBottomTabNavigator();
+
+const renderBlurTabBar = props => <BlurTabBar {...props} />;
 
 export function TabNavigator() {
-  const { colors } = useTheme();
-
   return (
     <Tab.Navigator
+      tabBar={renderBlurTabBar}
       screenOptions={{
         headerShown: false,
         animation: 'fade',
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSecondary,
-        tabBarStyle: {
-          borderTopColor: colors.border,
-          backgroundColor: colors.background,
-        },
       }}>
       <Tab.Screen
         name="Home"
         component={HomeStackNavigator}
-        options={{ title: 'Home' }}
+        options={{ title: 'Ստեղծել' }}
       />
       <Tab.Screen
         name="Documents"
         component={DocumentsScreen}
-        options={{ title: 'Documents' }}
+        options={{ title: 'Փաստաթղթեր' }}
       />
       <Tab.Screen
         name="Files"
         component={FilesScreen}
-        options={{ title: 'Files' }}
+        options={{ title: 'Ֆայլեր' }}
       />
       <Tab.Screen
         name="Account"
         component={AccountStackNavigator}
-        options={{ title: 'Account' }}
+        options={{ title: 'Հաշիվ' }}
       />
     </Tab.Navigator>
   );

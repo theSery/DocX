@@ -7,6 +7,7 @@ export function createMainScreenStyles(colors) {
       backgroundColor: colors.background,
       paddingHorizontal: 24,
       paddingTop: 16,
+  
     },
     centered: {
       flex: 1,
