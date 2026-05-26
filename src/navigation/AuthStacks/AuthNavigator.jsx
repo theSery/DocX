@@ -2,11 +2,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../../contexts';
 import { LightThemeScope } from '../../theme';
 import {
-  // AccountTypeScreen,
   OnboardingScreen,
   RegistrationScreen,
   SignInUpScreen,
-  VerificationScreen,
 } from '../../screens/authScreens';
 import { AccountTypeScreen } from '../../screens/authScreens/signInUP/AccountTypeScreen';
 import { EmailVerificationScreen } from '../../screens/authScreens/signInUP/EmailVerificationScreen';
@@ -25,9 +23,7 @@ export function AuthNavigator() {
         <Stack.Screen name="AccountType" component={AccountTypeScreen} />
         <Stack.Screen name="SignInUp" component={SignInUpScreen} />
         <Stack.Screen name="Registration"  component={RegistrationScreen}  />
-       
-       
-           <Stack.Screen name="EmailVerification"  component={EmailVerificationScreen} />
+        <Stack.Screen name="EmailVerification"  component={EmailVerificationScreen} />
         <Stack.Screen name="PinCode" component={PinCodeScreen} />
       </Stack.Navigator>
     </LightThemeScope>

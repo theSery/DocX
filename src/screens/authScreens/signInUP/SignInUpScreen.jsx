@@ -1,22 +1,14 @@
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { AuthScreenLayout } from '../../../components/layout';
-import { useAuth } from '../../../contexts';
 import { AnimatedView, Typography } from '../../../components';
 import whiteLogo from '../../../assets/images/whiteLogo.webp';
 import { palette } from '../../../theme';
 import backButton from '../../../assets/images/backButton.webp';
 import { SignInUpTab } from './components/SignInUpTab';
-import { Easing } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function SignInUpScreen({ navigation }) {
-  // const styles = useAuthScreenStyles();
-  // signUpBg
-  const { setIsSign } = useAuth();
   const insets = useSafeAreaInsets();
-  const handleSignIn = async () => {
-    await setIsSign(true);
-  };
 
   return (
     <AuthScreenLayout
@@ -50,27 +42,6 @@ export function SignInUpScreen({ navigation }) {
         <SignInUpTab />
       </View>
     </AuthScreenLayout>
-
-
-
-
-
-    // <AuthScreenLayout style={styles.screen}>
-    //   <View style={styles.content}>
-    //     <Text style={styles.title}>Sign in or sign up</Text>
-    //     <Text style={styles.subtitle}>
-    //       Sign in to continue or create a new account.
-    //     </Text>
-    //     <Pressable style={styles.primaryButton} onPress={handleSignIn}>
-    //       <Text style={styles.primaryButtonText}>Sign in</Text>
-    //     </Pressable>
-    //     <Pressable
-    //       style={styles.secondaryButton}
-    //       onPress={() => navigation.navigate('Registration')}>
-    //       <Text style={styles.secondaryButtonText}>Create account</Text>
-    //     </Pressable>
-    //   </View>
-    // </AuthScreenLayout>
   );
 }
 export const styles = StyleSheet.create({
