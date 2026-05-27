@@ -16,6 +16,9 @@ const createStyles = colors =>
       alignItems: 'flex-start',
       justifyContent: 'flex-start',
     },
+    headerRow: {
+      paddingTop: 10,
+    },
     titleContainer: {
     marginTop: 10,
     },
@@ -29,24 +32,29 @@ const createStyles = colors =>
  
   });
 
-const HomeStackHeader = ({ onPress }) => {
-
+const HomeStackHeader = ({ onPress, title, subtitle, showSearch = true }) => {
   const styles = useThemedStyles(createStyles);
 
   return (
     <View style={styles.container}>
-      <View style={[styles.content, { paddingTop: 10 }]}>
+      <View style={styles.headerRow}>
         <MainHeader onPress={onPress} />
       </View>
-      <View style={styles.titleContainer}>
-      <Typography variant="h2" style={styles.loginTitle}>
-        Բաժիններ
-      </Typography>
-      <Typography variant="h6" style={[ styles.searchSubTitle]}>
-        Ընտրեք բողոքարկվող փաստաթղթի տեսակը
-      </Typography>
-    </View>
-      <SearchComponent />
+      {(title || subtitle) && (
+        <View style={styles.titleContainer}>
+          {title ? (
+            <Typography variant="h2" style={styles.loginTitle}>
+              {title}
+            </Typography>
+          ) : null}
+          {subtitle ? (
+            <Typography variant="h6" style={styles.subTitle}>
+              {subtitle}
+            </Typography>
+          ) : null}
+        </View>
+      )}
+      {showSearch ? <SearchComponent /> : null}
     </View>
   );
 };

@@ -25,14 +25,14 @@ export function CategoryScreen({ route }) {
         style={styles.categoryItemImageIcon}
         sharedTransitionTag={`category-image-${item.id}`}
       />
-      <Text
+      {/* <Text
         // sharedTransitionTag={`category-text-${item.id}`}
         // sharedTransitionStyle={customTransition}
    
         style={styles.categoryItemText}
       >
         {item.name}
-      </Text>
+      </Text> */}
 
       <Animated.View
         sharedTransitionTag={`category-bg-${item.id}`}
@@ -45,7 +45,6 @@ export function CategoryScreen({ route }) {
           },
         ]}
       />
-      {/* <SearchComponent /> */}
       <Animated.Image
         source={{ uri: item.iconUrl }}
         sharedTransitionStyle={customTransition}
@@ -62,7 +61,7 @@ export function CategoryScreen({ route }) {
           <View
             style={{ flexDirection: 'column', justifyContent: 'space-evenly', flexWrap: 'wrap' }}
           >
-            <SearchComponent />
+         
             {item.subCategories?.map((category, index) => (
               <AnimatedView
                 animation="fadeIn"

@@ -10,12 +10,22 @@ import { CategoryScreen } from '../../screens/main/home/CategoryScreen';
 
 const Stack = createNativeStackNavigator();
 
-const nestedScreenOptionsWithHeader = (nestedScreenOptions, title) => ({
+const nestedScreenOptionsWithHeader = (
+  nestedScreenOptions,
+  { title, subtitle, showSearch = true },
+) => ({
   ...nestedScreenOptions,
   title,
+  headerSubtitle: subtitle,
+  headerShowSearch: showSearch,
   headerShown: true,
-  header: ({ navigation }) => (
-    <HomeStackHeader onPress={() => navigation.goBack()} />
+  header: ({ navigation, options }) => (
+    <HomeStackHeader
+      onPress={() => navigation.goBack()}
+      title={options.title}
+      subtitle={options.headerSubtitle}
+      showSearch={options.headerShowSearch}
+    />
   ),
 });
 
@@ -23,34 +33,37 @@ export function HomeStackNavigator() {
   const nestedScreenOptions = useStackScreenOptions();
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade', animationDuration: 100 }}>
-      <Stack.Screen name="HomeMain" 
-          options={nestedScreenOptionsWithHeader(
-            nestedScreenOptions,
-            'Home',
-          )}
-      component={HomeScreen} />
-          <Stack.Screen name="Category" 
-          options={nestedScreenOptionsWithHeader(
-            nestedScreenOptions,
-            'Categories',
-          )}
-      component={CategoryScreen} />
+    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade',  }}>
+      <Stack.Screen
+        name="HomeMain"
+        component={HomeScreen}
+        options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
+          title: 'Բաժիններ',
+          subtitle: 'Ընտրեք բողոքարկվող փաստաթղթի տեսակը',
+        })}
+      />
+      <Stack.Screen
+        name="Category"
+        component={CategoryScreen}
+        options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
+          title: 'Կատեգորիա',
+          subtitle: 'Ընտրեք փաստաթուղթ',
+          showSearch: false,
+        })}
+      />
       <Stack.Screen
         name="FillInDetails"
         component={FillInDetailsScreen}
-        options={nestedScreenOptionsWithHeader(
-          nestedScreenOptions,
-          'Fill in details',
-        )}
+        options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
+          title: 'Fill in details',
+        })}
       />
       <Stack.Screen
         name="DocumentCreate"
         component={DocumentCreateScreen}
-        options={nestedScreenOptionsWithHeader(
-          nestedScreenOptions,
-          'Create document',
-        )}
+        options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
+          title: 'Create document',
+        })}
       />
     </Stack.Navigator>
   );
