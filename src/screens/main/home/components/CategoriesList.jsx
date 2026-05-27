@@ -1,5 +1,6 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeOut } from 'react-native-reanimated';
+
 import {
   WIDTH,
   HEIGHT,
@@ -8,16 +9,90 @@ import {
 } from '../../../../utils/dimensions';
 import { Typography } from '../../../../components';
 import ArrowSvg from '../../../../components/icons/ArrowSvg';
-import { FONT_FAMILY, palette, colors } from '../../../../theme';
-import { useHomeStackHeaderScrollHandler } from '../../../../hooks';
+import { FONT_FAMILY } from '../../../../theme';
+import {
+  useHomeStackHeaderScrollHandler,
+  useThemedStyles,
+  useTheme,
+} from '../../../../hooks';
+
 export const SPACING = 10;
 export const ITEM_HEIGHT = HEIGHT * 0.2;
+
+const createStyles = colors =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    categoryItemImage: {
+      flex: 1,
+      padding: SPACING,
+    },
+    categoryItemText: {
+      fontSize: 16,
+      fontFamily: FONT_FAMILY.medium,
+      color: colors.text,
+      letterSpacing: 0.7,
+      width: '80%',
+    },
+    categoryItemImageIcon: {
+      width: 56,
+      height: 56,
+      resizeMode: 'contain',
+      borderRadius: 10,
+    },
+    bgCategoryItem: {
+      height: 60,
+      resizeMode: 'contain',
+      borderRadius: 10,
+      position: 'absolute',
+      width: '100%',
+      zIndex: -1000,
+    },
+    bg: {
+      position: 'absolute',
+      width: WIDTH,
+      height: HEIGHT,
+      transform: [{ translateY: HEIGHT }],
+      borderRadius: 32,
+    },
+    categoryItem: {
+      marginBottom: SPACING,
+      borderRadius: 24,
+      borderColor: colors.borderSubtle,
+      borderWidth: 1,
+      padding: SPACING,
+    },
+    contentContainer: {
+      padding: SPACING,
+marginHorizontal: 5,
+    },
+    categoryItemHeaderRow: {
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+    categoryItemFooterRow: {
+      flex: 1,
+      borderRadius: 10,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: SPACING,
+    },
+    categoryItemDescription: {
+      width: '80%',
+      letterSpacing: 0.4,
+    },
+  });
 
 export function CategoriesList({
   navigation,
   categories,
   collapsibleHeader = true,
 }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const { onScroll, onScrollViewLayout, onContentSizeChange } =
     useHomeStackHeaderScrollHandler(collapsibleHeader);
 
@@ -31,69 +106,48 @@ export function CategoriesList({
         scrollEventThrottle={collapsibleHeader ? 16 : undefined}
         contentContainerStyle={styles.contentContainer}
         keyExtractor={item => item.id.toString()}
-        renderItem={({ item }) => {
-          return (
-            <TouchableOpacity
-              style={styles.categoryItem}
-              onPress={() => navigation.navigate('Category', { item })}
-            >
-              <View style={styles.categoryItemImage}>
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.categoryItem}
+            onPress={() => navigation.navigate('Category', { item })}
+          >
+            <View style={styles.categoryItemImage}>
+              <View style={styles.categoryItemHeaderRow}>
+                <Animated.Image
+                  source={{ uri: item.iconUrl }}
+                  sharedTransitionStyle={customTransitionLinear}
+                  style={styles.categoryItemImageIcon}
+                  exiting={FadeOut.duration(300)}
+                  sharedTransitionTag={`category-image-${item.id}`}
+                />
+                <Animated.View
+                  sharedTransitionStyle={customTransitionLinear}
+                  style={styles.bgCategoryItem}
+                  exiting={FadeOut.duration(300)}
+                  sharedTransitionTag={`category-frame-${item.id}`}
+                />
+                <Animated.Text
+                  exiting={FadeOut.duration(300)}
+                  sharedTransitionTag={`category-text-${item.id}`}
+                  sharedTransitionStyle={customTransitionLinear}
+                  style={styles.categoryItemText}
                 >
-                  <Animated.Image
-                    source={{ uri: item.iconUrl }}
-                    sharedTransitionStyle={customTransitionLinear}
-                    style={styles.categoryItemImageIcon}
-                    exiting={FadeOut.duration(300)}
-                    sharedTransitionTag={`category-image-${item.id}`}
-                  />
-                  <Animated.View
-                    // source={{ uri: item.iconUrl }}
-                    sharedTransitionStyle={customTransitionLinear}
-                    style={styles.bgCategoryItem}
-                    exiting={FadeOut.duration(300)}
-                    sharedTransitionTag={`category-frame-${item.id}`}
-                  />
-                  <Animated.Text
-                    exiting={FadeOut.duration(300)}
-                    sharedTransitionTag={`category-text-${item.id}`}
-                    sharedTransitionStyle={customTransitionLinear}
-                    style={styles.categoryItemText}
-                  >
-                    {item.name}
-                  </Animated.Text>
-                </View>
-                <View
-                  style={{
-                    flex: 1,
-                    borderRadius: 10,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginTop: SPACING,
-                  }}
-                >
-                  <Typography
-                    variant="h6"
-                    style={{
-                      width: '80%',
-                      letterSpacing: 0.4,
-                      color: palette.gray,
-                    }}
-                  >
-                    Երևանի քաղաքապետարանի կողմից տրամադրվող ակտեր
-                  </Typography>
-                  <ArrowSvg width={20} height={20} fill={`#82C8E5`} />
-                </View>
+                  {item.name}
+                </Animated.Text>
               </View>
-            </TouchableOpacity>
-          );
-        }}
+              <View style={styles.categoryItemFooterRow}>
+                <Typography
+                  variant="h6"
+                  tone="secondary"
+                  style={styles.categoryItemDescription}
+                >
+                  Երևանի քաղաքապետարանի կողմից տրամադրվող ակտեր
+                </Typography>
+                <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
+              </View>
+            </View>
+          </TouchableOpacity>
+        )}
       />
       <Animated.View
         style={styles.bg}
@@ -103,60 +157,3 @@ export function CategoriesList({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // backgroundColor: palette.backgroundWhite,
-    // backgroundColor: 'blue',
-  },
-  categoryItemImage: {
-    flex: 1,
-    padding: SPACING,
-  },
-  categoryItemText: {
-    fontSize: 16,
-    fontFamily: FONT_FAMILY.medium,
-    // color: colors.text,
-    letterSpacing: 0.7,
-    width: '80%',
-  },
-  categoryItemImageIcon: {
-    width: 56,
-    height: 56,
-    resizeMode: 'contain',
-    borderRadius: 10,
-  },
-  bgCategoryItem: {
-    // width: 56,
-    height: 60,
-    resizeMode: 'contain',
-    borderRadius: 10,
-    // backgroundColor: palette.backgroundWhite,
-    position: 'absolute',
-    width: '100%',
-    zIndex: -1000,
-  },
-  bg: {
-    position: 'absolute',
-    width: WIDTH,
-    height: HEIGHT,
-    // backgroundColor: 'red',
-    transform: [{ translateY: HEIGHT }],
-    borderRadius: 32,
-  },
-  categoryItem: {
-    marginBottom: SPACING,
-    borderRadius: 24,
-    borderColor: '#D9DFED',
-    borderWidth: 1,
-    padding: SPACING,
-  },
-  contentContainer: {
-    padding: SPACING,
-    marginHorizontal: SPACING,
-  },
-  searchContainer: {
-    paddingHorizontal: 20,
-  },
-});

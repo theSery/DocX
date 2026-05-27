@@ -1,13 +1,15 @@
 import { View } from 'react-native';
-import { CategoriesList } from './components/CategoriesList';
 import { useSelector } from 'react-redux';
-import { useMainScreenStyles } from '../../../hooks';
+
+import { CategoriesList } from './components/CategoriesList';
+import { useGlobalStyles } from '../../../hooks';
 
 export function HomeScreen({ navigation }) {
-  const {items} = useSelector((state) => state.categories);
-  const styles = useMainScreenStyles();
+  const { items } = useSelector(state => state.categories);
+  const styles = useGlobalStyles();
+
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1 }}>
       <CategoriesList
         navigation={navigation}
         categories={items}

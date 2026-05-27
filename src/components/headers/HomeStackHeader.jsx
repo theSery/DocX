@@ -48,10 +48,6 @@ const createStyles = colors =>
     loginTitle: {
       letterSpacing: 2,
     },
-    subTitle: {
-      color: colors.textSecondary,
-      letterSpacing: 0.4,
-    },
     searchWrap: {
       paddingTop: 8,
       paddingBottom: 8,
@@ -88,7 +84,7 @@ const StaticHomeStackHeader = ({
             </Typography>
           ) : null}
           {subtitle ? (
-            <Typography variant="h6" style={styles.subTitle}>
+            <Typography variant="h6" tone="secondary" style={{ letterSpacing: 0.4 }}>
               {subtitle}
             </Typography>
           ) : null}
@@ -172,7 +168,7 @@ const CollapsibleHomeStackHeader = ({
               </Typography>
             ) : null}
             {subtitle ? (
-              <Typography variant="h6" style={styles.subTitle}>
+              <Typography variant="h6" tone="secondary" style={{ letterSpacing: 0.4 }}>
                 {subtitle}
               </Typography>
             ) : null}

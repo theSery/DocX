@@ -94,7 +94,6 @@ const registrationScreenStyles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    // backgroundColor: 'red',
     width: '100%',
     marginBottom: 20,
   },

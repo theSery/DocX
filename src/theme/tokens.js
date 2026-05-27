@@ -19,6 +19,12 @@ export const palette = Object.freeze({
   blueLargeStart: '#386FE5',
   blueLargeEnd: '#000B26',
   mainWhite: '#FFFFFF',
+  /** Subtle card/list border (light mode) */
+  borderLight: '#D9DFED',
+  /** Accent blue for icons and chevrons */
+  accentBlue: '#82C8E5',
+  dangerBorder: '#FCA5A5',
+  dangerText: '#DC2626',
 });
 
 export const gradients = Object.freeze({

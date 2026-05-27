@@ -8,9 +8,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { BlurView } from '@react-native-community/blur';
 import { useForm, useWatch } from 'react-hook-form';
+
 import { Typography } from '../typography';
-import { useTheme } from '../../hooks';
-import { palette } from '../../theme';
+import { useTheme, useThemedStyles } from '../../hooks';
 import { FormField } from '../form/FormField';
 import SearchIcon from '../icons/SearchIcon';
 import { delay } from '../../utils/delay';
@@ -20,7 +20,7 @@ const MAX_ITEMS = 5;
 const SMALL_ITEMS = 2;
 const SHRINK_THRESHOLD = 4;
 const MAX_HEIGHT = ROW_HEIGHT * MAX_ITEMS;
-const SMALL_HEIGHT = ROW_HEIGHT * (SMALL_ITEMS + 1); // 2 rows + no-results row
+const SMALL_HEIGHT = ROW_HEIGHT * (SMALL_ITEMS + 1);
 const ANIMATION = { duration: 280, easing: Easing.out(Easing.cubic) };
 const TYPING_DELAY_MS = 150;
 const NO_RESULTS_LABEL = 'անհաջող որոնում';
@@ -62,8 +62,50 @@ function resolveBucket(length) {
   return 'expanded';
 }
 
+const createStyles = colors =>
+  StyleSheet.create({
+    wrapper: {
+      width: '100%',
+    },
+    dropdown: {
+      marginTop: -1,
+      overflow: 'hidden',
+      borderWidth: 1,
+      borderColor: colors.border,
+      position: 'absolute',
+      top: '100%',
+      left: 0,
+      right: 0,
+      zIndex: 1000,
+    },
+    row: {
+      height: ROW_HEIGHT,
+      justifyContent: 'center',
+      paddingHorizontal: 16,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.borderSubtle,
+    },
+    rowPressed: {
+      backgroundColor: Platform.select({
+        ios: colors.surface,
+        default: colors.input,
+      }),
+    },
+    noResultsRow: {
+      borderBottomWidth: 0,
+      backgroundColor: Platform.select({
+        ios: colors.input,
+        default: colors.input,
+      }),
+    },
+    noResultsLabel: {
+      fontStyle: 'italic',
+    },
+  });
+
 export function SearchComponent() {
-  const { isDarkMode } = useTheme();
+  const { isDarkMode, colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const { control, setValue } = useForm({ defaultValues: { search: '' } });
   const search = useWatch({ control, name: 'search' }) ?? '';
   const length = search.length;
@@ -160,11 +202,11 @@ export function SearchComponent() {
   return (
     <View style={styles.wrapper}>
       <FormField
-        control={control}r
-        isSearch={true}
+        control={control}
+        isSearch
         name="search"
         placeholder="Որոնում"
-        startIcon={<SearchIcon width={24} height={24} fill={palette.mainBlue} />}
+        startIcon={<SearchIcon width={24} height={24} fill={colors.primary} />}
       />
 
       <Animated.View
@@ -175,18 +217,15 @@ export function SearchComponent() {
           style={StyleSheet.absoluteFill}
           blurType={blurType}
           blurAmount={24}
-          reducedTransparencyFallbackColor={isDarkMode ? '#11111D' : '#FFFFFF'}
+          reducedTransparencyFallbackColor={colors.background}
         />
         {items.map(item => (
           <Pressable
             key={item.id}
             onPress={() => handleSelect(item.label)}
-            style={({ pressed }) => [
-              styles.row,
-              pressed && styles.rowPressed,
-            ]}
+            style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
           >
-            <Typography variant="h5" style={styles.rowLabel} numberOfLines={1}>
+            <Typography variant="h5" numberOfLines={1}>
               {item.label}
             </Typography>
           </Pressable>
@@ -202,6 +241,7 @@ export function SearchComponent() {
           >
             <Typography
               variant="h6"
+              tone="secondary"
               style={styles.noResultsLabel}
               numberOfLines={1}
             >
@@ -213,47 +253,3 @@ export function SearchComponent() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrapper: {
-    width: '100%',
-  },
-  dropdown: {
-    marginTop: -1,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: palette.lightGray,
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    right: 0,
-    zIndex: 1000,
-  },
-  row: {
-    height: ROW_HEIGHT,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: palette.backgroundWhite,
-  },
-  rowPressed: {
-    backgroundColor: Platform.select({
-      ios: 'rgba(255,255,255,0.35)',
-      default: palette.backgroundWhite,
-    }),
-  },
-  rowLabel: {
-    color: palette.black,
-  },
-  noResultsRow: {
-    borderBottomWidth: 0,
-    backgroundColor: Platform.select({
-      ios: 'rgba(245,245,245,0.5)',
-      default: palette.backgroundWhite,
-    }),
-  },
-  noResultsLabel: {
-    color: palette.gray,
-    fontStyle: 'italic',
-  },
-});
