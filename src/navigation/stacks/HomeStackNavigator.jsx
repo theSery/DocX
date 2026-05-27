@@ -7,17 +7,19 @@ import {
 import { useStackScreenOptions } from '../../hooks';
 import HomeStackHeader from '../../components/headers/HomeStackHeader';
 import { CategoryScreen } from '../../screens/main/home/CategoryScreen';
+import { HomeStackHeaderScrollProvider } from '../../context/HomeStackHeaderScrollContext';
 
 const Stack = createNativeStackNavigator();
 
 const nestedScreenOptionsWithHeader = (
   nestedScreenOptions,
-  { title, subtitle, showSearch = true },
+  { title, subtitle, showSearch = true, collapsible = true },
 ) => ({
   ...nestedScreenOptions,
   title,
   headerSubtitle: subtitle,
   headerShowSearch: showSearch,
+  headerCollapsible: collapsible,
   headerShown: true,
   header: ({ navigation, options }) => (
     <HomeStackHeader
@@ -25,6 +27,7 @@ const nestedScreenOptionsWithHeader = (
       title={options.title}
       subtitle={options.headerSubtitle}
       showSearch={options.headerShowSearch}
+      collapsible={options.headerCollapsible}
     />
   ),
 });
@@ -33,6 +36,7 @@ export function HomeStackNavigator() {
   const nestedScreenOptions = useStackScreenOptions();
 
   return (
+    <HomeStackHeaderScrollProvider>
     <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade',  }}>
       <Stack.Screen
         name="HomeMain"
@@ -40,15 +44,16 @@ export function HomeStackNavigator() {
         options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
           title: 'Բաժիններ',
           subtitle: 'Ընտրեք բողոքարկվող փաստաթղթի տեսակը',
+          collapsible: false,
         })}
       />
       <Stack.Screen
         name="Category"
         component={CategoryScreen}
         options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
-          title: 'Կատեգորիա',
-          subtitle: 'Ընտրեք փաստաթուղթ',
-          showSearch: false,
+          title: '',
+          subtitle: '',
+          showSearch: true,
         })}
       />
       <Stack.Screen
@@ -66,5 +71,6 @@ export function HomeStackNavigator() {
         })}
       />
     </Stack.Navigator>
+    </HomeStackHeaderScrollProvider>
   );
 }

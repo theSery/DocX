@@ -1,21 +1,34 @@
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import Animated from 'react-native-reanimated';
-import { ContentTiltes } from '../../../../components/titleComponents/ContentTiltles';
-import { WIDTH, HEIGHT, customTransition } from '../../../../utils/dimensions';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeOut } from 'react-native-reanimated';
+import {
+  WIDTH,
+  HEIGHT,
+  customTransition,
+  customTransitionLinear,
+} from '../../../../utils/dimensions';
 import { Typography } from '../../../../components';
 import ArrowSvg from '../../../../components/icons/ArrowSvg';
 import { FONT_FAMILY, palette, colors } from '../../../../theme';
-import { SearchComponent } from '../../../../components/titleComponents/SearchComponent';
+import { useHomeStackHeaderScrollHandler } from '../../../../hooks';
 export const SPACING = 10;
 export const ITEM_HEIGHT = HEIGHT * 0.2;
 
-export function CategoriesList({ navigation, categories }) {
-  console.log('categories', categories);
+export function CategoriesList({
+  navigation,
+  categories,
+  collapsibleHeader = true,
+}) {
+  const { onScroll, onScrollViewLayout, onContentSizeChange } =
+    useHomeStackHeaderScrollHandler(collapsibleHeader);
+
   return (
     <View style={styles.container}>
-
-      <FlatList
+      <Animated.FlatList
         data={categories}
+        onScroll={onScroll}
+        onLayout={onScrollViewLayout}
+        onContentSizeChange={onContentSizeChange}
+        scrollEventThrottle={collapsibleHeader ? 16 : undefined}
         contentContainerStyle={styles.contentContainer}
         keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => {
@@ -34,15 +47,22 @@ export function CategoriesList({ navigation, categories }) {
                 >
                   <Animated.Image
                     source={{ uri: item.iconUrl }}
-                    sharedTransitionStyle={customTransition}
+                    sharedTransitionStyle={customTransitionLinear}
                     style={styles.categoryItemImageIcon}
+                    exiting={FadeOut.duration(300)}
                     sharedTransitionTag={`category-image-${item.id}`}
                   />
-
+                  <Animated.View
+                    // source={{ uri: item.iconUrl }}
+                    sharedTransitionStyle={customTransitionLinear}
+                    style={styles.bgCategoryItem}
+                    exiting={FadeOut.duration(300)}
+                    sharedTransitionTag={`category-frame-${item.id}`}
+                  />
                   <Animated.Text
+                    exiting={FadeOut.duration(300)}
                     sharedTransitionTag={`category-text-${item.id}`}
-                    sharedTransitionStyle={customTransition}
-                    variant="h5"
+                    sharedTransitionStyle={customTransitionLinear}
                     style={styles.categoryItemText}
                   >
                     {item.name}
@@ -87,7 +107,7 @@ export function CategoriesList({ navigation, categories }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: palette.backgroundWhite,
+    // backgroundColor: palette.backgroundWhite,
     // backgroundColor: 'blue',
   },
   categoryItemImage: {
@@ -97,7 +117,7 @@ const styles = StyleSheet.create({
   categoryItemText: {
     fontSize: 16,
     fontFamily: FONT_FAMILY.medium,
-    color: colors.text,
+    // color: colors.text,
     letterSpacing: 0.7,
     width: '80%',
   },
@@ -107,11 +127,21 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     borderRadius: 10,
   },
+  bgCategoryItem: {
+    // width: 56,
+    height: 60,
+    resizeMode: 'contain',
+    borderRadius: 10,
+    // backgroundColor: palette.backgroundWhite,
+    position: 'absolute',
+    width: '100%',
+    zIndex: -1000,
+  },
   bg: {
     position: 'absolute',
     width: WIDTH,
     height: HEIGHT,
-    backgroundColor: 'red',
+    // backgroundColor: 'red',
     transform: [{ translateY: HEIGHT }],
     borderRadius: 32,
   },

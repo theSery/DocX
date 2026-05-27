@@ -44,6 +44,7 @@ function localDigitsFromStoredValue(value) {
 }
 
 export function FormField({
+  isSearch = false,
   control,
   name,
   label,
@@ -83,9 +84,9 @@ export function FormField({
           : value;
 
         return (
-          <View style={[styles.field]}>
-            <Typography variant={labelVariant}>{label}</Typography>
-            <View style={[styles.inputRow, error && styles.inputError]}>
+          <View style={{ gap: isSearch ? 0 : 8 }}>
+            {label ? <Typography variant={labelVariant}>{label}</Typography> : null}
+            <View style={[styles.inputRow, error && styles.inputError, { backgroundColor: isSearch ? 'white': palette.backgroundWhite }]}>
               {startIcon ? <View style={styles.inputIcon}>{startIcon}</View> : null}
               <TextInput
                 style={styles.input}
@@ -132,7 +133,7 @@ export function FormField({
 
 const styles = StyleSheet.create({
   field: {
-    gap: 8,
+    // gap: 8,
   },
   inputRow: {
     flexDirection: 'row',
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: palette.lightGray,
     borderRadius: INPUT_RADIUS,
-    backgroundColor: palette.backgroundWhite,
+    // backgroundColor: palette.backgroundWhite,
     paddingHorizontal: 16,
     gap: 10,
   },

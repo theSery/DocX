@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { FONT_FAMILY } from '../../theme/fonts';
+import { colors } from '../../theme';
 
 /**
  * Canonical typography scale. Extend this object for body, caption, button, etc.
@@ -10,35 +11,41 @@ export const TYPOGRAPHY_VARIANT_DEFINITIONS = {
     fontSize: 32,
     lineHeight: 40,
     letterSpacing: 1.6,
+    color: colors.text,
   },
   h2: {
     fontSize: 24,
     lineHeight: 32,
     letterSpacing: 0.8,
     fontFamily: FONT_FAMILY.semiBold,
+    color: colors.text,
   },
   h3: {
     fontSize: 20,
     lineHeight: 32,
     letterSpacing: 0.8,
+    color: colors.text,
   },
   h4: {
     fontSize: 16,
     lineHeight: 24,
     letterSpacing: 0.4,
     fontFamily: FONT_FAMILY.bold,
+    color: colors.text,
   },
   h5: {
     fontSize: 14,
     lineHeight: 20,
     letterSpacing: 0,
     fontFamily: FONT_FAMILY.regular,
+    color: colors.text,
   },
   h6: {
     fontSize: 12,
     lineHeight: 16,
     letterSpacing: 0,
     fontFamily: FONT_FAMILY.regular,
+    color: colors.text,
   },
 };
 

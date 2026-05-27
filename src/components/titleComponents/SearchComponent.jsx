@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { BlurView } from '@react-native-community/blur';
 import { useForm, useWatch } from 'react-hook-form';
 import { Typography } from '../typography';
+import { useTheme } from '../../hooks';
 import { palette } from '../../theme';
 import { FormField } from '../form/FormField';
 import SearchIcon from '../icons/SearchIcon';
@@ -61,6 +63,7 @@ function resolveBucket(length) {
 }
 
 export function SearchComponent() {
+  const { isDarkMode } = useTheme();
   const { control, setValue } = useForm({ defaultValues: { search: '' } });
   const search = useWatch({ control, name: 'search' }) ?? '';
   const length = search.length;
@@ -146,19 +149,34 @@ export function SearchComponent() {
     opacity: height.value === 0 ? 0 : 1,
   }));
 
+  const blurType = isDarkMode ? 'dark' : 'light';
+  const dropdownSurfaceStyle = {
+    backgroundColor: Platform.select({
+      android: isDarkMode ? 'rgba(17,17,29,0.55)' : 'rgba(255,255,255,0.55)',
+      default: 'transparent',
+    }),
+  };
+
   return (
     <View style={styles.wrapper}>
       <FormField
-        control={control}
+        control={control}r
+        isSearch={true}
         name="search"
         placeholder="Որոնում"
         startIcon={<SearchIcon width={24} height={24} fill={palette.mainBlue} />}
       />
 
       <Animated.View
-        style={[styles.dropdown, animatedPanelStyle]}
+        style={[styles.dropdown, dropdownSurfaceStyle, animatedPanelStyle]}
         pointerEvents={bucket === 'closed' ? 'none' : 'auto'}
       >
+        <BlurView
+          style={StyleSheet.absoluteFill}
+          blurType={blurType}
+          blurAmount={24}
+          reducedTransparencyFallbackColor={isDarkMode ? '#11111D' : '#FFFFFF'}
+        />
         {items.map(item => (
           <Pressable
             key={item.id}
@@ -199,15 +217,12 @@ export function SearchComponent() {
 const styles = StyleSheet.create({
   wrapper: {
     width: '100%',
-
   },
   dropdown: {
-    marginTop: 5,
+    marginTop: -1,
     overflow: 'hidden',
-    borderRadius: 16,
     borderWidth: 1,
     borderColor: palette.lightGray,
-    backgroundColor: palette.mainWhite,
     position: 'absolute',
     top: '100%',
     left: 0,
@@ -222,14 +237,20 @@ const styles = StyleSheet.create({
     borderBottomColor: palette.backgroundWhite,
   },
   rowPressed: {
-    backgroundColor: palette.backgroundWhite,
+    backgroundColor: Platform.select({
+      ios: 'rgba(255,255,255,0.35)',
+      default: palette.backgroundWhite,
+    }),
   },
   rowLabel: {
     color: palette.black,
   },
   noResultsRow: {
     borderBottomWidth: 0,
-    backgroundColor: palette.backgroundWhite,
+    backgroundColor: Platform.select({
+      ios: 'rgba(245,245,245,0.5)',
+      default: palette.backgroundWhite,
+    }),
   },
   noResultsLabel: {
     color: palette.gray,
