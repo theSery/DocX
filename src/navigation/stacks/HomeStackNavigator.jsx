@@ -23,7 +23,7 @@ export function HomeStackNavigator() {
   const nestedScreenOptions = useStackScreenOptions();
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
       <Stack.Screen name="HomeMain" 
           options={nestedScreenOptionsWithHeader(
             nestedScreenOptions,

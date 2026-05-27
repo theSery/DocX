@@ -7,6 +7,7 @@ import Animated, {
 import { Typography } from '../../../../components/typography';
 import foldersImage from '../../../../assets/images/folders.webp';
 import darkLogo from '../../../../assets/images/darkLogo.webp'
+import { AnimatedView } from '../../../../components';
 
 export function RenderItem({ index, x, item }) {
   const { width: SCREEN_WIDTH } = useWindowDimensions();
@@ -31,7 +32,8 @@ export function RenderItem({ index, x, item }) {
 
 
   return (
-    <View style={[styles.itemContainer, {width: SCREEN_WIDTH}]}>
+    <AnimatedView     animation="fadeIn"
+    duration={300} style={[styles.itemContainer, {width: SCREEN_WIDTH}]}>
       <Image source={darkLogo} style={styles.logo} />
 
       <Animated.View style={imageAnimationStyle}>
@@ -40,7 +42,7 @@ export function RenderItem({ index, x, item }) {
       <Typography variant="h4" style={[styles.itemText, { color: '#002340', fontFamily: 'Poppins-Regular', letterSpacing: 2.4}]}>
         {item.text}
       </Typography>
-    </View>
+    </AnimatedView>
   );
 }
 

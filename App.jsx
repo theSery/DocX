@@ -6,10 +6,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Provider as ReduxProvider } from 'react-redux';
 import { SplashGate } from './src/components';
 import { AuthProvider } from './src/contexts';
 import { useNavigationTheme } from './src/hooks';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { store } from './src/store';
 import { ColorSchemeProvider } from './src/theme';
 
 function AppNavigation() {
@@ -25,15 +27,17 @@ function AppNavigation() {
 function App() {
   return (
     <GestureHandlerRootView style={styles.root}>
-      <ColorSchemeProvider>
-        <SafeAreaProvider>
-          <SplashGate>
-            <AuthProvider>
-              <AppNavigation />
-            </AuthProvider>
-          </SplashGate>
-        </SafeAreaProvider>
-      </ColorSchemeProvider>
+      <ReduxProvider store={store}>
+        <ColorSchemeProvider>
+          <SafeAreaProvider>
+            <SplashGate>
+              <AuthProvider>
+                <AppNavigation />
+              </AuthProvider>
+            </SplashGate>
+          </SafeAreaProvider>
+        </ColorSchemeProvider>
+      </ReduxProvider>
     </GestureHandlerRootView>
   );
 }

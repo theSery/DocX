@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../contexts';
 import { useSplash } from '../components/layout/SplashGate';
@@ -8,6 +9,11 @@ import LogoIcon from '../components/icons/LogoIcon';
 import LottieAnimation from '../components/animation/LottieAnimation';
 import { PinCodeScreen } from '../screens/authScreens';
 import { FaceIdScreen } from '../screens/main/home/FaceIdScreen';
+import { useAppDispatch, useAppSelector } from '../store';
+import {
+  fetchCategoryHierarchy,
+  selectCategoriesStatus,
+} from '../store/slices/categoriesSlice';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,7 +21,18 @@ export function RootNavigator() {
   const { isSign, isReady, isFaceID } = useAuth();
   const { isSplashDone } = useSplash();
 
-  if (!isSplashDone || !isReady) {
+  const dispatch = useAppDispatch();
+  const categoriesStatus = useAppSelector(selectCategoriesStatus);
+
+  useEffect(() => {
+    if (categoriesStatus === 'idle') {
+      dispatch(fetchCategoryHierarchy({ page: 1, limit: 10 }));
+    }
+  }, [dispatch, categoriesStatus]);
+
+  const isBootstrapping = categoriesStatus !== 'succeeded';
+
+  if (!isSplashDone || !isReady || isBootstrapping) {
     return (
       <GradientBackground isLight={false}>
         <LottieAnimation source={require('../assets/lottie/Law.json')} autoPlay loop style={{ width: 150, height: 150, position: 'absolute', bottom: 30, left: 30 }} />

@@ -83,7 +83,7 @@ export function FormField({
           : value;
 
         return (
-          <View style={styles.field}>
+          <View style={[styles.field]}>
             <Typography variant={labelVariant}>{label}</Typography>
             <View style={[styles.inputRow, error && styles.inputError]}>
               {startIcon ? <View style={styles.inputIcon}>{startIcon}</View> : null}

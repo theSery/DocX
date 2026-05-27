@@ -86,15 +86,6 @@ export function RegistrationScreen({ navigation }) {
         </Pressable>
       </View>
         </View>
-      {/* <View style={styles.content}>
-        <Text style={styles.title}>Registration</Text>
-        <Text style={styles.subtitle}>Create your DocX account.</Text>
-        <Pressable
-          style={styles.primaryButton}
-          onPress={() => navigation.navigate('Verification')}>
-          <Text style={styles.primaryButtonText}>Continue</Text>
-        </Pressable>
-      </View> */}
     </AuthScreenLayout>
   );
 }
