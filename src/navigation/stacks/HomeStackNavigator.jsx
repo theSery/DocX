@@ -5,7 +5,7 @@ import {
   HomeScreen,
 } from '../../screens/main/home';
 import { useStackScreenOptions } from '../../hooks';
-import MainHeader from '../../components/headers/MainHeader';
+import HomeStackHeader from '../../components/headers/HomeStackHeader';
 import { CategoryScreen } from '../../screens/main/home/CategoryScreen';
 
 const Stack = createNativeStackNavigator();
@@ -15,7 +15,7 @@ const nestedScreenOptionsWithHeader = (nestedScreenOptions, title) => ({
   title,
   headerShown: true,
   header: ({ navigation }) => (
-    <MainHeader onPress={() => navigation.goBack()} />
+    <HomeStackHeader onPress={() => navigation.goBack()} />
   ),
 });
 
@@ -23,7 +23,7 @@ export function HomeStackNavigator() {
   const nestedScreenOptions = useStackScreenOptions();
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
+    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade', animationDuration: 100 }}>
       <Stack.Screen name="HomeMain" 
           options={nestedScreenOptionsWithHeader(
             nestedScreenOptions,

@@ -1,59 +1,39 @@
-import { Dimensions, Image, ScrollView, StyleSheet, View } from 'react-native';
+import { Dimensions, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { SPACING } from './components/CategoriesList';
 import { AnimatedView } from '../../../components/animation/AnimatedView';
 import Animated from 'react-native-reanimated';
-import { HEIGHT, WIDTH, customTransition } from '../../../utils/dimensions';
+import { HEIGHT, WIDTH, customTransition, customTransition2 } from '../../../utils/dimensions';
 import { colors, FONT_FAMILY } from '../../../theme';
 import { palette } from '../../../theme';
+import { SearchComponent } from '../../../components/titleComponents/SearchComponent';
+import { Typography } from '../../../components/typography/Typography';
+import ArrowSvg from '../../../components/icons/ArrowSvg';
 
 const TOP_HEADER_HEIGHT = HEIGHT * 0.3;
-// const customTransition = SharedTransition.duration(550).easing(Easing.bezier(0.25, 0.1, 0.25, 1.0));
-const categories = [
-  {
-    id: 1,
-    name: 'Category 1',
-    description: 'Category 1 description',
-    image: require('../../../assets/images/folders.webp'),
-    backgroundColor: 'red',
-  },
 
-  {
-    id: 2,
-    name: 'Category 2',
-    description: 'Category 2 description',
-    image: require('../../../assets/images/emailCheck.webp'),
-    backgroundColor: 'blue',
-  },
-  {
-    id: 3,
-    name: 'Category 3',
-    description: 'Category 3 description',
-    image: require('../../../assets/images/folders.webp'),
-    backgroundColor: 'green',
-  },
-];
 export function CategoryScreen({ route }) {
   // const styles = useMainScreenStyles();
 
   const { item } = route.params;
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'red' }}>
+    <View style={{ flex: 1, backgroundColor: 'red'}}>
       <Animated.Image
         source={{ uri: item.iconUrl }}
-        sharedTransitionStyle={customTransition}
+        sharedTransitionStyle={customTransition2}
         style={styles.categoryItemImageIcon}
         sharedTransitionTag={`category-image-${item.id}`}
       />
-      <Animated.Text
-        sharedTransitionTag={`category-text-${item.id}`}
-        sharedTransitionStyle={customTransition}
-        variant="h5"
+      <Text
+        // sharedTransitionTag={`category-text-${item.id}`}
+        // sharedTransitionStyle={customTransition}
+   
         style={styles.categoryItemText}
       >
         {item.name}
-      </Animated.Text>
+      </Text>
+
       <Animated.View
         sharedTransitionTag={`category-bg-${item.id}`}
         sharedTransitionStyle={customTransition}
@@ -65,7 +45,7 @@ export function CategoryScreen({ route }) {
           },
         ]}
       />
-
+      {/* <SearchComponent /> */}
       <Animated.Image
         source={{ uri: item.iconUrl }}
         sharedTransitionStyle={customTransition}
@@ -77,29 +57,39 @@ export function CategoryScreen({ route }) {
         sharedTransitionTag={`general-bg`}
         sharedTransitionStyle={customTransition}
       >
+
         <ScrollView>
           <View
-            style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}
+            style={{ flexDirection: 'column', justifyContent: 'space-evenly', flexWrap: 'wrap' }}
           >
-            {categories.map((category, index) => (
+            <SearchComponent />
+            {item.subCategories?.map((category, index) => (
               <AnimatedView
-                animation="bounceIn"
+                animation="fadeIn"
                 animationConfig={{
                   duration: 1000,
                   delay: (index + 1) * 100,
                 }}
                 key={category.id}
-                style={{
-                  backgroundColor: category.backgroundColor,
-                  height: 70,
-                  width: 70,
-                  borderRadius: 10,
-                }}
+                style={styles.categoryItem}
               >
-                <Image
-                  source={category.image}
-                  style={{ width: 50, height: 50, resizeMode: 'contain' }}
-                />
+                <View style={{ width: '20%' }}>
+                  <Image
+                    source={{ uri: category.iconUrl }}
+                    style={{ width: 50, height: 50, resizeMode: 'contain', backgroundColor: palette.skyBlue, padding: 10, borderRadius: 16 }}
+                  />
+                </View>
+                <View style={{ width: '50%' }}>
+                  <Typography
+                    variant="h5"
+                    style={{ letterSpacing: .4, color: palette.gray }}
+                  >
+                    {category.name}
+                  </Typography>
+                </View>
+                <View style={{ width: '30%', alignItems: 'flex-end' }}>
+                  <ArrowSvg width={20} height={20} fill={`#82C8E5`} />
+                </View>
               </AnimatedView>
             ))}
           </View>
@@ -118,9 +108,6 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
     marginRight: 20,
     marginTop: 20,
-    // textAlign: 'center',
-    // alignItems: 'center',
-    // justifyContent: 'center',
   },
   categoryItemImageIcon: {
     width: 30,
@@ -130,17 +117,25 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 20,
     top: 25,
-    // top: TOP_HEADER_HEIGHT - ITEM_HEIGHT * 0.8,
-    // right: SPACING,
   },
   bg: {
     position: 'absolute',
     width: WIDTH,
     height: HEIGHT,
-    backgroundColor: 'white',
-    transform: [{ translateY: TOP_HEADER_HEIGHT }],
+    backgroundColor: 'blue',
+    transform: [{ translateY: TOP_HEADER_HEIGHT * .21 }],
     borderRadius: 32,
-    padding: SPACING,
-    paddingTop: 32 + SPACING,
+    paddingHorizontal: SPACING,
+  
+    // paddingTop: 32 + SPACING, 
+  },
+  categoryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    borderRadius: 24,
+    backgroundColor: palette.white,
+    marginBottom: 15,
   },
 });
