@@ -14,10 +14,98 @@ import { FONT_FAMILY } from '../../../theme';
 import { Typography } from '../../../components/typography/Typography';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
 import { useHomeStackHeaderScrollHandler, useThemedStyles, useTheme } from '../../../hooks';
+import { useIsFocused } from '@react-navigation/native';
 
 const TOP_HEADER_HEIGHT = HEIGHT * 0.3;
 const TAB_BAR_HEIGHT = 60;
 const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
+
+
+
+export function CategoryScreen({ route }) {
+  const { item } = route.params;
+  const isFocused = useIsFocused();
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
+  const { onScroll, onScrollViewLayout, onContentSizeChange } =
+    useHomeStackHeaderScrollHandler();
+  const insets = useSafeAreaInsets();
+  const scrollBottomPadding = insets.bottom + TAB_BAR_HEIGHT + 24;
+
+  return (
+    <View style={styles.screen}>
+      <Animated.Image
+        source={{ uri: item.iconUrl }}
+        sharedTransitionStyle={customTransitionLinear}
+        style={styles.categoryItemImageIcon}
+        // entering={FadeIn.duration(500)}
+        sharedTransitionTag={`category-image-${item.id}-${isFocused}`}
+      />
+      <Animated.Text
+        sharedTransitionTag={`category-text-${item.id}-${isFocused}`}
+        sharedTransitionStyle={customTransitionLinear}
+        // entering={FadeIn.duration(500)}
+        style={styles.categoryItemText}
+      >
+        {item.name}
+      </Animated.Text>
+      {/* <Animated.View
+        sharedTransitionStyle={customTransitionLinear}
+        style={styles.bgCategoryItem}
+        // entering={FadeIn.duration(500)}
+        sharedTransitionTag={`category-frame-${item.id}-${isFocused}`}
+      />
+      <Animated.View
+        sharedTransitionTag={`category-bg-${item.id}-${isFocused}`}
+        sharedTransitionStyle={customTransition}
+        style={styles.headerBackground}
+      /> */}
+      <Animated.View
+        style={styles.bg}
+        sharedTransitionTag={`general-bg-${isFocused}`}
+        sharedTransitionStyle={customTransition}
+      >
+        <Animated.ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
+          onScroll={onScroll}
+          onLayout={onScrollViewLayout}
+          onContentSizeChange={onContentSizeChange}
+          scrollEventThrottle={16}
+          showsVerticalScrollIndicator={false}
+        >
+          {item.subCategories?.map((category, index) => (
+            <AnimatedView
+              animation="fadeIn"
+              animationConfig={{
+                duration: 1000,
+                delay: (index + 1) * 150,
+              }}
+              key={category.id}
+              style={styles.categoryItem}
+            >
+              <View style={styles.subCategoryIconWrap}>
+                <Image
+                  source={{ uri: category.iconUrl }}
+                  style={styles.subCategoryIcon}
+                />
+              </View>
+              <View style={styles.subCategoryTextWrap}>
+                <Typography variant="h5" style={styles.subCategoryName}>
+                  {category.name}
+                </Typography>
+              </View>
+              <View style={styles.subCategoryArrowWrap}>
+                <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
+              </View>
+            </AnimatedView>
+          ))}
+        </Animated.ScrollView>
+      </Animated.View>
+    </View>
+  );
+}
+
 
 const createStyles = colors =>
   StyleSheet.create({
@@ -43,9 +131,9 @@ const createStyles = colors =>
       right: 0,
     },
     categoryItemImageIcon: {
-      width: 30,
-      height: 30,
-      borderRadius: 16,
+      width: 46,
+      height: 46,
+      borderRadius: 10,
       overflow: 'hidden',
       resizeMode: 'cover',
       position: 'absolute',
@@ -109,86 +197,3 @@ const createStyles = colors =>
       alignItems: 'flex-end',
     },
   });
-
-export function CategoryScreen({ route }) {
-  const { item } = route.params;
-  const styles = useThemedStyles(createStyles);
-  const { colors } = useTheme();
-  const { onScroll, onScrollViewLayout, onContentSizeChange } =
-    useHomeStackHeaderScrollHandler();
-  const insets = useSafeAreaInsets();
-  const scrollBottomPadding = insets.bottom + TAB_BAR_HEIGHT + 24;
-
-  return (
-    <View style={styles.screen}>
-      <Animated.Image
-        source={{ uri: item.iconUrl }}
-        sharedTransitionStyle={customTransitionLinear}
-        style={styles.categoryItemImageIcon}
-        entering={FadeIn.duration(500)}
-        sharedTransitionTag={`category-image-${item.id}`}
-      />
-      <Animated.Text
-        sharedTransitionTag={`category-text-${item.id}`}
-        sharedTransitionStyle={customTransitionLinear}
-        entering={FadeIn.duration(500)}
-        style={styles.categoryItemText}
-      >
-        {item.name}
-      </Animated.Text>
-      <Animated.View
-        sharedTransitionStyle={customTransitionLinear}
-        style={styles.bgCategoryItem}
-        entering={FadeIn.duration(500)}
-        sharedTransitionTag={`category-frame-${item.id}`}
-      />
-      <Animated.View
-        sharedTransitionTag={`category-bg-${item.id}`}
-        sharedTransitionStyle={customTransition}
-        style={styles.headerBackground}
-      />
-      <Animated.View
-        style={styles.bg}
-        sharedTransitionTag={`general-bg`}
-        sharedTransitionStyle={customTransition}
-      >
-        <Animated.ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
-          onScroll={onScroll}
-          onLayout={onScrollViewLayout}
-          onContentSizeChange={onContentSizeChange}
-          scrollEventThrottle={16}
-          showsVerticalScrollIndicator={false}
-        >
-          {item.subCategories?.map((category, index) => (
-            <AnimatedView
-              animation="fadeIn"
-              animationConfig={{
-                duration: 1000,
-                delay: (index + 1) * 150,
-              }}
-              key={category.id}
-              style={styles.categoryItem}
-            >
-              <View style={styles.subCategoryIconWrap}>
-                <Image
-                  source={{ uri: category.iconUrl }}
-                  style={styles.subCategoryIcon}
-                />
-              </View>
-              <View style={styles.subCategoryTextWrap}>
-                <Typography variant="h5" style={styles.subCategoryName}>
-                  {category.name}
-                </Typography>
-              </View>
-              <View style={styles.subCategoryArrowWrap}>
-                <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
-              </View>
-            </AnimatedView>
-          ))}
-        </Animated.ScrollView>
-      </Animated.View>
-    </View>
-  );
-}

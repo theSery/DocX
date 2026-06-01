@@ -8,6 +8,7 @@ import { useStackScreenOptions } from '../../hooks';
 import HomeStackHeader from '../../components/headers/HomeStackHeader';
 import { CategoryScreen } from '../../screens/main/home/CategoryScreen';
 import { HomeStackHeaderScrollProvider } from '../../context/HomeStackHeaderScrollContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Stack = createNativeStackNavigator();
 
@@ -36,6 +37,7 @@ export function HomeStackNavigator() {
   const nestedScreenOptions = useStackScreenOptions();
 
   return (
+    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
     <HomeStackHeaderScrollProvider>
     <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade',  }}>
       <Stack.Screen
@@ -54,6 +56,7 @@ export function HomeStackNavigator() {
           title: '',
           subtitle: '',
           showSearch: true,
+          
         })}
       />
       <Stack.Screen
@@ -72,5 +75,6 @@ export function HomeStackNavigator() {
       />
     </Stack.Navigator>
     </HomeStackHeaderScrollProvider>
+    </SafeAreaView>
   );
 }

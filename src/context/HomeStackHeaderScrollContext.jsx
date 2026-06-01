@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { useSharedValue } from 'react-native-reanimated';
-import { HOME_STACK_HEADER_COLLAPSE_SCROLL_END } from '../components/headers/homeStackHeaderConstants';
+import { HOME_STACK_HEADER_COLLAPSE_SCROLL_END } from '../components/headers/stackHeaderConstants';
 
 const HomeStackHeaderScrollContext = createContext(null);
 

@@ -1,7 +1,4 @@
-import { StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
 import { DocumentsScreen } from '../screens/main/documents';
 import { FilesScreen } from '../screens/main/files';
 import { AccountStackNavigator, HomeStackNavigator } from './stacks';
@@ -13,7 +10,6 @@ const renderBlurTabBar = props => <BlurTabBar {...props} />;
 
 export function TabNavigator() {
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <Tab.Navigator
         tabBar={renderBlurTabBar}
         screenOptions={{
@@ -38,15 +34,11 @@ export function TabNavigator() {
         <Tab.Screen
           name="Account"
           component={AccountStackNavigator}
-          options={{ title: 'Հաշիվ' }}
+          options={{ headerShown: false, title: 'Հաշիվ' }}
+          
         />
       </Tab.Navigator>
-    </SafeAreaView>
+  
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-});

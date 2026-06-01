@@ -21,6 +21,7 @@ export const TYPOGRAPHY_VARIANT_DEFINITIONS = {
     fontSize: 20,
     lineHeight: 32,
     letterSpacing: 0.8,
+    fontFamily: FONT_FAMILY.regular,
   },
   h4: {
     fontSize: 16,

@@ -9,15 +9,35 @@ import {
   SignatureScreen,
 } from '../../screens/main/account';
 import { useStackScreenOptions } from '../../hooks';
+import AccountStackHeader from '../../components/headers/accountStackHeader/AccountStackHeader';
 
 const Stack = createNativeStackNavigator();
-
+const nestedScreenOptionsWithHeader = (
+  nestedScreenOptions,
+  { title, subtitle, showSearch = true, collapsible = true },
+) => ({
+  ...nestedScreenOptions,
+  title,
+  headerSubtitle: subtitle,
+  headerShowSearch: showSearch,
+  headerCollapsible: collapsible,
+  headerShown: true,
+  header: ({ navigation, options }) => (
+    <AccountStackHeader
+      onPress={() => navigation.goBack()}
+      title={options.title}
+      subtitle={options.headerSubtitle}
+      showSearch={options.headerShowSearch}
+      collapsible={options.headerCollapsible}
+    />
+  ),
+});
 export function AccountStackNavigator() {
   const nestedScreenOptions = useStackScreenOptions();
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="AccountMain" component={AccountScreen} />
+      <Stack.Screen name="AccountMain" component={AccountScreen} options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Հաշիվ' })} />
       <Stack.Screen
         name="ProfileInfo"
         component={ProfileInfoScreen}

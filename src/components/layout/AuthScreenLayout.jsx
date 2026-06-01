@@ -21,6 +21,7 @@ export function AuthScreenLayout({
   animatedGradientHeight,
   isReversed,
   // gradientRadius,
+  isAccountScreen = false,
 }) {
   const safeAreaContent = (
     <SafeAreaView style={[styles.safeArea, style]} edges={edges}>
@@ -31,6 +32,7 @@ export function AuthScreenLayout({
   if (withGradient) {
     return (
       <GradientBackground
+       isAccountScreen={isAccountScreen}
         isReversed={isReversed}
         isLight={gradientIsLight}
         centered={false}

@@ -19,7 +19,7 @@ import {
   HOME_STACK_HEADER_COLLAPSED_HEIGHT,
   HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
   HOME_STACK_HEADER_EXPANDED_HEIGHT,
-} from './homeStackHeaderConstants';
+} from './stackHeaderConstants';
 
 const collapseEasing = Easing.out(Easing.cubic);
 
@@ -27,32 +27,8 @@ export {
   HOME_STACK_HEADER_EXPANDED_HEIGHT as HOME_STACK_HEADER_HEIGHT,
   HOME_STACK_HEADER_COLLAPSED_HEIGHT,
   HOME_STACK_HEADER_COLLAPSE_DISTANCE,
-} from './homeStackHeaderConstants';
+} from './stackHeaderConstants';
 
-const createStyles = colors =>
-  StyleSheet.create({
-    container: {
-      backgroundColor: colors.background,
-      paddingHorizontal: 16,
-      // overflow: 'hidden',
-    },
-    collapsible: {
-      overflow: 'hidden',
-    },
-    headerRow: {
-      paddingTop: 10,
-    },
-    titleContainer: {
-      marginTop: 10,
-    },
-    loginTitle: {
-      letterSpacing: 2,
-    },
-    searchWrap: {
-      paddingTop: 8,
-      paddingBottom: 8,
-    },
-  });
 
 const StaticHomeStackHeader = ({
   styles,
@@ -69,7 +45,7 @@ const StaticHomeStackHeader = ({
           ? HOME_STACK_HEADER_EXPANDED_HEIGHT
           : HOME_STACK_HEADER_EXPANDED_HEIGHT -
             HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
-      },
+      }, 
     ]}
   >
     <View style={styles.collapsible}>
@@ -138,7 +114,7 @@ const CollapsibleHomeStackHeader = ({
     ),
     opacity: interpolate(
       smoothScrollY.value,
-      [0, HOME_STACK_HEADER_COLLAPSE_DISTANCE * 0.65],
+      [0, HOME_STACK_HEADER_COLLAPSE_DISTANCE],
       [1, 0],
       Extrapolation.CLAMP,
     ),
@@ -155,7 +131,12 @@ const CollapsibleHomeStackHeader = ({
   }));
 
   return (
-    <Animated.View style={[styles.container, animatedContainerStyle]}>
+    <Animated.View style={[styles.container, animatedContainerStyle, {
+      height: showSearch
+        ? HOME_STACK_HEADER_EXPANDED_HEIGHT
+        : HOME_STACK_HEADER_EXPANDED_HEIGHT -
+          HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
+    }, ]}>
       <Animated.View style={[styles.collapsible, animatedCollapsibleStyle]}>
         <View style={styles.headerRow}>
           <MainHeader onPress={onPress} />
@@ -176,9 +157,7 @@ const CollapsibleHomeStackHeader = ({
         )}
       </Animated.View>
       {showSearch ? (
-        <View style={styles.searchWrap}>
           <SearchComponent />
-        </View>
       ) : null}
     </Animated.View>
   );
@@ -217,3 +196,31 @@ const HomeStackHeader = ({
 };
 
 export default HomeStackHeader;
+
+
+const createStyles = colors =>
+  StyleSheet.create({
+    container: {
+      backgroundColor: colors.background,
+      paddingHorizontal: 16,
+      // overflow: 'hidden',
+    },
+    collapsible: {
+      overflow: 'hidden',
+    },
+    headerRow: {
+      paddingTop: 10,
+    },
+    titleContainer: {
+      marginTop: 10,
+    },
+    loginTitle: {
+      letterSpacing: 2,
+    },
+    searchWrap: {
+      paddingTop: 8,
+      paddingBottom: 8,
+      marginTop: 8,
+    },
+
+  });

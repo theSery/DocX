@@ -1,5 +1,5 @@
 import { Extrapolation, interpolate } from 'react-native-reanimated';
-import { HOME_STACK_HEADER_COLLAPSE_START } from './homeStackHeaderConstants';
+import { HOME_STACK_HEADER_COLLAPSE_START } from './stackHeaderConstants';
 
 function easeOutCubic(t) {
   'worklet';

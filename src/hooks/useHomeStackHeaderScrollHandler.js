@@ -7,7 +7,7 @@ import {
   HOME_STACK_HEADER_COLLAPSE_DISTANCE_EXTRA,
   HOME_STACK_HEADER_COLLAPSE_SCROLL_END,
   HOME_STACK_HEADER_COLLAPSE_START,
-} from '../components/headers/homeStackHeaderConstants';
+} from '../components/headers/stackHeaderConstants';
 
 export function useHomeStackHeaderScrollHandler(enabled = true) {
   const { scrollY, collapseScrollEnd } = useHomeStackHeaderScroll();

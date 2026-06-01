@@ -15,9 +15,86 @@ import {
   useThemedStyles,
   useTheme,
 } from '../../../../hooks';
+import { useIsFocused } from '@react-navigation/native';
 
 export const SPACING = 10;
 export const ITEM_HEIGHT = HEIGHT * 0.2;
+
+
+
+export function CategoriesList({
+  navigation,
+  categories,
+  collapsibleHeader = true,
+}) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
+  const isFocused = useIsFocused();
+  const { onScroll, onScrollViewLayout, onContentSizeChange } =
+    useHomeStackHeaderScrollHandler(collapsibleHeader);
+
+  return (
+    <View style={styles.container}>
+      <Animated.FlatList
+        data={categories}
+        onScroll={onScroll}
+        onLayout={onScrollViewLayout}
+        onContentSizeChange={onContentSizeChange}
+        scrollEventThrottle={collapsibleHeader ? 16 : undefined}
+        contentContainerStyle={styles.contentContainer}
+        keyExtractor={item => item.id.toString()}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.categoryItem}
+            onPress={() => navigation.navigate('Category', { item })}
+          >
+            <View style={styles.categoryItemImage}>
+              <View style={styles.categoryItemHeaderRow}>
+                <Animated.Image
+                  source={{ uri: item.iconUrl }}
+                  sharedTransitionStyle={customTransitionLinear}
+                  style={styles.categoryItemImageIcon}
+                  //    exiting={FadeOut.duration(300)}
+                  sharedTransitionTag={`category-image-${item.id}-${isFocused}`}
+                />
+                <Animated.View
+                  sharedTransitionStyle={customTransitionLinear}
+                  style={styles.bgCategoryItem}
+                  // exiting={FadeOut.duration(300)}
+                  sharedTransitionTag={`category-frame-${item.id}-${isFocused}`}
+                />
+                <Animated.Text
+                  // exiting={FadeOut.duration(300)}
+                  sharedTransitionTag={`category-text-${item.id}-${isFocused}`}
+                  sharedTransitionStyle={customTransitionLinear}
+                  style={styles.categoryItemText}
+                >
+                  {item.name}
+                </Animated.Text>
+              </View>
+              <View style={styles.categoryItemFooterRow}>
+                <Typography
+                  variant="h6"
+                  tone="secondary"
+                  style={styles.categoryItemDescription}
+                >
+                  Երևանի քաղաքապետարանի կողմից տրամադրվող ակտեր
+                </Typography>
+                <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
+              </View>
+            </View>
+          </TouchableOpacity>
+        )}
+      />
+      <Animated.View
+        style={styles.bg}
+        sharedTransitionTag={`general-bg-${isFocused}`}
+        sharedTransitionStyle={customTransition}
+      />
+    </View>
+  );
+}
+
 
 const createStyles = colors =>
   StyleSheet.create({
@@ -85,75 +162,3 @@ marginHorizontal: 5,
       letterSpacing: 0.4,
     },
   });
-
-export function CategoriesList({
-  navigation,
-  categories,
-  collapsibleHeader = true,
-}) {
-  const styles = useThemedStyles(createStyles);
-  const { colors } = useTheme();
-  const { onScroll, onScrollViewLayout, onContentSizeChange } =
-    useHomeStackHeaderScrollHandler(collapsibleHeader);
-
-  return (
-    <View style={styles.container}>
-      <Animated.FlatList
-        data={categories}
-        onScroll={onScroll}
-        onLayout={onScrollViewLayout}
-        onContentSizeChange={onContentSizeChange}
-        scrollEventThrottle={collapsibleHeader ? 16 : undefined}
-        contentContainerStyle={styles.contentContainer}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.categoryItem}
-            onPress={() => navigation.navigate('Category', { item })}
-          >
-            <View style={styles.categoryItemImage}>
-              <View style={styles.categoryItemHeaderRow}>
-                <Animated.Image
-                  source={{ uri: item.iconUrl }}
-                  sharedTransitionStyle={customTransitionLinear}
-                  style={styles.categoryItemImageIcon}
-                  exiting={FadeOut.duration(300)}
-                  sharedTransitionTag={`category-image-${item.id}`}
-                />
-                <Animated.View
-                  sharedTransitionStyle={customTransitionLinear}
-                  style={styles.bgCategoryItem}
-                  exiting={FadeOut.duration(300)}
-                  sharedTransitionTag={`category-frame-${item.id}`}
-                />
-                <Animated.Text
-                  exiting={FadeOut.duration(300)}
-                  sharedTransitionTag={`category-text-${item.id}`}
-                  sharedTransitionStyle={customTransitionLinear}
-                  style={styles.categoryItemText}
-                >
-                  {item.name}
-                </Animated.Text>
-              </View>
-              <View style={styles.categoryItemFooterRow}>
-                <Typography
-                  variant="h6"
-                  tone="secondary"
-                  style={styles.categoryItemDescription}
-                >
-                  Երևանի քաղաքապետարանի կողմից տրամադրվող ակտեր
-                </Typography>
-                <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
-              </View>
-            </View>
-          </TouchableOpacity>
-        )}
-      />
-      <Animated.View
-        style={styles.bg}
-        sharedTransitionTag={`general-bg`}
-        sharedTransitionStyle={customTransition}
-      />
-    </View>
-  );
-}
