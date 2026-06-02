@@ -1,5 +1,5 @@
 PODS:
-  - AsyncStorage (3.1.0):
+  - AsyncStorage (3.1.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1470,6 +1470,50 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - react-native-cameraroll (7.10.2):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
+  - react-native-image-picker (8.2.1):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - react-native-safe-area-context (5.8.0):
     - hermes-engine
     - RCTRequired
@@ -1994,7 +2038,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNReanimated (4.3.1):
+  - RNReanimated (4.4.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2016,11 +2060,11 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNReanimated/apple (= 4.3.1)
-    - RNReanimated/common (= 4.3.1)
+    - RNReanimated/apple (= 4.4.0)
+    - RNReanimated/common (= 4.4.0)
     - RNWorklets
     - Yoga
-  - RNReanimated/apple (4.3.1):
+  - RNReanimated/apple (4.4.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2044,7 +2088,7 @@ PODS:
     - ReactNativeDependencies
     - RNWorklets
     - Yoga
-  - RNReanimated/common (4.3.1):
+  - RNReanimated/common (4.4.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2160,7 +2204,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNWorklets (0.8.3):
+  - RNWorklets (0.9.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2182,10 +2226,10 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNWorklets/apple (= 0.8.3)
-    - RNWorklets/common (= 0.8.3)
+    - RNWorklets/apple (= 0.9.1)
+    - RNWorklets/common (= 0.9.1)
     - Yoga
-  - RNWorklets/apple (0.8.3):
+  - RNWorklets/apple (0.9.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2208,7 +2252,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNWorklets/common (0.8.3):
+  - RNWorklets/common (0.9.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2299,6 +2343,8 @@ DEPENDENCIES:
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - React-mutationobservernativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/mutationobserver`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
+  - "react-native-cameraroll (from `../node_modules/@react-native-camera-roll/camera-roll`)"
+  - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-skia (from `../node_modules/@shopify/react-native-skia`)"
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -2435,6 +2481,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/mutationobserver"
   react-native-blur:
     :path: "../node_modules/@react-native-community/blur"
+  react-native-cameraroll:
+    :path: "../node_modules/@react-native-camera-roll/camera-roll"
+  react-native-image-picker:
+    :path: "../node_modules/react-native-image-picker"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-skia:
@@ -2527,7 +2577,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  AsyncStorage: 8584957a3d3d63ac982b1e3084eb1d1d94367b07
+  AsyncStorage: dba9d05b9aa34413760ea5a74f63a7e7f9fddf73
   FBLazyVector: 24e62c765683b8d89006a88a2c8f5cf019f0074d
   hermes-engine: 2ed86adce19ee1a8966d78e3bf2d7e73f0d1839e
   lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
@@ -2570,6 +2620,8 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: d86581169e9bb5bb6f5fc3c5052f890016c1bf21
   React-mutationobservernativemodule: 9a0c4e866f1ef2a57acebc902ebacbdf469ae741
   react-native-blur: baf5874b4abf3bb8b2012172a3d0905653a1a2b5
+  react-native-cameraroll: 76daf9ff17079fba7fbe80e92cab81db6509825a
+  react-native-image-picker: 2146157d5d37a34c2063d1d2ed01081b56d0b87b
   react-native-safe-area-context: c1eb308f4b36372a4de4b3bdaa8ed695ec3dd461
   react-native-skia: 361361b8cdcae7f52c09234102e59c3b22457d75
   React-NativeModulesApple: cc6ec4767844d610e92cc358bd3ea34937438d56
@@ -2609,10 +2661,10 @@ SPEC CHECKSUMS:
   RNDateTimePicker: c33c46d089998652b576a58ac08108db8c9af6f1
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: acf7db8499c11193d9b4b6b1cc1439ff4f01a693
-  RNReanimated: 39dadfc71c6057e71dc8e31d8dc2c38492b165ba
+  RNReanimated: c18f5c336bfb87cbeb1fb0d0bae118a526e03ec2
   RNScreens: 032083414633a4d94cbcf08f8ab5019d72d1ba36
   RNSVG: a37350c7bc37452fd2b209efa0806f1de0f847ae
-  RNWorklets: 32b9ca9e0588b838ce3202a9ea3971f553c9011c
+  RNWorklets: 4dba1eb7cbfc3e8db49e5cce18a1a471fd2ed696
   SplashView: 37106789391092000af66aa5d717bc14d88066cc
   Yoga: 36fee8f1fca3f54a28c3d7f80e69f66d73d3af96
 

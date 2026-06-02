@@ -8,45 +8,51 @@ import {
   SettingsScreen,
   SignatureScreen,
 } from '../../screens/main/account';
+import { useAuth } from '../../contexts';
 import { useStackScreenOptions } from '../../hooks';
 import AccountStackHeader from '../../components/headers/accountStackHeader/AccountStackHeader';
 
 const Stack = createNativeStackNavigator();
 const nestedScreenOptionsWithHeader = (
   nestedScreenOptions,
-  { title, subtitle, showSearch = true, collapsible = true, isBackButton = false },
+  { title, subtitle, showSearch = true, collapsible = true, isBackButton = false, isLogoutButton = false },
+  onLogoutPress,
 ) => ({
   ...nestedScreenOptions,
   title,
   isBackButton,
-  headerSubtitle: subtitle,
-  headerShowSearch: showSearch,
-  headerCollapsible: collapsible,
+  isLogoutButton,
   // headerShown: isBackButton,
   header: ({ navigation, options }) => (
     <AccountStackHeader
       onPress={() => navigation.goBack()}
+      onLogoutPress={onLogoutPress}
       title={options.title}
-      subtitle={options.headerSubtitle}
-      showSearch={options.headerShowSearch}
-      collapsible={options.headerCollapsible}
       isBackButton={options.isBackButton}
+      isLogoutButton={options.isLogoutButton}
     />
   ),
 });
 export function AccountStackNavigator() {
   const nestedScreenOptions = useStackScreenOptions();
+  const { setIsSign } = useAuth();
+
+  const handleLogoutPress = () => {
+    setIsSign(false);
+  };
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
+    <Stack.Navigator
+      initialRouteName="AccountMain"
+      screenOptions={{ headerShown: false, animation: 'fade' }}>
       <Stack.Screen name="AccountMain" component={AccountScreen} 
-      options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Հաշիվ', isBackButton: true })} />
+      options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Հաշիվ', isLogoutButton: true, isBackButton: false }, handleLogoutPress)} />
       <Stack.Screen
         name="ProfileInfo"
         component={ProfileInfoScreen}
       //   options={{ ...nestedScreenOptions, title: 'Անձնական տվյալներ' }}
       // />
-      options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Անձնական տվյալներ' })} />
+      options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Անձնական տվյալներ', isLogoutButton: true, isBackButton: true }, handleLogoutPress)} />
       <Stack.Screen
         name="PassportInfo"
         component={PassportInfoScreen}

@@ -46,7 +46,6 @@ const categoriesSlice = createSlice({
       .addCase(fetchCategoryHierarchy.fulfilled, (state, action) => {
         const { data, page, limit } = action.payload;
         const payload = data?.data ?? data;
-        console.log('payload', payload);
         const items = Array.isArray(payload)
           ? payload
           : Array.isArray(payload?.items)

@@ -33,6 +33,12 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>DocX needs camera access to capture your signature.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>DocX needs photo library access to upload your signature image.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>DocX needs permission to save your signature to the photo library.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string/>
 	<key>RCTNewArchEnabled</key>

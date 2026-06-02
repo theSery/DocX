@@ -2,11 +2,11 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 import { AnimatedView, Typography } from '../../../components';
-import { colors, FONT_FAMILY, palette } from '../../../theme';
+import { useGlobalStyles, useThemedStyles, useTheme } from '../../../hooks';
+import { FONT_FAMILY, palette } from '../../../theme';
 import WalletSvg from '../../../components/icons/WalletSvg';
 import PlusSvg from '../../../components/icons/PlusSvg';
 import Chevron from '../../../components/icons/Chevron';
@@ -15,66 +15,172 @@ import PasportSvg from '../../../components/icons/PasportSvg';
 import SettingSvg from '../../../components/icons/SettingSvg';
 import LockIconSbg from '../../../components/icons/LockIconSbg';
 import SignatureSvg from '../../../components/icons/SignatureSvg';
-import DeleteSvg from '../../../components/icons/DeleteSvg';
 import TrashSvg from '../../../components/icons/TrashSvg';
 import PinCodeSvg from '../../../components/icons/PinCodeSvg';
+import { showGlobalSheet } from '../../../components/GlobalSheet';
 
 const ACCOUNT_MENU = [
-
   {
     id: 1,
     label: 'Անձնական տվյալներ',
     screen: 'ProfileInfo',
-    icon: <AccountInfoSvg fill={colors.mainBlue} width={20} height={20} />,
+    icon: <AccountInfoSvg fill={palette.mainBlue} width={20} height={20} />,
   },
   {
     id: 2,
     label: 'Համալրել դրամապանակը',
     screen: 'PassportInfo',
-    icon: <PasportSvg fill={colors.mainBlue} width={20} height={20} />,
+    icon: <PasportSvg fill={palette.mainBlue} width={20} height={20} />,
   },
   {
     id: 3,
     label: 'Գաղտնաբառ',
     screen: 'PasswordChange',
-    icon: <LockIconSbg fill={colors.mainBlue} width={20} height={20} />,
+    icon: <LockIconSbg fill={palette.mainBlue} width={20} height={20} />,
   },
 ];
+
 const SECONDARY_MENU = [
   {
     id: 1,
     label: 'Կարգավորումներ',
     screen: 'Settings',
-    icon: <SettingSvg fill={colors.mainBlue} width={20} height={20} />,
+    icon: <SettingSvg fill={palette.mainBlue} width={20} height={20} />,
   },
   {
     id: 2,
     label: 'Պին կոդ',
     screen: 'PinCodeChange',
-    icon: <PinCodeSvg fill={colors.mainBlue} width={20} height={20} />,
+    icon: <PinCodeSvg fill={palette.mainBlue} width={20} height={20} />,
   },
   {
     id: 3,
     label: 'Ստորագրություն',
     screen: 'Signature',
-    icon: <SignatureSvg fill={colors.mainBlue} width={20} height={20} />,
+    icon: <SignatureSvg fill={palette.mainBlue} width={20} height={20} />,
   },
   {
     id: 4,
     label: 'Ջնջել հաշիվը',
     screen: 'DeleteAccount',
-    icon: <TrashSvg fill={colors.textDisabled} width={20} height={20} />,
+    icon: <TrashSvg fill={palette.lightGray} width={20} height={20} />,
   },
 ];
+
+const createStyles = (colors) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      paddingHorizontal: 16,
+    },
+    content: {
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      width: '100%',
+      marginTop: 30,
+    },
+    balanceContainer: {
+      flexDirection: 'row',
+      gap: 10,
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      width: '100%',
+      paddingBottom: 20,
+    },
+    balanceRow: {
+      flexDirection: 'row',
+      gap: 10,
+      alignItems: 'center',
+    },
+    balanceText: {
+      color: palette.lightGray,
+      fontSize: 40,
+      fontFamily: FONT_FAMILY.bold,
+      letterSpacing: 1.8,
+    },
+    addBalanceContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    addBalanceText: {
+      color: palette.white,
+      fontSize: 14,
+      fontFamily: FONT_FAMILY.regular,
+    },
+    addBalanceButton: {
+      backgroundColor: colors.accent,
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+      borderRadius: 16,
+      width: '40%',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    section: {
+      width: '100%',
+    },
+    sectionSpaced: {
+      width: '100%',
+      marginTop: 30,
+    },
+    menuList: {
+      marginTop: 20,
+    },
+    menuItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.textDisabled,
+      paddingHorizontal: 30,
+    },
+    menuItemLast: {
+      borderBottomWidth: 0,
+    },
+    menuItemRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    footer: {
+      textAlign: 'center',
+      marginTop: 20,
+      fontSize: 8,
+    },
+  });
+
 export function AccountScreen({ navigation }) {
+  const globalStyles = useGlobalStyles();
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
+
+  const handleDeleteAccountPress = () => {
+    console.log('delete account');
+  };
+
+  const handleLogoutPress = () => {
+    showGlobalSheet({
+      message: 'Վստա՞հ եք, որ ցանկանում եք Ջնջել հաշիվը',
+      actions: [
+        { label: 'Փակել' },
+        { label: 'Ջնջել հաշիվը', destructive: true, onPress: handleDeleteAccountPress },
+      ],
+    });
+  };
+
+  const navigateToScreen = (screen) => {
+    navigation.navigate(screen);
+  };
 
   return (
-    <ScrollView style={styles.screen}>
-      <AnimatedView animation="fadeIn" duration={500} style={[styles.content]}>
+    <ScrollView style={[globalStyles.screen, styles.screen]}>
+      <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
         <View style={styles.balanceContainer}>
-          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+          <View style={styles.balanceRow}>
             <WalletSvg fill={palette.lightGray} width={50} height={50} />
-            <Text style={styles.balanceText}>500֏</Text>
+            <Typography variant="h1" style={styles.balanceText}>500֏</Typography>
           </View>
 
           <Pressable
@@ -89,120 +195,57 @@ export function AccountScreen({ navigation }) {
             </View>
           </Pressable>
         </View>
-        <View style={{ width: '100%' }}>
-          <Typography variant="h4" style={{ color: colors.textDisabled }}>
+
+        <View style={styles.section}>
+          <Typography variant="h4" tone="disabled">
             Հաշիվ
           </Typography>
-          <View style={{ marginTop: 20 }}>
-            {ACCOUNT_MENU.map(item => (
+          <View style={styles.menuList}>
+            {ACCOUNT_MENU.map((item) => (
               <Pressable
                 key={item.screen}
-                style={[styles.menuItem, { borderBottomWidth: item.id === 3 ? 0 : 1 }]}
-                onPress={() => navigation.navigate(item.screen)}
+                style={[styles.menuItem, item.id === 3 && styles.menuItemLast]}
+                onPress={() => navigateToScreen(item.screen)}
               >
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={styles.menuItemRow}>
                   {item.icon}
                   <Typography variant="h5">{item.label}</Typography>
                 </View>
-
-                <Chevron
-                  width={11}
-                  height={11}
-                  fill={colors.mainBlue}
-                />
+                <Chevron width={11} height={11} fill={colors.mainBlue} />
               </Pressable>
             ))}
           </View>
         </View>
-        <View style={{ width: '100%', marginTop: 30 }}>
-          <Typography variant="h4" style={{ color: colors.textDisabled }}>
+
+        <View style={styles.sectionSpaced}>
+          <Typography variant="h4" tone="disabled">
             Հաշվի կարգավորումներ
           </Typography>
-          <View style={{ marginTop: 20 }}>
-            {SECONDARY_MENU.map(item => (
+          <View style={styles.menuList}>
+            {SECONDARY_MENU.map((item) => (
               <Pressable
                 key={item.id}
-                style={[styles.menuItem, { borderBottomWidth: item.id === 4 ? 0 : 1 }]}
-                onPress={() => navigation.navigate(item.screen)}
+                style={[styles.menuItem, item.id === 4 && styles.menuItemLast]}
+                onPress={() => (item.id === 4 ? handleLogoutPress() : navigateToScreen(item.screen))}
               >
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={styles.menuItemRow}>
                   {item.icon}
-                  <Typography variant="h5" style={{ color: item.id === 4 ? colors.textDisabled : colors.text }}>{item.label}</Typography>
+                  <Typography
+                    variant="h5"
+                    tone={item.id === 4 ? 'disabled' : 'default'}
+                  >
+                    {item.label}
+                  </Typography>
                 </View>
-
               </Pressable>
             ))}
           </View>
         </View>
-        <Typography variant="h5" style={
-          { color: colors.textSecondary, textAlign: 'center', marginTop: 20, fontSize: 8 }}>
-          © 2026 - DOCX Բոլոր իրավունքները պաշտպանված են
+
+        <Typography variant="h5" tone="secondary" style={styles.footer}>
+          © 2026 - DOCX Բոլոր իրավունքները պաշտպանված են
         </Typography>
       </AnimatedView>
     </ScrollView>
   );
 }
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
-
-  container: {
-    flex: 1,
-    width: '100%',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    height: '100%',
-  },
-
-  content: {
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    width: '100%',
-    marginTop: 30,
-  },
-
-  balanceContainer: {
-    flexDirection: 'row',
-    gap: 10,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    paddingBottom: 20,
-  },
-  balanceText: {
-    color: palette.lightGray,
-    fontSize: 40,
-    fontFamily: FONT_FAMILY.bold,
-    letterSpacing: 1.8,
-  },
-  addBalanceContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  addBalanceText: {
-    color: palette.white,
-    fontSize: 14,
-    fontFamily: FONT_FAMILY.Regular,
-  },
-  addBalanceButton: {
-    backgroundColor: '#00A88C',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 16,
-    width: '40%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.textDisabled,
-    paddingHorizontal: 30,
-  },
-});

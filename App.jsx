@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as ReduxProvider } from 'react-redux';
 import { SplashGate } from './src/components';
+import { GlobalSheetProvider } from './src/components/GlobalSheet';
 import { AuthProvider } from './src/contexts';
 import { useNavigationTheme } from './src/hooks';
 import { RootNavigator } from './src/navigation/RootNavigator';
@@ -32,7 +33,9 @@ function App() {
           <SafeAreaProvider>
             <SplashGate>
               <AuthProvider>
-                <AppNavigation />
+                <GlobalSheetProvider>
+                  <AppNavigation />
+                </GlobalSheetProvider>
               </AuthProvider>
             </SplashGate>
           </SafeAreaProvider>

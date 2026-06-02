@@ -11,10 +11,10 @@ const renderBlurTabBar = props => <BlurTabBar {...props} />;
 export function TabNavigator() {
   return (
       <Tab.Navigator
+        initialRouteName="Home"
         tabBar={renderBlurTabBar}
         screenOptions={{
           headerShown: false,
-          animation: 'fade',
         }}>
         <Tab.Screen
           name="Home"

@@ -1,14 +1,15 @@
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useMainScreenStyles } from '../../../hooks';
+import { useGlobalStyles, useThemedStyles } from '../../../hooks';
 import { AnimatedView, FormDateField, FormField, Typography } from '../../../components';
 import { useForm } from 'react-hook-form';
 import MailIconSvg from '../../../components/icons/MailIconSvg';
 import GradientButton from '../../../components/buttons/GradientButton';
 import UserSvg from '../../../components/icons/UserSvg';
-import { colors, FONT_FAMILY, palette } from '../../../theme';
+import { FONT_FAMILY, palette } from '../../../theme';
 import { EMAIL_PATTERN, ARMENIAN_NAME_RULES, PHONE_NUMBER_PATTERN } from '../../../utils/patterns';
 import PhoneSvg from '../../../components/icons/PhoneSvg';
 import CalendarSvg from '../../../components/icons/CalendarSvg';
+
 const CONTACT_INFO_FIELDS = [
   {
     name: 'email',
@@ -27,7 +28,7 @@ const CONTACT_INFO_FIELDS = [
   {
     name: 'name',
     label: 'Անուն *',
-    startIcon: <UserSvg width={24} height={24} fill={colors.gray} />,
+    startIcon: <UserSvg width={24} height={24} fill={palette.gray} />,
     placeholder: 'Ձեր Անունը',
     keyboardType: 'default',
     rules: ARMENIAN_NAME_RULES,
@@ -35,7 +36,7 @@ const CONTACT_INFO_FIELDS = [
   {
     name: 'lastName',
     label: 'Ազգանուն *',
-    startIcon: <UserSvg width={24} height={24} fill={colors.gray} />,
+    startIcon: <UserSvg width={24} height={24} fill={palette.gray} />,
     placeholder: 'Ձեր Ազգանունը',
     keyboardType: 'default',
     rules: ARMENIAN_NAME_RULES,
@@ -43,19 +44,63 @@ const CONTACT_INFO_FIELDS = [
   {
     name: 'middleName',
     label: 'Միջանուն *',
-    startIcon: <UserSvg width={24} height={24} fill={colors.gray} />,
+    startIcon: <UserSvg width={24} height={24} fill={palette.gray} />,
     placeholder: 'Ձեր Միջանունը',
     keyboardType: 'default',
     rules: ARMENIAN_NAME_RULES,
   },
-
 ];
+
+const createStyles = (colors) =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      paddingHorizontal: 16,
+      marginBottom: 72,
+    },
+    contentContainer: {
+      paddingBottom: 32,
+      width: '100%',
+    },
+    content: {
+      flex: 1,
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+      paddingTop: 20,
+    },
+    screenTitle: {
+      letterSpacing: 0.9,
+    },
+    formFieldContainer: {
+      width: '100%',
+      marginTop: 20,
+      gap: 20,
+    },
+    primaryButton: {
+      height: 45,
+      overflow: 'hidden',
+      borderRadius: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 20,
+    },
+    primaryButtonText: {
+      fontFamily: FONT_FAMILY.regular,
+      color: palette.white,
+      letterSpacing: 1.2,
+    },
+    buttonPressed: {
+      opacity: 0.88,
+    },
+  });
+
 export function ProfileInfoScreen() {
+  const globalStyles = useGlobalStyles();
+  const styles = useThemedStyles(createStyles);
+
   const {
     control,
-    getValues,
     handleSubmit,
-    formState: { isSubmitting },
   } = useForm({
     defaultValues: {
       email: '',
@@ -67,18 +112,22 @@ export function ProfileInfoScreen() {
     },
     mode: 'onBlur',
   });
+
   const onSubmit = (data) => {
     console.log(data);
   };
+
   return (
-    <ScrollView style={styles.screen}
+    <ScrollView
+      style={[globalStyles.screen, styles.screen]}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="on-drag"
       automaticallyAdjustKeyboardInsets
-      contentContainerStyle={{ paddingBottom: 32, width: '100%' }}>
-      <AnimatedView animation="fadeIn" duration={500} style={[styles.content]}>
-        <Typography variant="h4" style={styles.addBalanceText}>
+      contentContainerStyle={styles.contentContainer}
+    >
+      <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
+        <Typography variant="h4" style={styles.screenTitle}>
           Անձնական տվյալներ
         </Typography>
         <View style={styles.formFieldContainer}>
@@ -98,7 +147,7 @@ export function ProfileInfoScreen() {
             control={control}
             name="birthDate"
             label="Ծննդյան ամսաթիվ"
-            startIcon={<CalendarSvg width={20} height={20} fill={colors.mainBlue} />}
+            startIcon={<CalendarSvg width={20} height={20} fill={palette.mainBlue} />}
           />
           <FormField
             control={control}
@@ -106,8 +155,8 @@ export function ProfileInfoScreen() {
             label="Հեռախոսահամար"
             keyboardType="phone-pad"
             placeholder="91 123 456"
-            placeholderTextColor={colors.lightGray}
-            startIcon={<PhoneSvg width={20} height={20} fill={colors.mainBlue} />}
+            placeholderTextColor={palette.lightGray}
+            startIcon={<PhoneSvg width={20} height={20} fill={palette.mainBlue} />}
             rules={{
               required: 'Հեռախոսահամարը պարտադիր է',
               pattern: {
@@ -116,13 +165,10 @@ export function ProfileInfoScreen() {
               },
             }}
           />
-
         </View>
-
       </AnimatedView>
       <Pressable
         onPress={handleSubmit(onSubmit)}
-        // disabled={isSubmitting}
         style={({ pressed }) => [
           styles.primaryButton,
           pressed && styles.buttonPressed,
@@ -137,37 +183,3 @@ export function ProfileInfoScreen() {
     </ScrollView>
   );
 }
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    paddingHorizontal: 16,
-
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    paddingTop: 20,
-  },
-  addBalanceText: {
-    letterSpacing: 0.9,
-  },
-  formFieldContainer: {
-    width: '100%',
-    marginTop: 20,
-    gap: 20,
-  },
-  primaryButton: {
-    height: 45,
-    overflow: 'hidden',
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-  },
-  primaryButtonText: {
-    fontFamily: FONT_FAMILY.regular,
-    color: palette.white,
-    letterSpacing: 1.2,
-  },
-});

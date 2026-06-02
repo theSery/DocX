@@ -188,11 +188,11 @@ export function FormDateField({
                     <View style={styles.iosPickerHeader}>
                       <Pressable onPress={() => closeIosPicker(false)} hitSlop={8}>
                         <Text style={[styles.iosPickerAction, styles.iosPickerActionMuted]}>
-                          Չեղարկել
+                        Փակել
                         </Text>
                       </Pressable>
                       <Pressable onPress={() => closeIosPicker(true)} hitSlop={8}>
-                        <Text style={styles.iosPickerAction}>Պատրաստ</Text>
+                        <Text style={styles.iosPickerAction}>Ընտրել</Text>
                       </Pressable>
                     </View>
                     <DateTimePicker
