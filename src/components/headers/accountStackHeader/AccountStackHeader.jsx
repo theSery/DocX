@@ -13,6 +13,7 @@ const AccountStackHeader = ({
   onPress,
   title,
   subtitle,
+  isBackButton = false,
   showSearch = true,
   collapsible = true,
 }) => {
@@ -28,7 +29,7 @@ const AccountStackHeader = ({
       >
 
         <View style={[styles.container, { paddingTop: insets.top }]} >
-          <AccountHeader onPress={onPress} title={title} />
+          <AccountHeader onPress={onPress} title={title} isBackButton={isBackButton} />
           <View style={styles.infoContainer}>
             <View
               style={[styles.accountContainer]}

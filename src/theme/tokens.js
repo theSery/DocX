@@ -4,7 +4,7 @@
  */
 export const palette = Object.freeze({
   black: '#11111D',
-  white: '#FAFBFF',
+  white: '#F4F6FB',
   backgroundWhite: '#F4F6FB',
   gray: '#5D6983',
   lightGray: '#9DA6BA',

@@ -1,21 +1,27 @@
 
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View, Image } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, Image, Pressable } from 'react-native';
 // import Icon from 'react-native-vector-icons/AntDesign';
 import BackButton from '../../buttons/BackButton';
-import whiteLogo from '../../../assets/images/whiteLogo.webp';
+import ligtBlueButton from '../../../assets/images/ligtBlueButton.webp';
 import { Typography } from '../../typography';
 import { palette } from '../../../theme';
-const AccountHeader = ({ onPress, title }) => {
+import LogoutSvg from '../../icons/LogoutSvg';
+const AccountHeader = ({ onPress, title, isBackButton }) => {
   return (
 <View style={styles.container}>
     <View style={styles.backButtonContainer}>
         {/* <BackButton onPress={onPress} /> */}
     </View>
     <View style={styles.logoContainer}>
-    <Typography variant="h2" style={{ color: palette.white }}>{title}</Typography>
+    <Typography variant="h2" style={{ color: palette.white, fontSize: !isBackButton ? 16 : 24 }}>{title}</Typography>
     </View>
-    <View style={styles.backButtonContainer}></View>
+    <View style={styles.backButtonContainer}>
+    <Pressable onPress={onPress} activeOpacity={0.7} style={styles.logOut}>
+    <Image source={ligtBlueButton} style={styles.image} resizeMode="contain" />
+    <LogoutSvg fill={palette.white} width={20} height={20} />
+    </Pressable>
+    </View>
 </View>
   );
 };
@@ -36,6 +42,20 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 40,
     },
+    image: {
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+
+      },
+      logOut: {
+        position: 'relative',
+        width: '100%',
+        height: 50,
+        borderRadius: 100,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
 });
 
 export default AccountHeader;

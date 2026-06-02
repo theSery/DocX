@@ -14,14 +14,15 @@ import AccountStackHeader from '../../components/headers/accountStackHeader/Acco
 const Stack = createNativeStackNavigator();
 const nestedScreenOptionsWithHeader = (
   nestedScreenOptions,
-  { title, subtitle, showSearch = true, collapsible = true },
+  { title, subtitle, showSearch = true, collapsible = true, isBackButton = false },
 ) => ({
   ...nestedScreenOptions,
   title,
+  isBackButton,
   headerSubtitle: subtitle,
   headerShowSearch: showSearch,
   headerCollapsible: collapsible,
-  headerShown: true,
+  // headerShown: isBackButton,
   header: ({ navigation, options }) => (
     <AccountStackHeader
       onPress={() => navigation.goBack()}
@@ -29,6 +30,7 @@ const nestedScreenOptionsWithHeader = (
       subtitle={options.headerSubtitle}
       showSearch={options.headerShowSearch}
       collapsible={options.headerCollapsible}
+      isBackButton={options.isBackButton}
     />
   ),
 });
@@ -36,13 +38,15 @@ export function AccountStackNavigator() {
   const nestedScreenOptions = useStackScreenOptions();
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="AccountMain" component={AccountScreen} options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Հաշիվ' })} />
+    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
+      <Stack.Screen name="AccountMain" component={AccountScreen} 
+      options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Հաշիվ', isBackButton: true })} />
       <Stack.Screen
         name="ProfileInfo"
         component={ProfileInfoScreen}
-        options={{ ...nestedScreenOptions, title: 'Profile info' }}
-      />
+      //   options={{ ...nestedScreenOptions, title: 'Անձնական տվյալներ' }}
+      // />
+      options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Անձնական տվյալներ' })} />
       <Stack.Screen
         name="PassportInfo"
         component={PassportInfoScreen}

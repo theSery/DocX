@@ -14,28 +14,56 @@ import AccountInfoSvg from '../../../components/icons/AccountInfoSvg';
 import PasportSvg from '../../../components/icons/PasportSvg';
 import SettingSvg from '../../../components/icons/SettingSvg';
 import LockIconSbg from '../../../components/icons/LockIconSbg';
+import SignatureSvg from '../../../components/icons/SignatureSvg';
+import DeleteSvg from '../../../components/icons/DeleteSvg';
+import TrashSvg from '../../../components/icons/TrashSvg';
+import PinCodeSvg from '../../../components/icons/PinCodeSvg';
 
 const ACCOUNT_MENU = [
-  { label: 'Անձնական տվյալներ', 
+
+  {
+    id: 1,
+    label: 'Անձնական տվյալներ',
     screen: 'ProfileInfo',
     icon: <AccountInfoSvg fill={colors.mainBlue} width={20} height={20} />,
   },
-  { 
-    label: 'Համալրել դրամապանակը', 
+  {
+    id: 2,
+    label: 'Համալրել դրամապանակը',
     screen: 'PassportInfo',
     icon: <PasportSvg fill={colors.mainBlue} width={20} height={20} />,
   },
-  { 
-    label: 'Գաղտնաբառ', 
+  {
+    id: 3,
+    label: 'Գաղտնաբառ',
     screen: 'PasswordChange',
     icon: <LockIconSbg fill={colors.mainBlue} width={20} height={20} />,
   },
 ];
 const SECONDARY_MENU = [
-  { 
-    label: 'Կարգավորումներ', 
+  {
+    id: 1,
+    label: 'Կարգավորումներ',
     screen: 'Settings',
     icon: <SettingSvg fill={colors.mainBlue} width={20} height={20} />,
+  },
+  {
+    id: 2,
+    label: 'Պին կոդ',
+    screen: 'PinCodeChange',
+    icon: <PinCodeSvg fill={colors.mainBlue} width={20} height={20} />,
+  },
+  {
+    id: 3,
+    label: 'Ստորագրություն',
+    screen: 'Signature',
+    icon: <SignatureSvg fill={colors.mainBlue} width={20} height={20} />,
+  },
+  {
+    id: 4,
+    label: 'Ջնջել հաշիվը',
+    screen: 'DeleteAccount',
+    icon: <TrashSvg fill={colors.textDisabled} width={20} height={20} />,
   },
 ];
 export function AccountScreen({ navigation }) {
@@ -61,56 +89,55 @@ export function AccountScreen({ navigation }) {
             </View>
           </Pressable>
         </View>
-        <View style={{ width: '100%'}}>
+        <View style={{ width: '100%' }}>
           <Typography variant="h4" style={{ color: colors.textDisabled }}>
             Հաշիվ
           </Typography>
-          <View style={{marginTop: 20}}>
-          {ACCOUNT_MENU.map(item => (
-            <Pressable
-              key={item.screen}
-              style={styles.menuItem}
-              onPress={() => navigation.navigate(item.screen)}
-            >
-              <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
-              {item.icon}
-              <Typography variant="h5">{item.label}</Typography>
-              </View>
-             
-              <Chevron
-              width={11}
-              height={11}
-              fill={colors.mainBlue}
-            />
+          <View style={{ marginTop: 20 }}>
+            {ACCOUNT_MENU.map(item => (
+              <Pressable
+                key={item.screen}
+                style={[styles.menuItem, { borderBottomWidth: item.id === 3 ? 0 : 1 }]}
+                onPress={() => navigation.navigate(item.screen)}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  {item.icon}
+                  <Typography variant="h5">{item.label}</Typography>
+                </View>
+
+                <Chevron
+                  width={11}
+                  height={11}
+                  fill={colors.mainBlue}
+                />
               </Pressable>
             ))}
           </View>
         </View>
-        <View style={{ width: '100%', marginTop: 30}}>
+        <View style={{ width: '100%', marginTop: 30 }}>
           <Typography variant="h4" style={{ color: colors.textDisabled }}>
-          Հաշվի կարգավորումներ
+            Հաշվի կարգավորումներ
           </Typography>
-          <View style={{marginTop: 20}}>
-          {SECONDARY_MENU.map(item => (
-            <Pressable
-              key={item.screen}
-              style={styles.menuItem}
-              onPress={() => navigation.navigate(item.screen)}
-            >
-              <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
-              {item.icon}
-              <Typography variant="h5">{item.label}</Typography>
-              </View>
-             
-              <Chevron
-              width={11}
-              height={11}
-              fill={colors.mainBlue}
-            />
+          <View style={{ marginTop: 20 }}>
+            {SECONDARY_MENU.map(item => (
+              <Pressable
+                key={item.id}
+                style={[styles.menuItem, { borderBottomWidth: item.id === 4 ? 0 : 1 }]}
+                onPress={() => navigation.navigate(item.screen)}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  {item.icon}
+                  <Typography variant="h5" style={{ color: item.id === 4 ? colors.textDisabled : colors.text }}>{item.label}</Typography>
+                </View>
+
               </Pressable>
             ))}
           </View>
         </View>
+        <Typography variant="h5" style={
+          { color: colors.textSecondary, textAlign: 'center', marginTop: 20, fontSize: 8 }}>
+          © 2026 - DOCX Բոլոր իրավունքները պաշտպանված են
+        </Typography>
       </AnimatedView>
     </ScrollView>
   );
