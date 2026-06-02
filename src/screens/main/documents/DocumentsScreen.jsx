@@ -10,6 +10,7 @@ import {
 import { DocumentPdfPreview } from '../../../components/documents/DocumentPdfPreview';
 import { Typography } from '../../../components';
 import {
+  buildDocumentPreviewHtml,
   createDocumentPdf,
   FAKE_BACKEND_DOCUMENT_HTML,
   FAKE_DOCUMENT_PLACEHOLDERS,
@@ -25,18 +26,32 @@ export function DocumentsScreen() {
   const styles = useThemedStyles(createStyles);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPreviewLoading, setIsPreviewLoading] = useState(true);
+  const [isPdfRendering, setIsPdfRendering] = useState(false);
   const [pdfFilePath, setPdfFilePath] = useState(null);
   const [pdfBase64, setPdfBase64] = useState(null);
+  const [previewHtml, setPreviewHtml] = useState(null);
   const [previewError, setPreviewError] = useState(null);
 
   const loadPdfPreview = useCallback(async () => {
     setIsPreviewLoading(true);
     setPreviewError(null);
+    setPdfFilePath(null);
+    setPdfBase64(null);
+    setPreviewHtml(null);
+
+    const documentInput = {
+      backendHtml: FAKE_BACKEND_DOCUMENT_HTML,
+      placeholders: FAKE_DOCUMENT_PLACEHOLDERS,
+      slots: FAKE_DOCUMENT_SLOTS,
+    };
+
     try {
+      setPreviewHtml(buildDocumentPreviewHtml(documentInput));
+      setIsPreviewLoading(false);
+
+      setIsPdfRendering(true);
       const result = await createDocumentPdf({
-        backendHtml: FAKE_BACKEND_DOCUMENT_HTML,
-        placeholders: FAKE_DOCUMENT_PLACEHOLDERS,
-        slots: FAKE_DOCUMENT_SLOTS,
+        ...documentInput,
         fileName: `boghok_${FAKE_DOCUMENT_PLACEHOLDERS.referenceNumber}`,
         includeBase64: Platform.OS === 'android',
       });
@@ -50,8 +65,10 @@ export function DocumentsScreen() {
       setPreviewError(message);
       setPdfFilePath(null);
       setPdfBase64(null);
+      setPreviewHtml(null);
     } finally {
       setIsPreviewLoading(false);
+      setIsPdfRendering(false);
     }
   }, []);
 
@@ -87,18 +104,20 @@ export function DocumentsScreen() {
           error={previewError}
           filePath={pdfFilePath}
           isLoading={isPreviewLoading}
+          previewHtml={previewHtml}
         />
       </View>
 
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Generate and download PDF"
-        disabled={isGenerating || isPreviewLoading}
+        disabled={isGenerating || isPreviewLoading || isPdfRendering}
         onPress={handleGeneratePdf}
         style={({ pressed }) => [
           styles.button,
           pressed && styles.buttonPressed,
-          (isGenerating || isPreviewLoading) && styles.buttonDisabled,
+          (isGenerating || isPreviewLoading || isPdfRendering) &&
+            styles.buttonDisabled,
         ]}
       >
         {isGenerating ? (

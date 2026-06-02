@@ -1,14 +1,18 @@
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 
-const A4_WIDTH_PT = 595;
+export const PDF_PAGE_WIDTH_PT = 595;
 const A4_HEIGHT_PT = 842;
 
-function getPdfBaseUrl() {
+export function getPdfWebViewBaseUrl() {
   if (Platform.OS === 'ios') {
     return `file://${RNFS.MainBundlePath}/`;
   }
   return 'file:///android_asset/fonts/';
+}
+
+function getPdfBaseUrl() {
+  return getPdfWebViewBaseUrl();
 }
 
 function getDocumentStyles() {
@@ -95,9 +99,30 @@ export function buildPdfHtmlDocument(bodyHtml) {
 </html>`;
 }
 
+/** Viewport + layout so in-app WebView preview matches PDF page scale (not device-width text). */
+export function getPdfPreviewViewportMeta() {
+  return `<meta name="viewport" content="width=${PDF_PAGE_WIDTH_PT}, initial-scale=1, maximum-scale=1, user-scalable=no" />`;
+}
+
+export function getPdfPreviewPageStyles() {
+  return `
+    html {
+      -webkit-text-size-adjust: 100%;
+      background: #fff;
+    }
+    body {
+      width: ${PDF_PAGE_WIDTH_PT}pt;
+      max-width: ${PDF_PAGE_WIDTH_PT}pt;
+      margin: 0 auto;
+      padding: 36pt 40pt;
+      box-sizing: border-box;
+    }
+  `;
+}
+
 export function getPdfGenerationDefaults() {
   return {
-    width: A4_WIDTH_PT,
+    width: PDF_PAGE_WIDTH_PT,
     height: A4_HEIGHT_PT,
     baseURL: getPdfBaseUrl(),
     shouldPrintBackgrounds: true,
