@@ -71,12 +71,12 @@ export function AccountStackNavigator() {
       <Stack.Screen
         name="Signature"
         component={SignatureScreen}
-        options={{ ...nestedScreenOptions, title: 'Signature' }}
+        options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Signature' , isLogoutButton: true, isBackButton: true }, handleLogoutPress)}
       />
       <Stack.Screen
         name="Settings"
         component={SettingsScreen}
-        options={{ ...nestedScreenOptions, title: 'Settings' }}
+        options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Settings' , isLogoutButton: true, isBackButton: true }, handleLogoutPress)}
       />
     </Stack.Navigator>
   );

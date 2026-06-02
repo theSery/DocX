@@ -1,6 +1,7 @@
 export const HOME_STACK_HEADER_EXPANDED_HEIGHT = 180;
 export const HOME_STACK_HEADER_COLLAPSED_HEIGHT = 46;
 export const ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT = 250;
+export const ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT = 66;
 /** Scroll offset before the header begins to collapse. */
 export const HOME_STACK_HEADER_COLLAPSE_START = 28;
 

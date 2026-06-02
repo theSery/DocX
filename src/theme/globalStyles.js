@@ -13,7 +13,7 @@ export function createGlobalStyles(colors) {
     },
     screen: {
       flex: 1,
-      backgroundColor: colors.background,
+      // backgroundColor: colors.background,
     },
     container: {
       flex: 1,
