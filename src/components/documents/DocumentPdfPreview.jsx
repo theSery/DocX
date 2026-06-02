@@ -80,16 +80,6 @@ export function DocumentPdfPreview({
     };
   }, [previewHtml]);
 
-  const handleWebViewMessage = useCallback((event) => {
-    try {
-      const data = JSON.parse(event.nativeEvent.data);
-      if (data?.type === 'TYPING_COMPLETE') {
-        setTypingComplete(true);
-      }
-    } catch {
-      // Ignore non-JSON messages from the WebView.
-    }
-  }, []);
 
   if (isLoading && !previewHtml) {
     return (
@@ -127,26 +117,6 @@ export function DocumentPdfPreview({
   return (
     <View style={styles.container}>
       
-      {typingHtmlSource && !showPdf ? (
-        <View style={styles.containerBlank}>
-        <WebView
-          key={`typing-${previewKey}`}
-          originWhitelist={['*']}
-          source={typingHtmlSource}
-          style={styles.webviewBlank}
-          scalesPageToFit
-          onMessage={handleWebViewMessage}
-          startInLoadingState
-          // renderLoading={() => (
-          //   <View style={[styles.container, styles.centered]}>
-          //     <ActivityIndicator size="large" />
-          //   </View>
-          // )}
-        />
-        </View>
-      ) : null}
-
-      {showPdf && uri ? (
         <WebView
           key={`pdf-${previewKey}`}
           originWhitelist={['*']}
@@ -155,13 +125,13 @@ export function DocumentPdfPreview({
           style={styles.webview}
           scalesPageToFit
           startInLoadingState
-          // renderLoading={() => (
-          //   <View style={[styles.container, styles.centered]}>
-          //     <ActivityIndicator size="large" />
-          //   </View>
-          // )}
+          renderLoading={() => (
+            <View style={[styles.container, styles.centered]}>
+              <ActivityIndicator size="large" />
+            </View>
+          )}
         />
-      ) : null}
+      {/* ) : null} */}
     </View>
   );
 }
@@ -182,12 +152,16 @@ function createStyles(colors) {
     containerBlank: {
       flex: 1,
       backgroundColor: '#9DA6BA',
-      paddingHorizontal: 16,
-      paddingVertical: 12,
+      paddingHorizontal: 20,
+      height: HEIGHT * 0.3,
     },
     webviewBlank: {
-      flex: 1,
+      // flex: 1,
       backgroundColor: '#FFFFFF',
+      padding: 20,
+     marginTop: 40,
+     marginBottom: 70,
+     opacity: 0.3,
     },
     centered: {
       alignItems: 'center',

@@ -29,6 +29,8 @@ export async function createDocumentPdf({
     fileName: fileName ?? `document_${Date.now()}`,
     directory: Platform.OS === 'ios' ? 'Documents' : undefined,
     base64: includeBase64,
+    width: 595,
+    height: 1224,
     ...pdfDefaults,
   });
 
