@@ -71,8 +71,10 @@ function SuccessEmailVerification() {
     </>
   );
 }
-export function EmailVerificationScreen({ navigation }) {
+export function EmailVerificationScreen({ navigation, route }) {
   const styles = useAuthScreenStyles();
+  const { email, password } = route.params;
+  console.log(email, password);
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -108,7 +110,7 @@ export function EmailVerificationScreen({ navigation }) {
           <View style={registrationScreenStyles.formContainer}>
           <ContentTiltes
            title={'Էլ-փոստի հաստատում'} 
-           subtitle={'Մուտքագրեք Ձեր էլ-փոստին ուղարկված կոդը'} />
+           subtitle={`Մուտքագրեք Ձեր (${email}) էլ-փոստին ուղարկված կոդը`} />
             {isSuccess ? <SuccessEmailVerification /> : <CompletedEmailVerification
               digits={digits}
               handleChangeDigit={handleChangeDigit}

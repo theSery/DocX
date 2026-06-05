@@ -65,7 +65,7 @@ function RegistrationForm() {
   });
 
   const onSubmit = handleSubmit(values => {
-    navigation.navigate('Registration', {
+    navigation.navigate('EmailVerification', {
       email: values.email,
       password: values.password,
     });

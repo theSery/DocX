@@ -1,4 +1,4 @@
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { AuthScreenLayout } from '../../../components/layout';
 import { useAuthScreenStyles } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
@@ -30,6 +30,7 @@ export function RegistrationScreen({ navigation }) {
   });
   return (
     <AuthScreenLayout style={[styles.screen, {backgroundColor: palette.mainWhite}]}>
+      <StatusBar barStyle="dark-content" />
       <MainHeader onPress={() => navigation.goBack()} />
         <View style={registrationScreenStyles.content}>
         <View style={registrationScreenStyles.formContainer}>
