@@ -20,6 +20,7 @@ import { OtpInputRowCode } from './OtpInputRowCode';
 import { authApi, persistAuthResponse } from '../../../../api';
 import { useAuth } from '../../../../contexts';
 import { useToast } from '../../../../hooks';
+import { saveUserCredentials } from '../../../../utils/secureStorage';
 const INPUT_RADIUS = 16;
 
 const OTP_BOX_SIZE = 48;
@@ -152,6 +153,7 @@ function MailLogin({ handleTabPress }) {
         password: values.password,
       });
       await persistAuthResponse(response);
+      await saveUserCredentials({ email: values.email, password: values.password, pinCode: '1111' });
       await setIsSign(true);
     } catch (error) {
       showToast({

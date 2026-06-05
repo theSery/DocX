@@ -28,21 +28,21 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = DocX/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = DocX/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = DocX/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		2FF585D09EB94BE9B771F6F3 /* Montserratarm-Light.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-Light.otf"; path = "../src/assets/fonts/Montserratarm-Light.otf"; sourceTree = "<group>"; };
+		2FF585D09EB94BE9B771F6F3 /* Montserratarm-Light.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-Light.otf"; path = "../src/assets/fonts/Montserratarm-Light.otf"; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-DocX.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DocX.debug.xcconfig"; path = "Target Support Files/Pods-DocX/Pods-DocX.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-DocX.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DocX.release.xcconfig"; path = "Target Support Files/Pods-DocX/Pods-DocX.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-DocX.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DocX.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		650427AA925E4DEAB01EA2A2 /* Montserratarm-Medium.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-Medium.otf"; path = "../src/assets/fonts/Montserratarm-Medium.otf"; sourceTree = "<group>"; };
+		650427AA925E4DEAB01EA2A2 /* Montserratarm-Medium.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-Medium.otf"; path = "../src/assets/fonts/Montserratarm-Medium.otf"; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = DocX/AppDelegate.swift; sourceTree = "<group>"; };
-		77C800ACDBAB47A0A2FDAD1D /* Montserratarm-Bold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-Bold.otf"; path = "../src/assets/fonts/Montserratarm-Bold.otf"; sourceTree = "<group>"; };
+		77C800ACDBAB47A0A2FDAD1D /* Montserratarm-Bold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-Bold.otf"; path = "../src/assets/fonts/Montserratarm-Bold.otf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = DocX/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		9F203ECBE42348C48A730BB4 /* Montserratarm-ExtraLight.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-ExtraLight.otf"; path = "../src/assets/fonts/Montserratarm-ExtraLight.otf"; sourceTree = "<group>"; };
-		A1CFF4A6B0604F0B8999A8ED /* Montserratarm-Regular.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-Regular.otf"; path = "../src/assets/fonts/Montserratarm-Regular.otf"; sourceTree = "<group>"; };
-		A8C0CDF94E0A49E5BCE3B47E /* Montserratarm-ExtraBold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-ExtraBold.otf"; path = "../src/assets/fonts/Montserratarm-ExtraBold.otf"; sourceTree = "<group>"; };
-		B052AC7A0EE946A6856C03B8 /* Montserratarm-Thin.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-Thin.otf"; path = "../src/assets/fonts/Montserratarm-Thin.otf"; sourceTree = "<group>"; };
-		C5940E45F33E4A5C8282D5D1 /* Montserratarm-Black.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-Black.otf"; path = "../src/assets/fonts/Montserratarm-Black.otf"; sourceTree = "<group>"; };
+		9F203ECBE42348C48A730BB4 /* Montserratarm-ExtraLight.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-ExtraLight.otf"; path = "../src/assets/fonts/Montserratarm-ExtraLight.otf"; sourceTree = "<group>"; };
+		A1CFF4A6B0604F0B8999A8ED /* Montserratarm-Regular.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-Regular.otf"; path = "../src/assets/fonts/Montserratarm-Regular.otf"; sourceTree = "<group>"; };
+		A8C0CDF94E0A49E5BCE3B47E /* Montserratarm-ExtraBold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-ExtraBold.otf"; path = "../src/assets/fonts/Montserratarm-ExtraBold.otf"; sourceTree = "<group>"; };
+		B052AC7A0EE946A6856C03B8 /* Montserratarm-Thin.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-Thin.otf"; path = "../src/assets/fonts/Montserratarm-Thin.otf"; sourceTree = "<group>"; };
+		C5940E45F33E4A5C8282D5D1 /* Montserratarm-Black.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-Black.otf"; path = "../src/assets/fonts/Montserratarm-Black.otf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		FCFB74BAF7FB47AA94E08D74 /* Montserratarm-SemiBold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-SemiBold.otf"; path = "../src/assets/fonts/Montserratarm-SemiBold.otf"; sourceTree = "<group>"; };
+		FCFB74BAF7FB47AA94E08D74 /* Montserratarm-SemiBold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserratarm-SemiBold.otf"; path = "../src/assets/fonts/Montserratarm-SemiBold.otf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,7 +131,6 @@
 				C5940E45F33E4A5C8282D5D1 /* Montserratarm-Black.otf */,
 			);
 			name = Resources;
-			path = "";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -305,6 +304,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4K3N73SC69;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = DocX/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -338,6 +338,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4K3N73SC69;
 				INFOPLIST_FILE = DocX/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (

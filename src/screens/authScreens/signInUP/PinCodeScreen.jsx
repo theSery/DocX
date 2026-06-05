@@ -1,14 +1,13 @@
 
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthScreenLayout } from '../../../components/layout';
 import { useAuthScreenStyles, useToast } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
 import { useAuth } from '../../../contexts';
 import AuthButton from '../../../components/buttons/AuthButton';
 import { FONT_FAMILY, palette } from '../../../theme';
-import { STORAGE_KEYS } from '../../../utils/storageKeys';
+import { saveUserCredentials } from '../../../utils/secureStorage';
 import { Passcode } from './components/Passcode';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import { authApi, persistAuthResponse } from '../../../api';
@@ -37,7 +36,7 @@ export function PinCodeScreen({ navigation, route }) {
         pinCode,
       });
       await persistAuthResponse(response);
-      await AsyncStorage.setItem(STORAGE_KEYS.PIN_CODE, pinCode);
+      await saveUserCredentials({ email, password, pinCode });
       await setIsSign(true);
     } catch (error) {
       console.log('Register personal error:', error);

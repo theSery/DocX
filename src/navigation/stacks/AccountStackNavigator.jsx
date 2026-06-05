@@ -10,6 +10,7 @@ import {
 } from '../../screens/main/account';
 import { authApi } from '../../api';
 import { useAuth } from '../../contexts';
+import { clearUserCredentials } from '../../utils/secureStorage';
 import { useStackScreenOptions, useToast } from '../../hooks';
 import AccountStackHeader from '../../components/headers/accountStackHeader/AccountStackHeader';
 
@@ -49,6 +50,7 @@ export function AccountStackNavigator() {
         type: 'error',
       });
     } finally {
+      await clearUserCredentials();
       await setIsSign(false);
     }
   };

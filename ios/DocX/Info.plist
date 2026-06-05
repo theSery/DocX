@@ -33,6 +33,8 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSFaceIDUsageDescription</key>
+	<string>DocX uses Face ID to securely sign you in to your account.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>DocX needs camera access to capture your signature.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
