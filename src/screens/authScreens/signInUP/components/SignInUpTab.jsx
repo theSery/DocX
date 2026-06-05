@@ -26,6 +26,8 @@ import { FormField, Typography } from '../../../../components';
 import { LoginTabs } from './LoginTabs';
 import LockIconSbg from '../../../../components/icons/LockIconSbg';
 import GradientButton from '../../../../components/buttons/GradientButton';
+import { authApi } from '../../../../api';
+import { useToast } from '../../../../hooks';
 
 const CORNER_RADIUS = 30;
 const CONTAINER_TOP = 56;
@@ -54,6 +56,7 @@ function TabLabel({ activeTab, index, label }) {
 
 function RegistrationForm() {
   const navigation = useNavigation();
+  const { showToast } = useToast();
   const {
     control,
     getValues,
@@ -64,11 +67,24 @@ function RegistrationForm() {
     mode: 'onBlur',
   });
 
-  const onSubmit = handleSubmit(values => {
-    navigation.navigate('EmailVerification', {
-      email: values.email,
-      password: values.password,
-    });
+  const onSubmit = handleSubmit(async values => {
+    try {
+      const response = await authApi.sendOtp({
+        email: values.email,
+        purpose: 'register',
+      });
+      console.log('Send OTP response:', response.data);
+      navigation.navigate('EmailVerification', {
+        email: values.email,
+        password: values.password,
+      });
+    } catch (error) {
+      showToast({
+        title: 'Գրանցումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    }
   });
 
   return (

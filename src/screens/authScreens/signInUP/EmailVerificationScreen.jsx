@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { AuthScreenLayout } from '../../../components/layout';
-import { useAuthScreenStyles } from '../../../hooks';
+import { useAuthScreenStyles, useToast } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
 import { AnimatedView, FormField, Typography } from '../../../components';
 import { useForm } from 'react-hook-form';
@@ -22,6 +22,7 @@ import { useState } from 'react';
 import { OtpInputRowCode } from './components/OtpInputRowCode';
 import LottieAnimation from '../../../components/animation/LottieAnimation';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
+import { authApi } from '../../../api';
 
 
 
@@ -73,14 +74,31 @@ function SuccessEmailVerification() {
 }
 export function EmailVerificationScreen({ navigation, route }) {
   const styles = useAuthScreenStyles();
+  const { showToast } = useToast();
   const { email, password } = route.params;
   console.log(email, password);
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [isSuccess, setIsSuccess] = useState(false);
-  const handleSubmit = () => {
-    setIsSuccess(true);
-  } 
+  const handleSubmit = async () => {
+    try {
+      const code = digits.join('');
+      const response = await authApi.verifyOtp({
+        email,
+        code,
+        purpose: 'register',
+      });
+      console.log('Verify OTP response:', response.data);
+      setIsSuccess(true);
+    } catch (error) {
+      console.log('Verify OTP error:', error);
+      showToast({
+        title: 'Հաստատումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    }
+  };
    
 
 
