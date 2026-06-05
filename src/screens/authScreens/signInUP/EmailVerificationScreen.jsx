@@ -111,7 +111,9 @@ export function EmailVerificationScreen({ navigation, route }) {
     }
   };
    
-
+const handleNavigate = () => {
+    navigation.navigate('Registration', { email, password });
+}
 
 
   const handleChangeDigit = (index, value) => {
@@ -149,7 +151,7 @@ export function EmailVerificationScreen({ navigation, route }) {
 
           <View style={registrationScreenStyles.buttonContainer}>
             <Pressable
-              onPress={() => isSuccess ? navigation.navigate('PinCode') : handleSubmit()}
+              onPress={() => isSuccess ? handleNavigate() : handleSubmit()}
               disabled={isLoading}
               style={({ pressed }) => [
                 registrationScreenStyles.primaryButton,

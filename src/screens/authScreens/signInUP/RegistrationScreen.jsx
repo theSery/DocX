@@ -2,14 +2,16 @@ import { Linking, Pressable, StatusBar, StyleSheet, Text, View } from 'react-nat
 import { AuthScreenLayout } from '../../../components/layout';
 import { useAuthScreenStyles } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
-import { FormField, Typography } from '../../../components';
+import {FormField, Typography } from '../../../components';
 import { useForm } from 'react-hook-form';
 import GradientButton from '../../../components/buttons/GradientButton';
 import UserSvg from '../../../components/icons/UserSvg';
 import { FONT_FAMILY, palette } from '../../../theme';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
+import { ARMENIAN_NAME_RULES } from '../../../utils/patterns';
 
-export function RegistrationScreen({ navigation }) {
+export function RegistrationScreen({ navigation, route }) {
+  const { email, password } = route.params ?? {};
   const styles = useAuthScreenStyles();
   const {
     control,
@@ -17,21 +19,23 @@ export function RegistrationScreen({ navigation }) {
     handleSubmit,
     formState: { isSubmitting },
   } = useForm({
-    defaultValues: { name: '', lastName: '', middleName: '' },
+    defaultValues: { name: '', surname: '', patronymic: '' },
     mode: 'onBlur',
   });
 
   const onSubmit = handleSubmit(values => {
-    navigation.navigate('EmailVerification', {
+    navigation.navigate('PinCode', {
       name: values.name,
-      lastName: values.lastName,
-      middleName: values.middleName,
+      surname: values.surname,
+      patronymic: values.patronymic,
+      email,
+      password,
     });
   });
   return (
     <AuthScreenLayout style={[styles.screen, {backgroundColor: palette.mainWhite}]}>
       <StatusBar barStyle="dark-content" />
-      <MainHeader onPress={() => navigation.goBack()} />
+      <MainHeader  />
         <View style={registrationScreenStyles.content}>
         <View style={registrationScreenStyles.formContainer}>
         <ContentTiltes title={'Անձնական տվյալներ'} subtitle={'Գրանցումն ավարտելու համար լրացրեք տվյալները'} />
@@ -39,23 +43,26 @@ export function RegistrationScreen({ navigation }) {
           control={control}
           name="name"
           label="Անուն *"
+          rules={ARMENIAN_NAME_RULES}
           startIcon={     <UserSvg width={24} height={24} fill={palette.gray} />}
           placeholder="Ձեր Անունը"
         />
         <View style={{ marginVertical: 20 }}>
           <FormField
             control={control}
-            name="lastName"
+            name="surname"
             label="Ազգանուն *"
             placeholder="Ձեր Ազգանունը"
+            rules={ARMENIAN_NAME_RULES}
             startIcon={     <UserSvg width={24} height={24} fill={palette.gray} />}
           />
         </View>
         <FormField
           control={control}
-          name="middleName"
+          name="patronymic"
           label="Հայրանուն *"
           placeholder="Ձեր Հայրանունը"
+                rules={ARMENIAN_NAME_RULES}
           startIcon={     <UserSvg width={24} height={24} fill={palette.gray} />}
         />
       </View>

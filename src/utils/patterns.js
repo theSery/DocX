@@ -11,3 +11,5 @@ export const ARMENIAN_NAME_RULES = {
 };
 
 export const PHONE_NUMBER_PATTERN = /^(\+374\d{8})$/;
+
+export const PASSWORD_PATTERN = /^[a-zA-Z0-9]{8,}$/;

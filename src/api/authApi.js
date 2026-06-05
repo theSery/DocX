@@ -12,4 +12,15 @@ export const authApi = {
   verifyOtp({ email, code, purpose }) {
     return axiosClient.post('/auth/verify-otp', { email, code, purpose });
   },
+
+  registerPersonal({ email, name, surname, patronymic, password, pinCode }) {
+    return axiosClient.post('/auth/register/personal', {
+      email,
+      name,
+      surname,
+      patronymic,
+      password,
+      pinCode,
+    });
+  },
 };

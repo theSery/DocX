@@ -7,7 +7,9 @@ const MainHeader = ({ onPress }) => {
   return (
 <View style={styles.container}>
     <View style={styles.backButtonContainer}>
-        <BackButton onPress={onPress} />
+        {onPress && (
+            <BackButton onPress={onPress} />
+        )}
     </View>
     <View style={styles.logoContainer}>
         <Image source={darkLogo} style={styles.logo} resizeMode="contain" />

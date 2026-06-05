@@ -1,9 +1,9 @@
 
-import {  useState } from 'react';
-import { Pressable, StyleSheet,  View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthScreenLayout } from '../../../components/layout';
-import { useAuthScreenStyles } from '../../../hooks';
+import { useAuthScreenStyles, useToast } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
 import { Typography } from '../../../components';
 import { useAuth } from '../../../contexts';
@@ -12,23 +12,46 @@ import { FONT_FAMILY, palette } from '../../../theme';
 import { STORAGE_KEYS } from '../../../utils/storageKeys';
 import { Passcode } from './components/Passcode';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
+import { authApi } from '../../../api';
 // import LottieAnimation from '../../../components/animation/LottieAnimation';
 
-export function PinCodeScreen({ navigation }) {
+export function PinCodeScreen({ navigation, route }) {
+  const { name, surname, patronymic, email, password } = route.params;
   const styles = useAuthScreenStyles();
-  const { setIsSign, setIsFaceID } = useAuth();
+  const { showToast } = useToast();
+  const { setIsSign } = useAuth();
   const [passcode, setPasscode] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleComplete = async () => {
-    if (passcode.length > 0) {
-      await AsyncStorage.setItem(STORAGE_KEYS.PIN_CODE, passcode.join(''));
+    const pinCode = passcode.join('');
+    if (!pinCode) return;
+
+    setIsLoading(true);
+    try {
+      const response = await authApi.registerPersonal({
+        email,
+        name,
+        surname,
+        patronymic,
+        password,
+        pinCode,
+      });
+      console.log('Register personal response:', response.data);
+      await AsyncStorage.setItem(STORAGE_KEYS.PIN_CODE, pinCode);
+      await setIsSign(true);
+    } catch (error) {
+      console.log('Register personal error:', error);
+      showToast({
+        title: 'Գրանցումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    } finally {
+      setIsLoading(false);
     }
-    await setIsSign(true);
   };
 
-  const handleBiometric = () => {
-    console.log('Handle biometrics');
-  };
 
   return (
     <AuthScreenLayout
@@ -49,10 +72,10 @@ export function PinCodeScreen({ navigation }) {
             subtitle={'Մուտք լինելու համար խնդրում ենք մուտքագրել PIN-ը'} />
           <View style={registrationScreenStyles.passcodeContainer}>
             <Passcode
+              hasBiometric={false}
               value={passcode}
               onChange={setPasscode}
               onComplete={code => console.log('PIN entered:', code)}
-              onBiometric={handleBiometric}
             />
           </View>
 
@@ -62,18 +85,24 @@ export function PinCodeScreen({ navigation }) {
 
             <Pressable
               onPress={handleComplete}
+              disabled={isLoading}
               style={({ pressed }) => [
                 registrationScreenStyles.primaryButton,
-                pressed && registrationScreenStyles.buttonPressed,
+                isLoading && registrationScreenStyles.primaryButtonDisabled,
+                pressed && !isLoading && registrationScreenStyles.buttonPressed,
               ]}
             >
               <GradientButton height={45} isLight={false}>
-                <Typography
-                  variant="h5"
-                  style={registrationScreenStyles.primaryButtonText}
-                >
-                  Սահմանել PIN կոդը
-                </Typography>
+                {isLoading ? (
+                  <ActivityIndicator color={palette.white} />
+                ) : (
+                  <Typography
+                    variant="h5"
+                    style={registrationScreenStyles.primaryButtonText}
+                  >
+                    Սահմանել PIN կոդը
+                  </Typography>
+                )}
               </GradientButton>
             </Pressable>
         
@@ -116,6 +145,12 @@ const registrationScreenStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
+  },
+  primaryButtonDisabled: {
+    opacity: 0.6,
+  },
+  buttonPressed: {
+    opacity: 0.88,
   },
   primaryButtonText: {
     fontFamily: FONT_FAMILY.regular,

@@ -101,6 +101,7 @@ export function Passcode({
   onComplete,
   onBiometric,
   length = PASSCODE_LENGTH,
+  hasBiometric = true,
 }) {
   const passcode = useMemo(
     () => (Array.isArray(value) ? value : []),
@@ -152,9 +153,11 @@ export function Passcode({
       return (
         <KeypadButton
           key="biometric"
-          onPress={handleBiometric}
+          onPress={ hasBiometric ? handleBiometric : undefined}
           accessibilityLabel="Biometric authentication">
-          <FaceIdIcon />
+            {hasBiometric && (
+              <FaceIdIcon />
+            )}
         </KeypadButton>
       );
     }
