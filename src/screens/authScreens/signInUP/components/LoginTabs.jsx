@@ -1,6 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Animated,
   Dimensions,
   Image,
@@ -11,6 +10,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { FONT_FAMILY, palette } from '../../../../theme';
 import { FormField, Typography } from '../../../../components';
+import AuthButton from '../../../../components/buttons/AuthButton';
 import GradientButton from '../../../../components/buttons/GradientButton';
 import MailIconSvg from '../../../../components/icons/MailIconSvg';
 import LockIconSbg from '../../../../components/icons/LockIconSbg';
@@ -204,25 +204,12 @@ function MailLogin({ handleTabPress }) {
 
       <>
         <View style={styles.actions}>
-          <Pressable
+          <AuthButton
+            title="Մուտք գործել"
             onPress={handleSignIn}
-            disabled={isLoading}
-            style={({ pressed }) => [
-              styles.primaryButton,
-              isLoading && styles.primaryButtonDisabled,
-              pressed && !isLoading && styles.buttonPressed,
-            ]}
-          >
-            <GradientButton height={45} isLight={false}>
-              {isLoading ? (
-                <ActivityIndicator color={palette.white} />
-              ) : (
-                <Typography variant="h5" style={styles.primaryButtonText}>
-                  Մուտք գործել
-                </Typography>
-              )}
-            </GradientButton>
-          </Pressable>
+            isLoading={isLoading}
+            borderRadius={INPUT_RADIUS}
+          />
           <OrDivider />
           <OutlineButton
             title="Մուտք հեռախոսահամարով"

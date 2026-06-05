@@ -1,13 +1,12 @@
 
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthScreenLayout } from '../../../components/layout';
 import { useAuthScreenStyles, useToast } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
-import { Typography } from '../../../components';
 import { useAuth } from '../../../contexts';
-import GradientButton from '../../../components/buttons/GradientButton';
+import AuthButton from '../../../components/buttons/AuthButton';
 import { FONT_FAMILY, palette } from '../../../theme';
 import { STORAGE_KEYS } from '../../../utils/storageKeys';
 import { Passcode } from './components/Passcode';
@@ -83,28 +82,11 @@ export function PinCodeScreen({ navigation, route }) {
 
         <View style={{ flex: 1, justifyContent: 'flex-end', width: '100%' }}>
 
-            <Pressable
+            <AuthButton
+              title="Սահմանել PIN կոդը"
               onPress={handleComplete}
-              disabled={isLoading}
-              style={({ pressed }) => [
-                registrationScreenStyles.primaryButton,
-                isLoading && registrationScreenStyles.primaryButtonDisabled,
-                pressed && !isLoading && registrationScreenStyles.buttonPressed,
-              ]}
-            >
-              <GradientButton height={45} isLight={false}>
-                {isLoading ? (
-                  <ActivityIndicator color={palette.white} />
-                ) : (
-                  <Typography
-                    variant="h5"
-                    style={registrationScreenStyles.primaryButtonText}
-                  >
-                    Սահմանել PIN կոդը
-                  </Typography>
-                )}
-              </GradientButton>
-            </Pressable>
+              isLoading={isLoading}
+            />
         
         </View>
       </View>
@@ -137,25 +119,6 @@ const registrationScreenStyles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
     textDecorationLine: 'underline',
-  },
-  primaryButton: {
-    height: 45,
-    overflow: 'hidden',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-  },
-  primaryButtonDisabled: {
-    opacity: 0.6,
-  },
-  buttonPressed: {
-    opacity: 0.88,
-  },
-  primaryButtonText: {
-    fontFamily: FONT_FAMILY.regular,
-    color: palette.white,
-    letterSpacing: 1.2,
   },
   privacyTextBold: {
     fontFamily: FONT_FAMILY.semiBold,

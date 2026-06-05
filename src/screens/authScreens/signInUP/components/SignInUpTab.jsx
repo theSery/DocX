@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import {
-  ActivityIndicator,
   Dimensions,
   Linking,
   Pressable,
@@ -26,7 +25,7 @@ import { FONT_FAMILY, palette } from '../../../../theme';
 import { FormField, Typography } from '../../../../components';
 import { LoginTabs } from './LoginTabs';
 import LockIconSbg from '../../../../components/icons/LockIconSbg';
-import GradientButton from '../../../../components/buttons/GradientButton';
+import AuthButton from '../../../../components/buttons/AuthButton';
 import { authApi } from '../../../../api';
 import { useToast } from '../../../../hooks';
 
@@ -159,25 +158,11 @@ function RegistrationForm() {
             Գաղտնիության քաղաքականությանը
           </Text>
         </Text>
-        <Pressable
+        <AuthButton
+          title="Գրանցվել"
           onPress={onSubmit}
-          disabled={isLoading}
-          style={({ pressed }) => [
-            styles.primaryButton,
-            isLoading && styles.primaryButtonDisabled,
-            pressed && !isLoading && styles.buttonPressed,
-          ]}
-        >
-          <GradientButton height={45} isLight={false}>
-            {isLoading ? (
-              <ActivityIndicator color={palette.white} />
-            ) : (
-              <Typography variant="h5" style={styles.primaryButtonText}>
-                Գրանցվել
-              </Typography>
-            )}
-          </GradientButton>
-        </Pressable>
+          isLoading={isLoading}
+        />
       </View>
     </View>
   );
@@ -390,25 +375,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 20,
     textAlign: 'center',
-  },
-  primaryButton: {
-    height: 45,
-    overflow: 'hidden',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-  },
-  primaryButtonDisabled: {
-    opacity: 0.6,
-  },
-  buttonPressed: {
-    opacity: 0.88,
-  },
-  primaryButtonText: {
-    fontFamily: FONT_FAMILY.regular,
-    color: palette.white,
-    letterSpacing: 1.2,
   },
   privacyTextBold: {
     fontFamily: FONT_FAMILY.semiBold,

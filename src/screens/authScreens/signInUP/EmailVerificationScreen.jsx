@@ -1,8 +1,6 @@
 import {
-  ActivityIndicator,
   Image,
   Linking,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,7 +11,7 @@ import { useAuthScreenStyles, useToast } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
 import { AnimatedView, FormField, Typography } from '../../../components';
 import { useForm } from 'react-hook-form';
-import GradientButton from '../../../components/buttons/GradientButton';
+import AuthButton from '../../../components/buttons/AuthButton';
 import UserSvg from '../../../components/icons/UserSvg';
 import { FONT_FAMILY, palette } from '../../../theme';
 import emailCheck from '../../../assets/images/emailCheck.webp';
@@ -150,28 +148,11 @@ const handleNavigate = () => {
           </View>
 
           <View style={registrationScreenStyles.buttonContainer}>
-            <Pressable
-              onPress={() => isSuccess ? handleNavigate() : handleSubmit()}
-              disabled={isLoading}
-              style={({ pressed }) => [
-                registrationScreenStyles.primaryButton,
-                isLoading && registrationScreenStyles.primaryButtonDisabled,
-                pressed && !isLoading && registrationScreenStyles.buttonPressed,
-              ]}
-            >
-              <GradientButton height={45} isLight={false}>
-                {isLoading ? (
-                  <ActivityIndicator color={palette.white} />
-                ) : (
-                  <Typography
-                    variant="h5"
-                    style={registrationScreenStyles.primaryButtonText}
-                  >
-                    {isSuccess ? 'Ստեղծել PIN' : 'Հաստատել էլ-փոստը'}
-                  </Typography>
-                )}
-              </GradientButton>
-            </Pressable>
+            <AuthButton
+              title={isSuccess ? 'Ստեղծել PIN' : 'Հաստատել էլ-փոստը'}
+              onPress={() => (isSuccess ? handleNavigate() : handleSubmit())}
+              isLoading={isLoading}
+            />
           </View>
         </View>
       </ScrollView>
@@ -205,25 +186,6 @@ const registrationScreenStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     width: '100%',
-  },
-  primaryButton: {
-    height: 45,
-    overflow: 'hidden',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-  },
-  primaryButtonDisabled: {
-    opacity: 0.6,
-  },
-  buttonPressed: {
-    opacity: 0.88,
-  },
-  primaryButtonText: {
-    fontFamily: FONT_FAMILY.regular,
-    color: palette.white,
-    letterSpacing: 1.2,
   },
   privacyTextBold: {
     fontFamily: FONT_FAMILY.regular,
