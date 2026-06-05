@@ -5,6 +5,10 @@
 export const palette = Object.freeze({
   black: '#11111D',
   white: '#F4F6FB',
+  /** Brighter elevated surface (light mode) */
+  pureWhite: '#FAFBFF',
+  /** Brighter elevated surface (dark mode) */
+  darkLight: '#25283F',
   backgroundWhite: '#F4F6FB',
   gray: '#5D6983',
   lightGray: '#9DA6BA',

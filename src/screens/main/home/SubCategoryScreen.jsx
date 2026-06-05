@@ -1,4 +1,4 @@
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
@@ -22,7 +22,7 @@ const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
 
 
 
-export function CategoryScreen({ navigation, route }) {
+export function SubCategoryScreen({ route }) {
   const { item } = route.params;
   const isFocused = useIsFocused();
   const styles = useThemedStyles(createStyles);
@@ -74,7 +74,7 @@ export function CategoryScreen({ navigation, route }) {
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
         >
-          {item.subCategories?.map((category, index) => (
+          {item?.map((category, index) => (
             <AnimatedView
               animation="fadeIn"
               animationConfig={{
@@ -84,11 +84,6 @@ export function CategoryScreen({ navigation, route }) {
               key={category.id}
               style={styles.categoryItem}
             >
-                <TouchableOpacity
-            style={{width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}
-            onPress={() => navigation.navigate('SubCategoryScreen', { item: category.legalIssues })}
-          >
- 
               <View style={styles.subCategoryIconWrap}>
                 <Image
                   source={{ uri: category.iconUrl }}
@@ -103,7 +98,6 @@ export function CategoryScreen({ navigation, route }) {
               <View style={styles.subCategoryArrowWrap}>
                 <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
               </View>
-              </TouchableOpacity>
             </AnimatedView>
           ))}
         </Animated.ScrollView>

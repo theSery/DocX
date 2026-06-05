@@ -59,7 +59,7 @@ const createStyles = colors =>
       gap: 10,
     },
     inputRowSearch: {
-      backgroundColor: colors.surface,
+      backgroundColor: colors.pureWhite,
     },
     inputIcon: {
       justifyContent: 'center',

@@ -3,6 +3,7 @@ import {
   DocumentCreateScreen,
   FillInDetailsScreen,
   HomeScreen,
+  SubCategoryScreen,
 } from '../../screens/main/home';
 import { useStackScreenOptions } from '../../hooks';
 import HomeStackHeader from '../../components/headers/HomeStackHeader';
@@ -52,6 +53,16 @@ export function HomeStackNavigator() {
       <Stack.Screen
         name="Category"
         component={CategoryScreen}
+        options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
+          title: '',
+          subtitle: '',
+          showSearch: true,
+          
+        })}
+      />
+           <Stack.Screen
+        name="SubCategoryScreen"
+        component={SubCategoryScreen}
         options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
           title: '',
           subtitle: '',
