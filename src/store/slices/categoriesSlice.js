@@ -2,6 +2,37 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { categoriesApi } from '../../api';
 import { normalizeApiError } from '../../api/axiosClient';
 
+function parseCategoryHierarchyResponse(data, page, limit) {
+  const payload = data?.data ?? data;
+  const items = Array.isArray(payload)
+    ? payload
+    : Array.isArray(payload?.items)
+      ? payload.items
+      : Array.isArray(payload?.results)
+        ? payload.results
+        : [];
+
+  const total = data?.meta?.total ?? data?.total ?? payload?.total ?? null;
+
+  return {
+    items,
+    page,
+    limit,
+    total,
+    hasMore: total != null ? page * limit < total : items.length === limit,
+  };
+}
+
+function toSerializableApiError(error) {
+  const normalized = error?.type ? error : normalizeApiError(error);
+  return {
+    type: normalized.type,
+    status: normalized.status,
+    message: normalized.message,
+    data: normalized.data,
+  };
+}
+
 const initialState = {
   items: [],
   pagination: {
@@ -23,10 +54,9 @@ export const fetchCategoryHierarchy = createAsyncThunk(
         limit,
         signal,
       });
-      return { data: response.data, page, limit };
+      return parseCategoryHierarchyResponse(response.data, page, limit);
     } catch (error) {
-      const normalized = error?.type ? error : normalizeApiError(error);
-      return rejectWithValue(normalized);
+      return rejectWithValue(toSerializableApiError(error));
     }
   },
 );
@@ -44,29 +74,10 @@ const categoriesSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchCategoryHierarchy.fulfilled, (state, action) => {
-        const { data, page, limit } = action.payload;
-        const payload = data?.data ?? data;
-        const items = Array.isArray(payload)
-          ? payload
-          : Array.isArray(payload?.items)
-          ? payload.items
-          : Array.isArray(payload?.results)
-          ? payload.results
-          : [];
-
-        const total =
-          data?.meta?.total ??
-          data?.total ??
-          payload?.total ??
-          null;
+        const { items, page, limit, total, hasMore } = action.payload;
 
         state.items = items;
-        state.pagination = {
-          page,
-          limit,
-          total,
-          hasMore: total != null ? page * limit < total : items.length === limit,
-        };
+        state.pagination = { page, limit, total, hasMore };
         state.status = 'succeeded';
         state.error = null;
       })

@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Animated,
   Dimensions,
   Image,
@@ -16,7 +17,9 @@ import LockIconSbg from '../../../../components/icons/LockIconSbg';
 import PhoneSvg from '../../../../components/icons/PhoneSvg';
 import bg from '../../../../assets/images/bg.webp';
 import { OtpInputRowCode } from './OtpInputRowCode';
+import { authApi } from '../../../../api';
 import { useAuth } from '../../../../contexts';
+import { useToast } from '../../../../hooks';
 const INPUT_RADIUS = 16;
 
 const OTP_BOX_SIZE = 48;
@@ -130,14 +133,34 @@ function PhoneOtpVerification({ handleTabPress }) {
 }
 
 function MailLogin({ handleTabPress }) {
-  const { control } = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm({
     defaultValues: { email: '', password: '' },
     mode: 'onBlur',
   });
   const { setIsSign } = useAuth();
-  const handleSignIn = async () => {
-    await setIsSign(true);
-  };
+  const { showToast } = useToast();
+  const isLoading = isSubmitting;
+
+  const handleSignIn = handleSubmit(async values => {
+    try {
+      const response = await authApi.login({
+        email: values.email,
+        password: values.password,
+      });
+      console.log('Login response:', response.data);
+      await setIsSign(true);
+    } catch (error) {
+      showToast({
+        title: 'Մուտք ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    }
+  });
 
   return (
     <View style={{ justifyContent: 'space-between', height: SCREEN_HEIGHT }}>
@@ -183,15 +206,21 @@ function MailLogin({ handleTabPress }) {
         <View style={styles.actions}>
           <Pressable
             onPress={handleSignIn}
+            disabled={isLoading}
             style={({ pressed }) => [
               styles.primaryButton,
-              pressed && styles.buttonPressed,
+              isLoading && styles.primaryButtonDisabled,
+              pressed && !isLoading && styles.buttonPressed,
             ]}
           >
             <GradientButton height={45} isLight={false}>
-              <Typography variant="h5" style={styles.primaryButtonText}>
-                Մուտք գործել
-              </Typography>
+              {isLoading ? (
+                <ActivityIndicator color={palette.white} />
+              ) : (
+                <Typography variant="h5" style={styles.primaryButtonText}>
+                  Մուտք գործել
+                </Typography>
+              )}
             </GradientButton>
           </Pressable>
           <OrDivider />
@@ -386,6 +415,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
+  },
+  primaryButtonDisabled: {
+    opacity: 0.6,
   },
   primaryButtonText: {
     fontFamily: FONT_FAMILY.regular,

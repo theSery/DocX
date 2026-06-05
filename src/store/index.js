@@ -9,9 +9,13 @@ export const store = configureStore({
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: {
-        // Normalised axios errors are stored in state; ignore their non-serializable `original`.
-        ignoredActionPaths: ['payload.original', 'meta.arg.signal'],
-        ignoredPaths: ['categories.error.original'],
+        // Dev-only guard; large API payloads can exceed the default 32ms threshold.
+        warnAfter: 128,
+        // createAsyncThunk passes AbortSignal in the action arg.
+        ignoredActionPaths: ['meta.arg.signal'],
+      },
+      immutableCheck: {
+        warnAfter: 128,
       },
     }),
 });
