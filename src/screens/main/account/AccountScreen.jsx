@@ -181,10 +181,12 @@ export function AccountScreen({ navigation }) {
 
   const handleLogoutPress = () => {
     showGlobalSheet({
-      message: 'Վստա՞հ եք, որ ցանկանում եք Ջնջել հաշիվը',
+      message: 'Դուք պատրաստվում եք ջնջել Ջեր հաշիվը',
+      description: 'Հաշիվը ջնջելով կորցնում եք հասանելիությունը բոլոր տվյալներին, Ձեր կողմից ստեղծված բոլոր փաստաթղթերին',
       actions: [
-        { label: 'Փակել' },
-        { label: 'Ջնջել հաշիվը', destructive: true, onPress: handleDeleteAccountPress },
+        { label: 'Ջնջել', destructive: true, onPress: handleDeleteAccountPress },
+        { label: 'Չեղարկել' },
+
       ],
     });
   };

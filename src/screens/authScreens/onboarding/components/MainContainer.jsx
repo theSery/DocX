@@ -22,9 +22,6 @@ export function MainContainer({ handlePress }) {
     opacity.value = withTiming(1, { duration: FADE_DURATION });
   }, [opacity]);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
 
   const onPress = () => {
     opacity.value = withTiming(0, { duration: FADE_DURATION }, (finished) => {
