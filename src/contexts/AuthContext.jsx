@@ -1,7 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { clearAccessToken, getAccessToken } from '../api/tokenStorage';
+import { clearAuthTokens, getAccessToken } from '../api/tokenStorage';
 import { STORAGE_KEYS } from '../utils/storageKeys';
 
 const AuthContext = createContext(null);
@@ -32,16 +31,6 @@ export function AuthProvider({ children }) {
     hydrate();
   }, []);
 
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', nextAppState => {
-      if (nextAppState === 'background') {
-        setIsFaceIDState(false);
-      }
-    });
-
-    return () => subscription.remove();
-  }, []);
-
   const completeOnboarding = useCallback(async () => {
     await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING, 'true');
     setHasCompletedOnboarding(true);
@@ -52,7 +41,7 @@ export function AuthProvider({ children }) {
       await AsyncStorage.setItem(STORAGE_KEYS.SIGN, 'true');
     } else {
       await AsyncStorage.removeItem(STORAGE_KEYS.SIGN);
-      await clearAccessToken();
+      await clearAuthTokens();
       setIsFaceIDState(false);
     }
     setIsSignState(value);

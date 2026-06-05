@@ -28,6 +28,10 @@ export const authApi = {
     return axiosClient.post('/auth/verify-pin', { pinCode });
   },
 
+  refreshToken({ refreshToken }) {
+    return axiosClient.post('/auth/refresh-token', { refreshToken });
+  },
+
   logout() {
     return axiosClient.post('/auth/logout');
   },

@@ -7,7 +7,6 @@ import { TabNavigator } from './TabNavigator';
 import GradientBackground from '../components/GradientBackground';
 import LogoIcon from '../components/icons/LogoIcon';
 import LottieAnimation from '../components/animation/LottieAnimation';
-import { PinCodeScreen } from '../screens/authScreens';
 import { FaceIdScreen } from '../screens/main/home/FaceIdScreen';
 import { useAppDispatch, useAppSelector } from '../store';
 import {
@@ -18,8 +17,8 @@ import {
 const Stack = createNativeStackNavigator();
 
 export function RootNavigator() {
-  const { isSign, isReady, isFaceID } = useAuth();
-  const { isSplashDone } = useSplash();
+  const { isReady, isFaceID } = useAuth();
+  const { isSplashDone, authRoute } = useSplash();
 
   const dispatch = useAppDispatch();
   const categoriesStatus = useAppSelector(selectCategoriesStatus);
@@ -41,16 +40,17 @@ export function RootNavigator() {
     );
   }
 
+  const showMainApp =
+    authRoute === 'session' || (authRoute === 'faceId' && isFaceID);
+
   return (
     <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
-      {isSign ? (
-        isFaceID ? (
-          <Stack.Screen name="Main" component={TabNavigator} />
-        ) : (
-          <Stack.Screen name="FaceId" component={FaceIdScreen} />
-        )
-      ) : (
+      {authRoute === 'auth' ? (
         <Stack.Screen name="Auth" component={AuthNavigator} />
+      ) : showMainApp ? (
+        <Stack.Screen name="Main" component={TabNavigator} />
+      ) : (
+        <Stack.Screen name="FaceId" component={FaceIdScreen} />
       )}
     </Stack.Navigator>
   );

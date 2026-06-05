@@ -32,14 +32,14 @@ function App() {
       <ReduxProvider store={store}>
         <ColorSchemeProvider>
           <SafeAreaProvider>
-            <SplashGate>
-              <AuthProvider>
+            <AuthProvider>
+              <SplashGate>
                 <GlobalSheetProvider>
                   <AppNavigation />
                   <AppToast />
                 </GlobalSheetProvider>
-              </AuthProvider>
-            </SplashGate>
+              </SplashGate>
+            </AuthProvider>
           </SafeAreaProvider>
         </ColorSchemeProvider>
       </ReduxProvider>

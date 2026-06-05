@@ -45,6 +45,11 @@ export async function hasStoredCredentials() {
   return Keychain.hasGenericPassword({ service: KEYCHAIN_SERVICE });
 }
 
+export async function hasStoredPinCode() {
+  const credentials = await getStoredCredentials();
+  return Boolean(credentials?.pinCode);
+}
+
 export async function saveUserCredentials({ email, password, pinCode }) {
   const payload = JSON.stringify({ password, pinCode });
   const biometrySupported = await isBiometricSupported();

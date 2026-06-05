@@ -7,7 +7,6 @@ import { useAuth } from '../../../contexts';
 import { FONT_FAMILY, palette } from '../../../theme';
 import { Passcode } from '../../authScreens/signInUP/components/Passcode';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
-import LottieAnimation from '../../../components/animation/LottieAnimation';
 import { authApi, persistAuthResponse } from '../../../api';
 import {
   getBiometryType,
@@ -41,7 +40,6 @@ export function FaceIdScreen() {
   const { setIsFaceID } = useAuth();
   const [passcode, setPasscode] = useState([]);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [isBiometricInProgress, setIsBiometricInProgress] = useState(false);
   const [canUseBiometric, setCanUseBiometric] = useState(false);
   const [biometricLabel, setBiometricLabel] = useState('Face ID / Touch ID');
   const isAuthenticatingRef = useRef(false);
@@ -70,7 +68,6 @@ export function FaceIdScreen() {
 
     isAuthenticatingRef.current = true;
     setIsAuthenticating(true);
-    setIsBiometricInProgress(true);
     console.log('[FaceId] Biometric auth started');
 
     try {
@@ -78,17 +75,14 @@ export function FaceIdScreen() {
 
       if (!credentials) {
         console.log('[FaceId] Biometric failed — no credentials returned from keychain');
-        setIsBiometricInProgress(false);
         return;
       }
 
       console.log('[FaceId] Biometric success — credentials retrieved for:', credentials.email);
-      setIsBiometricInProgress(false);
       await loginWithCredentials(credentials);
       console.log('[FaceId] Biometric flow completed successfully');
     } catch (error) {
       console.log('[FaceId] Biometric failed:', error?.message ?? error);
-      setIsBiometricInProgress(false);
 
       if (!isUserCancellation(error)) {
         showToast({
@@ -134,9 +128,6 @@ export function FaceIdScreen() {
         }
       } catch (error) {
         console.log('[FaceId] Prepare biometric auth error:', error);
-        if (isMounted) {
-          setIsBiometricInProgress(false);
-        }
       }
     }
 
@@ -177,16 +168,6 @@ export function FaceIdScreen() {
       style={[styles.screen, { backgroundColor: palette.mainWhite }]}
     >
       <MainHeader />
-      {isBiometricInProgress ? (
-        <View style={registrationScreenStyles.lottieContainer}>
-          <LottieAnimation
-            source={require('../../../assets/lottie/FaceID.json')}
-            autoPlay
-            loop
-            style={registrationScreenStyles.lottieAnimation}
-          />
-        </View>
-      ) : null}
       <View style={registrationScreenStyles.content}>
         <View style={registrationScreenStyles.formContainer}>
           <ContentTiltes
