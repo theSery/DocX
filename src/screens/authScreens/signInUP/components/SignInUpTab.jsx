@@ -75,10 +75,15 @@ function RegistrationForm() {
         email: values.email,
         purpose: 'register',
       });
-      console.log('Send OTP response:', response.data);
+
       navigation.navigate('EmailVerification', {
         email: values.email,
         password: values.password,
+      });
+      showToast({
+        title: 'Մուտքագրեք Ձեր ',
+        body: `${values.email} էլ-փոստին ուղարկված կոդը`,
+        type: 'success',
       });
     } catch (error) {
       showToast({

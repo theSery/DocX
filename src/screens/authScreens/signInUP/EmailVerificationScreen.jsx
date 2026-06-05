@@ -93,6 +93,11 @@ export function EmailVerificationScreen({ navigation, route }) {
         purpose: 'register',
       });
       console.log('Verify OTP response:', response.data);
+      showToast({
+        title: 'Հաստատումը հաջողությամբ կատարվեց',
+        body: 'Ձեր էլ-փոստը հաջողությամբ հաստատված է',
+        type: 'success',
+      });
       setIsSuccess(true);
     } catch (error) {
       console.log('Verify OTP error:', error);

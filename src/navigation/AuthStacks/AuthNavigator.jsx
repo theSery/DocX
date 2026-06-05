@@ -17,7 +17,7 @@ export function AuthNavigator() {
   return (
     <LightThemeScope>
       <Stack.Navigator
-        initialRouteName={hasCompletedOnboarding ? 'AccountType' : 'Onboarding'}
+        initialRouteName={hasCompletedOnboarding ? 'Registration' : 'Onboarding'}
         screenOptions={{ headerShown: false, animation: 'fade', contentStyle: { backgroundColor: 'white' } }}>
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         <Stack.Screen name="AccountType" component={AccountTypeScreen} />
