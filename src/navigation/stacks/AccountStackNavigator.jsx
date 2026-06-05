@@ -8,14 +8,15 @@ import {
   SettingsScreen,
   SignatureScreen,
 } from '../../screens/main/account';
+import { authApi } from '../../api';
 import { useAuth } from '../../contexts';
-import { useStackScreenOptions } from '../../hooks';
+import { useStackScreenOptions, useToast } from '../../hooks';
 import AccountStackHeader from '../../components/headers/accountStackHeader/AccountStackHeader';
 
 const Stack = createNativeStackNavigator();
 const nestedScreenOptionsWithHeader = (
   nestedScreenOptions,
-  { title, subtitle, showSearch = true, collapsible = true, isBackButton = false, isLogoutButton = false },
+  { title,  isBackButton = false, isLogoutButton = false },
   onLogoutPress,
 ) => ({
   ...nestedScreenOptions,
@@ -36,9 +37,20 @@ const nestedScreenOptionsWithHeader = (
 export function AccountStackNavigator() {
   const nestedScreenOptions = useStackScreenOptions();
   const { setIsSign } = useAuth();
+  const { showToast } = useToast();
 
-  const handleLogoutPress = () => {
-    setIsSign(false);
+  const handleLogoutPress = async () => {
+    try {
+      await authApi.logout();
+    } catch (error) {
+      showToast({
+        title: 'Ելք ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    } finally {
+      await setIsSign(false);
+    }
   };
 
   return (
@@ -50,8 +62,7 @@ export function AccountStackNavigator() {
       <Stack.Screen
         name="ProfileInfo"
         component={ProfileInfoScreen}
-      //   options={{ ...nestedScreenOptions, title: 'Անձնական տվյալներ' }}
-      // />
+
       options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Անձնական տվյալներ', isLogoutButton: true, isBackButton: true }, handleLogoutPress)} />
       <Stack.Screen
         name="PassportInfo"

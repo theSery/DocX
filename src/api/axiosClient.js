@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { ENV } from '../config';
+import { getAccessToken } from './tokenStorage';
 
 export const axiosClient = axios.create({
   baseURL: ENV.API_BASE_URL,
@@ -11,10 +12,11 @@ export const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use(
-  config => {
-    // Auth token / locale headers can be injected here once available.
-    // const token = await AsyncStorage.getItem(STORAGE_KEYS.TOKEN);
-    // if (token) config.headers.Authorization = `Bearer ${token}`;
+  async config => {
+    const token = await getAccessToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   error => Promise.reject(error),

@@ -11,7 +11,7 @@ import { FONT_FAMILY, palette } from '../../../theme';
 import { STORAGE_KEYS } from '../../../utils/storageKeys';
 import { Passcode } from './components/Passcode';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
-import { authApi } from '../../../api';
+import { authApi, persistAuthResponse } from '../../../api';
 // import LottieAnimation from '../../../components/animation/LottieAnimation';
 
 export function PinCodeScreen({ navigation, route }) {
@@ -36,7 +36,7 @@ export function PinCodeScreen({ navigation, route }) {
         password,
         pinCode,
       });
-      console.log('Register personal response:', response.data);
+      await persistAuthResponse(response);
       await AsyncStorage.setItem(STORAGE_KEYS.PIN_CODE, pinCode);
       await setIsSign(true);
     } catch (error) {

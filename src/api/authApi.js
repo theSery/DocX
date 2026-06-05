@@ -23,4 +23,8 @@ export const authApi = {
       pinCode,
     });
   },
+
+  logout() {
+    return axiosClient.post('/auth/logout');
+  },
 };

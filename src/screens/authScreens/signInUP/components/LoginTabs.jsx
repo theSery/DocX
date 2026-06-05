@@ -17,7 +17,7 @@ import LockIconSbg from '../../../../components/icons/LockIconSbg';
 import PhoneSvg from '../../../../components/icons/PhoneSvg';
 import bg from '../../../../assets/images/bg.webp';
 import { OtpInputRowCode } from './OtpInputRowCode';
-import { authApi } from '../../../../api';
+import { authApi, persistAuthResponse } from '../../../../api';
 import { useAuth } from '../../../../contexts';
 import { useToast } from '../../../../hooks';
 const INPUT_RADIUS = 16;
@@ -151,7 +151,7 @@ function MailLogin({ handleTabPress }) {
         email: values.email,
         password: values.password,
       });
-      console.log('Login response:', response.data);
+      await persistAuthResponse(response);
       await setIsSign(true);
     } catch (error) {
       showToast({

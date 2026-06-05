@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { clearAccessToken, getAccessToken } from '../api/tokenStorage';
 import { STORAGE_KEYS } from '../utils/storageKeys';
 
 const AuthContext = createContext(null);
@@ -18,7 +19,11 @@ export function AuthProvider({ children }) {
           AsyncStorage.getItem(STORAGE_KEYS.SIGN),
         ]);
         setHasCompletedOnboarding(onboarding === 'true');
-        setIsSignState(sign === 'true');
+        const isSignedIn = sign === 'true';
+        setIsSignState(isSignedIn);
+        if (isSignedIn) {
+          await getAccessToken();
+        }
       } finally {
         setIsReady(true);
       }
@@ -36,6 +41,7 @@ export function AuthProvider({ children }) {
       await AsyncStorage.setItem(STORAGE_KEYS.SIGN, 'true');
     } else {
       await AsyncStorage.removeItem(STORAGE_KEYS.SIGN);
+      await clearAccessToken();
     }
     setIsSignState(value);
   }, []);

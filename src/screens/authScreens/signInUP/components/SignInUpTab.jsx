@@ -84,7 +84,9 @@ function RegistrationForm() {
         body: `${values.email} էլ-փոստին ուղարկված կոդը`,
         type: 'success',
       });
+      console.log('Send OTP response:', response);
     } catch (error) {
+      console.log('Send OTP error:', error);
       showToast({
         title: 'Գրանցումը ձախողվեց',
         body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
