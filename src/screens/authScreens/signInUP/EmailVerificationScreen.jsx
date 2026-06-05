@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Image,
   Linking,
   Pressable,
@@ -80,7 +81,10 @@ export function EmailVerificationScreen({ navigation, route }) {
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSubmit = async () => {
+    setIsLoading(true);
     try {
       const code = digits.join('');
       const response = await authApi.verifyOtp({
@@ -97,6 +101,8 @@ export function EmailVerificationScreen({ navigation, route }) {
         body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
         type: 'error',
       });
+    } finally {
+      setIsLoading(false);
     }
   };
    
@@ -139,19 +145,24 @@ export function EmailVerificationScreen({ navigation, route }) {
           <View style={registrationScreenStyles.buttonContainer}>
             <Pressable
               onPress={() => isSuccess ? navigation.navigate('PinCode') : handleSubmit()}
-              // disabled={isSubmitting}
+              disabled={isLoading}
               style={({ pressed }) => [
                 registrationScreenStyles.primaryButton,
-                pressed && registrationScreenStyles.buttonPressed,
+                isLoading && registrationScreenStyles.primaryButtonDisabled,
+                pressed && !isLoading && registrationScreenStyles.buttonPressed,
               ]}
             >
               <GradientButton height={45} isLight={false}>
-                <Typography
-                  variant="h5"
-                  style={registrationScreenStyles.primaryButtonText}
-                >
-                {isSuccess ? 'Ստեղծել PIN' : 'Հաստատել էլ-փոստը'}
-                </Typography>
+                {isLoading ? (
+                  <ActivityIndicator color={palette.white} />
+                ) : (
+                  <Typography
+                    variant="h5"
+                    style={registrationScreenStyles.primaryButtonText}
+                  >
+                    {isSuccess ? 'Ստեղծել PIN' : 'Հաստատել էլ-փոստը'}
+                  </Typography>
+                )}
               </GradientButton>
             </Pressable>
           </View>
@@ -195,6 +206,12 @@ const registrationScreenStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
+  },
+  primaryButtonDisabled: {
+    opacity: 0.6,
+  },
+  buttonPressed: {
+    opacity: 0.88,
   },
   primaryButtonText: {
     fontFamily: FONT_FAMILY.regular,

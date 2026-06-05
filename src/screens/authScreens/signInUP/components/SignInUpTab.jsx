@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import {
+  ActivityIndicator,
   Dimensions,
   Linking,
   Pressable,
@@ -66,6 +67,7 @@ function RegistrationForm() {
     defaultValues: { email: '', password: '', confirmPassword: '' },
     mode: 'onBlur',
   });
+  const isLoading = isSubmitting;
 
   const onSubmit = handleSubmit(async values => {
     try {
@@ -154,16 +156,21 @@ function RegistrationForm() {
         </Text>
         <Pressable
           onPress={onSubmit}
-          disabled={isSubmitting}
+          disabled={isLoading}
           style={({ pressed }) => [
             styles.primaryButton,
-            pressed && styles.buttonPressed,
+            isLoading && styles.primaryButtonDisabled,
+            pressed && !isLoading && styles.buttonPressed,
           ]}
         >
           <GradientButton height={45} isLight={false}>
-            <Typography variant="h5" style={styles.primaryButtonText}>
-            Գրանցվել
-            </Typography>
+            {isLoading ? (
+              <ActivityIndicator color={palette.white} />
+            ) : (
+              <Typography variant="h5" style={styles.primaryButtonText}>
+                Գրանցվել
+              </Typography>
+            )}
           </GradientButton>
         </Pressable>
       </View>
@@ -386,6 +393,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
+  },
+  primaryButtonDisabled: {
+    opacity: 0.6,
+  },
+  buttonPressed: {
+    opacity: 0.88,
   },
   primaryButtonText: {
     fontFamily: FONT_FAMILY.regular,
