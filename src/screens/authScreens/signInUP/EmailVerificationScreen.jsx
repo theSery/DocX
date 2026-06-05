@@ -75,7 +75,6 @@ export function EmailVerificationScreen({ navigation, route }) {
   const styles = useAuthScreenStyles();
   const { showToast } = useToast();
   const { email, password } = route.params;
-  console.log(email, password);
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [isSuccess, setIsSuccess] = useState(false);

@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useGlobalStyles, useThemedStyles } from '../../../hooks';
+import { personalDataApi } from '../../../api';
+import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
 import { AnimatedView, FormDateField, FormField, Typography } from '../../../components';
 import { useForm } from 'react-hook-form';
 import MailIconSvg from '../../../components/icons/MailIconSvg';
@@ -9,6 +11,7 @@ import { FONT_FAMILY, palette } from '../../../theme';
 import { EMAIL_PATTERN, ARMENIAN_NAME_RULES, PHONE_NUMBER_PATTERN } from '../../../utils/patterns';
 import PhoneSvg from '../../../components/icons/PhoneSvg';
 import CalendarSvg from '../../../components/icons/CalendarSvg';
+import AuthButton from '../../../components/buttons/AuthButton';
 
 const CONTACT_INFO_FIELDS = [
   {
@@ -94,28 +97,95 @@ const createStyles = (colors) =>
     },
   });
 
+const EMPTY_FORM_VALUES = {
+  email: '',
+  name: '',
+  lastName: '',
+  middleName: '',
+  phone: '',
+  birthDate: null,
+};
+
+function mapPersonalDataToFormValues(data) {
+  return {
+    email: data.email ?? '',
+    name: data.name ?? '',
+    lastName: data.surname ?? '',
+    middleName: data.patronymic ?? '',
+    phone: data.phoneNumber ?? '',
+    birthDate: data.birthday ? new Date(data.birthday) : null,
+  };
+}
+
+function mapFormValuesToPersonalData(values) {
+  return {
+    name: values.name,
+    surname: values.lastName,
+    patronymic: values.middleName,
+    phoneNumber: values.phone,
+    birthday: values.birthDate instanceof Date ? values.birthDate.toISOString() : null,
+  };
+}
+
+function resolveFormValuesAfterUpdate(submittedValues, apiData) {
+  return mapPersonalDataToFormValues({
+    email: submittedValues.email,
+    ...mapFormValuesToPersonalData(submittedValues),
+    ...(apiData ?? {}),
+  });
+}
+
 export function ProfileInfoScreen() {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
+  const { showToast } = useToast();
 
   const {
     control,
     handleSubmit,
+    reset,
+    formState: { isSubmitting, isLoading },
   } = useForm({
-    defaultValues: {
-      email: '',
-      name: '',
-      lastName: '',
-      middleName: '',
-      phone: '',
-      birthDate: null,
-    },
+    defaultValues: EMPTY_FORM_VALUES,
     mode: 'onBlur',
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
-  };
+  useEffect(() => {
+    const controller = new AbortController();
+
+    personalDataApi
+      .getPersonalData({ signal: controller.signal })
+      .then((response) => {
+        reset(mapPersonalDataToFormValues(response.data));
+      })
+      .catch((error) => {
+        if (error.type !== 'cancel') {
+          console.log('personal-data error:', error);
+        }
+      });
+
+    return () => controller.abort();
+  }, [reset]);
+
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      const response = await personalDataApi.updatePersonalData(
+        mapFormValuesToPersonalData(data),
+      );
+      const updatedFormValues = resolveFormValuesAfterUpdate(data, response.data);
+      reset(updatedFormValues);
+      showToast({
+        title: 'Տվյալները հաջողությամբ պահպանվեցին',
+        type: 'success',
+      });
+    } catch (error) {
+      showToast({
+        title: 'Տվյալների պահպանումը ձախողվեց',
+        body: error.message,
+        type: 'error',
+      });
+    }
+  });
 
   return (
     <ScrollView
@@ -167,11 +237,12 @@ export function ProfileInfoScreen() {
           />
         </View>
       </AnimatedView>
-      <Pressable
-        onPress={handleSubmit(onSubmit)}
+      {/* <Pressable
+        onPress={onSubmit}
+        disabled={isSubmitting}
         style={({ pressed }) => [
           styles.primaryButton,
-          pressed && styles.buttonPressed,
+          (pressed || isSubmitting) && styles.buttonPressed,
         ]}
       >
         <GradientButton height={45} isLight={false}>
@@ -179,7 +250,13 @@ export function ProfileInfoScreen() {
             Պահպանել
           </Typography>
         </GradientButton>
-      </Pressable>
+      </Pressable> */}
+                  <AuthButton
+                  disabled={isSubmitting}
+              title={'Պահպանել'}
+              onPress={onSubmit}
+              isLoading={isLoading}
+            />
     </ScrollView>
   );
 }

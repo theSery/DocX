@@ -5,13 +5,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FONT_FAMILY, palette } from '../../theme';
 
 const sharedText1Style = {
-  fontSize: 15,
-  fontFamily: FONT_FAMILY.semiBold,
+  fontSize: 13,
+  fontFamily: FONT_FAMILY.regular,
   color: palette.black,
 };
 
 const sharedText2Style = {
-  fontSize: 13,
+  fontSize: 12,
   fontFamily: FONT_FAMILY.regular,
   color: palette.gray,
 };
@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   success: {
+    borderLeftWidth: 7,
     borderLeftColor: palette.green,
     backgroundColor: palette.pureWhite,
   },
