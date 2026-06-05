@@ -43,11 +43,12 @@ export function RootNavigator() {
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
-      {isSign ? (   <Stack.Screen name="Main" component={TabNavigator} />
+      {isSign ? ( 
+          // <Stack.Screen name="Main" component={TabNavigator} />
         // isFaceID ? (
         //   <Stack.Screen name="Main" component={TabNavigator} />
         // ) : (
-        //   <Stack.Screen name="FaceId" component={FaceIdScreen} />
+          <Stack.Screen name="FaceId" component={FaceIdScreen} />
         // )
       ) : (
         <Stack.Screen name="Auth" component={AuthNavigator} />

@@ -10,6 +10,7 @@ import { STORAGE_KEYS } from '../../../utils/storageKeys';
 import { Passcode } from '../../authScreens/signInUP/components/Passcode';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import LottieAnimation from '../../../components/animation/LottieAnimation';
+import { authApi } from '../../../api';
 
 export function FaceIdScreen({ navigation }) {
   const styles = useAuthScreenStyles();
@@ -17,37 +18,19 @@ export function FaceIdScreen({ navigation }) {
   const [passcode, setPasscode] = useState([]);
   const [hasExistingPin, setHasExistingPin] = useState(true);
   useEffect(() => {
-
     const timeout = setTimeout(async () => {
+      try {
+     const response =   await authApi.verifyPin({ pinCode: '1111' });
+     console.log('Verify PIN response:', response);
         setHasExistingPin(false);
-      // your logic here
-    //   await setIsSign(true);
-      await setIsFaceID(true);
- 
+        await setIsFaceID(true);
+      } catch (error) {
+        console.log('Verify PIN error:', error);
+      }
     }, 2000);
-  
-    return () => clearTimeout(timeout);
-  
-  }, [setIsSign, setIsFaceID]);
-//   useEffect(() => {
-//     let isMounted = true;
-//     (async () => {
-//       const storedPin = await AsyncStorage.getItem(STORAGE_KEYS.PIN_CODE);
-//       if (isMounted) {
-//         setHasExistingPin(Boolean(storedPin));
-//       }
-//     })();
-//     return () => {
-//       isMounted = false;
-//     };
-//   }, []);
 
-//   const handleComplete = async () => {
-//     if (passcode.length > 0) {
-//       await AsyncStorage.setItem(STORAGE_KEYS.PIN_CODE, passcode.join(''));
-//     }
-//     await setIsSign(true);
-//   };
+    return () => clearTimeout(timeout);
+  }, [setIsFaceID]);
 
   const handleBiometric = () => {
     console.log('Handle biometrics');
@@ -57,7 +40,7 @@ export function FaceIdScreen({ navigation }) {
     <AuthScreenLayout
       style={[styles.screen, { backgroundColor: palette.mainWhite }]}
     >
-      <MainHeader onPress={() => navigation.goBack()} />
+      <MainHeader  />
       {hasExistingPin ?
         <View style={registrationScreenStyles.lottieContainer}>
 

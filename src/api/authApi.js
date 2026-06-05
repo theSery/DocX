@@ -24,6 +24,10 @@ export const authApi = {
     });
   },
 
+  verifyPin({ pinCode }) {
+    return axiosClient.post('/auth/verify-pin', { pinCode });
+  },
+
   logout() {
     return axiosClient.post('/auth/logout');
   },

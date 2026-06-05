@@ -148,7 +148,7 @@ const handleNavigate = () => {
 
           <View style={registrationScreenStyles.buttonContainer}>
             <AuthButton
-              title={isSuccess ? 'Ստեղծել PIN' : 'Հաստատել էլ-փոստը'}
+              title={isSuccess ? 'Գրանցվել' : 'Հաստատել էլ-փոստը'} 
               onPress={() => (isSuccess ? handleNavigate() : handleSubmit())}
               isLoading={isLoading}
             />

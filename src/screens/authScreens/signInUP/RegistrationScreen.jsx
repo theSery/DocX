@@ -9,6 +9,7 @@ import UserSvg from '../../../components/icons/UserSvg';
 import { FONT_FAMILY, palette } from '../../../theme';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import { ARMENIAN_NAME_RULES } from '../../../utils/patterns';
+import AuthButton from '../../../components/buttons/AuthButton';
 
 export function RegistrationScreen({ navigation, route }) {
   const { email, password } = route.params ?? {};
@@ -78,7 +79,7 @@ export function RegistrationScreen({ navigation, route }) {
             Գաղտնիության քաղաքականությանը
           </Text>
         </Text>
-        <Pressable
+        {/* <Pressable
           onPress={onSubmit}
           disabled={isSubmitting}
           style={({ pressed }) => [
@@ -88,10 +89,15 @@ export function RegistrationScreen({ navigation, route }) {
         >
           <GradientButton height={45} isLight={false}>
             <Typography variant="h5" style={registrationScreenStyles.primaryButtonText}>
-            Գրանցվել
+            Ստեղծել PIN
             </Typography>
           </GradientButton>
-        </Pressable>
+        </Pressable> */}
+                    <AuthButton
+              title="Ստեղծել PIN"
+              onPress={onSubmit}
+              isLoading={isSubmitting}
+            />
       </View>
         </View>
     </AuthScreenLayout>
