@@ -55,8 +55,8 @@ export function RootNavigator() {
       ) : showMainApp ? (
         <Stack.Screen name="Main" component={TabNavigator} />
       ) : (
-        // <Stack.Screen name="FaceId" component={FaceIdScreen} />
-        <Stack.Screen name="Main" component={TabNavigator} />
+        <Stack.Screen name="FaceId" component={FaceIdScreen} />
+        // <Stack.Screen name="Main" component={TabNavigator} />
       )}
     </Stack.Navigator>
   );

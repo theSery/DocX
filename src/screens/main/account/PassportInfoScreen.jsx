@@ -1,14 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { personalDataApi } from '../../../api';
 import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
-import { AnimatedView, FormDateField, FormField, Typography } from '../../../components';
+import { AnimatedView, CheckBox, FormDateField, FormField, Typography } from '../../../components';
 import { useForm } from 'react-hook-form';
 import PasportSvg from '../../../components/icons/PasportSvg';
-import UserSvg from '../../../components/icons/UserSvg';
 import { FONT_FAMILY, palette } from '../../../theme';
-import { EMAIL_PATTERN, ARMENIAN_NAME_RULES, PHONE_NUMBER_PATTERN } from '../../../utils/patterns';
-import PhoneSvg from '../../../components/icons/PhoneSvg';
 import CalendarSvg from '../../../components/icons/CalendarSvg';
 import AuthButton from '../../../components/buttons/AuthButton';
 import CodeSvg from '../../../components/icons/CodeSvg';
@@ -19,7 +16,7 @@ const CONTACT_INFO_FIELDS = [
   {
     name: 'passportSeries',
     label: 'Սերիա *',
-    startIcon: <PasportSvg width={19} height={15} fill={palette.gray}/>,
+    startIcon: <PasportSvg width={19} height={15} fill={palette.gray} />,
     placeholder: 'AM000000',
     // keyboardType: 'email-address',
     // rules: {
@@ -117,38 +114,38 @@ const createStyles = (colors) =>
   });
 
 const EMPTY_FORM_VALUES = {
-  email: '',
-  name: '',
-  lastName: '',
-  middleName: '',
-  phone: '',
-  birthDate: null,
+  passportSeries: '',
+  fromWhom: '',
+  dateOfIssue: null,
+  publicServiceLicensePlate: '',
+  notificationAddress: '',
+  registrationAddress: '',
 };
 
 function mapPersonalDataToFormValues(data) {
   return {
-    email: data.email ?? '',
-    name: data.name ?? '',
-    lastName: data.surname ?? '',
-    middleName: data.patronymic ?? '',
-    phone: data.phoneNumber ?? '',
-    birthDate: data.birthday ? new Date(data.birthday) : null,
+    passportSeries: data.passportSeries ?? '',
+    fromWhom: data.fromWhom ?? '',
+    dateOfIssue: data.dateOfIssue ? new Date(data.dateOfIssue) : null,
+    publicServiceLicensePlate: data.publicServiceLicensePlate ?? '',
+    notificationAddress: data.notificationAddress ?? '',
+    registrationAddress: data.registrationAddress ?? '',
   };
 }
 
 function mapFormValuesToPersonalData(values) {
   return {
-    name: values.name,
-    surname: values.lastName,
-    patronymic: values.middleName,
-    phoneNumber: values.phone,
-    birthday: values.birthDate instanceof Date ? values.birthDate.toISOString() : null,
+    passportSeries: values.passportSeries,
+    fromWhom: values.fromWhom,
+    dateOfIssue: values.dateOfIssue instanceof Date ? values.dateOfIssue.toISOString() : null,
+    publicServiceLicensePlate: values.publicServiceLicensePlate,
+    notificationAddress: values.notificationAddress,
+    registrationAddress: values.registrationAddress,
   };
 }
 
 function resolveFormValuesAfterUpdate(submittedValues, apiData) {
   return mapPersonalDataToFormValues({
-    email: submittedValues.email,
     ...mapFormValuesToPersonalData(submittedValues),
     ...(apiData ?? {}),
   });
@@ -156,6 +153,7 @@ function resolveFormValuesAfterUpdate(submittedValues, apiData) {
 
 export function PassportInfoScreen() {
   const globalStyles = useGlobalStyles();
+  const [agreed, setAgreed] = useState(false);
   const styles = useThemedStyles(createStyles);
   const { showToast } = useToast();
 
@@ -175,6 +173,7 @@ export function PassportInfoScreen() {
     personalDataApi
       .getPersonalData({ signal: controller.signal })
       .then((response) => {
+        console.log('response.data', response.data);
         reset(mapPersonalDataToFormValues(response.data));
       })
       .catch((error) => {
@@ -198,6 +197,7 @@ export function PassportInfoScreen() {
         type: 'success',
       });
     } catch (error) {
+      console.log('error', error);
       showToast({
         title: 'Տվյալների պահպանումը ձախողվեց',
         body: error.message,
@@ -217,65 +217,51 @@ export function PassportInfoScreen() {
     >
       <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
         <Typography variant="h4" style={styles.screenTitle}>
-        Անձը հաստատող փաստաթուղթ` Անձնագիր. Նույն. քարտ
+          Անձը հաստատող փաստաթուղթ` Անձնագիր. Նույն. քարտ
         </Typography>
         <View style={styles.formFieldContainer}>
           {CONTACT_INFO_FIELDS.map((field) => (
             field.name === 'dateOfIssue' ? (
-              <View  key={field.name}>
-                            <FormDateField
-               
-                control={control}
-                name={field.name}
-                label={field.label}
-                startIcon={field.startIcon}
-                placeholder={field.placeholder}
-              />
-              </View>
-
-            ) : (
-              <FormField
+              <FormDateField
                 key={field.name}
                 control={control}
                 name={field.name}
                 label={field.label}
                 startIcon={field.startIcon}
                 placeholder={field.placeholder}
-                keyboardType={field.keyboardType}
-                rules={field.rules}
               />
+            ) : (
+              <View key={field.name}>
+                <FormField
+                  // key={field.name}
+                  control={control}
+                  name={field.name}
+                  label={field.label}
+                  startIcon={field.startIcon}
+                  placeholder={field.placeholder}
+                  keyboardType={field.keyboardType}
+                  rules={field.rules}
+                />
+                {field.name === 'notificationAddress' && (
+                  <CheckBox
+                    style={{ marginTop: 20 }}
+                    checked={agreed}
+                    onChange={setAgreed}
+                    label="Հաշվառման և բնակության հասցեն տարբերվում են"
+                  />
+                )}
+              </View>
             )
           ))}
-          {/* <FormDateField
-            control={control}
-            name="birthDate"
-            label="Ծննդյան ամսաթիվ"
-            startIcon={<CalendarSvg width={20} height={20} fill={palette.mainBlue} />}
-          /> */}
-          {/* <FormField
-            control={control}
-            name="phone"
-            label="Հեռախոսահամար"
-            keyboardType="phone-pad"
-            placeholder="91 123 456"
-            placeholderTextColor={palette.lightGray}
-            startIcon={<PhoneSvg width={20} height={20} fill={palette.mainBlue} />}
-            rules={{
-              required: 'Հեռախոսահամարը պարտադիր է',
-              pattern: {
-                value: PHONE_NUMBER_PATTERN,
-                message: 'Մուտքագրեք վավեր հեռախոսահամար',
-              },
-            }}
-          /> */}
+
         </View>
       </AnimatedView>
-                  <AuthButton
-                  disabled={isSubmitting}
-              title={'Պահպանել'}
-              onPress={onSubmit}
-              isLoading={isLoading}
-            />
+      <AuthButton
+        disabled={isSubmitting}
+        title={'Պահպանել'}
+        onPress={onSubmit}
+        isLoading={isLoading}
+      />
     </ScrollView>
   );
 }

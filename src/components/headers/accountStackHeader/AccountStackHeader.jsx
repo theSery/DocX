@@ -4,7 +4,7 @@ import UserSvg from '../../icons/UserSvg';
 import PenSvg from '../../icons/PenSvg';
 import { useGlobalStyles, useThemedStyles } from '../../../hooks';
 import GradientBackground from '../../GradientBackground';
-import { ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT } from '../stackHeaderConstants';
+import { ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT, ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT } from '../stackHeaderConstants';
 import { Typography } from '../../typography';
 import { palette } from '../../../theme';
 import AccountHeader from './AccountHeader';
@@ -12,9 +12,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const createStyles = (colors) =>
   StyleSheet.create({
-    headerShell: {
-      height: ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT,
-    },
+    // headerShell: {
+    //   height: ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT,
+    // },
     container: {
       paddingHorizontal: 16,
       flex: 1,
@@ -66,18 +66,19 @@ const AccountStackHeader = ({
   title,
   isBackButton = false,
   isLogoutButton = false,
+  isMinHeight = false,
 }) => {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.headerShell}>
+    <View style={{height: isMinHeight ? ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT : ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT}}>
       <StatusBar barStyle="light-content" />
       <GradientBackground
         isAccountScreen
         centered={false}
-        gradientHeight={ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT}
+        gradientHeight={isMinHeight ? ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT : ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT}
       >
         <View style={[globalStyles.fill, styles.container, { paddingTop: insets.top }]}>
           <AccountHeader
@@ -87,6 +88,7 @@ const AccountStackHeader = ({
             isBackButton={isBackButton}
             isLogoutButton={isLogoutButton}
           />
+          {!isMinHeight && (
           <View>
             <View style={styles.accountContainer}>
               <View style={styles.userImageContainer}>
@@ -110,6 +112,7 @@ const AccountStackHeader = ({
               </View>
             </View>
           </View>
+          )}
         </View>
       </GradientBackground>
     </View>

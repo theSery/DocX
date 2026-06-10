@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -8,11 +8,11 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  Share,
   StyleSheet,
   View,
 } from 'react-native';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
+import RNFS from 'react-native-fs';
 import {
   Canvas,
   Path,
@@ -22,11 +22,16 @@ import {
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import GradientButton from '../buttons/GradientButton';
+import { signatureApi } from '../../api';
 import { Typography } from '../typography';
 import { useGlobalStyles, useThemedStyles, useTheme } from '../../hooks';
 import { FONT_FAMILY, palette } from '../../theme';
 import { WIDTH } from '../../utils/dimensions';
 import { extractHandwritingToTransparentPng } from '../../utils/handwritingExtractor';
+import TrashSvg from '../icons/TrashSvg';
+import PenSvg from '../icons/PenSvg';
+import { showGlobalSheet } from '../GlobalSheet';
+import AuthButton from '../buttons/AuthButton';
 
 const INPUT_RADIUS = 16;
 const STROKE_COLOR = '#000000';
@@ -39,11 +44,12 @@ const SIGNATURE_MODES = [
 
 
 
-function SignatureDrawCanvas() {
+function SignatureDrawCanvas({ onSelectMode }) {
   const canvasRef = useCanvasRef();
   const styles = useThemedStyles(createStyles);
 
   const [paths, setPaths] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
   const currentPathBuilder = useRef(null);
 
   const startPath = useCallback((x, y) => {
@@ -98,14 +104,33 @@ function SignatureDrawCanvas() {
     setPaths([]);
   };
 
-  const savePng = () => {
+  const savePng = async () => {
+    if (paths.length === 0) {
+      Alert.alert('Սխալ', 'Ստորագրությունը դատարկ է');
+      return;
+    }
     const img = canvasRef.current?.makeImageSnapshot()?.encodeToBase64();
     if (!img) {
       Alert.alert('Սխալ', 'Ստորագրությունը դատարկ է');
       return;
     }
-    const data = `data:image/png;base64,${img}`;
-    Share.share({ url: data });
+
+    setIsSaving(true);
+    const filePath = `${RNFS.CachesDirectoryPath}/signature-${Date.now()}.png`;
+    try {
+      await RNFS.writeFile(filePath, img, 'base64');
+      await signatureApi.uploadSignature({ uri: `file://${filePath}` });
+      Alert.alert('Պատրաստ է', 'Ստորագրությունը պահպանվել է');
+    } catch (error) {
+      console.log('error', error);
+      Alert.alert(
+        'Պահպանելը ձախողվեց',
+        error?.message ?? 'Անհայտ սխալ, փորձեք կրկին',
+      );
+    } finally {
+      RNFS.unlink(filePath).catch(() => { });
+      setIsSaving(false);
+    }
   };
 
   const renderedPaths = useMemo(() => {
@@ -131,8 +156,19 @@ function SignatureDrawCanvas() {
           </Canvas>
         </GestureDetector>
       </View>
-
-      <View style={styles.drawButtons}>
+      <View style={styles.imageContainer}>
+              <Pressable style={styles.trashButton} onPress={clearCanvas}>
+                <GradientButton height={50} isLight={false}>  
+                  <PenSvg width={20} height={20} fill={palette.white} />
+                </GradientButton>
+              </Pressable>
+              <Pressable style={styles.trashButton} onPress={() => onSelectMode('camera')}>
+              <GradientButton height={50} isLight={true}>    
+                <TrashSvg width={22} height={22} fill={palette.mainBlue} />
+              </GradientButton>
+              </Pressable>
+            </View>
+      {/* <View style={styles.drawButtons}>
         <Pressable
           style={({ pressed }) => [styles.outlineButton, pressed && styles.buttonPressed]}
           onPress={clearCanvas}
@@ -145,14 +181,19 @@ function SignatureDrawCanvas() {
         <Pressable
           style={({ pressed }) => [styles.primaryButton, pressed && styles.buttonPressed]}
           onPress={savePng}
+          disabled={isSaving}
         >
           <GradientButton height={45} isLight={false}>
-            <Typography variant="h5" style={styles.primaryButtonText}>
-              Պահպանել PNG
-            </Typography>
+            {isSaving ? (
+              <ActivityIndicator size="small" color={palette.white} />
+            ) : (
+              <Typography variant="h5" style={styles.primaryButtonText}>
+                Պահպանել PNG
+              </Typography>
+            )}
           </GradientButton>
         </Pressable>
-      </View>
+      </View> */}
     </View>
   );
 }
@@ -214,16 +255,16 @@ function SignatureCameraCapture() {
     );
   }, [onPickerResponse]);
 
-  const pickFromCamera = useCallback(() => {
-    launchCamera(
-      {
-        mediaType: 'photo',
-        cameraType: 'back',
-        saveToPhotos: false,
-      },
-      onPickerResponse,
-    );
-  }, [onPickerResponse]);
+  // const pickFromCamera = useCallback(() => {
+  //   launchCamera(
+  //     {
+  //       mediaType: 'photo',
+  //       cameraType: 'back',
+  //       saveToPhotos: false,
+  //     },
+  //     onPickerResponse,
+  //   );
+  // }, [onPickerResponse]);
 
   const requestAndroidSavePermission = useCallback(async () => {
     if (Platform.OS !== 'android') {
@@ -312,7 +353,7 @@ function SignatureCameraCapture() {
             </Typography>
           </GradientButton>
         </Pressable>
-        <Pressable
+        {/* <Pressable
           style={({ pressed }) => [styles.cameraButton, pressed && styles.buttonPressed]}
           onPress={pickFromCamera}
         >
@@ -321,7 +362,7 @@ function SignatureCameraCapture() {
               Լուսանկարել
             </Typography>
           </GradientButton>
-        </Pressable>
+        </Pressable> */}
       </View>
 
       {isProcessing ? (
@@ -385,7 +426,42 @@ export function SignatureComponents() {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const [mode, setMode] = useState('draw');
+  const [signature, setSignature] = useState(null);
+  useEffect(() => {
+    signatureApi
+      .getSignature()
+      .then((result) => {
+        console.log('signature result', result);
+        setSignature(result.data);
+      })
+      .catch((error) => {
+        console.log('signature error', error);
+      });
+  }, []);
 
+  const handleDeleteSignature = async () => {
+    try {
+      await signatureApi.deleteSignature();
+      setSignature(null);
+    } catch (error) {
+      console.log('delete signature error', error);
+      Alert.alert(
+        'Ջնջելը ձախողվեց',
+        error?.message ?? 'Անհայտ սխալ, փորձեք կրկին',
+      );
+    }
+  };
+  const handleDeleteSignaturePress = () => {
+    showGlobalSheet({
+      message: 'Դուք պատրաստվում եք ջնջել ստորագրությունը',
+      // description: 'Հաշիվը ջնջելով կորցնում եք հասանելիությունը բոլոր տվյալներին, Ձեր կողմից ստեղծված բոլոր փաստաթղթերին',
+      actions: [
+        { label: 'Ջնջել', destructive: true, onPress: handleDeleteSignature },
+        { label: 'Չեղարկել' },
+
+      ],
+    });
+  };
   return (
     <ScrollView
       style={globalStyles.screen}
@@ -397,157 +473,216 @@ export function SignatureComponents() {
       <Typography variant="h4" style={styles.title}>
         Ստորագրություն
       </Typography>
-      <Typography variant="h5" tone="secondary" style={styles.subtitle}>
-        Նկարեք կամ լուսանկարեք ձեր ստորագրությունը։
-      </Typography>
+      {signature?.id ? (
+        <>
+          <View style={styles.signatureImage} >
+            <View style={styles.imageContainer}>
+              <Pressable style={styles.trashButton} onPress={() => setSignature(null)}>
+                <GradientButton height={50} isLight={false}>  
+                  <PenSvg width={20} height={20} fill={palette.white} />
+                </GradientButton>
+              </Pressable>
+              <Pressable style={styles.trashButton} onPress={handleDeleteSignaturePress}>
+              <GradientButton height={50} isLight={true}>    
+                <TrashSvg width={22} height={22} fill={palette.mainBlue} />
+              </GradientButton>
+              </Pressable>
+            </View>
+            <Image source={{ uri: signature.fileUrl }} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
+          </View>
+        </>
 
-      <View style={styles.modeTabs}>
-        {SIGNATURE_MODES.map((item) => {
-          const isActive = mode === item.id;
-          return (
-            <Pressable
-              key={item.id}
-              style={[styles.modeTab, isActive && styles.modeTabActive]}
-              onPress={() => setMode(item.id)}
-            >
-              <Typography variant="h5" tone={isActive ? 'onDark' : 'default'}>
-                {item.label}
-              </Typography>
-            </Pressable>
-          );
-        })}
-      </View>
+      ) : (
+        <>
+          {/* <View style={styles.modeTabs}>
+            {SIGNATURE_MODES.map((item) => {
+              const isActive = mode === item.id;
+              return (
+                <Pressable
+                  key={item.id}
+                  style={[styles.modeTab, isActive && styles.modeTabActive]}
+                  onPress={() => setMode(item.id)}
+                >
+                  <Typography variant="h5" tone={isActive ? 'onDark' : 'default'}>
+                    {item.label}
+                  </Typography>
+                </Pressable>
+              );
+            })}
+          </View> */}
+          {mode === 'draw' ? <SignatureDrawCanvas onSelectMode={setMode}/> : <SignatureCameraCapture />}
+          {/* <AuthButton
+        title={'Պահպանել ստորագրությունը'}
+        onPress={() => {}}
+        isLoading={isLoading}
+      /> */}
+        </>
+      )}
 
-      {mode === 'draw' ? <SignatureDrawCanvas /> : <SignatureCameraCapture />}
+      {/* {mode === 'draw' ? <SignatureDrawCanvas /> : <SignatureCameraCapture />} */}
     </ScrollView>
   );
 }
 const createStyles = (colors) =>
-    StyleSheet.create({
-      screenContent: {
-        paddingTop: 20,
-        paddingBottom: 32,
-        gap: 16,
-      },
-      title: {
-        letterSpacing: 0.9,
-      },
-      subtitle: {
-        lineHeight: 20,
-      },
-      modeTabs: {
-        flexDirection: 'row',
-        borderWidth: 1,
-        borderColor: colors.border,
-        borderRadius: INPUT_RADIUS,
-        overflow: 'hidden',
-      },
-      modeTab: {
-        flex: 1,
-        paddingVertical: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
-      modeTabActive: {
-        backgroundColor: colors.primary,
-      },
-      drawContainer: {
-        alignItems: 'center',
-      },
-      paper: {
-        width: WIDTH - 40,
-        height: 320,
-        backgroundColor: 'transparent',
-        borderWidth: 1,
-        borderColor: colors.border,
-        borderRadius: 14,
-        overflow: 'hidden',
-      },
-      canvas: {
-        flex: 1,
-        backgroundColor: 'transparent',
-      },
-      drawButtons: {
-        flexDirection: 'row',
-        marginTop: 20,
-        gap: 12,
-        width: WIDTH - 40,
-      },
-      outlineButton: {
-        flex: 1,
-        height: 45,
-        borderRadius: INPUT_RADIUS,
-        borderWidth: 1,
-        borderColor: colors.primary,
-        backgroundColor: colors.surface,
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
-      outlineButtonText: {
-        color: palette.mainBlue,
-        letterSpacing: 1.2,
-      },
-      primaryButton: {
-        flex: 1,
-        height: 45,
-        overflow: 'hidden',
-        borderRadius: INPUT_RADIUS,
-      },
-      primaryButtonText: {
-        fontFamily: FONT_FAMILY.regular,
-        color: palette.white,
-        letterSpacing: 1.2,
-      },
-      buttonPressed: {
-        opacity: 0.88,
-      },
-      cameraContainer: {
-        gap: 14,
-      },
-      cameraButtonRow: {
-        flexDirection: 'row',
-        gap: 10,
-      },
-      cameraButton: {
-        flex: 1,
-        height: 45,
-        overflow: 'hidden',
-        borderRadius: INPUT_RADIUS,
-      },
-      loader: {
-        alignItems: 'center',
-        paddingVertical: 12,
-        gap: 8,
-      },
-      processingLabel: {
-        textAlign: 'center',
-      },
-      previewRow: {
-        gap: 12,
-      },
-      previewCard: {
-        borderRadius: 14,
-        borderWidth: 1,
-        borderColor: colors.border,
-        backgroundColor: colors.surface,
-        padding: 10,
-        minHeight: 220,
-        gap: 8,
-      },
-      previewImage: {
-        width: '100%',
-        height: 180,
-        borderRadius: 8,
-      },
-      transparencyBoard: {
-        borderRadius: 8,
-        overflow: 'hidden',
-        backgroundColor: colors.input,
-      },
-      saveResultButton: {
-        marginTop: 2,
-        height: 45,
-        overflow: 'hidden',
-        borderRadius: INPUT_RADIUS,
-      },
-    });
+  StyleSheet.create({
+    screenContent: {
+      paddingBottom: 32,
+      gap: 16,
+      // backgroundColor: 'red',
+      paddingTop: 20,
+    },
+    title: {
+      letterSpacing: 0.9,
+    },
+    subtitle: {
+      lineHeight: 20,
+    },
+    modeTabs: {
+      flexDirection: 'row',
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: INPUT_RADIUS,
+      overflow: 'hidden',
+    },
+    modeTab: {
+      flex: 1,
+      paddingVertical: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    modeTabActive: {
+      backgroundColor: colors.primary,
+    },
+    drawContainer: {
+      alignItems: 'center',
+      // backgroundColor: 'red',
+      height: '70%',
+    },
+    paper: {
+      width: WIDTH - 40,
+      height: '100%',
+      backgroundColor: '#FAFBFF',
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 14,
+      overflow: 'hidden',
+    },
+    signatureImage: {
+      width: WIDTH - 40,
+      height: '70%',
+      backgroundColor: '#FAFBFF',
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 14,
+      overflow: 'hidden',
+    },
+    canvas: {
+      flex: 1,
+      backgroundColor: 'transparent',
+    },
+    drawButtons: {
+      flexDirection: 'row',
+      marginTop: 20,
+      gap: 12,
+      width: WIDTH - 40,
+    },
+    outlineButton: {
+      flex: 1,
+      height: 45,
+      borderRadius: INPUT_RADIUS,
+      borderWidth: 1,
+      borderColor: colors.primary,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    outlineButtonText: {
+      color: palette.mainBlue,
+      letterSpacing: 1.2,
+    },
+    primaryButton: {
+      flex: 1,
+      height: 45,
+      overflow: 'hidden',
+      borderRadius: INPUT_RADIUS,
+    },
+    primaryButtonText: {
+      fontFamily: FONT_FAMILY.regular,
+      color: palette.white,
+      letterSpacing: 1.2,
+    },
+    buttonPressed: {
+      opacity: 0.88,
+    },
+    cameraContainer: {
+      gap: 14,
+    },
+    cameraButtonRow: {
+      flexDirection: 'row',
+      gap: 10,
+    },
+    cameraButton: {
+      flex: 1,
+      height: 45,
+      overflow: 'hidden',
+      borderRadius: INPUT_RADIUS,
+    },
+    loader: {
+      alignItems: 'center',
+      paddingVertical: 12,
+      gap: 8,
+    },
+    processingLabel: {
+      textAlign: 'center',
+    },
+    previewRow: {
+      gap: 12,
+    },
+    previewCard: {
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      padding: 10,
+      minHeight: 220,
+      gap: 8,
+    },
+    previewImage: {
+      width: '100%',
+      height: 180,
+      borderRadius: 8,
+    },
+    transparencyBoard: {
+      borderRadius: 8,
+      overflow: 'hidden',
+      backgroundColor: colors.input,
+    },
+    saveResultButton: {
+      marginTop: 2,
+      height: 45,
+      overflow: 'hidden',
+      borderRadius: INPUT_RADIUS,
+    },
+    imageContainer: {
+      position: 'absolute',
+      flexDirection: 'row',
+      gap: 10,
+      top: 10,
+      zIndex: 10,
+
+      width: '100%',
+      justifyContent: 'center',
+      alignItems: 'center'
+    },
+    trashButton: {
+
+  width: 50,
+  height: 50,
+  justifyContent: 'center',
+  alignItems: 'center',
+  borderRadius: 50,
+  borderWidth: 1,
+  borderColor: colors.border,
+  overflow: 'hidden',
+    },
+  });

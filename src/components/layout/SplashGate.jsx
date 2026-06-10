@@ -29,33 +29,35 @@ async function resolveAuthRoute(isSign) {
     // if (FORCE_401) {
     //   throw { type: 'http', status: 401, message: 'Unauthorized' };
     // }
-    await userApi.getMe();
+   const response = await userApi.getMe();
+   console.log('response', response.data);
     return 'session';
   } catch (error) {
-    if (error?.status !== 401) {
-      console.log('error 99999999', error);
-      const refreshToken = await getRefreshToken();
-      if (!refreshToken) {
-        return (await hasStoredPinCode()) ? 'faceId' : 'auth';
-      }
-    }
-
-    const refreshToken = await getRefreshToken();
-    if (!refreshToken) {
+    console.log('error 99999999', error.status);
+    if (error?.status === 401) {
+   
+      // const refreshToken = await getRefreshToken();
       return (await hasStoredPinCode()) ? 'faceId' : 'auth';
     }
 
-    try {
-      const response = await authApi.refreshToken({ refreshToken });
-      await persistAuthResponse(response);
-      return 'session';
-    } catch (refreshError) {
-      if (refreshError?.status === 401) {
-        return (await hasStoredPinCode()) ? 'faceId' : 'auth';
-      }
+    // const refreshToken = await getRefreshToken();
+    // if (!refreshToken) {
+    //   return (await hasStoredPinCode()) ? 'faceId' : 'auth';
+    // }
 
-      return (await hasStoredPinCode()) ? 'faceId' : 'auth';
-    }
+    // try {
+    //   const response = await authApi.refreshToken({ refreshToken });
+    //   console.log('response', response.data);
+    //   await persistAuthResponse(response);
+    //   return 'session';
+    // } catch (refreshError) {
+    //   console.log('refreshError', refreshError);
+    //   if (refreshError?.status === 401) {
+    //     return (await hasStoredPinCode()) ? 'faceId' : 'auth';
+    //   }
+
+    //   return (await hasStoredPinCode()) ? 'faceId' : 'auth';
+    // }
   }
 }
 

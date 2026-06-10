@@ -17,13 +17,14 @@ import AccountStackHeader from '../../components/headers/accountStackHeader/Acco
 const Stack = createNativeStackNavigator();
 const nestedScreenOptionsWithHeader = (
   nestedScreenOptions,
-  { title,  isBackButton = false, isLogoutButton = false },
+  { title,  isBackButton = false, isLogoutButton = false, isMinHeight = false },
   onLogoutPress,
 ) => ({
   ...nestedScreenOptions,
   title,
   isBackButton,
   isLogoutButton,
+  isMinHeight,
   // headerShown: isBackButton,
   header: ({ navigation, options }) => (
     <AccountStackHeader
@@ -32,6 +33,7 @@ const nestedScreenOptionsWithHeader = (
       title={options.title}
       isBackButton={options.isBackButton}
       isLogoutButton={options.isLogoutButton}
+      isMinHeight={options.isMinHeight}
     />
   ),
 });
@@ -84,7 +86,7 @@ export function AccountStackNavigator() {
       <Stack.Screen
         name="Signature"
         component={SignatureScreen}
-        options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Signature' , isLogoutButton: true, isBackButton: true }, handleLogoutPress)}
+        options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Ստորագրություն' , isLogoutButton: false, isBackButton: true, isMinHeight: true })}
       />
       <Stack.Screen
         name="Settings"

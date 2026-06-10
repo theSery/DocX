@@ -52,13 +52,22 @@ export function FaceIdScreen() {
 
   const loginWithCredentials = useCallback(
     async ({ email, password }) => {
-      console.log('[FaceId] Logging in with keychain credentials for:', email);
-      const response = await authApi.login({ email, password });
-      await persistAuthResponse(response);
-      console.log('[FaceId] Login successful');
-      await completeAuthentication();
+      try {
+        console.log('[FaceId] Logging in with keychain credentials for:', email);
+        const response = await authApi.login({ email, password });
+        await persistAuthResponse(response);
+        console.log('[FaceId] Login successful');
+        await completeAuthentication();
+      } catch (error) {
+        console.log('[FaceId] Login failed:', error?.message ?? error);
+        showToast({
+          title: 'Մուտքը ձախողվեց',
+          body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+          type: 'error',
+        });
+      }
     },
-    [completeAuthentication],
+    [completeAuthentication, showToast],
   );
 
   const performBiometricLogin = useCallback(async () => {
@@ -162,7 +171,7 @@ export function FaceIdScreen() {
       }
 
       console.log('[FaceId] PIN verification successful');
-      await completeAuthentication();
+      await loginWithCredentials(credentials);
     } catch (error) {
       console.log('[FaceId] PIN verification failed:', error?.message ?? error);
       setPasscode([]);
