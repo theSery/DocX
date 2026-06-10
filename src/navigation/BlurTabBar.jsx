@@ -190,7 +190,6 @@ const func = async () => {
       setTrackWidth(width);
     }
   };
-  console.log('isCredentials', isCredentials);
   const glass = isDarkMode ? GLASS.dark : GLASS.light;
   const blurType = isDarkMode ? 'dark' : 'light';
 

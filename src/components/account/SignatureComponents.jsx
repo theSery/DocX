@@ -1,11 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
-  Image,
-  Linking,
-  PermissionsAndroid,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -18,45 +13,55 @@ import {
   Path,
   Skia,
   useCanvasRef,
+  Image as SkiaImage,
+  useImage,
 } from '@shopify/react-native-skia';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 import GradientButton from '../buttons/GradientButton';
 import { signatureApi } from '../../api';
 import { Typography } from '../typography';
-import { useGlobalStyles, useThemedStyles, useTheme } from '../../hooks';
+import { useGlobalStyles, useThemedStyles, useToast } from '../../hooks';
 import { FONT_FAMILY, palette } from '../../theme';
 import { WIDTH } from '../../utils/dimensions';
 import { extractHandwritingToTransparentPng } from '../../utils/handwritingExtractor';
 import TrashSvg from '../icons/TrashSvg';
 import PenSvg from '../icons/PenSvg';
 import { showGlobalSheet } from '../GlobalSheet';
-import AuthButton from '../buttons/AuthButton';
+import CameraSvg from '../icons/CameraSvg';
+import CloseSvg from '../icons/CloseSvg';
+import CleareSvg from '../icons/CleareSvg';
 
 const INPUT_RADIUS = 16;
 const STROKE_COLOR = '#000000';
 const STROKE_WIDTH = 3;
 
-const SIGNATURE_MODES = [
-  { id: 'draw', label: 'Նկարել' },
-  { id: 'camera', label: 'Լուսանկար' },
-];
-
-
-
-function SignatureDrawCanvas({ onSelectMode }) {
+function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress }) {
   const canvasRef = useCanvasRef();
   const styles = useThemedStyles(createStyles);
+  const { showToast } = useToast();
 
   const [paths, setPaths] = useState([]);
+  const [isDrawingEnabled, setIsDrawingEnabled] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isImageVisible, setIsImageVisible] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [pickedImageUri, setPickedImageUri] = useState(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const currentPathBuilder = useRef(null);
+
+  const signatureImage = useImage(pickedImageUri ?? signatureUrl ?? null);
+
+  const onCanvasLayout = useCallback(e => {
+    const { width, height } = e.nativeEvent.layout;
+    setCanvasSize({ width, height });
+  }, []);
 
   const startPath = useCallback((x, y) => {
     const builder = Skia.PathBuilder.Make().moveTo(x, y);
     currentPathBuilder.current = builder;
 
-    setPaths((prev) => [
+    setPaths(prev => [
       ...prev,
       {
         path: builder.build(),
@@ -72,7 +77,7 @@ function SignatureDrawCanvas({ onSelectMode }) {
     currentPathBuilder.current.lineTo(x, y);
     const updatedPath = currentPathBuilder.current.build();
 
-    setPaths((prev) => {
+    setPaths(prev => {
       if (prev.length === 0) return prev;
       const next = [...prev];
       next[next.length - 1] = {
@@ -88,12 +93,13 @@ function SignatureDrawCanvas({ onSelectMode }) {
   }, []);
 
   const panGesture = Gesture.Pan()
+    .enabled(isDrawingEnabled)
     .minDistance(0)
     .runOnJS(true)
-    .onBegin((e) => {
+    .onBegin(e => {
       startPath(e.x, e.y);
     })
-    .onUpdate((e) => {
+    .onUpdate(e => {
       updatePath(e.x, e.y);
     })
     .onEnd(() => {
@@ -102,37 +108,111 @@ function SignatureDrawCanvas({ onSelectMode }) {
 
   const clearCanvas = () => {
     setPaths([]);
+    setPickedImageUri(null);
+    setIsImageVisible(false);
   };
 
+  const hasDefaultImage = Boolean(signatureImage && isImageVisible);
+
   const savePng = async () => {
-    if (paths.length === 0) {
-      Alert.alert('Սխալ', 'Ստորագրությունը դատարկ է');
+    if (paths.length === 0 && !hasDefaultImage) {
+      showToast({ title: 'Ստորագրությունը դատարկ է', type: 'error' });
       return;
     }
     const img = canvasRef.current?.makeImageSnapshot()?.encodeToBase64();
     if (!img) {
-      Alert.alert('Սխալ', 'Ստորագրությունը դատարկ է');
+      showToast({ title: 'Ստորագրությունը դատարկ է', type: 'error' });
       return;
     }
 
     setIsSaving(true);
     const filePath = `${RNFS.CachesDirectoryPath}/signature-${Date.now()}.png`;
+    const isEditingExisting = isDrawingEnabled && Boolean(signatureUrl);
     try {
       await RNFS.writeFile(filePath, img, 'base64');
-      await signatureApi.uploadSignature({ uri: `file://${filePath}` });
-      Alert.alert('Պատրաստ է', 'Ստորագրությունը պահպանվել է');
+      if (isEditingExisting) {
+        console.log('isEditingExisting', isEditingExisting);
+        await signatureApi.updateSignature({ uri: `file://${filePath}` });
+      } else {
+        await signatureApi.uploadSignature({ uri: `file://${filePath}` });
+      }
+      showToast({ title: 'Ստորագրությունը պահպանվել է', type: 'success' });
     } catch (error) {
       console.log('error', error);
-      Alert.alert(
-        'Պահպանելը ձախողվեց',
-        error?.message ?? 'Անհայտ սխալ, փորձեք կրկին',
-      );
+      showToast({
+        title: 'Պահպանելը ձախողվեց',
+        body: error?.message ?? 'Անհայտ սխալ, փորձեք կրկին',
+        type: 'error',
+      });
     } finally {
       RNFS.unlink(filePath).catch(() => { });
       setIsSaving(false);
     }
   };
+  const onPickerResponse = useCallback(async response => {
+    if (response.didCancel) {
+      return;
+    }
+    if (response.errorCode) {
+      showToast({
+        title: 'Սխալ',
+        body: response.errorMessage ?? response.errorCode,
+        type: 'error',
+      });
+      return;
+    }
 
+    const asset = response.assets?.[0];
+    if (!asset?.uri) {
+      showToast({
+        title: 'Նկար չի ընտրվել',
+        body: 'Ընտրեք կամ լուսանկարեք վավեր ստորագրության նկար։',
+        type: 'error',
+      });
+      return;
+    }
+
+    setPaths([]);
+    setPickedImageUri(null);
+    setIsProcessing(true);
+    try {
+      const result = await extractHandwritingToTransparentPng(asset.uri, {
+        brightnessThreshold: 0.87,
+        contrast: 1.16,
+        saturationGuard: 0.16,
+      });
+      setPickedImageUri(`file://${result.outputPath}`);
+      setIsImageVisible(true);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Անհայտ մշակման սխալ';
+      showToast({ title: 'Մշակումը ձախողվեց', body: message, type: 'error' });
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [showToast]);
+
+  const pickFromGallery = useCallback(() => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        selectionLimit: 1,
+      },
+      onPickerResponse,
+    );
+  }, [onPickerResponse]);
+  const handlePickFromGallery = () => {
+    showGlobalSheet({
+      content: require('../../assets/images/sigExample.jpg'),
+      message: 'Ստորագրեք սպիտակ թղթի վրա, լուսանկարեք և բերեք նկարը։',
+      description:
+        'Այս պատկերը օգտագործվում է որպես օրինակ ստորագրության համար։',
+      actions: [
+        { label: 'Ընտրել', onPress: pickFromGallery },
+        { label: 'Չեղարկել' },
+      ],
+    });
+  };
   const renderedPaths = useMemo(() => {
     return paths.map((item, index) => (
       <Path
@@ -151,35 +231,76 @@ function SignatureDrawCanvas({ onSelectMode }) {
     <View style={styles.drawContainer}>
       <View style={styles.paper}>
         <GestureDetector gesture={panGesture}>
-          <Canvas ref={canvasRef} style={styles.canvas}>
-            {renderedPaths}
-          </Canvas>
+          <View style={styles.canvas} onLayout={onCanvasLayout}>
+            <Canvas ref={canvasRef} style={styles.canvas}>
+              {hasDefaultImage && canvasSize.width > 0 ? (
+                <SkiaImage
+                  image={signatureImage}
+                  x={0}
+                  y={0}
+                  width={canvasSize.width}
+                  height={canvasSize.height}
+                  fit="contain"
+                />
+              ) : null}
+              {renderedPaths}
+            </Canvas>
+          </View>
         </GestureDetector>
+        {isProcessing ? (
+          <View style={styles.canvasLoader}>
+            <ActivityIndicator size="large" color={palette.mainBlue} />
+          </View>
+        ) : null}
       </View>
       <View style={styles.imageContainer}>
-              <Pressable style={styles.trashButton} onPress={clearCanvas}>
-                <GradientButton height={50} isLight={false}>  
-                  <PenSvg width={20} height={20} fill={palette.white} />
-                </GradientButton>
-              </Pressable>
-              <Pressable style={styles.trashButton} onPress={() => onSelectMode('camera')}>
-              <GradientButton height={50} isLight={true}>    
-                <TrashSvg width={22} height={22} fill={palette.mainBlue} />
-              </GradientButton>
-              </Pressable>
-            </View>
-      {/* <View style={styles.drawButtons}>
         <Pressable
-          style={({ pressed }) => [styles.outlineButton, pressed && styles.buttonPressed]}
-          onPress={clearCanvas}
+          style={styles.trashButton}
+          onPress={() => {
+            setIsDrawingEnabled(prev => !prev);
+            // clearCanvas();
+          }}
         >
-          <Typography variant="h5" style={styles.outlineButtonText}>
-            Մաքրել
-          </Typography>
+          <GradientButton height={50} isLight={isDrawingEnabled}>
+            {!isDrawingEnabled ? (
+              <PenSvg width={20} height={20} fill={palette.white} />
+            ) : (
+              <CloseSvg width={16} height={16} fill={palette.mainBlue} />
+            )}
+          </GradientButton>
         </Pressable>
-
+        {isDrawingEnabled && (
+          <Pressable style={styles.trashButton} onPress={clearCanvas}>
+            <GradientButton height={50} isLight={true}>
+              <CleareSvg width={20} height={20} fill={palette.mainBlue} />
+            </GradientButton>
+          </Pressable>
+        )}
+        {signatureUrl && (
+          <Pressable
+            style={styles.trashButton}
+            onPress={handleDeleteSignaturePress}
+          >
+            <GradientButton height={50} isLight={true}>
+              <TrashSvg width={22} height={22} fill={palette.mainBlue} />
+            </GradientButton>
+          </Pressable>
+        )}
+        {isDrawingEnabled && (
+          <Pressable style={styles.trashButton} onPress={handlePickFromGallery}>
+            <GradientButton height={50} isLight={true}>
+              <CameraSvg width={25} height={25} fill={palette.mainBlue} />
+            </GradientButton>
+          </Pressable>
+        )}
+        {/* */}
+      </View>
+      <View style={styles.drawButtons}>
         <Pressable
-          style={({ pressed }) => [styles.primaryButton, pressed && styles.buttonPressed]}
+          style={({ pressed }) => [
+            styles.primaryButton,
+            pressed && styles.buttonPressed,
+          ]}
           onPress={savePng}
           disabled={isSaving}
         >
@@ -188,235 +309,11 @@ function SignatureDrawCanvas({ onSelectMode }) {
               <ActivityIndicator size="small" color={palette.white} />
             ) : (
               <Typography variant="h5" style={styles.primaryButtonText}>
-                Պահպանել PNG
+                Պահպանել ստորագրությունը
               </Typography>
             )}
           </GradientButton>
         </Pressable>
-      </View> */}
-    </View>
-  );
-}
-
-function SignatureCameraCapture() {
-  const { colors } = useTheme();
-  const styles = useThemedStyles(createStyles);
-  const [sourceUri, setSourceUri] = useState(null);
-  const [processedImage, setProcessedImage] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const onPickerResponse = useCallback(async (response) => {
-    if (response.didCancel) {
-      return;
-    }
-    if (response.errorCode) {
-      Alert.alert('Սխալ', response.errorMessage ?? response.errorCode);
-      return;
-    }
-
-    const asset = response.assets?.[0];
-    if (!asset?.uri) {
-      Alert.alert('Նկար չի ընտրվել', 'Ընտրեք կամ լուսանկարեք վավեր ստորագրության նկար։');
-      return;
-    }
-
-    setSourceUri(asset.uri);
-    setProcessedImage(null);
-    setIsProcessing(true);
-    try {
-      const result = await extractHandwritingToTransparentPng(asset.uri, {
-        brightnessThreshold: 0.87,
-        contrast: 1.16,
-        saturationGuard: 0.16,
-      });
-      const normalizedPath =
-        Platform.OS === 'android' ? `file://${result.outputPath}` : result.outputPath;
-      setProcessedImage({
-        path: normalizedPath,
-        width: result.width,
-        height: result.height,
-      });
-      Alert.alert('Պատրաստ է', `Թափանցիկ PNG-ը պահպանվել է տեղայնորեն:\n${result.outputPath}`);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Անհայտ մշակման սխալ';
-      Alert.alert('Մշակումը ձախողվեց', message);
-    } finally {
-      setIsProcessing(false);
-    }
-  }, []);
-
-  const pickFromGallery = useCallback(() => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        selectionLimit: 1,
-      },
-      onPickerResponse,
-    );
-  }, [onPickerResponse]);
-
-  // const pickFromCamera = useCallback(() => {
-  //   launchCamera(
-  //     {
-  //       mediaType: 'photo',
-  //       cameraType: 'back',
-  //       saveToPhotos: false,
-  //     },
-  //     onPickerResponse,
-  //   );
-  // }, [onPickerResponse]);
-
-  const requestAndroidSavePermission = useCallback(async () => {
-    if (Platform.OS !== 'android') {
-      return true;
-    }
-    if (Platform.Version >= 29) {
-      return true;
-    }
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-      {
-        title: 'Պահեստի թույլտվություն',
-        message: 'Թույլ տվեք պահեստին մուտքը, որպեսզի պահպանեք PNG-ը պատկերասրահում։',
-        buttonPositive: 'Թույլատրել',
-        buttonNegative: 'Մերժել',
-      },
-    );
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
-  }, []);
-
-  const saveProcessedImage = useCallback(async () => {
-    if (!processedImage) {
-      Alert.alert(
-        'Մշակված նկար չկա',
-        'Նախ առանձնացրեք ստորագրությունը, ապա պահպանեք արդյունքը։',
-      );
-      return;
-    }
-
-    try {
-      const hasPermission = await requestAndroidSavePermission();
-      if (!hasPermission) {
-        Alert.alert(
-          'Թույլտվությունը մերժվել է',
-          'Պահեստի թույլտվություն անհրաժեշտ է նկարը պահպանելու համար։',
-        );
-        return;
-      }
-      const saveUri =
-        processedImage.path.startsWith('file://') || Platform.OS === 'android'
-          ? processedImage.path
-          : `file://${processedImage.path}`;
-      const savedUri = await CameraRoll.save(saveUri, {
-        type: 'photo',
-        album: 'DocX Ստորագրություններ',
-      });
-      Alert.alert('Պահպանված է', `Թափանցիկ PNG-ը պահպանվել է պատկերասրահում:\n${savedUri}`);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Անհայտ պահպանման սխալ';
-      const isIosPhotosPermissionError =
-        Platform.OS === 'ios' &&
-        /PHPhotosErrorDomain/i.test(message) &&
-        /\b3311\b/.test(message);
-      if (isIosPhotosPermissionError) {
-        Alert.alert(
-          'Պատկերասրահի մուտք',
-          'Թույլ տվեք պատկերասրահի մուտքը (ավելացնել կամ ամբողջական) PNG-ը պահպանելու համար։',
-          [
-            { text: 'Չեղարկել', style: 'cancel' },
-            {
-              text: 'Բացել կարգավորումները',
-              onPress: () => {
-                Linking.openSettings().catch(() => {
-                  Alert.alert('Սխալ', 'Բացեք կարգավորումները ձեռքով։');
-                });
-              },
-            },
-          ],
-        );
-        return;
-      }
-      Alert.alert('Պահպանելը ձախողվեց', message);
-    }
-  }, [processedImage, requestAndroidSavePermission]);
-
-  return (
-    <View style={styles.cameraContainer}>
-      <View style={styles.cameraButtonRow}>
-        <Pressable
-          style={({ pressed }) => [styles.cameraButton, pressed && styles.buttonPressed]}
-          onPress={pickFromGallery}
-        >
-          <GradientButton height={45} isLight={false}>
-            <Typography variant="h5" style={styles.primaryButtonText}>
-              Վերբեռնել պատկերասրահից
-            </Typography>
-          </GradientButton>
-        </Pressable>
-        {/* <Pressable
-          style={({ pressed }) => [styles.cameraButton, pressed && styles.buttonPressed]}
-          onPress={pickFromCamera}
-        >
-          <GradientButton height={45} isLight={false}>
-            <Typography variant="h5" style={styles.primaryButtonText}>
-              Լուսանկարել
-            </Typography>
-          </GradientButton>
-        </Pressable> */}
-      </View>
-
-      {isProcessing ? (
-        <View style={styles.loader}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Typography variant="h6" tone="secondary" style={styles.processingLabel}>
-            Ստորագրության առանձնացում և ֆոնի հեռացում...
-          </Typography>
-        </View>
-      ) : null}
-
-      <View style={styles.previewRow}>
-        <View style={styles.previewCard}>
-          <Typography variant="h5">Սկզբնական</Typography>
-          {sourceUri ? (
-            <Image source={{ uri: sourceUri }} style={styles.previewImage} resizeMode="contain" />
-          ) : (
-            <Typography variant="h6" tone="secondary">
-              Սկզբնական նկար չի ընտրվել։
-            </Typography>
-          )}
-        </View>
-
-        <View style={styles.previewCard}>
-          <Typography variant="h5">Թափանցիկ արդյունք</Typography>
-          {processedImage ? (
-            <>
-              <View style={styles.transparencyBoard}>
-                <Image
-                  source={{ uri: processedImage.path }}
-                  style={styles.previewImage}
-                  resizeMode="contain"
-                />
-              </View>
-              <Typography variant="h6" tone="secondary">
-                {processedImage.width}x{processedImage.height} PNG պահպանվել է տեղայնորեն
-              </Typography>
-              <Pressable
-                style={({ pressed }) => [styles.saveResultButton, pressed && styles.buttonPressed]}
-                onPress={saveProcessedImage}
-              >
-                <GradientButton height={45} isLight={false}>
-                  <Typography variant="h5" style={styles.primaryButtonText}>
-                    Պահպանել արդյունքը
-                  </Typography>
-                </GradientButton>
-              </Pressable>
-            </>
-          ) : (
-            <Typography variant="h6" tone="secondary">
-              Մշակված արդյունքը կցուցադրվի այստեղ առանձնացումից հետո։
-            </Typography>
-          )}
-        </View>
       </View>
     </View>
   );
@@ -425,16 +322,16 @@ function SignatureCameraCapture() {
 export function SignatureComponents() {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
-  const [mode, setMode] = useState('draw');
+  const { showToast } = useToast();
   const [signature, setSignature] = useState(null);
   useEffect(() => {
     signatureApi
       .getSignature()
-      .then((result) => {
-        console.log('signature result', result);
+      .then(result => {
+        // console.log('signature result', result);
         setSignature(result.data);
       })
-      .catch((error) => {
+      .catch(error => {
         console.log('signature error', error);
       });
   }, []);
@@ -445,23 +342,25 @@ export function SignatureComponents() {
       setSignature(null);
     } catch (error) {
       console.log('delete signature error', error);
-      Alert.alert(
-        'Ջնջելը ձախողվեց',
-        error?.message ?? 'Անհայտ սխալ, փորձեք կրկին',
-      );
+      showToast({
+        title: 'Ջնջելը ձախողվեց',
+        body: error?.message ?? 'Անհայտ սխալ, փորձեք կրկին',
+        type: 'error',
+      });
     }
   };
   const handleDeleteSignaturePress = () => {
     showGlobalSheet({
+      // content: signature?.fileUrl ?? null,
       message: 'Դուք պատրաստվում եք ջնջել ստորագրությունը',
       // description: 'Հաշիվը ջնջելով կորցնում եք հասանելիությունը բոլոր տվյալներին, Ձեր կողմից ստեղծված բոլոր փաստաթղթերին',
       actions: [
         { label: 'Ջնջել', destructive: true, onPress: handleDeleteSignature },
         { label: 'Չեղարկել' },
-
       ],
     });
   };
+
   return (
     <ScrollView
       style={globalStyles.screen}
@@ -470,93 +369,26 @@ export function SignatureComponents() {
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="on-drag"
     >
-      <Typography variant="h4" style={styles.title}>
-        Ստորագրություն
-      </Typography>
-      {signature?.id ? (
-        <>
-          <View style={styles.signatureImage} >
-            <View style={styles.imageContainer}>
-              <Pressable style={styles.trashButton} onPress={() => setSignature(null)}>
-                <GradientButton height={50} isLight={false}>  
-                  <PenSvg width={20} height={20} fill={palette.white} />
-                </GradientButton>
-              </Pressable>
-              <Pressable style={styles.trashButton} onPress={handleDeleteSignaturePress}>
-              <GradientButton height={50} isLight={true}>    
-                <TrashSvg width={22} height={22} fill={palette.mainBlue} />
-              </GradientButton>
-              </Pressable>
-            </View>
-            <Image source={{ uri: signature.fileUrl }} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
-          </View>
-        </>
-
-      ) : (
-        <>
-          {/* <View style={styles.modeTabs}>
-            {SIGNATURE_MODES.map((item) => {
-              const isActive = mode === item.id;
-              return (
-                <Pressable
-                  key={item.id}
-                  style={[styles.modeTab, isActive && styles.modeTabActive]}
-                  onPress={() => setMode(item.id)}
-                >
-                  <Typography variant="h5" tone={isActive ? 'onDark' : 'default'}>
-                    {item.label}
-                  </Typography>
-                </Pressable>
-              );
-            })}
-          </View> */}
-          {mode === 'draw' ? <SignatureDrawCanvas onSelectMode={setMode}/> : <SignatureCameraCapture />}
-          {/* <AuthButton
-        title={'Պահպանել ստորագրությունը'}
-        onPress={() => {}}
-        isLoading={isLoading}
-      /> */}
-        </>
-      )}
-
-      {/* {mode === 'draw' ? <SignatureDrawCanvas /> : <SignatureCameraCapture />} */}
+      <SignatureDrawCanvas
+        signatureUrl={signature?.fileUrl}
+        handleDeleteSignaturePress={handleDeleteSignaturePress}
+      />
     </ScrollView>
   );
 }
-const createStyles = (colors) =>
+const createStyles = colors =>
   StyleSheet.create({
     screenContent: {
       paddingBottom: 32,
       gap: 16,
-      // backgroundColor: 'red',
       paddingTop: 20,
     },
     title: {
       letterSpacing: 0.9,
     },
-    subtitle: {
-      lineHeight: 20,
-    },
-    modeTabs: {
-      flexDirection: 'row',
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: INPUT_RADIUS,
-      overflow: 'hidden',
-    },
-    modeTab: {
-      flex: 1,
-      paddingVertical: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    modeTabActive: {
-      backgroundColor: colors.primary,
-    },
     drawContainer: {
       alignItems: 'center',
-      // backgroundColor: 'red',
-      height: '70%',
+      height: '80%',
     },
     paper: {
       width: WIDTH - 40,
@@ -567,18 +399,15 @@ const createStyles = (colors) =>
       borderRadius: 14,
       overflow: 'hidden',
     },
-    signatureImage: {
-      width: WIDTH - 40,
-      height: '70%',
-      backgroundColor: '#FAFBFF',
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: 14,
-      overflow: 'hidden',
-    },
     canvas: {
       flex: 1,
       backgroundColor: 'transparent',
+    },
+    canvasLoader: {
+      ...StyleSheet.absoluteFill,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'rgba(250, 251, 255, 0.7)',
     },
     drawButtons: {
       flexDirection: 'row',
@@ -614,55 +443,6 @@ const createStyles = (colors) =>
     buttonPressed: {
       opacity: 0.88,
     },
-    cameraContainer: {
-      gap: 14,
-    },
-    cameraButtonRow: {
-      flexDirection: 'row',
-      gap: 10,
-    },
-    cameraButton: {
-      flex: 1,
-      height: 45,
-      overflow: 'hidden',
-      borderRadius: INPUT_RADIUS,
-    },
-    loader: {
-      alignItems: 'center',
-      paddingVertical: 12,
-      gap: 8,
-    },
-    processingLabel: {
-      textAlign: 'center',
-    },
-    previewRow: {
-      gap: 12,
-    },
-    previewCard: {
-      borderRadius: 14,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.surface,
-      padding: 10,
-      minHeight: 220,
-      gap: 8,
-    },
-    previewImage: {
-      width: '100%',
-      height: 180,
-      borderRadius: 8,
-    },
-    transparencyBoard: {
-      borderRadius: 8,
-      overflow: 'hidden',
-      backgroundColor: colors.input,
-    },
-    saveResultButton: {
-      marginTop: 2,
-      height: 45,
-      overflow: 'hidden',
-      borderRadius: INPUT_RADIUS,
-    },
     imageContainer: {
       position: 'absolute',
       flexDirection: 'row',
@@ -672,17 +452,16 @@ const createStyles = (colors) =>
 
       width: '100%',
       justifyContent: 'center',
-      alignItems: 'center'
+      alignItems: 'center',
     },
     trashButton: {
-
-  width: 50,
-  height: 50,
-  justifyContent: 'center',
-  alignItems: 'center',
-  borderRadius: 50,
-  borderWidth: 1,
-  borderColor: colors.border,
-  overflow: 'hidden',
+      width: 50,
+      height: 50,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 50,
+      borderWidth: 1,
+      borderColor: colors.border,
+      overflow: 'hidden',
     },
   });

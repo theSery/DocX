@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { useThemedStyles } from '../hooks';
 import { FONT_FAMILY, palette } from '../theme';
@@ -10,7 +10,8 @@ import GradientButton from './buttons/GradientButton';
 let showSheetHandler = null;
 
 /**
- * @param {{ message: string, actions: Array<{ label: string, onPress?: () => void, destructive?: boolean }> }} options
+ * @param {{ message: string, content?: string | number | null, actions: Array<{ label: string, onPress?: () => void, destructive?: boolean }> }} options
+ * content — image url (string) or local image source (require(...)), default null
  */
 export function showGlobalSheet(options) {
   showSheetHandler?.(options);
@@ -66,7 +67,15 @@ export function GlobalSheetProvider({ children }) {
           <Pressable style={styles.sheet} onPress={() => { }}>
             {sheet ? (
               <View style={styles.warningContainer}>
-                <WarningSvg width={45} height={45} fill={'#FF5C5C'} />
+                {sheet.content ? (
+                  <Image
+                    source={sheet.content}
+                    style={styles.contentImage}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <WarningSvg width={45} height={45} fill={'#FF5C5C'} />
+                )}
                 <Typography variant="h4" style={styles.message}>
                   {sheet.message}
                 </Typography>
@@ -117,6 +126,10 @@ const createStyles = colors =>
     warningContainer: {
       alignItems: 'center',
       marginBottom: 24,
+    },
+    contentImage: {
+      width: '100%',
+      height: 100,
     },
     backdrop: {
       flex: 1,

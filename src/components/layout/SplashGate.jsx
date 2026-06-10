@@ -21,7 +21,6 @@ export function useSplash() {
 }
 
 async function resolveAuthRoute(isSign) {
-  console.log('isSign', isSign);
   if(!isSign) {
     return 'session';
   }
@@ -30,7 +29,6 @@ async function resolveAuthRoute(isSign) {
     //   throw { type: 'http', status: 401, message: 'Unauthorized' };
     // }
    const response = await userApi.getMe();
-   console.log('response', response.data);
     return 'session';
   } catch (error) {
     console.log('error 99999999', error.status);
@@ -73,7 +71,6 @@ export function SplashGate({ children }) {
 
     async function bootstrap() {
       // await removeSign();
-      console.log('AsyncStorage.removeItem(STORAGE_KEYS.SIGN, "false")');
       const [route] = await Promise.all([
         resolveAuthRoute(isSign),
         new Promise(resolve => setTimeout(resolve, SPLASH_HOLD_MS)),
