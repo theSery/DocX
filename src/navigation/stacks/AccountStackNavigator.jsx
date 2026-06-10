@@ -69,8 +69,8 @@ export function AccountStackNavigator() {
       <Stack.Screen
         name="PassportInfo"
         component={PassportInfoScreen}
-        options={{ ...nestedScreenOptions, title: 'Passport info' }}
-      />
+        options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Անձնագրային տվյալներ', isLogoutButton: true, isBackButton: true }, handleLogoutPress)} />
+      {/* /> */}
       <Stack.Screen
         name="PinCodeChange"
         component={PinCodeChangeScreen}

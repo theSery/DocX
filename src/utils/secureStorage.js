@@ -13,7 +13,7 @@ const AUTH_PROMPT = {
 function buildSetOptions() {
   return {
     service: KEYCHAIN_SERVICE,
-    accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED,
+    accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
   };
 }
 

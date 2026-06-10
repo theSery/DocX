@@ -10,6 +10,7 @@ import { ContentTiltes } from '../../../components/titleComponents/ContentTiltle
 import { authApi, persistAuthResponse } from '../../../api';
 import {
   getBiometryType,
+  getStoredCredentials,
   getUserCredentialsWithBiometric,
   hasStoredCredentials,
   isBiometricSupported,
@@ -147,7 +148,19 @@ export function FaceIdScreen() {
     console.log('[FaceId] PIN verification started');
 
     try {
-      await authApi.verifyPin({ pinCode });
+      const credentials = await getStoredCredentials();
+
+      if (!credentials?.pinCode || credentials.pinCode !== pinCode) {
+        console.log('[FaceId] PIN verification failed — PIN mismatch or not stored');
+        setPasscode([]);
+        showToast({
+          title: 'PIN-ը սխալ է',
+          body: 'Փորձեք կրկին։',
+          type: 'error',
+        });
+        return;
+      }
+
       console.log('[FaceId] PIN verification successful');
       await completeAuthentication();
     } catch (error) {

@@ -35,7 +35,10 @@ export function AuthProvider({ children }) {
     await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING, 'true');
     setHasCompletedOnboarding(true);
   }, []);
-
+  const removeSign = useCallback(async () => {
+    await AsyncStorage.removeItem(STORAGE_KEYS.ONBOARDING);
+    setHasCompletedOnboarding(false);
+  }, []);
   const setIsSign = useCallback(async value => {
     if (value) {
       await AsyncStorage.setItem(STORAGE_KEYS.SIGN, 'true');
@@ -61,8 +64,9 @@ export function AuthProvider({ children }) {
       isFaceID,
       setIsFaceID,
       isReady,
+      removeSign, 
     }),
-    [isSign, setIsSign, hasCompletedOnboarding, completeOnboarding, isReady, isFaceID, setIsFaceID],
+    [isSign, setIsSign, removeSign, hasCompletedOnboarding, completeOnboarding, isReady, isFaceID, setIsFaceID],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

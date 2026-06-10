@@ -3,8 +3,11 @@ import { hideSplash } from 'react-native-splash-view';
 import { authApi, getRefreshToken, persistAuthResponse, userApi } from '../../api';
 import { useAuth } from '../../contexts';
 import { hasStoredPinCode } from '../../utils/secureStorage';
+import { STORAGE_KEYS } from '../../utils/storageKeys';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SPLASH_HOLD_MS = 1500;
+const FORCE_401 = true;
 
 /** @typedef {'loading' | 'session' | 'faceId' | 'auth'} AuthRoute */
 
@@ -17,13 +20,20 @@ export function useSplash() {
   return useContext(SplashContext);
 }
 
-async function resolveAuthRoute() {
+async function resolveAuthRoute(isSign) {
+  console.log('isSign', isSign);
+  if(!isSign) {
+    return 'session';
+  }
   try {
-   const response = await userApi.getMe();
-   console.log('response', response);
+    // if (FORCE_401) {
+    //   throw { type: 'http', status: 401, message: 'Unauthorized' };
+    // }
+    await userApi.getMe();
     return 'session';
   } catch (error) {
     if (error?.status !== 401) {
+      console.log('error 99999999', error);
       const refreshToken = await getRefreshToken();
       if (!refreshToken) {
         return (await hasStoredPinCode()) ? 'faceId' : 'auth';
@@ -50,7 +60,7 @@ async function resolveAuthRoute() {
 }
 
 export function SplashGate({ children }) {
-  const { setIsSign, setIsFaceID } = useAuth();
+  const { setIsSign, setIsFaceID, removeSign, hasCompletedOnboarding, isSign } = useAuth();
   const [isSplashDone, setIsSplashDone] = useState(false);
   const [authRoute, setAuthRoute] = useState(/** @type {AuthRoute} */ ('loading'));
 
@@ -60,26 +70,31 @@ export function SplashGate({ children }) {
     hideSplash();
 
     async function bootstrap() {
+      // await removeSign();
+      console.log('AsyncStorage.removeItem(STORAGE_KEYS.SIGN, "false")');
       const [route] = await Promise.all([
-        resolveAuthRoute(),
+        resolveAuthRoute(isSign),
         new Promise(resolve => setTimeout(resolve, SPLASH_HOLD_MS)),
       ]);
 
       if (cancelled) {
         return;
       }
-
+ 
       setAuthRoute(route);
 
-      if (route === 'auth') {
+      if (route === 'auth' && !hasCompletedOnboarding) {
         await setIsSign(false);
         await setIsFaceID(false);
       } else if (route === 'session') {
         await setIsSign(true);
         await setIsFaceID(true);
-      } else {
+      } else if (route === 'faceId') {
         await setIsSign(true);
         await setIsFaceID(false);
+      } else if(hasCompletedOnboarding){
+        await setIsSign(true);
+        await setIsFaceID(true);
       }
 
       setIsSplashDone(true);
@@ -90,7 +105,7 @@ export function SplashGate({ children }) {
     return () => {
       cancelled = true;
     };
-  }, [setIsSign, setIsFaceID]);
+  }, [setIsSign, setIsFaceID, removeSign, hasCompletedOnboarding, isSign]);
 
   return (
     <SplashContext.Provider value={{ isSplashDone, authRoute }}>

@@ -8,7 +8,7 @@ let cachedRefreshToken = null;
 function buildTokenOptions() {
   return {
     service: TOKEN_KEYCHAIN_SERVICE,
-    accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED,
+    accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
   };
 }
 

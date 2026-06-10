@@ -13,20 +13,25 @@ import {
   fetchCategoryHierarchy,
   selectCategoriesStatus,
 } from '../store/slices/categoriesSlice';
+import { getUserCredentialsWithBiometric } from '../utils/secureStorage';
 
 const Stack = createNativeStackNavigator();
 
 export function RootNavigator() {
-  const { isReady, isFaceID } = useAuth();
+  const { isReady, isFaceID, isSign } = useAuth();
   const { isSplashDone, authRoute } = useSplash();
 
   const dispatch = useAppDispatch();
   const categoriesStatus = useAppSelector(selectCategoriesStatus);
-
+  // const func = async () => {
+  //   const credentials = await getUserCredentialsWithBiometric();
+  //   console.log('credentials', credentials);
+  // }
   useEffect(() => {
     if (categoriesStatus === 'idle') {
       dispatch(fetchCategoryHierarchy({ page: 1, limit: 10 }));
     }
+    // func();
   }, [dispatch, categoriesStatus]);
 
   const isBootstrapping = categoriesStatus !== 'succeeded';
@@ -42,15 +47,16 @@ export function RootNavigator() {
 
   const showMainApp =
     authRoute === 'session' || (authRoute === 'faceId' && isFaceID);
-
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade' }}>
-      {authRoute === 'auth' ? (
+    <Stack.Navigator screenOptions={{ headerShown: false,  }}>
+      
+      {!isSign ? (
         <Stack.Screen name="Auth" component={AuthNavigator} />
       ) : showMainApp ? (
         <Stack.Screen name="Main" component={TabNavigator} />
       ) : (
-        <Stack.Screen name="FaceId" component={FaceIdScreen} />
+        // <Stack.Screen name="FaceId" component={FaceIdScreen} />
+        <Stack.Screen name="Main" component={TabNavigator} />
       )}
     </Stack.Navigator>
   );

@@ -18,6 +18,8 @@ import UserSvg from '../components/icons/UserSvg';
 import HomeSvg from '../components/icons/HomeSvg';
 import FilesSvg from '../components/icons/FilesSvg';
 import { FONT_FAMILY, palette } from '../theme';
+import { getUserCredentialsWithBiometric } from '../utils/secureStorage';
+import { useAuth } from '../contexts';
 
 const TAB_BAR_HEIGHT = 60;
 const HORIZONTAL_MARGIN = 16;
@@ -143,6 +145,10 @@ function TabItem({
 export function BlurTabBar({ state, descriptors, navigation }) {
   const { colors, isDarkMode } = useTheme();
   const insets = useSafeAreaInsets();
+  const [isCredentials, setIsCredentials] = useState(false);
+  const { setIsSign, setIsFaceID } = useAuth();
+  // console.log('isSign', isSign);
+  // console.log('isFaceID', isFaceID);
   const onHeightChange = useContext(BottomTabBarHeightCallbackContext);
 
   const activeColor =  colors.background;
@@ -153,13 +159,19 @@ export function BlurTabBar({ state, descriptors, navigation }) {
   const itemWidth = tabCount > 0 ? trackWidth / tabCount : 0;
 
   const indicatorX = useSharedValue(0);
-
+const func = async () => {
+  const credentials = await getUserCredentialsWithBiometric();
+  if (credentials) {
+    setIsCredentials(true);
+  }
+  }
   useEffect(() => {
     indicatorX.value = withSpring(itemWidth * state.index, {
       damping: 20,
       stiffness: 180,
       mass: 0.6,
     });
+    func();
   }, [indicatorX, itemWidth, state.index]);
 
   const indicatorAnimatedStyle = useAnimatedStyle(() => ({
@@ -178,7 +190,7 @@ export function BlurTabBar({ state, descriptors, navigation }) {
       setTrackWidth(width);
     }
   };
-
+  console.log('isCredentials', isCredentials);
   const glass = isDarkMode ? GLASS.dark : GLASS.light;
   const blurType = isDarkMode ? 'dark' : 'light';
 
@@ -226,7 +238,11 @@ export function BlurTabBar({ state, descriptors, navigation }) {
             const descriptor = descriptors[route.key];
             const isFocused = state.index === index;
 
-            const onPress = () => {
+            const onPress = async () => {
+              if (!isCredentials && index !== 0) {
+                await setIsSign(false);
+                await setIsFaceID(false);
+              }
               const event = navigation.emit({
                 type: 'tabPress',
                 target: route.key,
@@ -238,7 +254,11 @@ export function BlurTabBar({ state, descriptors, navigation }) {
               }
             };
 
-            const onLongPress = () => {
+            const onLongPress = async () => {
+              if (!isCredentials && index !== 0) {
+                await setIsSign(false);
+                await setIsFaceID(false);
+              }
               navigation.emit({
                 type: 'tabLongPress',
                 target: route.key,

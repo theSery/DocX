@@ -30,7 +30,7 @@ const ACCOUNT_MENU = [
   },
   {
     id: 2,
-    label: 'Համալրել դրամապանակը',
+    label: 'Անձնագրային տվյալներ',
     screen: 'PassportInfo',
     icon: <PasportSvg fill={palette.mainBlue} width={20} height={20} />,
   },

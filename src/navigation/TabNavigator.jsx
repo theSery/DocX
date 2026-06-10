@@ -9,6 +9,7 @@ const Tab = createBottomTabNavigator();
 const renderBlurTabBar = props => <BlurTabBar {...props} />;
 
 export function TabNavigator() {
+
   return (
       <Tab.Navigator
         initialRouteName="Home"
