@@ -1,9 +1,10 @@
 import { Image, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { useAnimatedRef } from 'react-native-reanimated';
 
 import { SPACING } from './components/CategoriesList';
 import { AnimatedView } from '../../../components/animation/AnimatedView';
+import { Accordion } from '../../../components/accordion';
 import {
   HEIGHT,
   WIDTH,
@@ -12,11 +13,12 @@ import {
 } from '../../../utils/dimensions';
 import { FONT_FAMILY } from '../../../theme';
 import { Typography } from '../../../components/typography/Typography';
-import ArrowSvg from '../../../components/icons/ArrowSvg';
-import { useHomeStackHeaderScrollHandler, useThemedStyles, useTheme } from '../../../hooks';
+import AuthButton from '../../../components/buttons/AuthButton';
+import { useHomeStackHeaderScrollHandler, useThemedStyles } from '../../../hooks';
+import { useHomeStackHeaderScroll } from '../../../context/HomeStackHeaderScrollContext';
 import { useIsFocused } from '@react-navigation/native';
 import { useEffect } from 'react';
-import Chevron from '../../../components/icons/Chevron';
+import { showGlobalSheet } from '../../../components/GlobalSheet';
 
 const TOP_HEADER_HEIGHT = HEIGHT * 0.3;
 const TAB_BAR_HEIGHT = 60;
@@ -25,18 +27,38 @@ const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
 
 
 export function SubCategoryScreen({ route, navigation }) {
-  const { item, title, subtitle } = route.params;
+  const { item, title, subtitle, iconUrl } = route.params;
   const isFocused = useIsFocused();
   const styles = useThemedStyles(createStyles);
-  const { colors } = useTheme();
   useEffect(() => {
     navigation.setOptions({ title, subtitle });
   }, [title, subtitle, navigation]);
   const { onScroll, onScrollViewLayout, onContentSizeChange } =
     useHomeStackHeaderScrollHandler();
+
+  const { scrollY } = useHomeStackHeaderScroll();
+  const scrollRef = useAnimatedRef();
   const insets = useSafeAreaInsets();
   const scrollBottomPadding = insets.bottom + TAB_BAR_HEIGHT + 24;
+  const navigateToFillInDetails = (template) => {
 
+    navigation.navigate('FillInDetails', {
+      templateId: template.id,
+    });
+  }
+  const onChooseTemplate = (template) => {
+    showGlobalSheet({
+    content: { uri: iconUrl }
+    ,
+    message: title,
+    description: template.name,
+      // 'Այս պատկերը օգտագործվում է որպես օրինակ ստորագրության համար։',
+    actions: [
+      { label: template.relatedAction, onPress: () => navigateToFillInDetails(template) },
+      { label: 'Փակել', destructive: true },
+    ],
+  });
+}
   return (
     <View style={styles.screen}>
       <Animated.Image
@@ -58,6 +80,7 @@ export function SubCategoryScreen({ route, navigation }) {
         sharedTransitionStyle={customTransition}
       >
         <Animated.ScrollView
+          ref={scrollRef}
           style={styles.scrollView}
           contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
           onScroll={onScroll}
@@ -66,32 +89,45 @@ export function SubCategoryScreen({ route, navigation }) {
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
         >
-          {item?.map((category, index) => (
-            <AnimatedView
-              animation="fadeIn"
-              animationConfig={{
-                duration: 1000,
-                delay: (index + 1) * 150,
-              }}
-              key={category.id}
-              style={styles.categoryItem}
-            >
-              <View style={styles.subCategoryIconWrap}>
-                <Image
-                  source={{ uri: category.iconUrl }}
-                  style={styles.subCategoryIcon}
-                />
-              </View>
-              <View style={styles.subCategoryTextWrap}>
-                <Typography variant="h5" style={styles.subCategoryName}>
-                  {category.name}
-                </Typography>
-              </View>
-              <View style={styles.subCategoryArrowWrap}>
-                <Chevron width={20} height={20} fill={colors.iconAccent} rotate={90} />
-              </View>
-            </AnimatedView>
-          ))}
+          <AnimatedView animation="fadeIn" animationConfig={{ duration: 600 }}>
+            <Accordion
+              items={item}
+              scrollRef={scrollRef}
+              scrollOffset={scrollY}
+              renderHeader={category => (
+                <>
+                  <View style={styles.subCategoryIconWrap}>
+                    <Image
+                      source={{ uri: category.iconUrl }}
+                      style={styles.subCategoryIcon}
+                    />
+                  </View>
+                  <View style={styles.subCategoryTextWrap}>
+                    <Typography variant="h5" style={styles.subCategoryName}>
+                      {category.name}
+                    </Typography>
+                  </View>
+                </>
+              )}
+              renderContent={category =>
+                category.templates?.length > 0 ? (
+                  category.templates.map(template => (
+                    <AuthButton
+                      key={template.id}
+                      title={template.name}
+                        onPress={() =>
+                          onChooseTemplate(template)
+                        }
+                    />
+                  ))
+                ) : (
+                  <Typography variant="h5" tone="secondary">
+                    {'Մանրամասները շուտով հասանելի կլինեն'}
+                  </Typography>
+                )
+              }
+            />
+          </AnimatedView>
         </Animated.ScrollView>
       </Animated.View>
     </View>
@@ -145,19 +181,6 @@ const createStyles = colors =>
       paddingHorizontal: SPACING,
       overflow: 'hidden',
     },
-    categoryItem: {
-      // height: 65,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingVertical: 8,
-      paddingHorizontal: 8,
-      borderRadius: 24,
-      backgroundColor: colors.pureWhite,
-      marginBottom: 10,
-      borderWidth: 1,
-      borderColor: colors.borderSubtle,
-    },
     subCategoryIcon: {
       width: 50,
       height: 50,
@@ -185,16 +208,9 @@ const createStyles = colors =>
       letterSpacing: 0.4,
     },
     subCategoryIconWrap: {
-      width: '20%',
+      marginRight: 12,
     },
     subCategoryTextWrap: {
-      width: '70%',
-      // backgroundColor: 'red',
-    },
-    subCategoryArrowWrap: {
-      width: '10%',
-      justifyContent: 'flex-start',
-      // backgroundColor: 'red',
-      alignItems: 'center',
+      flex: 1,
     },
   });

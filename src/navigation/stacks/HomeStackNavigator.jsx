@@ -41,7 +41,7 @@ export function HomeStackNavigator() {
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
     <HomeStackHeaderScrollProvider>
-    <Stack.Navigator screenOptions={{ headerShown: false, animation: 'fade',  }}>
+    <Stack.Navigator initialRouteName="FillInDetails" screenOptions={{ headerShown: false, animation: 'fade', animationDuration: 700 }}>
       <Stack.Screen
         name="HomeMain"
         component={HomeScreen}
@@ -78,9 +78,7 @@ export function HomeStackNavigator() {
       <Stack.Screen
         name="FillInDetails"
         component={FillInDetailsScreen}
-        options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
-          title: 'Fill in details',
-        })}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="DocumentCreate"

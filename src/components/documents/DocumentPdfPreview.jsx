@@ -1,38 +1,14 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
+import { useMemo } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { toPdfPreviewUri } from '../../documents/createDocumentPdf';
 import {
-  buildTypingPreviewHtml,
+  buildPdfHtmlDocument,
+  FAKE_HTML,
   getPdfWebViewBaseUrl,
 } from '../../documents';
 import { useThemedStyles } from '../../hooks';
 import { Typography } from '../typography';
 import { HEIGHT } from '../../utils/dimensions';
-
-/**
- * iOS WKWebView rejects `data:application/pdf;base64,...` — use a file URL instead.
- * Android may use base64 only when no file path is available.
- *
- * @param {string} filePath
- * @returns {{ uri: string; allowingReadAccessToURL?: string } | null}
- */
-function getWebViewPdfSource(filePath, base64) {
-  if (filePath) {
-    const uri = toPdfPreviewUri(filePath);
-    if (Platform.OS === 'ios') {
-      const directoryUri = uri.substring(0, uri.lastIndexOf('/') + 1);
-      return { uri, allowingReadAccessToURL: directoryUri };
-    }
-    return { uri };
-  }
-
-  if (Platform.OS === 'android' && base64) {
-    return { uri: `data:application/pdf;base64,${base64}` };
-  }
-
-  return null;
-}
 
 /**
  * @param {{
@@ -45,52 +21,23 @@ function getWebViewPdfSource(filePath, base64) {
  */
 export function DocumentPdfPreview({
   filePath,
-  base64,
   previewHtml,
-  isLoading,
   error,
 }) {
   const styles = useThemedStyles(createStyles);
-  const pdfSource = useMemo(
-    () => getWebViewPdfSource(filePath, base64),
-    [filePath, base64],
-  );
 
   const previewKey = useMemo(
     () => `${previewHtml?.length ?? 0}:${filePath ?? ''}`,
     [previewHtml, filePath],
   );
 
-  const [typingComplete, setTypingComplete] = useState(false);
-
-  useEffect(() => {
-    setTypingComplete(false);
-  }, [previewKey]);
-
-  const showPdf =
-    Boolean(pdfSource) && (!previewHtml || typingComplete);
-
-  const typingHtmlSource = useMemo(() => {
-    if (!previewHtml) {
-      return null;
-    }
-    return {
-      html: buildTypingPreviewHtml(previewHtml),
+  const documentHtmlSource = useMemo(
+    () => ({
+      html: buildPdfHtmlDocument(FAKE_HTML),
       baseUrl: getPdfWebViewBaseUrl(),
-    };
-  }, [previewHtml]);
-
-
-  if (isLoading && !previewHtml) {
-    return (
-      <View style={[styles.container, styles.centered]}>
-        <ActivityIndicator size="large" />
-        <Typography variant="h6" tone="secondary" style={styles.message}>
-          PDF is loading…
-        </Typography>
-      </View>
-    );
-  }
+    }),
+    [],
+  );
 
   if (error) {
     return (
@@ -102,36 +49,21 @@ export function DocumentPdfPreview({
     );
   }
 
-  if (!showPdf && !typingHtmlSource) {
-    return (
-      <View style={[styles.container, styles.centered]}>
-        <Typography variant="h6" tone="secondary" style={styles.message}>
-          Generate a PDF to preview it here.
-        </Typography>
-      </View>
-    );
-  }
-
-  const { uri, allowingReadAccessToURL } = pdfSource ?? {};
-
   return (
     <View style={styles.container}>
-      
-        <WebView
-          key={`pdf-${previewKey}`}
-          originWhitelist={['*']}
-          source={{ uri }}
-          allowingReadAccessToURL={allowingReadAccessToURL}
-          style={styles.webview}
-          scalesPageToFit
-          startInLoadingState
-          renderLoading={() => (
-            <View style={[styles.container, styles.centered]}>
-              <ActivityIndicator size="large" />
-            </View>
-          )}
-        />
-      {/* ) : null} */}
+      <WebView
+        key={`html-${previewKey}`}
+        originWhitelist={['*']}
+        source={documentHtmlSource}
+        style={styles.webview}
+        scalesPageToFit
+        startInLoadingState
+        renderLoading={() => (
+          <View style={[styles.container, styles.centered]}>
+            <ActivityIndicator size="large" />
+          </View>
+        )}
+      />
     </View>
   );
 }

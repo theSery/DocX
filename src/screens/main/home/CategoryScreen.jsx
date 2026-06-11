@@ -66,16 +66,16 @@ export function CategoryScreen({ navigation, route }) {
             <AnimatedView
               animation="fadeIn"
               animationConfig={{
-                duration: 1000,
+                duration: 500,
                 delay: (index + 1) * 150,
               }}
               key={category.id}
               style={styles.categoryItem}
             >
-              {console.log('category', category)}
+
                 <TouchableOpacity
             style={{width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}
-            onPress={() => navigation.navigate('SubCategoryScreen', { item: category.legalIssues, title: item.name, subtitle: category.name })}
+            onPress={() => navigation.navigate('SubCategoryScreen', { item: category.legalIssues, title: item.name, subtitle: category.name, iconUrl: item.iconUrl })}
           >
  
               <View style={styles.subCategoryIconWrap}>

@@ -11,6 +11,7 @@ export {
   PDF_PAGE_WIDTH_PT,
 } from './buildPdfHtmlDocument';
 export { FAKE_BACKEND_DOCUMENT_HTML } from './fakeBackendDocumentHtml';
+export { FAKE_HTML } from './fakeHtml';
 export {
   FAKE_DOCUMENT_PLACEHOLDERS,
   FAKE_DOCUMENT_SLOTS,

@@ -29,6 +29,7 @@ async function resolveAuthRoute(isSign) {
     //   throw { type: 'http', status: 401, message: 'Unauthorized' };
     // }
    const response = await userApi.getMe();
+   console.log('response', response);
     return 'session';
   } catch (error) {
     console.log('error 99999999', error.status);
