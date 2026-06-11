@@ -38,28 +38,15 @@ export function SubCategoryScreen({ route }) {
         source={{ uri: item.iconUrl }}
         sharedTransitionStyle={customTransitionLinear}
         style={styles.categoryItemImageIcon}
-        // entering={FadeIn.duration(500)}
         sharedTransitionTag={`category-image-${item.id}-${isFocused}`}
       />
       <Animated.Text
         sharedTransitionTag={`category-text-${item.id}-${isFocused}`}
         sharedTransitionStyle={customTransitionLinear}
-        // entering={FadeIn.duration(500)}
         style={styles.categoryItemText}
       >
         {item.name}
       </Animated.Text>
-      {/* <Animated.View
-        sharedTransitionStyle={customTransitionLinear}
-        style={styles.bgCategoryItem}
-        // entering={FadeIn.duration(500)}
-        sharedTransitionTag={`category-frame-${item.id}-${isFocused}`}
-      />
-      <Animated.View
-        sharedTransitionTag={`category-bg-${item.id}-${isFocused}`}
-        sharedTransitionStyle={customTransition}
-        style={styles.headerBackground}
-      /> */}
       <Animated.View
         style={styles.bg}
         sharedTransitionTag={`general-bg-${isFocused}`}
@@ -196,10 +183,11 @@ const createStyles = colors =>
       width: '20%',
     },
     subCategoryTextWrap: {
-      width: '50%',
+      width: '70%',
+      // backgroundColor: 'red',
     },
     subCategoryArrowWrap: {
-      width: '30%',
+      width: '10%',
       alignItems: 'flex-end',
     },
   });

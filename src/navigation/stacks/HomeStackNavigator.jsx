@@ -15,7 +15,7 @@ const Stack = createNativeStackNavigator();
 
 const nestedScreenOptionsWithHeader = (
   nestedScreenOptions,
-  { title, subtitle, showSearch = true, collapsible = true },
+  { title, subtitle, showSearch = true, collapsible = true, isMainHeader = false },
 ) => ({
   ...nestedScreenOptions,
   title,
@@ -23,9 +23,10 @@ const nestedScreenOptionsWithHeader = (
   headerShowSearch: showSearch,
   headerCollapsible: collapsible,
   headerShown: true,
+  isMainHeader,
   header: ({ navigation, options }) => (
     <HomeStackHeader
-      onPress={() => navigation.goBack()}
+      onPress={options.isMainHeader ? undefined : () => navigation.goBack()}
       title={options.title}
       subtitle={options.headerSubtitle}
       showSearch={options.headerShowSearch}
@@ -48,6 +49,7 @@ export function HomeStackNavigator() {
           title: 'Բաժիններ',
           subtitle: 'Ընտրեք բողոքարկվող փաստաթղթի տեսակը',
           collapsible: false,
+          isMainHeader: true
         })}
       />
       <Stack.Screen
@@ -56,7 +58,8 @@ export function HomeStackNavigator() {
         options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
           title: '',
           subtitle: '',
-          showSearch: true,
+          // showSearch: true,
+          collapsible: false,
           
         })}
       />
@@ -64,8 +67,8 @@ export function HomeStackNavigator() {
         name="SubCategoryScreen"
         component={SubCategoryScreen}
         options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
-          title: '',
-          subtitle: '',
+          title: 'Բաժիններ',
+          subtitle: 'Ընտրեք բողոքարկվող փաստաթղթի տեսակը',
           showSearch: true,
           
         })}

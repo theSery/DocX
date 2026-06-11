@@ -52,7 +52,7 @@ const StaticHomeStackHeader = ({
       <View style={styles.headerRow}>
         <MainHeader onPress={onPress} />
       </View>
-      {(title || subtitle) && (
+      {title || subtitle ? (
         <View style={styles.titleContainer}>
           {title ? (
             <Typography variant="h2" style={styles.loginTitle}>
@@ -65,13 +65,13 @@ const StaticHomeStackHeader = ({
             </Typography>
           ) : null}
         </View>
-      )}
+      ): <View style={{ height: 60 }} />  }
+      {showSearch ? (
+        <View style={styles.searchWrap}>
+          <SearchComponent />
+        </View>
+      ) : null}
     </View>
-    {showSearch ? (
-      <View style={styles.searchWrap}>
-        <SearchComponent />
-      </View>
-    ) : null}
   </View>
 );
 
