@@ -66,10 +66,12 @@ export function HomeStackNavigator() {
            <Stack.Screen
         name="SubCategoryScreen"
         component={SubCategoryScreen}
-        options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
-          title: 'Բաժիններ',
-          subtitle: 'Ընտրեք բողոքարկվող փաստաթղթի տեսակը',
-          showSearch: true,
+        options={({ route }) =>
+          nestedScreenOptionsWithHeader(nestedScreenOptions, {
+            title: route.params?.title ?? '',
+            subtitle: route.params?.subtitle ?? '',
+            collapsible: true,
+          
           
         })}
       />

@@ -144,12 +144,12 @@ const CollapsibleHomeStackHeader = ({
         {(title || subtitle) && (
           <View style={styles.titleContainer}>
             {title ? (
-              <Typography variant="h2" style={styles.loginTitle}>
-                {title}
+              <Typography variant="h2" style={[styles.loginTitle, {fontSize: 16, letterSpacing: 0, }]}>
+                {title} 
               </Typography>
             ) : null}
             {subtitle ? (
-              <Typography variant="h6" tone="secondary" style={{ letterSpacing: 0.4 }}>
+              <Typography variant="h6" tone="secondary" style={{ letterSpacing: 0.4 }} numberOfLines={1} ellipsizeMode="tail">
                 {subtitle}
               </Typography>
             ) : null}
@@ -157,7 +157,9 @@ const CollapsibleHomeStackHeader = ({
         )}
       </Animated.View>
       {showSearch ? (
+        // <View style={styles.searchWrap}>
           <SearchComponent />
+        // </View>
       ) : null}
     </Animated.View>
   );

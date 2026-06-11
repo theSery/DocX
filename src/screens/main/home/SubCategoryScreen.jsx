@@ -15,6 +15,8 @@ import { Typography } from '../../../components/typography/Typography';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
 import { useHomeStackHeaderScrollHandler, useThemedStyles, useTheme } from '../../../hooks';
 import { useIsFocused } from '@react-navigation/native';
+import { useEffect } from 'react';
+import Chevron from '../../../components/icons/Chevron';
 
 const TOP_HEADER_HEIGHT = HEIGHT * 0.3;
 const TAB_BAR_HEIGHT = 60;
@@ -22,11 +24,14 @@ const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
 
 
 
-export function SubCategoryScreen({ route }) {
-  const { item } = route.params;
+export function SubCategoryScreen({ route, navigation }) {
+  const { item, title, subtitle } = route.params;
   const isFocused = useIsFocused();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  useEffect(() => {
+    navigation.setOptions({ title, subtitle });
+  }, [title, subtitle, navigation]);
   const { onScroll, onScrollViewLayout, onContentSizeChange } =
     useHomeStackHeaderScrollHandler();
   const insets = useSafeAreaInsets();
@@ -83,7 +88,7 @@ export function SubCategoryScreen({ route }) {
                 </Typography>
               </View>
               <View style={styles.subCategoryArrowWrap}>
-                <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
+                <Chevron width={20} height={20} fill={colors.iconAccent} rotate={90} />
               </View>
             </AnimatedView>
           ))}
@@ -188,6 +193,8 @@ const createStyles = colors =>
     },
     subCategoryArrowWrap: {
       width: '10%',
-      alignItems: 'flex-end',
+      justifyContent: 'flex-start',
+      // backgroundColor: 'red',
+      alignItems: 'center',
     },
   });
