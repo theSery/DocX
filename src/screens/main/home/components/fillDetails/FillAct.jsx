@@ -3,8 +3,8 @@ import { StyleSheet, View } from 'react-native';
 import { useWatch } from 'react-hook-form';
 import { FormDateField, FormField } from '../../../../../components';
 import CalendarSvg from '../../../../../components/icons/CalendarSvg';
-import { palette } from '../../../../../theme';
 import ActNumberSvg from '../../../../../components/icons/ActNumberSvg';
+import { palette } from '../../../../../theme';
 import { useAppDispatch } from '../../../../../store';
 import { setActDate, setActNumber } from '../../../../../store/slices/documentFillSlice';
 
@@ -23,7 +23,6 @@ export function FillAct({ control }) {
 
   return (
     <View style={styles.container}>
-
       <FormField
         control={control}
         name="Act_number"
@@ -33,7 +32,8 @@ export function FillAct({ control }) {
         rules={{
           required: 'Որոշման համարը պարտադիր է',
           validate: value =>
-            (typeof value === 'string' && value.trim().length > 0) || 'Որոշման համարը պարտադիր է',
+            (typeof value === 'string' && value.trim().length > 0) ||
+            'Որոշման համարը պարտադիր է',
         }}
       />
       <FormDateField

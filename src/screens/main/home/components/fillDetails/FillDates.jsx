@@ -1,7 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { RadioButton, RadioGroup, Typography } from '../../../../../components';
 import { useThemedStyles } from '../../../../../hooks';
-import { FONT_FAMILY } from '../../../../../theme';
 
 export function FillDates({
   factGroup,
@@ -21,14 +20,14 @@ export function FillDates({
       ? [rawSelected]
       : [];
   const facts = factGroup?.factGroupFacts ?? [];
-  const radioFacts = factGroup?.radioFactGroups ?? [];
+  const radioFactGroups = factGroup?.radioFactGroups ?? [];
 
   return (
     <View style={styles.container}>
-
       <View style={styles.grid}>
         {facts.map(({ fact }) => {
           const isSelected = selectedFactIds.includes(fact.id);
+
           return (
             <Pressable
               key={fact.id}
@@ -45,7 +44,7 @@ export function FillDates({
             </Pressable>
           );
         })}
-        {radioFacts.map((item, outerIndex) => {
+        {radioFactGroups.map((item, outerIndex) => {
           const groupKey = item.id ?? outerIndex;
 
           return (
@@ -87,14 +86,10 @@ const createStyles = colors =>
       paddingTop: 8,
       gap: 16,
     },
-    title: {
-      letterSpacing: 0.4,
-    },
     grid: {
       flexDirection: 'column',
       flexWrap: 'wrap',
       gap: 10,
-      // backgroundColor: 'blue',
     },
     factButton: {
       width: '100%',
@@ -114,15 +109,6 @@ const createStyles = colors =>
     },
     factButtonPressed: {
       opacity: 0.88,
-    },
-    factButtonText: {
-      textAlign: 'center',
-      fontFamily: FONT_FAMILY.regular,
-      color: colors.text,
-    },
-    factButtonTextSelected: {
-      fontFamily: FONT_FAMILY.medium,
-      color: colors.mainBlue,
     },
     radioGroup: {
       width: '100%',

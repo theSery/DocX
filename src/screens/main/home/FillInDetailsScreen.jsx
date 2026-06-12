@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { templatesApi } from '../../../api';
 import AuthButton from '../../../components/buttons/AuthButton';
 import { AnimatedView } from '../../../components/animation/AnimatedView';
@@ -16,11 +15,7 @@ import {
   selectDocumentFill,
   syncFactSelections,
 } from '../../../store/slices/documentFillSlice';
-import {
-  AUTH_BUTTON_HEIGHT,
-  getBottomInset,
-  getTabBarOffset,
-} from '../../../utils/dimensions';
+import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 
 function buildSteps(templateFactGroups = []) {
   const actStep = { key: 'act', label: 'Մանրամասներ' };
@@ -52,9 +47,6 @@ export function FillInDetailsScreen({ navigation, route }) {
   const styles = useThemedStyles(createStyles);
   const dispatch = useAppDispatch();
   const documentFill = useAppSelector(selectDocumentFill);
-  const insets = useSafeAreaInsets();
-  const tabBarOffset = getTabBarOffset(insets);
-  const contentBottomPadding = getBottomInset(insets, AUTH_BUTTON_HEIGHT) + 16;
   const { templateId = 73 } = route.params ?? {};
   const [currentStep, setCurrentStep] = useState(0);
   const [templateFactGroups, setTemplateFactGroups] = useState([]);
@@ -108,6 +100,10 @@ export function FillInDetailsScreen({ navigation, route }) {
     );
   }, [dispatch, templateFactGroups, selectedFacts, radioFacts]);
 
+  useEffect(() => {
+    setStepError('');
+  }, [currentStep, selectedFacts, radioFacts]);
+
   const steps = useMemo(() => buildSteps(templateFactGroups), [templateFactGroups]);
   const totalSteps = steps.length;
   const isLastStep = currentStep >= totalSteps - 1;
@@ -154,10 +150,6 @@ export function FillInDetailsScreen({ navigation, route }) {
     navigation.goBack();
   }, [currentStep, navigation]);
 
-  useEffect(() => {
-    setStepError('');
-  }, [currentStep, selectedFacts, radioFacts]);
-
   const handleSelectFact = useCallback((fact, groupId) => {
     if (!groupId) {
       return;
@@ -186,6 +178,22 @@ export function FillInDetailsScreen({ navigation, route }) {
     });
   }, []);
 
+  const headerContent = useMemo(() => {
+    if (currentStep === 0) {
+      return {
+        title: 'Տվյալներ',
+        subtitle: 'Լրացրեք անհրաժեշտ տվյալները՝',
+      };
+    }
+
+    const factGroup = currentFactGroup?.factGroup;
+
+    return {
+      title: factGroup?.name ?? '',
+      subtitle: factGroup?.description ?? '',
+    };
+  }, [currentStep, currentFactGroup]);
+
   const listData = useMemo(() => [{ key: `step-${currentStep}` }], [currentStep]);
 
   const renderStepContent = () => {
@@ -209,36 +217,19 @@ export function FillInDetailsScreen({ navigation, route }) {
     return null;
   };
 
-  const headerContent = useMemo(() => {
-    if (currentStep === 0) {
-      return {
-        title: 'Տվյալներ',
-        subtitle: 'Լրացրեք անհրաժեշտ տվյալները՝',
-      };
-    }
-
-    const factGroup = currentFactGroup?.factGroup;
-
-    return {
-      title: factGroup?.name ?? '',
-      subtitle: factGroup?.description ?? '',
-    };
-  }, [currentStep, currentFactGroup]);
-
   const ListHeaderComponent = useMemo(
     () => (
       <>
-
-        <Typography variant="h2" style={{ fontSize: 18, lineHeight: 24, marginBottom: 10, marginTop: 20 }}>
+        <Typography variant="h2" style={styles.headerTitle}>
           {headerContent.title}
         </Typography>
-        <Typography variant="h6" style={{ fontSize: 14, marginBottom: 20 }}>
+        <Typography variant="h6" style={styles.headerSubtitle}>
           {headerContent.subtitle}
         </Typography>
         <StepIndicator steps={steps} currentStep={currentStep} />
       </>
     ),
-    [steps, currentStep, headerContent],
+    [steps, currentStep, headerContent, styles.headerTitle, styles.headerSubtitle],
   );
 
   return (
@@ -257,7 +248,6 @@ export function FillInDetailsScreen({ navigation, route }) {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.contentContainer,
-            { paddingBottom: contentBottomPadding },
           ]}
           renderItem={() => (
             <AnimatedView
@@ -266,9 +256,7 @@ export function FillInDetailsScreen({ navigation, route }) {
               exiting="SlideOutLeft"
               animationConfig={{ duration: 350 }}
             >
-              <View style={styles.stepContent}>
-                {renderStepContent()}
-              </View>
+              <View style={styles.stepContent}>{renderStepContent()}</View>
             </AnimatedView>
           )}
           removeClippedSubviews={false}
@@ -276,7 +264,7 @@ export function FillInDetailsScreen({ navigation, route }) {
         <AuthButton
           title={isLastStep ? 'Կազմել բողոք' : 'Առաջ'}
           onPress={handleNext}
-          style={[styles.footerButton, { bottom: tabBarOffset }]}
+          style={[styles.footerButton, { bottom: TAB_BAR_BOTTOM_OFFSET }]}
         />
       </View>
     </>
@@ -293,6 +281,16 @@ const createStyles = colors =>
     },
     contentContainer: {
       padding: 10,
+    },
+    headerTitle: {
+      fontSize: 18,
+      lineHeight: 24,
+      marginBottom: 10,
+      marginTop: 20,
+    },
+    headerSubtitle: {
+      fontSize: 14,
+      marginBottom: 20,
     },
     footerButton: {
       position: 'absolute',
