@@ -1,10 +1,26 @@
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useWatch } from 'react-hook-form';
 import { FormDateField, FormField } from '../../../../../components';
 import CalendarSvg from '../../../../../components/icons/CalendarSvg';
 import { palette } from '../../../../../theme';
 import ActNumberSvg from '../../../../../components/icons/ActNumberSvg';
+import { useAppDispatch } from '../../../../../store';
+import { setActDate, setActNumber } from '../../../../../store/slices/documentFillSlice';
 
 export function FillAct({ control }) {
+  const dispatch = useAppDispatch();
+  const actNumber = useWatch({ control, name: 'Act_number' });
+  const actDate = useWatch({ control, name: 'Act_date' });
+
+  useEffect(() => {
+    dispatch(setActNumber(actNumber ?? ''));
+  }, [actNumber, dispatch]);
+
+  useEffect(() => {
+    dispatch(setActDate(actDate ?? null));
+  }, [actDate, dispatch]);
+
   return (
     <View style={styles.container}>
 

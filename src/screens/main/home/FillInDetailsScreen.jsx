@@ -10,6 +10,12 @@ import { useThemedStyles } from '../../../hooks';
 import { FillAct, FillDates } from './components/fillDetails';
 import MainHeader from '../../../components/headers/MainHeader';
 import { Typography } from '../../../components';
+import { useAppDispatch, useAppSelector } from '../../../store';
+import {
+  resetDocumentFill,
+  selectDocumentFill,
+  syncFactSelections,
+} from '../../../store/slices/documentFillSlice';
 import {
   AUTH_BUTTON_HEIGHT,
   getBottomInset,
@@ -44,6 +50,8 @@ function hasAnyFactSelection(templateFactGroups, selectedFacts, radioFacts) {
 
 export function FillInDetailsScreen({ navigation, route }) {
   const styles = useThemedStyles(createStyles);
+  const dispatch = useAppDispatch();
+  const documentFill = useAppSelector(selectDocumentFill);
   const insets = useSafeAreaInsets();
   const tabBarOffset = getTabBarOffset(insets);
   const contentBottomPadding = getBottomInset(insets, AUTH_BUTTON_HEIGHT) + 16;
@@ -62,6 +70,14 @@ export function FillInDetailsScreen({ navigation, route }) {
   });
 
   useEffect(() => {
+    dispatch(resetDocumentFill());
+
+    return () => {
+      dispatch(resetDocumentFill());
+    };
+  }, [dispatch, templateId]);
+
+  useEffect(() => {
     const controller = new AbortController();
 
     templatesApi
@@ -77,6 +93,20 @@ export function FillInDetailsScreen({ navigation, route }) {
 
     return () => controller.abort();
   }, [templateId]);
+
+  useEffect(() => {
+    if (templateFactGroups.length === 0) {
+      return;
+    }
+
+    dispatch(
+      syncFactSelections({
+        templateFactGroups,
+        selectedFacts,
+        radioFacts,
+      }),
+    );
+  }, [dispatch, templateFactGroups, selectedFacts, radioFacts]);
 
   const steps = useMemo(() => buildSteps(templateFactGroups), [templateFactGroups]);
   const totalSteps = steps.length;
@@ -99,6 +129,7 @@ export function FillInDetailsScreen({ navigation, route }) {
       }
 
       setStepError('');
+      console.log(documentFill);
       return;
     }
 
@@ -111,6 +142,7 @@ export function FillInDetailsScreen({ navigation, route }) {
     templateFactGroups,
     selectedFacts,
     radioFacts,
+    documentFill,
   ]);
 
   const handleBack = useCallback(() => {

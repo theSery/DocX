@@ -165,7 +165,12 @@ export function FormDateField({
                 display="default"
                 maximumDate={maximumDate}
                 minimumDate={minimumDate}
-                onValueChange={(_, date) => {
+                onChange={(event, date) => {
+                  if (event.type === 'dismissed' || !(date instanceof Date)) {
+                    closeAndroidPicker();
+                    return;
+                  }
+
                   onChange(date);
                   closeAndroidPicker();
                 }}
