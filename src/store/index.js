@@ -2,11 +2,13 @@ import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import categoriesReducer from './slices/categoriesSlice';
 import documentFillReducer from './slices/documentFillSlice';
+import personalDataReducer from './slices/personalDataSlice';
 
 export const store = configureStore({
   reducer: {
     categories: categoriesReducer,
     documentFill: documentFillReducer,
+    personalData: personalDataReducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

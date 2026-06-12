@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { personalDataApi } from '../../../api';
 import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
 import { AnimatedView, CheckBox, FormDateField, FormField, Typography } from '../../../components';
 import { useForm } from 'react-hook-form';
@@ -11,6 +10,12 @@ import AuthButton from '../../../components/buttons/AuthButton';
 import CodeSvg from '../../../components/icons/CodeSvg';
 import PasporFromSvg from '../../../components/icons/PasporFromSvg';
 import AddressSvg from '../../../components/icons/AddressSvg';
+import { useAppDispatch, useAppSelector } from '../../../store';
+import {
+  selectPersonalData,
+  selectPersonalDataStatus,
+  updatePersonalData,
+} from '../../../store/slices/personalDataSlice';
 
 const CONTACT_INFO_FIELDS = [
   {
@@ -156,6 +161,9 @@ export function PassportInfoScreen() {
   const [agreed, setAgreed] = useState(false);
   const styles = useThemedStyles(createStyles);
   const { showToast } = useToast();
+  const dispatch = useAppDispatch();
+  const personalData = useAppSelector(selectPersonalData);
+  const personalDataStatus = useAppSelector(selectPersonalDataStatus);
 
   const {
     control,
@@ -168,29 +176,17 @@ export function PassportInfoScreen() {
   });
 
   useEffect(() => {
-    const controller = new AbortController();
-
-    personalDataApi
-      .getPersonalData({ signal: controller.signal })
-      .then((response) => {
-        console.log('response.data', response.data);
-        reset(mapPersonalDataToFormValues(response.data));
-      })
-      .catch((error) => {
-        if (error.type !== 'cancel') {
-          console.log('personal-data error:', error);
-        }
-      });
-
-    return () => controller.abort();
-  }, [reset]);
+    if (personalDataStatus === 'succeeded' && personalData) {
+      reset(mapPersonalDataToFormValues(personalData));
+    }
+  }, [personalData, personalDataStatus, reset]);
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      const response = await personalDataApi.updatePersonalData(
-        mapFormValuesToPersonalData(data),
-      );
-      const updatedFormValues = resolveFormValuesAfterUpdate(data, response.data);
+      const response = await dispatch(
+        updatePersonalData(mapFormValuesToPersonalData(data)),
+      ).unwrap();
+      const updatedFormValues = resolveFormValuesAfterUpdate(data, response);
       reset(updatedFormValues);
       showToast({
         title: 'Տվյալները հաջողությամբ պահպանվեցին',

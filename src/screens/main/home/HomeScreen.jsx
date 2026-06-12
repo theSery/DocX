@@ -1,12 +1,25 @@
+import { useEffect } from 'react';
 import { View } from 'react-native';
-import { useSelector } from 'react-redux';
 
 import { CategoriesList } from './components/CategoriesList';
 import { useGlobalStyles } from '../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../store';
+import {
+  fetchPersonalData,
+  selectPersonalDataStatus,
+} from '../../../store/slices/personalDataSlice';
 
 export function HomeScreen({ navigation }) {
-  const { items } = useSelector(state => state.categories);
-  const styles = useGlobalStyles();
+  const dispatch = useAppDispatch();
+  const { items } = useAppSelector(state => state.categories);
+  // const personalDataStatus = useAppSelector(selectPersonalDataStatus);
+  // const styles = useGlobalStyles();
+
+  // useEffect(() => {
+  //   if (personalDataStatus === 'idle') {
+  //     dispatch(fetchPersonalData());
+  //   }
+  // }, [dispatch, personalDataStatus]);
 
   return (
     <View style={{ flex: 1 }}>

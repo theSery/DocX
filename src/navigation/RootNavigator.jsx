@@ -13,7 +13,7 @@ import {
   fetchCategoryHierarchy,
   selectCategoriesStatus,
 } from '../store/slices/categoriesSlice';
-import { getUserCredentialsWithBiometric } from '../utils/secureStorage';
+
 
 const Stack = createNativeStackNavigator();
 

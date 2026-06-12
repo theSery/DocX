@@ -9,6 +9,8 @@ import { Typography } from '../../typography';
 import { palette } from '../../../theme';
 import AccountHeader from './AccountHeader';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppSelector } from '../../../store';
+import { selectPersonalData } from '../../../store/slices/personalDataSlice';
 
 const createStyles = (colors) =>
   StyleSheet.create({
@@ -71,7 +73,7 @@ const AccountStackHeader = ({
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const insets = useSafeAreaInsets();
-
+  const {name, surname} = useAppSelector(selectPersonalData);
   return (
     <View style={{height: isMinHeight ? ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT : ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT}}>
       <StatusBar barStyle="light-content" />
@@ -99,10 +101,10 @@ const AccountStackHeader = ({
               </View>
               <View>
                 <Typography variant="h3" tone="onDark" style={styles.userName}>
-                  Վարդուհի
+                  {name}
                 </Typography>
                 <Typography variant="h3" tone="onDark" style={styles.userName}>
-                  Հարությունյան
+                  {surname}
                 </Typography>
                 <View style={styles.accountInfoContainer}>
                   <Typography tone="onDark" style={styles.accountType}>

@@ -16,6 +16,7 @@ import {
   syncFactSelections,
 } from '../../../store/slices/documentFillSlice';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
+import { fetchPersonalData, selectPersonalDataStatus } from '../../../store/slices/personalDataSlice';
 
 function buildSteps(templateFactGroups = []) {
   const actStep = { key: 'act', label: 'Մանրամասներ' };
@@ -60,6 +61,15 @@ export function FillInDetailsScreen({ navigation, route }) {
     },
     reValidateMode: 'onChange',
   });
+  const personalDataStatus = useAppSelector(selectPersonalDataStatus);
+
+
+  useEffect(() => {
+    if (personalDataStatus === 'idle') {
+      dispatch(fetchPersonalData());
+    }
+  }, [dispatch, personalDataStatus]);
+
 
   useEffect(() => {
     dispatch(resetDocumentFill());
@@ -76,6 +86,7 @@ export function FillInDetailsScreen({ navigation, route }) {
       .getTemplateById(templateId, { signal: controller.signal })
       .then(response => {
         setTemplateFactGroups(response.data.templateFactGroups ?? []);
+        console.log('response.data.templateFactGroups', response.data);
       })
       .catch(error => {
         if (error.type !== 'cancel') {
@@ -85,7 +96,7 @@ export function FillInDetailsScreen({ navigation, route }) {
 
     return () => controller.abort();
   }, [templateId]);
-
+console.log('templateFactGroups', templateFactGroups);
   useEffect(() => {
     if (templateFactGroups.length === 0) {
       return;

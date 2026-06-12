@@ -1,11 +1,9 @@
-import { useEffect } from 'react';
 import {
   Pressable,
   ScrollView,
   StyleSheet,
   View,
 } from 'react-native';
-import { personalDataApi } from '../../../api';
 import { AnimatedView, Typography } from '../../../components';
 import { useGlobalStyles, useThemedStyles, useTheme } from '../../../hooks';
 import { FONT_FAMILY, palette } from '../../../theme';
@@ -157,23 +155,6 @@ export function AccountScreen({ navigation }) {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    personalDataApi
-      .getPersonalData({ signal: controller.signal })
-      .then((response) => {
-        console.log('personal-data:', response.data);
-      })
-      .catch((error) => {
-        if (error.type !== 'cancel') {
-          console.log('personal-data error:', error);
-        }
-      });
-
-    return () => controller.abort();
-  }, []);
 
   const handleDeleteAccountPress = () => {
     console.log('delete account');
