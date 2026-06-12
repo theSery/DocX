@@ -147,8 +147,6 @@ export function BlurTabBar({ state, descriptors, navigation }) {
   const insets = useSafeAreaInsets();
   const [isCredentials, setIsCredentials] = useState(false);
   const { setIsSign, setIsFaceID } = useAuth();
-  // console.log('isSign', isSign);
-  // console.log('isFaceID', isFaceID);
   const onHeightChange = useContext(BottomTabBarHeightCallbackContext);
 
   const activeColor =  colors.background;

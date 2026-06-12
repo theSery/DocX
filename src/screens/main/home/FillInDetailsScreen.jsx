@@ -1,16 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { templatesApi } from '../../../api';
 import AuthButton from '../../../components/buttons/AuthButton';
-import BackButton from '../../../components/buttons/BackButton';
 import { AnimatedView } from '../../../components/animation/AnimatedView';
 import { StepIndicator } from '../../../components/stepIndicator';
 import { useThemedStyles } from '../../../hooks';
-import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import { FillAct, FillDates } from './components/fillDetails';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import MainHeader from '../../../components/headers/MainHeader';
+import { Typography } from '../../../components';
+import {
+  AUTH_BUTTON_HEIGHT,
+  getBottomInset,
+  getTabBarOffset,
+} from '../../../utils/dimensions';
 
 function buildSteps(templateFactGroups = []) {
   const actStep = { key: 'act', label: 'Մանրամասներ' };
@@ -22,18 +26,39 @@ function buildSteps(templateFactGroups = []) {
   return [actStep, ...factSteps];
 }
 
+function hasAnyFactSelection(templateFactGroups, selectedFacts, radioFacts) {
+  const hasCheckboxSelection = Object.values(selectedFacts).some(value => {
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+
+    return value != null;
+  });
+
+  if (hasCheckboxSelection) {
+    return true;
+  }
+
+  return Object.values(radioFacts).some(value => value != null);
+}
+
 export function FillInDetailsScreen({ navigation, route }) {
   const styles = useThemedStyles(createStyles);
+  const insets = useSafeAreaInsets();
+  const tabBarOffset = getTabBarOffset(insets);
+  const contentBottomPadding = getBottomInset(insets, AUTH_BUTTON_HEIGHT) + 16;
   const { templateId = 73 } = route.params ?? {};
   const [currentStep, setCurrentStep] = useState(0);
   const [templateFactGroups, setTemplateFactGroups] = useState([]);
   const [selectedFacts, setSelectedFacts] = useState({});
   const [radioFacts, setRadioFacts] = useState({});
-  const { control } = useForm({
+  const [stepError, setStepError] = useState('');
+  const { control, handleSubmit } = useForm({
     defaultValues: {
-      actDate: null,
-      actField: '',
+      Act_date: null,
+      Act_number: '',
     },
+    reValidateMode: 'onChange',
   });
 
   useEffect(() => {
@@ -59,10 +84,34 @@ export function FillInDetailsScreen({ navigation, route }) {
   const currentFactGroup = currentStep > 0 ? templateFactGroups[currentStep - 1] : null;
 
   const handleNext = useCallback(() => {
-    if (currentStep < totalSteps - 1) {
-      setCurrentStep(prev => prev + 1);
+    if (currentStep === 0) {
+      handleSubmit(() => {
+        setStepError('');
+        setCurrentStep(prev => prev + 1);
+      })();
+      return;
     }
-  }, [currentStep, totalSteps]);
+
+    if (isLastStep) {
+      if (!hasAnyFactSelection(templateFactGroups, selectedFacts, radioFacts)) {
+        setStepError('Ընտրեք առնվազն մեկ տարբերակ');
+        return;
+      }
+
+      setStepError('');
+      return;
+    }
+
+    setStepError('');
+    setCurrentStep(prev => prev + 1);
+  }, [
+    currentStep,
+    isLastStep,
+    handleSubmit,
+    templateFactGroups,
+    selectedFacts,
+    radioFacts,
+  ]);
 
   const handleBack = useCallback(() => {
     if (currentStep > 0) {
@@ -73,15 +122,36 @@ export function FillInDetailsScreen({ navigation, route }) {
     navigation.goBack();
   }, [currentStep, navigation]);
 
+  useEffect(() => {
+    setStepError('');
+  }, [currentStep, selectedFacts, radioFacts]);
+
   const handleSelectFact = useCallback((fact, groupId) => {
     if (!groupId) {
       return;
     }
 
-    setSelectedFacts(prev => ({
-      ...prev,
-      [groupId]: fact.id,
-    }));
+    setSelectedFacts(prev => {
+      const current = prev[groupId] ?? [];
+      const selectedIds = Array.isArray(current) ? current : [current];
+      const isSelected = selectedIds.includes(fact.id);
+
+      if (isSelected) {
+        if (selectedIds.length <= 1) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          [groupId]: selectedIds.filter(id => id !== fact.id),
+        };
+      }
+
+      return {
+        ...prev,
+        [groupId]: [...selectedIds, fact.id],
+      };
+    });
   }, []);
 
   const listData = useMemo(() => [{ key: `step-${currentStep}` }], [currentStep]);
@@ -99,6 +169,7 @@ export function FillInDetailsScreen({ navigation, route }) {
           factsCheck={radioFacts}
           selectedFacts={selectedFacts}
           onSelectFact={handleSelectFact}
+          errorMessage={stepError}
         />
       );
     }
@@ -106,61 +177,76 @@ export function FillInDetailsScreen({ navigation, route }) {
     return null;
   };
 
+  const headerContent = useMemo(() => {
+    if (currentStep === 0) {
+      return {
+        title: 'Տվյալներ',
+        subtitle: 'Լրացրեք անհրաժեշտ տվյալները՝',
+      };
+    }
+
+    const factGroup = currentFactGroup?.factGroup;
+
+    return {
+      title: factGroup?.name ?? '',
+      subtitle: factGroup?.description ?? '',
+    };
+  }, [currentStep, currentFactGroup]);
+
   const ListHeaderComponent = useMemo(
     () => (
       <>
-        <ContentTiltes
-          title="Էլ-փոստի հաստատում"
-          subtitle="Մուտքագրեք Ձեր էլ-փոստին ուղարկված կոդը"
-        />
+
+        <Typography variant="h2" style={{ fontSize: 18, lineHeight: 24, marginBottom: 10, marginTop: 20 }}>
+          {headerContent.title}
+        </Typography>
+        <Typography variant="h6" style={{ fontSize: 14, marginBottom: 20 }}>
+          {headerContent.subtitle}
+        </Typography>
         <StepIndicator steps={steps} currentStep={currentStep} />
       </>
     ),
-    [steps, currentStep],
-  );
-
-  const ListFooterComponent = useMemo(
-    () => (
-      <AuthButton
-        title="Հաջորդ"
-        onPress={handleNext}
-        disabled={isLastStep}
-        style={styles.footerButton}
-      />
-    ),
-    [handleNext, isLastStep, styles.footerButton],
+    [steps, currentStep, headerContent],
   );
 
   return (
-    <> 
-     <MainHeader onPress={handleBack} />
-    <FlatList
-      style={styles.screen}
-      data={listData}
-      extraData={[currentStep, radioFacts, selectedFacts]}
-      keyExtractor={item => item.key}
-      ListHeaderComponent={ListHeaderComponent}
-      ListFooterComponent={ListFooterComponent}
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="on-drag"
-      automaticallyAdjustKeyboardInsets
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.contentContainer}
-      renderItem={() => (
-        <AnimatedView
-          key={currentStep}
-          entering="SlideInRight"
-          exiting="SlideOutLeft"
-          animationConfig={{ duration: 350 }}
-        >
-          <View style={styles.stepContent}>
-       
-            {renderStepContent()}
-          </View>
-        </AnimatedView>
-      )}
-      removeClippedSubviews={false}
-    />
+    <>
+      <MainHeader onPress={handleBack} />
+      <View style={styles.screen}>
+        <FlatList
+          style={styles.list}
+          data={listData}
+          extraData={[currentStep, radioFacts, selectedFacts]}
+          keyExtractor={item => item.key}
+          ListHeaderComponent={ListHeaderComponent}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          automaticallyAdjustKeyboardInsets
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.contentContainer,
+            { paddingBottom: contentBottomPadding },
+          ]}
+          renderItem={() => (
+            <AnimatedView
+              key={currentStep}
+              entering="SlideInRight"
+              exiting="SlideOutLeft"
+              animationConfig={{ duration: 350 }}
+            >
+              <View style={styles.stepContent}>
+                {renderStepContent()}
+              </View>
+            </AnimatedView>
+          )}
+          removeClippedSubviews={false}
+        />
+        <AuthButton
+          title={isLastStep ? 'Կազմել բողոք' : 'Առաջ'}
+          onPress={handleNext}
+          style={[styles.footerButton, { bottom: tabBarOffset }]}
+        />
+      </View>
     </>
   );
 }
@@ -169,22 +255,17 @@ const createStyles = colors =>
   StyleSheet.create({
     screen: {
       flex: 1,
-      // backgroundColor: colors.background,
-      // backgroundColor: 'red',
-      // height: '90%',
-      // width: '100%',
-      // alignItems: 'center',
-      // justifyContent: 'center',
-      // padding: 10,
-      // paddingBottom: 24,
+    },
+    list: {
+      flex: 1,
     },
     contentContainer: {
-      flexGrow: 1,
       padding: 10,
-      paddingBottom: 24,
     },
     footerButton: {
-      marginTop: 24,
+      position: 'absolute',
+      left: 10,
+      right: 10,
     },
     stepContent: {
       gap: 16,

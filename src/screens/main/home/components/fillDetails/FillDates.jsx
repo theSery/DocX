@@ -3,24 +3,36 @@ import { RadioButton, RadioGroup, Typography } from '../../../../../components';
 import { useThemedStyles } from '../../../../../hooks';
 import { FONT_FAMILY } from '../../../../../theme';
 
-export function FillDates({ factGroup, setRadioFacts, factsCheck, selectedFactId, onSelectFact }) {
+export function FillDates({
+  factGroup,
+  setRadioFacts,
+  factsCheck,
+  selectedFacts,
+  onSelectFact,
+  errorMessage,
+}) {
   const styles = useThemedStyles(createStyles);
 
+  const groupId = factGroup?.id;
+  const rawSelected = selectedFacts?.[groupId];
+  const selectedFactIds = Array.isArray(rawSelected)
+    ? rawSelected
+    : rawSelected != null
+      ? [rawSelected]
+      : [];
   const facts = factGroup?.factGroupFacts ?? [];
   const radioFacts = factGroup?.radioFactGroups ?? [];
 
   return (
     <View style={styles.container}>
-      <Typography variant="h4" style={styles.title}>
-        {factGroup?.name}
-      </Typography>
+
       <View style={styles.grid}>
         {facts.map(({ fact }) => {
-          const isSelected = selectedFactId === fact.id;
+          const isSelected = selectedFactIds.includes(fact.id);
           return (
             <Pressable
               key={fact.id}
-              onPress={() => onSelectFact?.(fact)}
+              onPress={() => onSelectFact?.(fact, groupId)}
               style={({ pressed }) => [
                 styles.factButton,
                 isSelected && styles.factButtonSelected,
@@ -60,6 +72,11 @@ export function FillDates({ factGroup, setRadioFacts, factsCheck, selectedFactId
           );
         })}
       </View>
+      {errorMessage ? (
+        <Typography variant="h6" style={styles.errorText}>
+          {errorMessage}
+        </Typography>
+      ) : null}
     </View>
   );
 }
@@ -114,5 +131,9 @@ const createStyles = colors =>
     },
     radioItem: {
       marginTop: 0,
+    },
+    errorText: {
+      color: colors.error,
+      marginTop: 4,
     },
   });
