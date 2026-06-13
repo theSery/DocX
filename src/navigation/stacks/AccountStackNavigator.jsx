@@ -8,16 +8,14 @@ import {
   SettingsScreen,
   SignatureScreen,
 } from '../../screens/main/account';
-import { authApi } from '../../api';
-import { useAuth } from '../../contexts';
-import { clearUserCredentials } from '../../utils/secureStorage';
-import { useStackScreenOptions, useToast } from '../../hooks';
+import { useAuthSession, useStackScreenOptions } from '../../hooks';
 import AccountStackHeader from '../../components/headers/accountStackHeader/AccountStackHeader';
 
 const Stack = createNativeStackNavigator();
+
 const nestedScreenOptionsWithHeader = (
   nestedScreenOptions,
-  { title,  isBackButton = false, isLogoutButton = false, isMinHeight = false },
+  { title, isBackButton = false, isLogoutButton = false, isMinHeight = false },
   onLogoutPress,
 ) => ({
   ...nestedScreenOptions,
@@ -25,7 +23,6 @@ const nestedScreenOptionsWithHeader = (
   isBackButton,
   isLogoutButton,
   isMinHeight,
-  // headerShown: isBackButton,
   header: ({ navigation, options }) => (
     <AccountStackHeader
       onPress={() => navigation.goBack()}
@@ -37,42 +34,42 @@ const nestedScreenOptionsWithHeader = (
     />
   ),
 });
+
 export function AccountStackNavigator() {
   const nestedScreenOptions = useStackScreenOptions();
-  const { setIsSign } = useAuth();
-  const { showToast } = useToast();
-
-  const handleLogoutPress = async () => {
-    try {
-      await authApi.logout();
-    } catch (error) {
-      showToast({
-        title: 'Ելք ձախողվեց',
-        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
-        type: 'error',
-      });
-    } finally {
-      await clearUserCredentials();
-      await setIsSign(false);
-    }
-  };
+  const { logout } = useAuthSession();
 
   return (
     <Stack.Navigator
       initialRouteName="AccountMain"
       screenOptions={{ headerShown: false, animation: 'fade' }}>
-      <Stack.Screen name="AccountMain" component={AccountScreen} 
-      options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Հաշիվ', isLogoutButton: true, isBackButton: false }, handleLogoutPress)} />
+      <Stack.Screen
+        name="AccountMain"
+        component={AccountScreen}
+        options={nestedScreenOptionsWithHeader(
+          nestedScreenOptions,
+          { title: 'Հաշիվ', isLogoutButton: true, isBackButton: false },
+          logout,
+        )}
+      />
       <Stack.Screen
         name="ProfileInfo"
         component={ProfileInfoScreen}
-
-      options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Անձնական տվյալներ', isLogoutButton: true, isBackButton: true }, handleLogoutPress)} />
+        options={nestedScreenOptionsWithHeader(
+          nestedScreenOptions,
+          { title: 'Անձնական տվյալներ', isLogoutButton: true, isBackButton: true },
+          logout,
+        )}
+      />
       <Stack.Screen
         name="PassportInfo"
         component={PassportInfoScreen}
-        options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Անձնագրային տվյալներ', isLogoutButton: true, isBackButton: true }, handleLogoutPress)} />
-      {/* /> */}
+        options={nestedScreenOptionsWithHeader(
+          nestedScreenOptions,
+          { title: 'Անձնագրային տվյալներ', isLogoutButton: true, isBackButton: true },
+          logout,
+        )}
+      />
       <Stack.Screen
         name="PinCodeChange"
         component={PinCodeChangeScreen}
@@ -86,12 +83,19 @@ export function AccountStackNavigator() {
       <Stack.Screen
         name="Signature"
         component={SignatureScreen}
-        options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Ստորագրություն' , isLogoutButton: false, isBackButton: true, isMinHeight: true })}
+        options={nestedScreenOptionsWithHeader(
+          nestedScreenOptions,
+          { title: 'Ստորագրություն', isLogoutButton: false, isBackButton: true, isMinHeight: true },
+        )}
       />
       <Stack.Screen
         name="Settings"
         component={SettingsScreen}
-        options={nestedScreenOptionsWithHeader(nestedScreenOptions, { title: 'Settings' , isLogoutButton: true, isBackButton: true }, handleLogoutPress)}
+        options={nestedScreenOptionsWithHeader(
+          nestedScreenOptions,
+          { title: 'Settings', isLogoutButton: true, isBackButton: true },
+          logout,
+        )}
       />
     </Stack.Navigator>
   );

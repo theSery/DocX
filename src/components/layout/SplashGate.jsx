@@ -1,69 +1,43 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { hideSplash } from 'react-native-splash-view';
-import { authApi, getRefreshToken, persistAuthResponse, userApi } from '../../api';
-import { useAuth } from '../../contexts';
-import { hasStoredPinCode } from '../../utils/secureStorage';
-import { STORAGE_KEYS } from '../../utils/storageKeys';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { hideSplash } from 'react-native-splash-view';
+import { userApi } from '../../api';
+import { useAuth } from '../../contexts';
+import { STORAGE_KEYS } from '../../utils/storageKeys';
 
 const SPLASH_HOLD_MS = 1500;
-const FORCE_401 = true;
 
-/** @typedef {'loading' | 'session' | 'faceId' | 'auth'} AuthRoute */
+/** @typedef {'main' | 'faceId'} StartupRoute */
 
 const SplashContext = createContext({
   isSplashDone: false,
-  authRoute: 'loading',
+  startupRoute: /** @type {StartupRoute} */ ('main'),
 });
 
 export function useSplash() {
   return useContext(SplashContext);
 }
 
-async function resolveAuthRoute(isSign) {
-  if(!isSign) {
-    return 'session';
+async function resolveStartupRoute(wasSignedIn) {
+  if (!wasSignedIn) {
+    return 'main';
   }
+
   try {
-    // if (FORCE_401) {
-    //   throw { type: 'http', status: 401, message: 'Unauthorized' };
-    // }
-   const response = await userApi.getMe();
-   console.log('response', response);
-    return 'session';
+    await userApi.getMe();
+    return 'main';
   } catch (error) {
-    console.log('error 99999999', error.status);
     if (error?.status === 401) {
-   
-      // const refreshToken = await getRefreshToken();
-      return (await hasStoredPinCode()) ? 'faceId' : 'auth';
+      return 'faceId';
     }
-
-    // const refreshToken = await getRefreshToken();
-    // if (!refreshToken) {
-    //   return (await hasStoredPinCode()) ? 'faceId' : 'auth';
-    // }
-
-    // try {
-    //   const response = await authApi.refreshToken({ refreshToken });
-    //   console.log('response', response.data);
-    //   await persistAuthResponse(response);
-    //   return 'session';
-    // } catch (refreshError) {
-    //   console.log('refreshError', refreshError);
-    //   if (refreshError?.status === 401) {
-    //     return (await hasStoredPinCode()) ? 'faceId' : 'auth';
-    //   }
-
-    //   return (await hasStoredPinCode()) ? 'faceId' : 'auth';
-    // }
+    return 'main';
   }
 }
 
 export function SplashGate({ children }) {
-  const { setIsSign, setIsFaceID, removeSign, hasCompletedOnboarding, isSign } = useAuth();
+  const { setIsSign, setIsFaceID } = useAuth();
   const [isSplashDone, setIsSplashDone] = useState(false);
-  const [authRoute, setAuthRoute] = useState(/** @type {AuthRoute} */ ('loading'));
+  const [startupRoute, setStartupRoute] = useState(/** @type {StartupRoute} */ ('main'));
 
   useEffect(() => {
     let cancelled = false;
@@ -71,32 +45,30 @@ export function SplashGate({ children }) {
     hideSplash();
 
     async function bootstrap() {
-      // await removeSign();
+      const sign = await AsyncStorage.getItem(STORAGE_KEYS.SIGN);
+      const wasSignedIn = sign === 'true';
+
       const [route] = await Promise.all([
-        resolveAuthRoute(isSign),
+        resolveStartupRoute(wasSignedIn),
         new Promise(resolve => setTimeout(resolve, SPLASH_HOLD_MS)),
       ]);
 
       if (cancelled) {
         return;
       }
- 
-      setAuthRoute(route);
 
-      if (route === 'auth' && !hasCompletedOnboarding) {
+      if (route === 'faceId') {
+        await setIsSign(true);
+        await setIsFaceID(false);
+      } else if (wasSignedIn) {
+        await setIsSign(true);
+        await setIsFaceID(true);
+      } else {
         await setIsSign(false);
         await setIsFaceID(false);
-      } else if (route === 'session') {
-        await setIsSign(true);
-        await setIsFaceID(true);
-      } else if (route === 'faceId') {
-        await setIsSign(true);
-        await setIsFaceID(false);
-      } else if(hasCompletedOnboarding){
-        await setIsSign(true);
-        await setIsFaceID(true);
       }
 
+      setStartupRoute(route);
       setIsSplashDone(true);
     }
 
@@ -105,10 +77,10 @@ export function SplashGate({ children }) {
     return () => {
       cancelled = true;
     };
-  }, [setIsSign, setIsFaceID, removeSign, hasCompletedOnboarding, isSign]);
+  }, [setIsSign, setIsFaceID]);
 
   return (
-    <SplashContext.Provider value={{ isSplashDone, authRoute }}>
+    <SplashContext.Provider value={{ isSplashDone, startupRoute }}>
       {children}
     </SplashContext.Provider>
   );

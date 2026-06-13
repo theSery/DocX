@@ -73,7 +73,9 @@ const AccountStackHeader = ({
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const insets = useSafeAreaInsets();
-  const {name, surname} = useAppSelector(selectPersonalData);
+  const personalData = useAppSelector(selectPersonalData);
+  const name = personalData?.name ?? '';
+  const surname = personalData?.surname ?? '';
   return (
     <View style={{height: isMinHeight ? ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT : ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT}}>
       <StatusBar barStyle="light-content" />

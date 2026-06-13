@@ -8,7 +8,7 @@
     "lint": "eslint .",
     "start": "react-native start",
     "start:reset": "watchman watch-del-all && npm start -- --reset-cache",
-    "postinstall": "cd ios && bundle exec pod install && cd ..",
+    "podInstall": "cd ios && bundle exec pod install && cd ..",
     "link-assets": "npx react-native-asset",
     "test": "jest",
     "clean": "rimraf node_modules package-lock.json ios/build ios/Pods ios/Podfile.lock"

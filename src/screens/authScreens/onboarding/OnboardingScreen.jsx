@@ -7,7 +7,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { AuthScreenLayout } from '../../../components/layout';
 import { useAuth } from '../../../contexts';
-import { useSplash } from '../../../components/layout/SplashGate';
 import onboardingData from './data';
 import { CustomButton } from './components/CustomButton';
 import { Pagination } from './components/Pagination';
@@ -15,8 +14,7 @@ import { RenderItem } from './components/RenderItem';
 import { MainContainer } from './components/MainContainer';
 
 export function OnboardingScreen({ navigation }) {
-  const { completeOnboarding, setIsSign, setIsFaceID } = useAuth();
-  const { setAuthRoute } = useSplash();
+  const { completeOnboarding } = useAuth();
   const flatListRef = useAnimatedRef();
   const x = useSharedValue(0);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -28,39 +26,39 @@ export function OnboardingScreen({ navigation }) {
   }).current;
 
   const onScroll = useAnimatedScrollHandler({
-    onScroll: (event) => {
+    onScroll: event => {
       x.value = event.contentOffset.x;
     },
   });
-const handleComplete = async () => {
-  await completeOnboarding();
-  await setIsSign(true);
-  await setIsFaceID(true);
-  // setAuthRoute('session');
- 
-}
-  // const handleComplete = useCallback(async () => {
-  //   await completeOnboarding();
-  //   setAuthRoute('session');
-  //   await setIsSign(true);
-  // }, [completeOnboarding, setAuthRoute, setIsSign]);
+
+  const handleComplete = useCallback(async () => {
+    await completeOnboarding();
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Main' }],
+    });
+  }, [completeOnboarding, navigation]);
 
   const renderItem = useCallback(
     ({ item, index }) => <RenderItem item={item} index={index} x={x} />,
     [x],
   );
 
-  const keyExtractor = useCallback((item) => item.id.toString(), []);
+  const keyExtractor = useCallback(item => item.id.toString(), []);
 
   const handlePress = useCallback(() => {
     setIsMainContainer(false);
   }, []);
+
   return (
-    <AuthScreenLayout withGradient gradientIsLight={!isMainContainer} contentStyle={styles.layoutContent}>
+    <AuthScreenLayout
+      withGradient
+      gradientIsLight={!isMainContainer}
+      contentStyle={styles.layoutContent}>
       <StatusBar barStyle={!isMainContainer ? 'dark-content' : 'light-content'} />
-      {isMainContainer ?
+      {isMainContainer ? (
         <MainContainer handlePress={handlePress} />
-        :
+      ) : (
         <View style={styles.container}>
           <Animated.FlatList
             ref={flatListRef}
@@ -99,20 +97,16 @@ const handleComplete = async () => {
             />
           </View>
         </View>
-      }
-
-
-
+      )}
     </AuthScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
-
   layoutContent: {
     paddingHorizontal: 0,
     paddingVertical: 0,
-    marginTop: '25%'
+    marginTop: '25%',
   },
   container: {
     flex: 1,

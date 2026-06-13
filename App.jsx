@@ -14,6 +14,7 @@ import { GlobalSheetProvider } from './src/components/GlobalSheet';
 import { AuthProvider } from './src/contexts';
 import { useNavigationTheme } from './src/hooks';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { navigationRef } from './src/navigation/navigationRef';
 import { store } from './src/store';
 import { ColorSchemeProvider } from './src/theme';
 import { clearCredentialsIfReinstalled } from './src/utils/credentialCleanup';
@@ -22,7 +23,7 @@ function AppNavigation() {
   const navigationTheme = useNavigationTheme();
 
   return (
-    <NavigationContainer theme={navigationTheme}>
+    <NavigationContainer ref={navigationRef} theme={navigationTheme}>
       <RootNavigator />
     </NavigationContainer>
   );

@@ -18,8 +18,8 @@ import UserSvg from '../components/icons/UserSvg';
 import HomeSvg from '../components/icons/HomeSvg';
 import FilesSvg from '../components/icons/FilesSvg';
 import { FONT_FAMILY, palette } from '../theme';
-import { getUserCredentialsWithBiometric } from '../utils/secureStorage';
-import { useAuth } from '../contexts';
+import { useAuthSession } from '../hooks';
+import { PUBLIC_TAB_ROUTE_NAMES } from './TabNavigator';
 
 const TAB_BAR_HEIGHT = 60;
 const HORIZONTAL_MARGIN = 16;
@@ -145,8 +145,7 @@ function TabItem({
 export function BlurTabBar({ state, descriptors, navigation }) {
   const { colors, isDarkMode } = useTheme();
   const insets = useSafeAreaInsets();
-  const [isCredentials, setIsCredentials] = useState(false);
-  const { setIsSign, setIsFaceID } = useAuth();
+  const { isAuthenticated, openAuth } = useAuthSession();
   const onHeightChange = useContext(BottomTabBarHeightCallbackContext);
 
   const activeColor =  colors.background;
@@ -157,19 +156,13 @@ export function BlurTabBar({ state, descriptors, navigation }) {
   const itemWidth = tabCount > 0 ? trackWidth / tabCount : 0;
 
   const indicatorX = useSharedValue(0);
-const func = async () => {
-  const credentials = await getUserCredentialsWithBiometric();
-  if (credentials) {
-    setIsCredentials(true);
-  }
-  }
+
   useEffect(() => {
     indicatorX.value = withSpring(itemWidth * state.index, {
       damping: 20,
       stiffness: 180,
       mass: 0.6,
     });
-    func();
   }, [indicatorX, itemWidth, state.index]);
 
   const indicatorAnimatedStyle = useAnimatedStyle(() => ({
@@ -235,11 +228,12 @@ const func = async () => {
             const descriptor = descriptors[route.key];
             const isFocused = state.index === index;
 
-            const onPress = async () => {
-              if (!isCredentials && index !== 0) {
-                await setIsSign(false);
-                await setIsFaceID(false);
+            const onPress = () => {
+              if (!isAuthenticated && !PUBLIC_TAB_ROUTE_NAMES.includes(route.name)) {
+                openAuth();
+                return;
               }
+
               const event = navigation.emit({
                 type: 'tabPress',
                 target: route.key,
@@ -251,11 +245,12 @@ const func = async () => {
               }
             };
 
-            const onLongPress = async () => {
-              if (!isCredentials && index !== 0) {
-                await setIsSign(false);
-                await setIsFaceID(false);
+            const onLongPress = () => {
+              if (!isAuthenticated && !PUBLIC_TAB_ROUTE_NAMES.includes(route.name)) {
+                openAuth();
+                return;
               }
+
               navigation.emit({
                 type: 'tabLongPress',
                 target: route.key,

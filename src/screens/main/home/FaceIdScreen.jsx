@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { AuthScreenLayout } from '../../../components/layout';
 import { useAuthScreenStyles, useToast } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
-import { useAuth } from '../../../contexts';
+import { useAuthSession } from '../../../hooks';
 import { FONT_FAMILY, palette } from '../../../theme';
 import { Passcode } from '../../authScreens/signInUP/components/Passcode';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
@@ -38,7 +38,7 @@ function getBiometricLabel(biometryType) {
 export function FaceIdScreen() {
   const styles = useAuthScreenStyles();
   const { showToast } = useToast();
-  const { setIsFaceID } = useAuth();
+  const { completeReauth } = useAuthSession();
   const [passcode, setPasscode] = useState([]);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [canUseBiometric, setCanUseBiometric] = useState(false);
@@ -46,9 +46,8 @@ export function FaceIdScreen() {
   const isAuthenticatingRef = useRef(false);
 
   const completeAuthentication = useCallback(async () => {
-    console.log('[FaceId] Authentication complete — navigating to main app');
-    await setIsFaceID(true);
-  }, [setIsFaceID]);
+    await completeReauth();
+  }, [completeReauth]);
 
   const loginWithCredentials = useCallback(
     async ({ email, password }) => {

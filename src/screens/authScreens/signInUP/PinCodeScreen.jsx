@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { AuthScreenLayout } from '../../../components/layout';
 import { useAuthScreenStyles, useToast } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
-import { useAuth } from '../../../contexts';
+import { useAuthSession } from '../../../hooks';
 import AuthButton from '../../../components/buttons/AuthButton';
 import { FONT_FAMILY, palette } from '../../../theme';
 import { saveUserCredentials } from '../../../utils/secureStorage';
@@ -17,7 +17,7 @@ export function PinCodeScreen({ navigation, route }) {
   const { name, surname, patronymic, email, password } = route.params;
   const styles = useAuthScreenStyles();
   const { showToast } = useToast();
-  const { setIsSign } = useAuth();
+  const { login } = useAuthSession();
   const [passcode, setPasscode] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,7 +37,7 @@ export function PinCodeScreen({ navigation, route }) {
       });
       await persistAuthResponse(response);
       await saveUserCredentials({ email, password, pinCode });
-      await setIsSign(true);
+      await login();
     } catch (error) {
       console.log('Register personal error:', error);
       showToast({

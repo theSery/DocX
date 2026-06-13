@@ -18,7 +18,7 @@ import PhoneSvg from '../../../../components/icons/PhoneSvg';
 import bg from '../../../../assets/images/bg.webp';
 import { OtpInputRowCode } from './OtpInputRowCode';
 import { authApi, persistAuthResponse } from '../../../../api';
-import { useAuth } from '../../../../contexts';
+import { useAuthSession } from '../../../../hooks';
 import { useToast } from '../../../../hooks';
 import { saveUserCredentials } from '../../../../utils/secureStorage';
 const INPUT_RADIUS = 16;
@@ -142,7 +142,7 @@ function MailLogin({ handleTabPress }) {
     defaultValues: { email: '', password: '' },
     mode: 'onBlur',
   });
-  const { setIsSign } = useAuth();
+  const { login } = useAuthSession();
   const { showToast } = useToast();
   const isLoading = isSubmitting;
 
@@ -158,7 +158,7 @@ function MailLogin({ handleTabPress }) {
       });
       await persistAuthResponse(response);
       await saveUserCredentials({ email: 'girebic328@fixscal.com', password: 'Ser1288642', pinCode: '1111' });
-      await setIsSign(true);
+      await login();
     } catch (error) {
       showToast({
         title: 'Մուտք ձախողվեց',

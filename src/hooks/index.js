@@ -1,4 +1,5 @@
 export { useAuthScreenStyles } from './useAuthScreenStyles';
+export { useAuthSession } from './useAuthSession';
 export { useGlobalStyles } from './useGlobalStyles';
 export { useMainScreenStyles } from './useMainScreenStyles';
 export { useNavigationTheme } from './useNavigationTheme';

@@ -6,40 +6,38 @@ import { BlurTabBar } from './BlurTabBar';
 
 const Tab = createBottomTabNavigator();
 
+export const PUBLIC_TAB_ROUTE_NAMES = ['Home'];
+
 const renderBlurTabBar = props => <BlurTabBar {...props} />;
 
 export function TabNavigator() {
-
   return (
-      <Tab.Navigator
-        initialRouteName="Home"
-        tabBar={renderBlurTabBar}
-        screenOptions={{
-          headerShown: false,
-        }}>
-        <Tab.Screen
-          name="Home"
-          component={HomeStackNavigator}
-          options={{ title: 'Ստեղծել' }}
-        />
-        <Tab.Screen
-          name="Documents"
-          component={DocumentsScreen}
-          options={{ title: 'Փաստաթղթեր' }}
-        />
-        <Tab.Screen
-          name="Files"
-          component={FilesScreen}
-          options={{ title: 'Ֆայլեր' }}
-        />
-        <Tab.Screen
-          name="Account"
-          component={AccountStackNavigator}
-          options={{ headerShown: false, title: 'Հաշիվ' }}
-          
-        />
-      </Tab.Navigator>
-  
+    <Tab.Navigator
+      initialRouteName="Home"
+      tabBar={renderBlurTabBar}
+      screenOptions={{
+        headerShown: false,
+      }}>
+      <Tab.Screen
+        name="Home"
+        component={HomeStackNavigator}
+        options={{ title: 'Ստեղծել' }}
+      />
+      <Tab.Screen
+        name="Documents"
+        component={DocumentsScreen}
+        options={{ title: 'Փաստաթղթեր' }}
+      />
+      <Tab.Screen
+        name="Files"
+        component={FilesScreen}
+        options={{ title: 'Ֆայլեր' }}
+      />
+      <Tab.Screen
+        name="Account"
+        component={AccountStackNavigator}
+        options={{ headerShown: false, title: 'Հաշիվ' }}
+      />
+    </Tab.Navigator>
   );
 }
-
