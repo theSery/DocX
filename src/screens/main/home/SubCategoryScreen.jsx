@@ -14,7 +14,7 @@ import {
 import { FONT_FAMILY, palette } from '../../../theme';
 import { Typography } from '../../../components/typography/Typography';
 import AuthButton from '../../../components/buttons/AuthButton';
-import { useHomeStackHeaderScrollHandler, useThemedStyles } from '../../../hooks';
+import { useHomeStackHeaderScrollHandler, useThemedStyles, useAuthSession } from '../../../hooks';
 import { useHomeStackHeaderScroll } from '../../../context/HomeStackHeaderScrollContext';
 import { useIsFocused } from '@react-navigation/native';
 import { useEffect } from 'react';
@@ -41,6 +41,7 @@ export function SubCategoryScreen({ route, navigation }) {
   const scrollRef = useAnimatedRef();
   const insets = useSafeAreaInsets();
   const scrollBottomPadding = insets.bottom + TAB_BAR_HEIGHT + 24;
+  const { isAuthenticated, openAuth } = useAuthSession();
   const navigateToFillInDetails = (template) => {
 
     navigation.navigate('FillInDetails', {
@@ -48,6 +49,11 @@ export function SubCategoryScreen({ route, navigation }) {
     });
   }
   const onChooseTemplate = (template) => {
+    if (!isAuthenticated) {
+      openAuth();
+      return;
+    }
+
     showGlobalSheet({
     content: { uri: iconUrl }
     ,
