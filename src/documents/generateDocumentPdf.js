@@ -1,35 +1,34 @@
 import { Platform } from 'react-native';
+import { generatePDF } from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
-import { createDocumentPdf } from './createDocumentPdf';
+import { getPdfGenerationDefaults } from './buildPdfHtmlDocument';
 
 /**
- * Merges backend HTML with client data, renders a PDF, and opens the system share sheet
+ * Renders document HTML as a PDF and opens the system share sheet
  * so the user can save or send the file.
  *
  * @param {{
- *   backendHtml?: string;
- *   placeholders?: Record<string, string | number>;
- *   slots?: Record<string, string>;
- *   documentHtml?: string;
+ *   documentHtml: string;
  *   fileName?: string;
  * }} params
  * @returns {Promise<{ filePath: string; base64?: string }>}
  */
-export async function generateAndShareDocumentPdf({
-  backendHtml,
-  placeholders = {},
-  slots = {},
-  documentHtml,
-  fileName,
-}) {
-  const result = await createDocumentPdf({
-    backendHtml,
-    placeholders,
-    slots,
-    documentHtml,
-    fileName,
-    includeBase64: false,
+export async function generateAndShareDocumentPdf({ documentHtml, fileName }) {
+  const pdfDefaults = getPdfGenerationDefaults();
+
+  const result = await generatePDF({
+    html: documentHtml,
+    fileName: fileName ?? `document_${Date.now()}`,
+    directory: Platform.OS === 'ios' ? 'Documents' : undefined,
+    base64: false,
+    width: 595,
+    height: 1224,
+    ...pdfDefaults,
   });
+
+  if (!result?.filePath) {
+    throw new Error('PDF file was not created.');
+  }
 
   const shareUrl =
     Platform.OS === 'android' && !result.filePath.startsWith('file://')
@@ -43,5 +42,8 @@ export async function generateAndShareDocumentPdf({
     showAppsToView: true,
   });
 
-  return result;
+  return {
+    filePath: result.filePath,
+    base64: result.base64,
+  };
 }
