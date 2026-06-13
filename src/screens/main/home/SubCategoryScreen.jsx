@@ -95,7 +95,7 @@ export function SubCategoryScreen({ route, navigation }) {
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
         >
-          <AnimatedView animation="fadeIn" animationConfig={{ duration: 600 }}>
+          <AnimatedView animation="fadeInLeft" animationConfig={{ duration: 600 }}>
             <Accordion
               items={item}
               scrollRef={scrollRef}

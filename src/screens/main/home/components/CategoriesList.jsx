@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import Animated, { FadeOut } from 'react-native-reanimated';
+import Animated, { BounceIn, FadeIn } from 'react-native-reanimated';
 
 import {
   WIDTH,
@@ -11,6 +11,7 @@ import { Typography } from '../../../../components';
 import ArrowSvg from '../../../../components/icons/ArrowSvg';
 import { FONT_FAMILY } from '../../../../theme';
 import {
+  useGlobalStyles,
   useHomeStackHeaderScrollHandler,
   useThemedStyles,
   useTheme,
@@ -27,6 +28,7 @@ export function CategoriesList({
   categories,
   collapsibleHeader = true,
 }) {
+  const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -43,28 +45,32 @@ export function CategoriesList({
         scrollEventThrottle={collapsibleHeader ? 16 : undefined}
         contentContainerStyle={styles.contentContainer}
         keyExtractor={item => item.id.toString()}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => {
+          const enterDuration = 500;
+          const enterDelay = (index + 1) * 200;
+
+          return (
           <TouchableOpacity
-            style={styles.categoryItem}
+            style={[globalStyles.cardShadow, styles.categoryItem]}
             onPress={() => navigation.navigate('Category', { item })}
           >
-            <View style={styles.categoryItemImage}>
+            <Animated.View
+              style={styles.categoryItemImage}
+              entering={FadeIn.duration(enterDuration).delay(enterDelay)}
+            >
               <View style={styles.categoryItemHeaderRow}>
                 <Animated.Image
                   source={{ uri: item.iconUrl }}
                   sharedTransitionStyle={customTransitionLinear}
                   style={styles.categoryItemImageIcon}
-                  //    exiting={FadeOut.duration(300)}
                   sharedTransitionTag={`category-image-${item.id}-${isFocused}`}
                 />
                 <Animated.View
                   sharedTransitionStyle={customTransitionLinear}
                   style={styles.bgCategoryItem}
-                  // exiting={FadeOut.duration(300)}
                   sharedTransitionTag={`category-frame-${item.id}-${isFocused}`}
                 />
                 <Animated.Text
-                  // exiting={FadeOut.duration(300)}
                   sharedTransitionTag={`category-text-${item.id}-${isFocused}`}
                   sharedTransitionStyle={customTransitionLinear}
                   style={styles.categoryItemText}
@@ -80,11 +86,16 @@ export function CategoriesList({
                 >
                   Երևանի քաղաքապետարանի կողմից տրամադրվող ակտեր
                 </Typography>
-                <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
+                <Animated.View
+                  entering={BounceIn.duration(enterDuration + 100).delay(enterDelay)}
+                >
+                  <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
+                </Animated.View>
               </View>
-            </View>
+            </Animated.View>
           </TouchableOpacity>
-        )}
+          );
+        }}
       />
       <Animated.View
         style={styles.bg}
@@ -136,6 +147,7 @@ const createStyles = colors =>
     categoryItem: {
       marginBottom: SPACING,
       borderRadius: 24,
+      backgroundColor: colors.pureWhite,
       borderColor: colors.borderSubtle,
       borderWidth: 1,
       padding: SPACING,

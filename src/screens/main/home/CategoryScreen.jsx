@@ -62,39 +62,44 @@ export function CategoryScreen({ navigation, route }) {
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
         >
-          {item.subCategories?.map((category, index) => (
+        {item.subCategories?.map((category, index) => {
+                const enterDuration =  (index + 1) * 300;
+                // const enterDelay = (index + 1) * 150;
+          return(
             <AnimatedView
-              animation="fadeIn"
-              animationConfig={{
-                duration: 500,
-                delay: (index + 1) * 150,
-              }}
-              key={category.id}
-              style={styles.categoryItem}
-            >
-
-                <TouchableOpacity
-            style={{width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}
-            onPress={() => navigation.navigate('SubCategoryScreen', { item: category.legalIssues, title: item.name, subtitle: category.name, iconUrl: item.iconUrl })}
+            animation="fadeInLeft"
+            animationConfig={{
+              duration: enterDuration,
+              // delay: enterDelay,
+            }}
+            key={category.id}
+            style={styles.categoryItem}
           >
- 
-              <View style={styles.subCategoryIconWrap}>
-                <Image
-                  source={{ uri: category.iconUrl }}
-                  style={styles.subCategoryIcon}
-                />
-              </View>
-              <View style={styles.subCategoryTextWrap}>
-                <Typography variant="h5" style={styles.subCategoryName}>
-                  {category.name}
-                </Typography>
-              </View>
-              <View style={styles.subCategoryArrowWrap}>
-                <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
-              </View>
-              </TouchableOpacity>
-            </AnimatedView>
-          ))}
+
+              <TouchableOpacity
+          style={{width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}
+          onPress={() => navigation.navigate('SubCategoryScreen', { item: category.legalIssues, title: item.name, subtitle: category.name, iconUrl: item.iconUrl })}
+        >
+
+            <View style={styles.subCategoryIconWrap}>
+              <Image
+                source={{ uri: category.iconUrl }}
+                style={styles.subCategoryIcon}
+              />
+            </View>
+            <View style={styles.subCategoryTextWrap}>
+              <Typography variant="h5" style={styles.subCategoryName}>
+                {category.name}
+              </Typography>
+            </View>
+            <View style={styles.subCategoryArrowWrap}>
+              <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
+            </View>
+            </TouchableOpacity>
+          </AnimatedView>
+          
+    
+        )})}
         </Animated.ScrollView>
       </Animated.View>
     </View>
