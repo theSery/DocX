@@ -13,7 +13,7 @@ import {
 import { FONT_FAMILY } from '../../../theme';
 import { Typography } from '../../../components/typography/Typography';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
-import { useHomeStackHeaderScrollHandler, useThemedStyles, useTheme } from '../../../hooks';
+import { useGlobalStyles, useHomeStackHeaderScrollHandler, useThemedStyles, useTheme } from '../../../hooks';
 import { useIsFocused } from '@react-navigation/native';
 
 const TOP_HEADER_HEIGHT = HEIGHT * 0.3;
@@ -25,6 +25,7 @@ const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
 export function CategoryScreen({ navigation, route }) {
   const { item } = route.params;
   const isFocused = useIsFocused();
+  const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { onScroll, onScrollViewLayout, onContentSizeChange } =
@@ -62,44 +63,45 @@ export function CategoryScreen({ navigation, route }) {
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
         >
-        {item.subCategories?.map((category, index) => {
-                const enterDuration =  (index + 1) * 300;
-                // const enterDelay = (index + 1) * 150;
-          return(
-            <AnimatedView
-            animation="fadeInLeft"
-            animationConfig={{
-              duration: enterDuration,
-              // delay: enterDelay,
-            }}
-            key={category.id}
-            style={styles.categoryItem}
-          >
+          {item.subCategories?.map((category, index) => {
+            const enterDuration = 300;
+            const enterDelay = (index + 1) * 150;
+            return (
+              <AnimatedView
+                animation="fadeInLeft"
+                animationConfig={{
+                  duration: enterDuration,
+                  delay: enterDelay,
+                }}
+                key={category.id}
+                style={[globalStyles.cardShadow, styles.categoryItem]}
+              >
 
-              <TouchableOpacity
-          style={{width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}
-          onPress={() => navigation.navigate('SubCategoryScreen', { item: category.legalIssues, title: item.name, subtitle: category.name, iconUrl: item.iconUrl })}
-        >
+                <TouchableOpacity
+                  style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+                  onPress={() => navigation.navigate('SubCategoryScreen', { item: category.legalIssues, title: item.name, subtitle: category.name, iconUrl: item.iconUrl })}
+                >
 
-            <View style={styles.subCategoryIconWrap}>
-              <Image
-                source={{ uri: category.iconUrl }}
-                style={styles.subCategoryIcon}
-              />
-            </View>
-            <View style={styles.subCategoryTextWrap}>
-              <Typography variant="h5" style={styles.subCategoryName}>
-                {category.name}
-              </Typography>
-            </View>
-            <View style={styles.subCategoryArrowWrap}>
-              <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
-            </View>
-            </TouchableOpacity>
-          </AnimatedView>
-          
-    
-        )})}
+                  <View style={styles.subCategoryIconWrap}>
+                    <Image
+                      source={{ uri: category.iconUrl }}
+                      style={styles.subCategoryIcon}
+                    />
+                  </View>
+                  <View style={styles.subCategoryTextWrap}>
+                    <Typography variant="h5" style={styles.subCategoryName}>
+                      {category.name}
+                    </Typography>
+                  </View>
+                  <View style={styles.subCategoryArrowWrap}>
+                    <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
+                  </View>
+                </TouchableOpacity>
+              </AnimatedView>
+
+
+            )
+          })}
         </Animated.ScrollView>
       </Animated.View>
     </View>
