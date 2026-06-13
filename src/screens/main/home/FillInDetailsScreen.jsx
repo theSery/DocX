@@ -254,8 +254,9 @@ export function FillInDetailsScreen({ navigation, route }) {
 
   return (
     <>
-      <MainHeader onPress={handleBack} />
+
       <View style={styles.screen}>
+      <MainHeader onPress={handleBack} />
         <FlatList
           style={styles.list}
           data={listData}
@@ -298,6 +299,7 @@ const createStyles = colors =>
   StyleSheet.create({
     screen: {
       flex: 1,
+      paddingHorizontal: 10,
     },
     list: {
       flex: 1,

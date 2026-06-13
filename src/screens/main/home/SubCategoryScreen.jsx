@@ -11,7 +11,7 @@ import {
   customTransition,
   customTransitionLinear,
 } from '../../../utils/dimensions';
-import { FONT_FAMILY } from '../../../theme';
+import { FONT_FAMILY, palette } from '../../../theme';
 import { Typography } from '../../../components/typography/Typography';
 import AuthButton from '../../../components/buttons/AuthButton';
 import { useHomeStackHeaderScrollHandler, useThemedStyles } from '../../../hooks';
@@ -19,6 +19,7 @@ import { useHomeStackHeaderScroll } from '../../../context/HomeStackHeaderScroll
 import { useIsFocused } from '@react-navigation/native';
 import { useEffect } from 'react';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
+import ArrowSvg from '../../../components/icons/ArrowSvg';
 
 const TOP_HEADER_HEIGHT = HEIGHT * 0.3;
 const TAB_BAR_HEIGHT = 60;
@@ -114,6 +115,10 @@ export function SubCategoryScreen({ route, navigation }) {
                   category.templates.map(template => (
                     <AuthButton
                       key={template.id}
+                      titleStyle={{width: '90%', lineHeight: 0}}
+                      endIcon={
+                       <ArrowSvg width={14} height={14} fill={palette.white} /> 
+                      }
                       title={template.name}
                         onPress={() =>
                           onChooseTemplate(template)

@@ -5,7 +5,7 @@ import { RadioGroupContext } from './RadioGroupContext';
 /**
  * @param {{
  *   value?: string | number | null;
- *   onChange?: (value: string | number) => void;
+ *   onChange?: (value: string | number | null) => void;
  *   children?: React.ReactNode;
  *   style?: import('react-native').StyleProp<import('react-native').ViewStyle>;
  * }} props

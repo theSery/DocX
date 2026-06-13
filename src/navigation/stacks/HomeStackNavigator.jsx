@@ -41,7 +41,10 @@ export function HomeStackNavigator() {
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
     <HomeStackHeaderScrollProvider>
-    <Stack.Navigator initialRouteName="FillInDetails" screenOptions={{ headerShown: false, animation: 'fade', animationDuration: 700 }}>
+    <Stack.Navigator
+     initialRouteName="HomeMain" 
+     screenOptions={{ headerShown: false, animation: 'fade', animationDuration: 700 }}
+     >
       <Stack.Screen
         name="HomeMain"
         component={HomeScreen}

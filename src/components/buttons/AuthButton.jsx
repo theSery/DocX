@@ -9,9 +9,10 @@ export default function AuthButton({
   onPress,
   isLoading = false,
   disabled,
-  borderRadius = 10,
+  borderRadius = 16,
   style,
   endIcon,
+  titleStyle = {},
 }) {
   const isDisabled = disabled ?? isLoading;
 
@@ -36,7 +37,7 @@ export default function AuthButton({
           <ActivityIndicator color={palette.white} />
         ) : endIcon ? (
           <View style={styles.buttonContentWithEndIcon}>
-            <Typography variant="h5" style={styles.primaryButtonText}>
+            <Typography variant="h5" style={[styles.primaryButtonText, titleStyle]}>
               {title}
             </Typography>
             <View style={styles.endIcon}>{endIcon}</View>

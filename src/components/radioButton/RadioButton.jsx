@@ -63,16 +63,16 @@ export function RadioButton({
   const isSelected = group ? group.value === value : selected;
 
   const handlePress = () => {
-    if (disabled || isSelected) {
+    if (disabled) {
       return;
     }
 
     if (group) {
-      group.onChange?.(value);
+      group.onChange?.(isSelected ? null : value);
       return;
     }
 
-    onChange?.(true);
+    onChange?.(!isSelected);
   };
 
   return (
