@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '../typography';
 import GradientButton from './GradientButton';
 import { FONT_FAMILY, palette } from '../../theme';
@@ -11,6 +11,7 @@ export default function AuthButton({
   disabled,
   borderRadius = 10,
   style,
+  endIcon,
 }) {
   const isDisabled = disabled ?? isLoading;
 
@@ -26,9 +27,20 @@ export default function AuthButton({
         pressed && !isDisabled && styles.buttonPressed,
       ]}
     >
-      <GradientButton height={45} isLight={false}>
+      <GradientButton
+        height={45}
+        isLight={false}
+        childrenStyle={endIcon ? styles.gradientContentWithEndIcon : undefined}
+      >
         {isLoading ? (
           <ActivityIndicator color={palette.white} />
+        ) : endIcon ? (
+          <View style={styles.buttonContentWithEndIcon}>
+            <Typography variant="h5" style={styles.primaryButtonText}>
+              {title}
+            </Typography>
+            <View style={styles.endIcon}>{endIcon}</View>
+          </View>
         ) : (
           <Typography variant="h5" style={styles.primaryButtonText}>
             {title}
@@ -52,6 +64,18 @@ const styles = StyleSheet.create({
   },
   buttonPressed: {
     opacity: 0.88,
+  },
+  gradientContentWithEndIcon: {
+    alignItems: 'stretch',
+  },
+  buttonContentWithEndIcon: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  endIcon: {
+    position: 'absolute',
+    right: 16,
   },
   primaryButtonText: {
     fontFamily: FONT_FAMILY.regular,

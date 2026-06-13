@@ -3,6 +3,7 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { templatesApi } from '../../../api';
 import AuthButton from '../../../components/buttons/AuthButton';
+import ArrowSvg from '../../../components/icons/ArrowSvg';
 import { AnimatedView } from '../../../components/animation/AnimatedView';
 import { StepIndicator } from '../../../components/stepIndicator';
 import { useThemedStyles } from '../../../hooks';
@@ -15,6 +16,7 @@ import {
   syncFactSelections,
 } from '../../../store/slices/documentFillSlice';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
+import { palette } from '../../../theme';
 import { fetchPersonalData, selectPersonalDataStatus } from '../../../store/slices/personalDataSlice';
 
 function buildSteps(templateFactGroups = []) {
@@ -282,6 +284,9 @@ export function FillInDetailsScreen({ navigation, route }) {
         <AuthButton
           title={isLastStep ? 'Կազմել բողոք' : 'Առաջ'}
           onPress={handleNext}
+          endIcon={
+            !isLastStep ? <ArrowSvg width={14} height={14} fill={palette.white} /> : null
+          }
           style={[styles.footerButton, { bottom: TAB_BAR_BOTTOM_OFFSET }]}
         />
       </View>

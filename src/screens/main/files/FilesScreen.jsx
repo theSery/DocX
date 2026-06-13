@@ -1,12 +1,41 @@
-import { Text, View } from 'react-native';
-import { useMainScreenStyles } from '../../../hooks';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { SkiaVideoPlayer, Typography } from '../../../components';
+import { useMainScreenStyles, useThemedStyles } from '../../../hooks';
+
+const DEMO_YOUTUBE_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 
 export function FilesScreen() {
-  const styles = useMainScreenStyles();
+  const globalStyles = useMainScreenStyles();
+  const styles = useThemedStyles(createStyles);
+
   return (
-    <View style={styles.centered}>
-      <Text style={styles.title}>Files</Text>
-      <Text style={styles.subtitle}>Uploaded files will appear here.</Text>
-    </View>
+    <ScrollView
+      contentContainerStyle={[globalStyles.container, styles.content]}
+      showsVerticalScrollIndicator={false}
+    >
+      <Typography variant="h5">Video preview</Typography>
+      <Typography tone="secondary" variant="body2" style={styles.description}>
+        Custom player with Skia controls for a YouTube link.
+      </Typography>
+      <View style={styles.playerWrap}>
+        <SkiaVideoPlayer youtubeUrl={DEMO_YOUTUBE_URL} />
+      </View>
+    </ScrollView>
   );
 }
+
+/** @param {import('../../../theme/palettes').ThemeColors} _colors */
+const createStyles = _colors =>
+  StyleSheet.create({
+    content: {
+      paddingTop: 24,
+      paddingBottom: 32,
+      gap: 8,
+    },
+    description: {
+      marginBottom: 16,
+    },
+    playerWrap: {
+      width: '100%',
+    },
+  });

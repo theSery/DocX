@@ -1,6 +1,16 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { RadioButton, RadioGroup, Typography } from '../../../../../components';
+import { showInfoSheet } from '../../../../../components/GlobalSheet';
+import InfoSvg from '../../../../../components/icons/InfoSvg';
 import { useThemedStyles } from '../../../../../hooks';
+import { palette } from '../../../../../theme';
+
+const DEFAULT_FACT_INFO_VIDEO_URL =
+  'https://youtu.be/7_mQR-7QAQY?si=-er5ZoAIe-UHCgjb';
+
+function hasFactInfo(fact) {
+  return Boolean(fact.description?.trim());
+}
 
 export function FillDates({
   factGroup,
@@ -22,11 +32,25 @@ export function FillDates({
   const facts = factGroup?.factGroupFacts ?? [];
   const radioFactGroups = factGroup?.radioFactGroups ?? [];
 
+  const handleShowFactDescription = fact => {
+    const description = fact.description?.trim();
+    if (!description) {
+      return;
+    }
+
+    showInfoSheet({
+      title: fact.name,
+      description,
+      videoUrl: DEFAULT_FACT_INFO_VIDEO_URL,
+    });
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.grid}>
         {facts.map(({ fact }) => {
           const isSelected = selectedFactIds.includes(fact.id);
+          const showInfoBadge = hasFactInfo(fact);
 
           return (
             <Pressable
@@ -38,9 +62,20 @@ export function FillDates({
                 pressed && styles.factButtonPressed,
               ]}
             >
-              <Typography variant="h6" numberOfLines={2}>
-                {fact.name}
-              </Typography>
+              <View style={styles.factButtonContent}>
+                <Typography variant="h5" numberOfLines={2} style={styles.factButtonText}>
+                  {fact.name}
+                </Typography>
+                {showInfoBadge ? (
+                  <Pressable
+                    onPress={() => handleShowFactDescription(fact)}
+                    style={styles.infoBadge}
+                    hitSlop={8}
+                  >
+                    <InfoSvg width={22} height={22} fill={palette.white} />
+                  </Pressable>
+                ) : null}
+              </View>
             </Pressable>
           );
         })}
@@ -96,12 +131,30 @@ const createStyles = colors =>
       minHeight: 48,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: 12,
+      borderRadius: 16,
       backgroundColor: colors.input,
       alignItems: 'center',
       justifyContent: 'center',
       paddingHorizontal: 12,
       paddingVertical: 10,
+    },
+    factButtonContent: {
+      width: '100%',
+      minHeight: 28,
+      justifyContent: 'center',
+    },
+    factButtonText: {
+      width: '90%',
+    },
+    infoBadge: {
+      position: 'absolute',
+      right: 0,
+      width: 32,
+      height: 32,
+      borderRadius: 50,
+      backgroundColor: colors.mainBlue,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     factButtonSelected: {
       borderColor: colors.mainBlue,

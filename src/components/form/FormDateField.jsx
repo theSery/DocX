@@ -16,6 +16,7 @@ import { useThemedStyles } from '../../hooks';
 
 const INPUT_RADIUS = 16;
 export const DATE_FIELD_PLACEHOLDER = 'ՕՕ / ԱԱ / ՏՏՏՏ';
+const DATE_PICKER_LOCALE = 'hy-AM';
 
 function formatDateDisplay(date) {
   const day = String(date.getDate()).padStart(2, '0');
@@ -165,6 +166,9 @@ export function FormDateField({
                 display="default"
                 maximumDate={maximumDate}
                 minimumDate={minimumDate}
+                title="Ընտրել ամսաթիվ"
+                positiveButton={{ label: 'Ընտրել' }}
+                negativeButton={{ label: 'Չեղարկել' }}
                 onChange={(event, date) => {
                   if (event.type === 'dismissed' || !(date instanceof Date)) {
                     closeAndroidPicker();
@@ -204,6 +208,7 @@ export function FormDateField({
                       value={iosDraftDate}
                       mode="date"
                       display="spinner"
+                      locale={DATE_PICKER_LOCALE}
                       maximumDate={maximumDate}
                       minimumDate={minimumDate}
                       onValueChange={(_, date) => setIosDraftDate(date)}
