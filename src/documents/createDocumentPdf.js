@@ -5,23 +5,26 @@ import { mergeDocumentHtml } from './mergeDocumentHtml';
 
 /**
  * @param {{
- *   backendHtml: string;
+ *   backendHtml?: string;
  *   placeholders?: Record<string, string | number>;
  *   slots?: Record<string, string>;
+ *   documentHtml?: string;
  *   fileName?: string;
  *   includeBase64?: boolean;
  * }} params
  * @returns {Promise<{ filePath: string; base64?: string }>}
  */
 export async function createDocumentPdf({
-  backendHtml,
+  backendHtml = '',
   placeholders = {},
   slots = {},
+  documentHtml,
   fileName,
   includeBase64 = false,
 }) {
-  const mergedBody = mergeDocumentHtml(backendHtml, { placeholders, slots });
-  const html = buildPdfHtmlDocument(mergedBody);
+  const html =
+    documentHtml ??
+    buildPdfHtmlDocument(mergeDocumentHtml(backendHtml, { placeholders, slots }));
   const pdfDefaults = getPdfGenerationDefaults();
 
   const result = await generatePDF({

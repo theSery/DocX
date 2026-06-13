@@ -1,5 +1,9 @@
 export { createDocumentPdf, toPdfPreviewUri } from './createDocumentPdf';
 export { mergeDocumentHtml } from './mergeDocumentHtml';
+export { fillTemplateText, injectSignatureAtPlaceholder } from './fillTemplateText';
+export { fetchSignatureImageDataUri } from './fetchSignatureImageDataUri';
+export { formatDocumentDate } from './formatDocumentDate';
+export { buildFilledTemplateDocumentHtml } from './buildFilledTemplateDocumentHtml';
 export { buildDocumentPreviewHtml } from './buildDocumentPreviewHtml';
 export { buildTypingPreviewHtml } from './buildTypingPreviewHtml';
 export {

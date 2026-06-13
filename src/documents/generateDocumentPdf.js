@@ -7,9 +7,10 @@ import { createDocumentPdf } from './createDocumentPdf';
  * so the user can save or send the file.
  *
  * @param {{
- *   backendHtml: string;
+ *   backendHtml?: string;
  *   placeholders?: Record<string, string | number>;
  *   slots?: Record<string, string>;
+ *   documentHtml?: string;
  *   fileName?: string;
  * }} params
  * @returns {Promise<{ filePath: string; base64?: string }>}
@@ -18,12 +19,14 @@ export async function generateAndShareDocumentPdf({
   backendHtml,
   placeholders = {},
   slots = {},
+  documentHtml,
   fileName,
 }) {
   const result = await createDocumentPdf({
     backendHtml,
     placeholders,
     slots,
+    documentHtml,
     fileName,
     includeBase64: false,
   });

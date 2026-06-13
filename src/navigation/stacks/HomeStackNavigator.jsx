@@ -83,9 +83,7 @@ export function HomeStackNavigator() {
       <Stack.Screen
         name="DocumentCreate"
         component={DocumentCreateScreen}
-        options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
-          title: 'Create document',
-        })}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
     </HomeStackHeaderScrollProvider>

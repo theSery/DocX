@@ -12,7 +12,6 @@ import { Typography } from '../../../components';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   resetDocumentFill,
-  selectDocumentFill,
   syncFactSelections,
 } from '../../../store/slices/documentFillSlice';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
@@ -47,10 +46,11 @@ function hasAnyFactSelection(templateFactGroups, selectedFacts, radioFacts) {
 export function FillInDetailsScreen({ navigation, route }) {
   const styles = useThemedStyles(createStyles);
   const dispatch = useAppDispatch();
-  const documentFill = useAppSelector(selectDocumentFill);
   const { templateId = 73 } = route.params ?? {};
   const [currentStep, setCurrentStep] = useState(0);
   const [templateFactGroups, setTemplateFactGroups] = useState([]);
+  const [templateText, setTemplateText] = useState('');
+  const [templateName, setTemplateName] = useState('');
   const [selectedFacts, setSelectedFacts] = useState({});
   const [radioFacts, setRadioFacts] = useState({});
   const [stepError, setStepError] = useState('');
@@ -86,7 +86,8 @@ export function FillInDetailsScreen({ navigation, route }) {
       .getTemplateById(templateId, { signal: controller.signal })
       .then(response => {
         setTemplateFactGroups(response.data.templateFactGroups ?? []);
-        console.log('response.data.templateFactGroups', response.data);
+        setTemplateText(response.data.templateText ?? '');
+        setTemplateName(response.data.name ?? response.data.title ?? '');
       })
       .catch(error => {
         if (error.type !== 'cancel') {
@@ -96,7 +97,6 @@ export function FillInDetailsScreen({ navigation, route }) {
 
     return () => controller.abort();
   }, [templateId]);
-console.log('templateFactGroups', templateFactGroups);
   useEffect(() => {
     if (templateFactGroups.length === 0) {
       return;
@@ -136,7 +136,11 @@ console.log('templateFactGroups', templateFactGroups);
       }
 
       setStepError('');
-      console.log(documentFill);
+      navigation.navigate('DocumentCreate', {
+        templateText,
+        templateName,
+        templateId,
+      });
       return;
     }
 
@@ -149,7 +153,10 @@ console.log('templateFactGroups', templateFactGroups);
     templateFactGroups,
     selectedFacts,
     radioFacts,
-    documentFill,
+    navigation,
+    templateText,
+    templateName,
+    templateId,
   ]);
 
   const handleBack = useCallback(() => {
