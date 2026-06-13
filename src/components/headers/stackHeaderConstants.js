@@ -6,7 +6,7 @@ export const ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT = 130;
 export const HOME_STACK_HEADER_COLLAPSE_START = 28;
 
 /** Scroll distance over which the header fully collapses (after start). */
-export const HOME_STACK_HEADER_COLLAPSE_DISTANCE = 120;
+export const HOME_STACK_HEADER_COLLAPSE_DISTANCE = 110;
 
 /** Extra collapse range when list content exceeds the viewport. */
 export const HOME_STACK_HEADER_COLLAPSE_DISTANCE_EXTRA = 46;

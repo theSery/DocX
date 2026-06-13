@@ -1,3 +1,4 @@
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DocumentsScreen } from '../screens/main/documents';
 import { FilesScreen } from '../screens/main/files';
@@ -17,11 +18,20 @@ export function TabNavigator() {
       tabBar={renderBlurTabBar}
       screenOptions={{
         headerShown: false,
+        animation: 'fade',
       }}>
       <Tab.Screen
         name="Home"
         component={HomeStackNavigator}
-        options={{ title: 'Ստեղծել' }}
+        options={({ route }) => {
+          const routeName = getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
+          const hideTabBar = routeName === 'SubCategoryScreen';
+
+          return {
+            title: 'Ստեղծել',
+            tabBarStyle: hideTabBar ? { display: 'none' } : undefined,
+          };
+        }}
       />
       <Tab.Screen
         name="Documents"

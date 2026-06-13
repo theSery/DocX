@@ -148,6 +148,16 @@ export function BlurTabBar({ state, descriptors, navigation }) {
   const { isAuthenticated, openAuth } = useAuthSession();
   const onHeightChange = useContext(BottomTabBarHeightCallbackContext);
 
+  const activeRoute = state.routes[state.index];
+  const activeOptions = descriptors[activeRoute.key]?.options;
+  const isHidden = activeOptions?.tabBarStyle?.display === 'none';
+
+  useEffect(() => {
+    if (isHidden) {
+      onHeightChange?.(0);
+    }
+  }, [isHidden, onHeightChange]);
+
   const activeColor =  colors.background;
   const inactiveColor =  colors.text;
   const tabCount = state.routes.length;
@@ -188,6 +198,10 @@ export function BlurTabBar({ state, descriptors, navigation }) {
     bottom: insets.bottom - 10,
     borderColor: glass.border,
   };
+
+  if (isHidden) {
+    return null;
+  }
 
   return (
     <View

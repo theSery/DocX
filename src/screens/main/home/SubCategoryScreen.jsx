@@ -22,7 +22,6 @@ import { showGlobalSheet } from '../../../components/GlobalSheet';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
 
 const TOP_HEADER_HEIGHT = HEIGHT * 0.3;
-const TAB_BAR_HEIGHT = 60;
 const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
 
 
@@ -40,7 +39,7 @@ export function SubCategoryScreen({ route, navigation }) {
   const { scrollY } = useHomeStackHeaderScroll();
   const scrollRef = useAnimatedRef();
   const insets = useSafeAreaInsets();
-  const scrollBottomPadding = insets.bottom + TAB_BAR_HEIGHT + 24;
+  const scrollBottomPadding = insets.bottom + 24;
   const { isAuthenticated, openAuth } = useAuthSession();
   const navigateToFillInDetails = (template) => {
 

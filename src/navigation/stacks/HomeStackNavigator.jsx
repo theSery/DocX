@@ -43,7 +43,7 @@ export function HomeStackNavigator() {
     <HomeStackHeaderScrollProvider>
     <Stack.Navigator
      initialRouteName="HomeMain" 
-     screenOptions={{ headerShown: false, animation: 'fade', animationDuration: 700 }}
+     screenOptions={{ headerShown: false, animation: 'fade' }}
      >
       <Stack.Screen
         name="HomeMain"
