@@ -145,13 +145,13 @@ function InfoSheetContent({ sheet, styles, onActionPress }) {
       contentContainerStyle={styles.infoContainer}
       showsVerticalScrollIndicator={false}
     >
-      <Typography variant="h4" style={styles.infoTitle}>
+      <Typography variant="h3" style={styles.infoTitle}>
         {sheet.message}
       </Typography>
 
       {sheet.videoUrl ? (
         <View style={styles.infoMedia}>
-          <SkiaVideoPlayer youtubeUrl={sheet.videoUrl} showLink={false} />
+          <SkiaVideoPlayer youtubeUrl={sheet.videoUrl} />
         </View>
       ) : imageSource ? (
         <Image
@@ -162,7 +162,7 @@ function InfoSheetContent({ sheet, styles, onActionPress }) {
       ) : null}
 
       {sheet.description ? (
-        <Typography variant="h6" tone="secondary" style={styles.infoDescription}>
+        <Typography variant="h5" tone="secondary" style={styles.infoDescription}>
           {sheet.description}
         </Typography>
       ) : null}
@@ -251,10 +251,13 @@ const createStyles = colors =>
     infoContainer: {
       alignItems: 'stretch',
       gap: 16,
-      paddingBottom: 8,
+
+      paddingBottom: 32,
     },
     infoTitle: {
       textAlign: 'left',
+      lineHeight: 22,
+      fontSize: 18,
     },
     infoMedia: {
       width: '100%',
