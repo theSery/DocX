@@ -3,7 +3,8 @@ import { BlurView } from '@react-native-community/blur';
 
 import { useTheme } from '../../hooks';
 import { palette } from '../../theme';
-import { GLASS } from './glassConfig';
+import { BLUE_GLASS_BUTTON, GLASS } from './glassConfig';
+import { BlueGlassFill } from './BlueGlassFill';
 import { GlassSheen } from './GlassSheen';
 
 export function GlassSurface({
@@ -12,10 +13,17 @@ export function GlassSurface({
   gradientId = 'glassSheen',
   borderRadius,
   onLayout,
+  showBlur = true,
+  showTint = true,
+  variant = 'default',
+  blueColor,
 }) {
   const { isDarkMode } = useTheme();
-  const glass = isDarkMode ? GLASS.dark : GLASS.light;
+  const isBlue = variant === 'blue';
+  const glass = isBlue ? BLUE_GLASS_BUTTON : isDarkMode ? GLASS.dark : GLASS.light;
   const blurType = isDarkMode ? 'dark' : 'light';
+  const shouldBlur = showBlur && !isBlue;
+  const shouldTint = showTint && !isBlue;
 
   return (
     <View
@@ -26,20 +34,38 @@ export function GlassSurface({
         { borderColor: glass.border },
         style,
       ]}>
-      <BlurView
-        style={StyleSheet.absoluteFill}
-        blurType={blurType}
-        blurAmount={glass.blurAmount}
-        reducedTransparencyFallbackColor={glass.fallback}
-        {...(Platform.OS === 'android' && {
-          overlayColor: glass.overlayColor,
-        })}
+      {shouldBlur ? (
+        <BlurView
+          style={StyleSheet.absoluteFill}
+          blurType={blurType}
+          blurAmount={glass.blurAmount}
+          reducedTransparencyFallbackColor={glass.fallback}
+          {...(Platform.OS === 'android' && {
+            overlayColor: glass.overlayColor,
+          })}
+        />
+      ) : null}
+      {shouldTint ? (
+        <View
+          pointerEvents="none"
+          style={[styles.glassTint, { backgroundColor: glass.tint }]}
+        />
+      ) : null}
+      {isBlue ? (
+        <BlueGlassFill gradientId={`${gradientId}Fill`} blueColor={blueColor} />
+      ) : null}
+      <GlassSheen
+        stops={glass.sheen}
+        gradientId={gradientId}
+        direction={isBlue ? 'diagonal' : 'vertical'}
       />
-      <View
-        pointerEvents="none"
-        style={[styles.glassTint, { backgroundColor: glass.tint }]}
-      />
-      <GlassSheen stops={glass.sheen} gradientId={gradientId} />
+      {isBlue && glass.vignette && !blueColor ? (
+        <GlassSheen
+          stops={glass.vignette}
+          gradientId={`${gradientId}Vignette`}
+          direction="diagonal"
+        />
+      ) : null}
       <View
         pointerEvents="none"
         style={[styles.glassRim, { backgroundColor: glass.rim }]}
@@ -60,7 +86,7 @@ const styles = StyleSheet.create({
     elevation: 16,
   },
   glassTint: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   glassRim: {
     position: 'absolute',

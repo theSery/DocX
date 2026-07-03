@@ -1,11 +1,18 @@
 import { StyleSheet } from 'react-native';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
-export function GlassSheen({ stops, gradientId }) {
+export function GlassSheen({ stops, gradientId, direction = 'vertical' }) {
+  const isDiagonal = direction === 'diagonal';
+
   return (
     <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
       <Defs>
-        <LinearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+        <LinearGradient
+          id={gradientId}
+          x1="0"
+          y1="0"
+          x2={isDiagonal ? '1' : '0'}
+          y2="1">
           {stops.map(stop => (
             <Stop
               key={stop.offset}

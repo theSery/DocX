@@ -18,6 +18,7 @@ const nestedScreenOptionsWithHeader = (
   headerShowSearch: showSearch,
   headerCollapsible: collapsible,
   headerShown: true,
+  contentStyle: { zIndex: 0 },
   isMainHeader,
   header: ({ navigation, options }) => (
     <HomeStackHeader

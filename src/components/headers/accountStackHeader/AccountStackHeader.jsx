@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import UserSvg from '../../icons/UserSvg';
 import PenSvg from '../../icons/PenSvg';
@@ -9,8 +9,12 @@ import { Typography } from '../../typography';
 import { palette } from '../../../theme';
 import AccountHeader from './AccountHeader';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAppSelector } from '../../../store';
-import { selectPersonalData } from '../../../store/slices/personalDataSlice';
+import { useAppDispatch, useAppSelector } from '../../../store';
+import {
+  fetchPersonalData,
+  selectPersonalData,
+  selectPersonalDataStatus,
+} from '../../../store/slices/personalDataSlice';
 
 const createStyles = (colors) =>
   StyleSheet.create({
@@ -50,8 +54,9 @@ const createStyles = (colors) =>
       justifyContent: 'center',
       backgroundColor: colors.accent,
       borderRadius: 8,
-      width: '70%',
+      width: '100%',
       marginTop: 3,
+      paddingHorizontal: 10,
     },
     userName: {
       letterSpacing: 1.8,
@@ -76,6 +81,7 @@ const AccountStackHeader = ({
   const personalData = useAppSelector(selectPersonalData);
   const name = personalData?.name ?? '';
   const surname = personalData?.surname ?? '';
+  console.log('personalData', personalData);
   return (
     <View style={{height: isMinHeight ? ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT : ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT}}>
       <StatusBar barStyle="light-content" />

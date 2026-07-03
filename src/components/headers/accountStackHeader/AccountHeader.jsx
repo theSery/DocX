@@ -1,12 +1,12 @@
 import React from 'react';
-import { StyleSheet, View, Image, Pressable } from 'react-native';
-import ligtBlueButton from '../../../assets/images/ligtBlueButton.webp';
+import { StyleSheet, View } from 'react-native';
 import { Typography } from '../../typography';
 import { palette } from '../../../theme';
 import { useThemedStyles } from '../../../hooks';
 import LogoutSvg from '../../icons/LogoutSvg';
 import ArrowSvg from '../../icons/ArrowSvg';
 import { showGlobalSheet } from '../../GlobalSheet';
+import { GlassButtonContainer } from '../../buttons/GlassButtonContainer';
 
 const LOGOUT_CONFIRMATION_MESSAGE =
   'Վստա՞հ եք, որ ցանկանում եք դուրս գալ հավելվածից։';
@@ -22,19 +22,6 @@ const createStyles = (colors) =>
       width: '15%',
     },
     logoContainer: {
-      alignItems: 'center',
-    },
-    image: {
-      width: '100%',
-      height: '100%',
-      position: 'absolute',
-    },
-    logOut: {
-      position: 'relative',
-      width: '100%',
-      height: 50,
-      borderRadius: 100,
-      justifyContent: 'center',
       alignItems: 'center',
     },
     title: {
@@ -64,19 +51,9 @@ const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutBu
     <View style={styles.container}>
       <View style={styles.backButtonContainer}>
         {isBackButton ? (
-          <Pressable onPress={onPress} style={styles.logOut}>
-            <Image
-              source={ligtBlueButton}
-              style={styles.image}
-              resizeMode="contain"
-            />
-            <ArrowSvg
-              fill={palette.white}
-              width={20}
-              height={20}
-              rotate={180}
-            />
-          </Pressable>
+          <GlassButtonContainer onPress={onPress} height={50} width={50} variant="blue">
+            <ArrowSvg fill={palette.white} width={17} height={17} rotate={180} />
+          </GlassButtonContainer>
         ) : null}
       </View>
       <View style={styles.logoContainer}>
@@ -90,14 +67,15 @@ const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutBu
       </View>
       <View style={styles.backButtonContainer}>
         {isLogoutButton ? (
-          <Pressable onPress={handleLogoutPress} style={styles.logOut}>
-            <Image
-              source={ligtBlueButton}
-              style={styles.image}
-              resizeMode="contain"
-            />
-            <LogoutSvg fill={palette.white} width={20} height={20} />
-          </Pressable>
+          <GlassButtonContainer
+            onPress={handleLogoutPress}
+            height={50}
+            width={50}
+            variant="blue"
+            backgroundColor={'#1D3D81'}
+          >
+            <LogoutSvg fill={palette.white} width={17} height={17} />
+          </GlassButtonContainer>
         ) : null}
       </View>
     </View>

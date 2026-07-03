@@ -62,10 +62,15 @@ function resolveBucket(length) {
   return 'expanded';
 }
 
+const SEARCH_Z_INDEX = 2001;
+
 const createStyles = colors =>
   StyleSheet.create({
     wrapper: {
       width: '100%',
+      zIndex: SEARCH_Z_INDEX,
+      elevation: SEARCH_Z_INDEX,
+      overflow: 'visible',
     },
     dropdown: {
       marginTop: -1,
@@ -76,7 +81,8 @@ const createStyles = colors =>
       top: '100%',
       left: 0,
       right: 0,
-      zIndex: 1000,
+      zIndex: SEARCH_Z_INDEX + 1,
+      elevation: SEARCH_Z_INDEX + 1,
     },
     row: {
       height: ROW_HEIGHT,

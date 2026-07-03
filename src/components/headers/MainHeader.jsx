@@ -6,10 +6,9 @@ import { GlassButtonContainer } from '../buttons/GlassButtonContainer';
 import BellSvg from '../icons/BellSvg';
 import StarSvg from '../icons/StarSvg';
 import darkLogo from '../../assets/images/darkLogo.webp';
-import { useTheme, useThemedStyles } from '../../hooks';
+import { useThemedStyles } from '../../hooks';
 
 const MainHeader = ({ onPress }) => {
-  const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
 
   return (
@@ -19,7 +18,7 @@ const MainHeader = ({ onPress }) => {
           <BackButton onPress={onPress} />
         ) : (
           <GlassButtonContainer height={44}>
-            <StarSvg fill={colors.primary} />
+            <StarSvg />
           </GlassButtonContainer>
         )}
       </View>
@@ -29,7 +28,7 @@ const MainHeader = ({ onPress }) => {
       <View style={styles.side}>
         {!onPress ? (
           <GlassButtonContainer height={44}>
-            <BellSvg fill={colors.primary} />
+            <BellSvg />
           </GlassButtonContainer>
         ) : null}
       </View>

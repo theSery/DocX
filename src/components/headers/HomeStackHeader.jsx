@@ -66,12 +66,12 @@ const StaticHomeStackHeader = ({
           ) : null}
         </View>
       ): <View style={{ height: 60 }} />  }
-      {showSearch ? (
-        <View style={styles.searchWrap}>
-          <SearchComponent />
-        </View>
-      ) : null}
     </View>
+    {showSearch ? (
+      <View style={styles.searchWrap}>
+        <SearchComponent />
+      </View>
+    ) : null}
   </View>
 );
 
@@ -157,9 +157,9 @@ const CollapsibleHomeStackHeader = ({
         )}
       </Animated.View>
       {showSearch ? (
-        // <View style={styles.searchWrap}>
+        <View style={styles.searchWrap}>
           <SearchComponent />
-        // </View>
+        </View>
       ) : null}
     </Animated.View>
   );
@@ -200,12 +200,16 @@ const HomeStackHeader = ({
 export default HomeStackHeader;
 
 
+const HEADER_Z_INDEX = 2000;
+
 const createStyles = colors =>
   StyleSheet.create({
     container: {
       backgroundColor: colors.background,
       paddingHorizontal: 16,
-      // overflow: 'hidden',
+      zIndex: HEADER_Z_INDEX,
+      elevation: HEADER_Z_INDEX,
+      overflow: 'visible',
     },
     collapsible: {
       overflow: 'hidden',
@@ -223,6 +227,9 @@ const createStyles = colors =>
       paddingTop: 8,
       paddingBottom: 8,
       marginTop: 8,
+      zIndex: HEADER_Z_INDEX + 1,
+      elevation: HEADER_Z_INDEX + 1,
+      overflow: 'visible',
     },
 
   });

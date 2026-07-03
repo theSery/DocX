@@ -1,3 +1,5 @@
+import { palette } from '../../theme';
+
 export const GLASS = {
   light: {
     blurAmount: 32,
@@ -24,5 +26,31 @@ export const GLASS = {
       { offset: '100%', color: '#FFFFFF', opacity: 0 },
     ],
     rim: 'rgba(255, 255, 255, 0.22)',
+  },
+};
+
+/** Deep blue glass button — matches backButton2.webp */
+export const BLUE_GLASS_BUTTON = {
+  fill: {
+    center: palette.blueLargeStart,
+    mid: palette.mainBlue,
+    edge: palette.blueLargeEnd,
+  },
+  border: 'rgba(130, 200, 229, 0.42)',
+  sheen: [
+    { offset: '0%', color: palette.white, opacity: 0.48 },
+    { offset: '32%', color: palette.skyBlue, opacity: 0.14 },
+    { offset: '100%', color: palette.white, opacity: 0 },
+  ],
+  vignette: [
+    { offset: '0%', color: palette.blueLargeEnd, opacity: 0 },
+    { offset: '100%', color: palette.blueLargeEnd, opacity: 0.5 },
+  ],
+  rim: 'rgba(200, 230, 255, 0.6)',
+  shadow: {
+    color: palette.blueLargeStart,
+    offset: { width: 0, height: 4 },
+    opacity: 0.38,
+    radius: 8,
   },
 };
