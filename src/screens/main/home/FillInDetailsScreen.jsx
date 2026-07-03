@@ -18,6 +18,9 @@ import {
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import { palette } from '../../../theme';
 import { fetchPersonalData, selectPersonalDataStatus } from '../../../store/slices/personalDataSlice';
+import LogoIcon from '../../../components/icons/LogoIcon';
+import LottieAnimation from '../../../components/animation/LottieAnimation';
+import DocCreatLoading from '../../../components/animation/DocCreatLoading';
 
 function buildSteps(templateFactGroups = []) {
   const actStep = { key: 'act', label: 'Մանրամասներ' };
@@ -56,6 +59,7 @@ export function FillInDetailsScreen({ navigation, route }) {
   const [selectedFacts, setSelectedFacts] = useState({});
   const [radioFacts, setRadioFacts] = useState({});
   const [stepError, setStepError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
   const { control, handleSubmit } = useForm({
     defaultValues: {
       Act_date: null,
@@ -251,11 +255,24 @@ export function FillInDetailsScreen({ navigation, route }) {
     ),
     [steps, currentStep, headerContent, styles.headerTitle, styles.headerSubtitle],
   );
+//  if (isLoading) {
+//   return (
+//     <DocCreatLoading
+//     source={require('../../../assets/lottie/Law.json')}
 
+//     />
+
+//   );
+// }
   return (
     <>
+{/* {isLoading && (
+  <DocCreatLoading
+  source={require('../../../assets/lottie/Law.json')}
 
-      <View style={styles.screen}>
+  />
+) } */}
+      <View style={[styles.screen, ]}>
       <MainHeader onPress={handleBack} />
         <FlatList
           style={styles.list}
@@ -325,4 +342,5 @@ const createStyles = colors =>
     stepContent: {
       gap: 16,
     },
+
   });

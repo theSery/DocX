@@ -60,6 +60,7 @@ const createStyles = colors =>
     },
     inputRowSearch: {
       backgroundColor: colors.pureWhite,
+      borderColor: colors.iconAccent,
     },
     inputIcon: {
       justifyContent: 'center',

@@ -1,8 +1,7 @@
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { DocumentsScreen } from '../screens/main/documents';
 import { FilesScreen } from '../screens/main/files';
-import { AccountStackNavigator, HomeStackNavigator } from './stacks';
+import { AccountStackNavigator, DocumentsStackNavigator, HomeStackNavigator } from './stacks';
 import { BlurTabBar } from './BlurTabBar';
 
 const Tab = createBottomTabNavigator();
@@ -35,7 +34,7 @@ export function TabNavigator() {
       />
       <Tab.Screen
         name="Documents"
-        component={DocumentsScreen}
+        component={DocumentsStackNavigator}
         options={{ title: 'Փաստաթղթեր' }}
       />
       <Tab.Screen

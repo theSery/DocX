@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -8,7 +8,10 @@ import {
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import {
+  buildFilledTemplateBodyHtml,
   buildFilledTemplateDocumentHtml,
+  buildTypingAnimationHtml,
+  DEFAULT_TYPING_DURATION,
   fetchSignatureImageDataUri,
   generateAndShareDocumentPdf,
   getPdfWebViewBaseUrl,
@@ -22,7 +25,7 @@ import { palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import MainHeader from '../../../components/headers/MainHeader';
 
-const WEBVIEW_HEIGHT = 500;
+const WEBVIEW_HEIGHT = 10000;
 
 export function DocumentCreateScreen({ route, navigation }) {
   const globalStyles = useGlobalStyles();
@@ -31,6 +34,7 @@ export function DocumentCreateScreen({ route, navigation }) {
   const documentFill = useAppSelector(selectDocumentFill);
   const { templateText = '', templateName = 'document' } = route.params ?? {};
   const [isWebViewLoading, setIsWebViewLoading] = useState(true);
+  const [hasTypingFinished, setHasTypingFinished] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isAddingSignature, setIsAddingSignature] = useState(false);
   const [signatureImageSrc, setSignatureImageSrc] = useState(null);
@@ -48,12 +52,44 @@ export function DocumentCreateScreen({ route, navigation }) {
     [templateText, personalData, documentFill, signatureImageSrc],
   );
 
-  const webViewSource = useMemo(
+  const typingBodyHtml = useMemo(
+    () =>
+      buildFilledTemplateBodyHtml(templateText, {
+        personalData,
+        documentFill,
+      }),
+    [templateText, personalData, documentFill],
+  );
+
+  const typingSourceKey = useMemo(
+    () => `${templateText}:${JSON.stringify(documentFill)}:${JSON.stringify(personalData)}`,
+    [templateText, documentFill, personalData],
+  );
+
+  useEffect(() => {
+    setHasTypingFinished(false);
+
+    const timer = setTimeout(() => {
+      setHasTypingFinished(true);
+    }, DEFAULT_TYPING_DURATION);
+
+    return () => clearTimeout(timer);
+  }, [typingSourceKey]);
+
+  useEffect(() => {
+    if (hasTypingFinished) {
+      setIsWebViewLoading(true);
+    }
+  }, [hasTypingFinished]);
+
+  const previewWebViewSource = useMemo(
     () => ({
-      html: documentHtml,
+      html: hasTypingFinished
+        ? documentHtml
+        : buildTypingAnimationHtml(typingBodyHtml, DEFAULT_TYPING_DURATION),
       baseUrl: getPdfWebViewBaseUrl(),
     }),
-    [documentHtml],
+    [hasTypingFinished, documentHtml, typingBodyHtml],
   );
 
   const handleDownloadPdf = useCallback(async () => {
@@ -86,7 +122,8 @@ export function DocumentCreateScreen({ route, navigation }) {
     }
   }, []);
 
-  const isActionDisabled = isWebViewLoading || isDownloading || isAddingSignature;
+  const isActionDisabled =
+    isWebViewLoading || !hasTypingFinished || isDownloading || isAddingSignature;
 
   return (
     <>
@@ -96,11 +133,13 @@ export function DocumentCreateScreen({ route, navigation }) {
 
       <View style={styles.previewContainer}>
         <WebView
-          key={documentHtml.length}
+          key={hasTypingFinished ? `final-${documentHtml.length}` : `typing-${typingSourceKey}`}
           originWhitelist={['*']}
-          source={webViewSource}
+          source={previewWebViewSource}
           style={styles.webview}
           scalesPageToFit
+          scrollEnabled
+          showsVerticalScrollIndicator={false}
           startInLoadingState
           onLoadEnd={() => setIsWebViewLoading(false)}
           onLoadStart={() => setIsWebViewLoading(true)}
@@ -110,7 +149,7 @@ export function DocumentCreateScreen({ route, navigation }) {
             </View>
           )}
         />
-        {isWebViewLoading ? (
+        {isWebViewLoading && !hasTypingFinished ? (
           <View style={[styles.loadingOverlay, styles.centered]}>
             <ActivityIndicator size="large" color={palette.mainBlue} />
           </View>

@@ -1,40 +1,63 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View, Image } from 'react-native';
-// import Icon from 'react-native-vector-icons/AntDesign';
+import { Image, StyleSheet, View } from 'react-native';
+
 import BackButton from '../buttons/BackButton';
+import { GlassButtonContainer } from '../buttons/GlassButtonContainer';
+import BellSvg from '../icons/BellSvg';
+import StarSvg from '../icons/StarSvg';
 import darkLogo from '../../assets/images/darkLogo.webp';
+import { useTheme, useThemedStyles } from '../../hooks';
+
 const MainHeader = ({ onPress }) => {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
+
   return (
-<View style={styles.container}>
-    <View style={styles.backButtonContainer}>
+    <View style={styles.container}>
+      <View style={styles.side}>
         {onPress ? (
-            <BackButton onPress={onPress} />
-        ) : <View style={{ width: 50, height: 50 }} />}
-    </View>
-    <View style={styles.logoContainer}>
+          <BackButton onPress={onPress} />
+        ) : (
+          <GlassButtonContainer height={44}>
+            <StarSvg fill={colors.primary} />
+          </GlassButtonContainer>
+        )}
+      </View>
+      <View style={styles.logoContainer}>
         <Image source={darkLogo} style={styles.logo} resizeMode="contain" />
+      </View>
+      <View style={styles.side}>
+        {!onPress ? (
+          <GlassButtonContainer height={44}>
+            <BellSvg fill={colors.primary} />
+          </GlassButtonContainer>
+        ) : null}
+      </View>
     </View>
-    <View style={styles.backButtonContainer}></View>
-</View>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = () =>
+  StyleSheet.create({
     container: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
     },
-    backButtonContainer: {
-        width: '15%',
+    side: {
+      width: 50,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     logoContainer: {
-        width: '70%',
+      flex: 1,
+      alignItems: 'center',
     },
     logo: {
-        width: '100%',
-        height: 40,
+      width: '100%',
+      height: 40,
+      maxWidth: 180,
     },
-});
+  });
 
 export default MainHeader;
