@@ -56,12 +56,6 @@ export function PinCodeScreen({ navigation, route }) {
       style={[styles.screen, { backgroundColor: palette.mainWhite }]}
     >
       <MainHeader onPress={() => navigation.goBack()} />
-      {/* {hasExistingPin ?
-        <View style={registrationScreenStyles.lottieContainer}>
-
-          <LottieAnimation source={require('../../../assets/lottie/FaceID.json')} autoPlay loop style={{ width: 150, height: 150, }} />
-        </View> : <></>
-      } */}
       <View style={registrationScreenStyles.content}>
 
         <View style={registrationScreenStyles.formContainer}>

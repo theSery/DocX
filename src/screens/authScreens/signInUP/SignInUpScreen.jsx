@@ -6,8 +6,9 @@ import { palette } from '../../../theme';
 import backButton from '../../../assets/images/backButton.webp';
 import { SignInUpTab } from './components/SignInUpTab';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { resetToMain } from '../../../navigation/navigationRef';
 
-export function SignInUpScreen({ navigation }) {
+export function SignInUpScreen() {
   const insets = useSafeAreaInsets();
 
   return (
@@ -20,10 +21,10 @@ export function SignInUpScreen({ navigation }) {
     >
       <View style={styles.headerContainer}>
         <View style={styles.headerContent}>
-          <Pressable onPress={() => navigation.goBack()}>
+          <Pressable onPress={resetToMain}>
             <Image source={backButton} style={styles.image} resizeMode="cover" />
           </Pressable>
-          <Pressable onPress={() => navigation.goBack()}>
+          <Pressable onPress={resetToMain}>
             <Typography variant="h5" style={styles.headerCloseButton}>Փակել</Typography>
           </Pressable>
 

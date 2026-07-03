@@ -25,6 +25,7 @@ async function resolveStartupRoute(wasSignedIn) {
 
   try {
     await userApi.getMe();
+
     return 'main';
   } catch (error) {
     if (error?.status === 401) {

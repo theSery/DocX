@@ -2,10 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Modal,
+  Platform,
   Pressable,
   StyleSheet,
   View,
 } from 'react-native';
+import { BlurView } from '@react-native-community/blur';
 import { WebView } from 'react-native-webview';
 import {
   buildFilledTemplateBodyHtml,
@@ -16,19 +19,24 @@ import {
   generateAndShareDocumentPdf,
   getPdfWebViewBaseUrl,
 } from '../../../documents';
-import { Typography } from '../../../components';
+import { AnimatedView, Typography } from '../../../components';
 import { useAppSelector } from '../../../store';
 import { selectDocumentFill } from '../../../store/slices/documentFillSlice';
 import { selectPersonalData } from '../../../store/slices/personalDataSlice';
-import { useGlobalStyles, useThemedStyles } from '../../../hooks';
+import { useThemedStyles } from '../../../hooks';
 import { palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import MainHeader from '../../../components/headers/MainHeader';
+import LottieAnimation from '../../../components/animation/LottieAnimation';
+import LogoIcon from '../../../components/icons/LogoIcon';
 
 const WEBVIEW_HEIGHT = 10000;
+const POST_LOAD_OVERLAY_DURATION = 1000;
+const INSPIRATIONAL_QUOTE =
+  '«Յուրաքանչյուր նոր փաստաթուղթ՝ քո ապագայի քայլ է»';
 
 export function DocumentCreateScreen({ route, navigation }) {
-  const globalStyles = useGlobalStyles();
+
   const styles = useThemedStyles(createStyles);
   const personalData = useAppSelector(selectPersonalData);
   const documentFill = useAppSelector(selectDocumentFill);
@@ -38,6 +46,9 @@ export function DocumentCreateScreen({ route, navigation }) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isAddingSignature, setIsAddingSignature] = useState(false);
   const [signatureImageSrc, setSignatureImageSrc] = useState(null);
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(true);
+
+  const isContentLoading = !hasTypingFinished || isWebViewLoading;
 
   const documentHtml = useMemo(
     () =>
@@ -82,6 +93,19 @@ export function DocumentCreateScreen({ route, navigation }) {
     }
   }, [hasTypingFinished]);
 
+  useEffect(() => {
+    if (isContentLoading) {
+      setShowLoadingOverlay(true);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setShowLoadingOverlay(false);
+    }, POST_LOAD_OVERLAY_DURATION);
+
+    return () => clearTimeout(timer);
+  }, [isContentLoading]);
+
   const previewWebViewSource = useMemo(
     () => ({
       html: hasTypingFinished
@@ -123,14 +147,12 @@ export function DocumentCreateScreen({ route, navigation }) {
   }, []);
 
   const isActionDisabled =
-    isWebViewLoading || !hasTypingFinished || isDownloading || isAddingSignature;
+    showLoadingOverlay || isDownloading || isAddingSignature;
 
   return (
-    <>
-              <MainHeader onPress={() => navigation.goBack()} />
- 
-    <View style={[styles.screen]}>
-
+    <View style={styles.root}>
+      <MainHeader onPress={() => navigation.goBack()} />
+      <View style={styles.screen}>
       <View style={styles.previewContainer}>
         <WebView
           key={hasTypingFinished ? `final-${documentHtml.length}` : `typing-${typingSourceKey}`}
@@ -140,20 +162,9 @@ export function DocumentCreateScreen({ route, navigation }) {
           scalesPageToFit
           scrollEnabled
           showsVerticalScrollIndicator={false}
-          startInLoadingState
           onLoadEnd={() => setIsWebViewLoading(false)}
           onLoadStart={() => setIsWebViewLoading(true)}
-          renderLoading={() => (
-            <View style={[styles.loadingOverlay, styles.centered]}>
-              <ActivityIndicator size="large" color={palette.mainBlue} />
-            </View>
-          )}
         />
-        {isWebViewLoading && !hasTypingFinished ? (
-          <View style={[styles.loadingOverlay, styles.centered]}>
-            <ActivityIndicator size="large" color={palette.mainBlue} />
-          </View>
-        ) : null}
       </View>
 
       <View style={[styles.actionBar, { bottom: TAB_BAR_BOTTOM_OFFSET }]}>
@@ -199,14 +210,58 @@ export function DocumentCreateScreen({ route, navigation }) {
           )}
         </Pressable>
       </View>
+      </View>
+
+      <Modal
+        visible={showLoadingOverlay}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+      >
+        <View style={styles.fullScreenOverlay}>
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType="dark"
+            blurAmount={1}
+            reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.5)"
+            {...(Platform.OS === 'android' && {
+              overlayColor: 'rgba(0, 0, 0, 0.25)',
+            })}
+          />
+          <View style={styles.overlayTint} />
+          <View style={styles.overlayContent}>
+            <AnimatedView animation="fadeInDown" duration={600} style={styles.logoContainer}>
+              <LogoIcon width={72} height={72} />
+            </AnimatedView>
+
+            <AnimatedView animation="fadeIn" delay={350} duration={600}>
+              <Typography variant="h4" tone="onDark" style={styles.quote}>
+                {INSPIRATIONAL_QUOTE}
+              </Typography>
+            </AnimatedView>
+
+         
+          </View>
+          <AnimatedView animation="fadeIn" delay={650} duration={600} style={[styles.lottieContainer, { marginBottom: 50, marginTop: 0 }]}>
+              <LottieAnimation
+                source={require('../../../assets/lottie/Law.json')}
+                autoPlay
+                loop
+                style={styles.lottie}
+              />
+            </AnimatedView>
+        </View>
+      </Modal>
     </View>
-    </>
   );
 }
 
 /** @param {import('../../../theme/palettes').ThemeColors} colors */
 function createStyles(colors) {
   return StyleSheet.create({
+    root: {
+      flex: 1,
+    },
     screen: {
       flex: 1,
       // paddingTop: 1,
@@ -230,13 +285,36 @@ function createStyles(colors) {
       backgroundColor: 'white',
       padding: 16,
     },
-    loadingOverlay: {
-      ...StyleSheet.absoluteFill,
-      backgroundColor: colors.surface,
+    fullScreenOverlay: {
+      flex: 1,
+      width: '100%',
+      height: '100%',
+      overflow: 'hidden',
     },
-    centered: {
+    overlayTint: {
+      ...StyleSheet.absoluteFill,
+      // backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    },
+    overlayContent: {
+      flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
+      paddingHorizontal: 32,
+    },
+    logoContainer: {
+      marginBottom: 24,
+    },
+    lottieContainer: {
+      marginTop: 28,
+    },
+    lottie: {
+      width: 160,
+      height: 100,
+    },
+    quote: {
+      textAlign: 'center',
+      fontStyle: 'italic',
+      fontSize: 18,
     },
     actionBar: {
       position: 'absolute',
