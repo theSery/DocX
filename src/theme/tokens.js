@@ -22,6 +22,9 @@ export const palette = Object.freeze({
   blueMainEnd: '#01174D',
   blueLargeStart: '#386FE5',
   blueLargeEnd: '#000B26',
+  /** Account stack header — sampled from design reference */
+  accountStackStart: '#194AB4',
+  accountStackEnd: '#031C57',
   mainWhite: '#FFFFFF',
   /** Subtle card/list border (light mode) */
   borderLight: '#D9DFED',
@@ -54,6 +57,12 @@ export const gradients = Object.freeze({
   bgLargeInversed: {
     start: palette.blueLargeEnd,
     end: palette.blueLargeStart,
+    angle: 135,
+  },
+  /** Account stack header gradient */
+  accountStack: {
+    start: palette.accountStackStart,
+    end: palette.accountStackEnd,
     angle: 135,
   },
 });

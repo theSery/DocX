@@ -17,7 +17,7 @@ import LockIconSbg from '../../../../components/icons/LockIconSbg';
 import PhoneSvg from '../../../../components/icons/PhoneSvg';
 import bg from '../../../../assets/images/bg.webp';
 import { OtpInputRowCode } from './OtpInputRowCode';
-import { authApi, persistAuthResponse } from '../../../../api';
+import { authApi, persistAuthResponse, smsApi } from '../../../../api';
 import { useAuthSession } from '../../../../hooks';
 import { useToast } from '../../../../hooks';
 import { saveUserCredentials } from '../../../../utils/secureStorage';
@@ -76,9 +76,13 @@ function OtpInputRow({ digits, onChangeDigit, focusedIndex, onFocusIndex }) {
   );
 }
 
-function PhoneOtpVerification({ handleTabPress }) {
+function PhoneOtpVerification({ phoneNumber, handleTabPress, onResendCode }) {
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [focusedIndex, setFocusedIndex] = useState(0);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const { login } = useAuthSession();
+  const { showToast } = useToast();
 
   const handleChangeDigit = (index, value) => {
     setDigits(prev => {
@@ -88,10 +92,62 @@ function PhoneOtpVerification({ handleTabPress }) {
     });
   };
 
+  const handleVerifyCode = async () => {
+    const code = digits.join('');
+    if (code.length !== 6) {
+      showToast({
+        title: 'Սխալ կոդ',
+        body: 'Մուտքագրեք 6 նիշանոց կոդը',
+        type: 'error',
+      });
+      return;
+    }
+
+    setIsVerifying(true);
+    try {
+      const response = await smsApi.verifyCode({ phoneNumber, code });
+      console.log('Verify SMS code response:', response.data);
+      await persistAuthResponse(response);
+      await login();
+    } catch (error) {
+      console.log('Verify SMS code error:', error);
+      showToast({
+        title: 'Հաստատումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    setIsResending(true);
+    try {
+      await onResendCode();
+      setDigits(['', '', '', '', '', '']);
+      setFocusedIndex(0);
+      showToast({
+        title: 'Կոդը ուղարկված է',
+        body: 'Նոր հաստատման կոդը ուղարկվել է ձեր հեռախոսահամարին',
+        type: 'success',
+      });
+    } catch (error) {
+      console.log('Resend SMS code error:', error);
+      showToast({
+        title: 'Ուղարկումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   return (
     <View style={{ justifyContent: 'space-between', height: SCREEN_HEIGHT }}>
       <>
-        <Typography style={styles.otpSubtitle}>Հեռախոսահամար</Typography>
+        <Typography style={styles.otpSubtitle}>{phoneNumber}</Typography>
 
         <OtpInputRow
           digits={digits}
@@ -102,8 +158,10 @@ function PhoneOtpVerification({ handleTabPress }) {
 
         <View style={styles.resendRow}>
           <Typography style={styles.resendHelper}>Չստացե՞լ եք կոդը</Typography>
-          <Pressable hitSlop={8}>
-            <Typography style={styles.resendLink}>Ուղարկել կրկին</Typography>
+          <Pressable hitSlop={8} onPress={handleResendCode} disabled={isResending}>
+            <Typography style={styles.resendLink}>
+              {isResending ? 'Ուղարկվում է...' : 'Ուղարկել կրկին'}
+            </Typography>
           </Pressable>
         </View>
       </>
@@ -112,12 +170,15 @@ function PhoneOtpVerification({ handleTabPress }) {
           <Pressable
             style={({ pressed }) => [
               styles.primaryButton,
-              pressed && styles.buttonPressed,
+              (pressed || isVerifying) && styles.buttonPressed,
+              isVerifying && styles.primaryButtonDisabled,
             ]}
+            onPress={handleVerifyCode}
+            disabled={isVerifying}
           >
             <GradientButton height={45} isLight={false}>
               <Typography variant="h5" style={styles.primaryButtonText}>
-                Հաստատել կոդը
+                {isVerifying ? 'Ստուգվում է...' : 'Հաստատել կոդը'}
               </Typography>
             </GradientButton>
           </Pressable>
@@ -229,9 +290,19 @@ function MailLogin({ handleTabPress }) {
 }
 
 function PhoneLogin({ handleTabPress, onSendCode }) {
-  const { control } = useForm({
+  const [isSending, setIsSending] = useState(false);
+  const { control, handleSubmit } = useForm({
     defaultValues: { phone: '' },
     mode: 'onBlur',
+  });
+
+  const handleSendCode = handleSubmit(async values => {
+    setIsSending(true);
+    try {
+      await onSendCode(values.phone);
+    } finally {
+      setIsSending(false);
+    }
   });
 
   return (
@@ -257,13 +328,15 @@ function PhoneLogin({ handleTabPress, onSendCode }) {
         <Pressable
           style={({ pressed }) => [
             styles.primaryButton,
-            pressed && styles.buttonPressed,
+            (pressed || isSending) && styles.buttonPressed,
+            isSending && styles.primaryButtonDisabled,
           ]}
-          onPress={onSendCode}
+          onPress={handleSendCode}
+          disabled={isSending}
         >
           <GradientButton height={45} isLight={false}>
             <Typography variant="h5" style={styles.primaryButtonText}>
-              Ուղարկել կոդը
+              {isSending ? 'Ուղարկվում է...' : 'Ուղարկել կոդը'}
             </Typography>
           </GradientButton>
         </Pressable>
@@ -279,9 +352,22 @@ function PhoneLogin({ handleTabPress, onSendCode }) {
   );
 }
 
-function renderLoginContent(activeTab, phoneStep, handleTabPress, onSendCode) {
+function renderLoginContent(
+  activeTab,
+  phoneStep,
+  phoneNumber,
+  handleTabPress,
+  onSendCode,
+  onResendCode,
+) {
   if (activeTab === 'phone' && phoneStep === 'otp') {
-    return <PhoneOtpVerification handleTabPress={handleTabPress} />;
+    return (
+      <PhoneOtpVerification
+        phoneNumber={phoneNumber}
+        handleTabPress={handleTabPress}
+        onResendCode={onResendCode}
+      />
+    );
   }
 
   switch (activeTab) {
@@ -299,6 +385,8 @@ function renderLoginContent(activeTab, phoneStep, handleTabPress, onSendCode) {
 export function LoginTabs({ onPhoneLogin }) {
   const [activeTab, setActiveTab] = useState('mail');
   const [phoneStep, setPhoneStep] = useState('entry');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const { showToast } = useToast();
   const contentOpacity = useRef(new Animated.Value(1)).current;
   const contentTranslateY = useRef(new Animated.Value(0)).current;
 
@@ -307,10 +395,43 @@ export function LoginTabs({ onPhoneLogin }) {
       ? LOGIN_TITLES.phoneOtp
       : LOGIN_TITLES[activeTab];
 
-  const handleSendCode = useCallback(() => {
-    setPhoneStep('otp');
-    onPhoneLogin?.();
-  }, [onPhoneLogin]);
+  const requestSmsCode = useCallback(async number => {
+    const response = await smsApi.requestCode({ phoneNumber: number });
+    console.log('Request SMS code response:', response.data);
+    return response;
+  }, []);
+
+  const handleSendCode = useCallback(
+    async number => {
+      try {
+        await requestSmsCode(number);
+        setPhoneNumber(number);
+        setPhoneStep('otp');
+        onPhoneLogin?.();
+        showToast({
+          title: 'Կոդը ուղարկված է',
+          body: 'Հաստատման կոդը ուղարկվել է ձեր հեռախոսահամարին',
+          type: 'success',
+        });
+      } catch (error) {
+        console.log('Request SMS code error:', error);
+        showToast({
+          title: 'Ուղարկումը ձախողվեց',
+          body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+          type: 'error',
+        });
+        throw error;
+      }
+    },
+    [onPhoneLogin, requestSmsCode, showToast],
+  );
+
+  const handleResendCode = useCallback(async () => {
+    if (!phoneNumber) {
+      return;
+    }
+    await requestSmsCode(phoneNumber);
+  }, [phoneNumber, requestSmsCode]);
 
   const handleTabPress = useCallback(
     tab => {
@@ -319,6 +440,7 @@ export function LoginTabs({ onPhoneLogin }) {
       }
 
       setPhoneStep('entry');
+      setPhoneNumber('');
 
       Animated.parallel([
         Animated.timing(contentOpacity, {
@@ -371,8 +493,10 @@ export function LoginTabs({ onPhoneLogin }) {
         {renderLoginContent(
           activeTab,
           phoneStep,
+          phoneNumber,
           handleTabPress,
           handleSendCode,
+          handleResendCode,
         )}
       </Animated.View>
     </View>

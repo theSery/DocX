@@ -5,6 +5,7 @@ import {
   PassportInfoScreen,
   PinCodeChangeScreen,
   ProfileInfoScreen,
+  ConfirmPhoneCodeScreen,
   SettingsScreen,
   SignatureScreen,
   WalletScreen,
@@ -63,6 +64,11 @@ export function AccountStackNavigator() {
           { title: 'Անձնական տվյալներ', isLogoutButton: true, isBackButton: true },
           logout,
         )}
+      />
+      <Account.Screen
+        name="ConfirmPhoneCode"
+        component={ConfirmPhoneCodeScreen}
+        options={{ headerShown: false }}
       />
       <Account.Screen
         name="PassportInfo"

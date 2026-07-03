@@ -5,7 +5,9 @@ import { useTheme } from '../../../hooks/useTheme';
 import { AnimatedView, Typography } from '../../../components';
 
 import { FONT_FAMILY, palette } from '../../../theme';
-import SupportSvg from '../../../components/icons/SupportSvg';
+import ContactUsSvg from '../../../components/icons/ContactUsSvg';
+import PrivacyPolicySvg from '../../../components/icons/PrivacyPolicySvg';
+import TermsSvg from '../../../components/icons/TermsSvg';
 
 
 export function SettingsScreen({ navigation }) {
@@ -43,7 +45,6 @@ export function SettingsScreen({ navigation }) {
 
         <View style={styles.sectionSpaced}>
           <Typography variant="h4" tone="disabled">
-
             Օգնություն
           </Typography>
           <View style={styles.menuList}>
@@ -52,7 +53,7 @@ export function SettingsScreen({ navigation }) {
               onPress={() => navigation.navigate('Help')}
             >
               <View style={styles.menuItemRow}>
-                <SupportSvg fill={palette.mainBlue} width={20} height={20} />
+                <ContactUsSvg fill={palette.mainBlue} width={20} height={20} />
                 <Typography
                   variant="h5"
                 >
@@ -69,11 +70,11 @@ export function SettingsScreen({ navigation }) {
           </Typography>
           <View style={styles.menuList}>
             <Pressable
-              style={[styles.menuItem,]}
+              style={[styles.menuItem, { marginBottom: 10 }]}
               onPress={() => navigation.navigate('Help')}
             >
               <View style={styles.menuItemRow}>
-                <SupportSvg fill={palette.mainBlue} width={20} height={20} />
+                <PrivacyPolicySvg fill={palette.mainBlue} width={20} height={20} />
                 <Typography
                   variant="h5"
                 >
@@ -86,7 +87,7 @@ export function SettingsScreen({ navigation }) {
               onPress={() => navigation.navigate('Help')}
             >
               <View style={styles.menuItemRow}>
-                <SupportSvg fill={palette.mainBlue} width={20} height={20} />
+                <TermsSvg fill={palette.mainBlue} width={20} height={20} />
                 <Typography
                   variant="h5"
                 >
@@ -135,10 +136,10 @@ const createStyles = (colors) =>
     },
     sectionSpaced: {
       width: '100%',
-      marginTop: 30,
+      marginVertical: 30,
     },
     menuList: {
-      // marginTop: 20,
+      marginTop: 10,
     },
     menuItem: {
       flexDirection: 'row',
@@ -147,7 +148,7 @@ const createStyles = (colors) =>
       paddingVertical: 10,
       borderBottomWidth: 1,
       borderBottomColor: colors.textDisabled,
-      paddingHorizontal: 30,
+      paddingHorizontal: 20,
     },
     menuItemLast: {
       borderBottomWidth: 0,

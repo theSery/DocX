@@ -2,7 +2,6 @@ import React from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Canvas, Rect, LinearGradient, vec, RoundedRect } from '@shopify/react-native-skia';
 import { gradients } from '../theme/tokens';
-import { HEIGHT } from '../utils/dimensions';
 import { HEADER_BOTTOM_RADIUS } from './gradientConstants';
 export default function GradientBackground({
   children,
@@ -33,7 +32,11 @@ export default function GradientBackground({
     bottomLeft: { x: HEADER_BOTTOM_RADIUS, y: HEADER_BOTTOM_RADIUS },
   };
 
-  const gradient = isLight ? gradients.lightSky : gradients.blueLarge;
+  const gradient = isAccountScreen
+    ? gradients.accountStack
+    : isLight
+      ? gradients.lightSky
+      : gradients.blueLarge;
   const startColor = gradient.start;
   const endColor = gradient.end;
 
@@ -46,8 +49,8 @@ export default function GradientBackground({
         }>
         <RoundedRect rect={roundedRect}  >
           <LinearGradient
-            start={vec(0, 0)} 
-            end={vec(width, isAccountScreen ? height - HEIGHT*0.6 : height)} 
+            start={vec(0, 0)}
+            end={vec(width, isAccountScreen ? finalGradientHeight : height)}
             colors={!isReversed ? [startColor, endColor] : [endColor, startColor]}
           />
         </RoundedRect>

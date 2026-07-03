@@ -1,4 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import MoonSvg from '../icons/MoonSvg';
+import SunSvg from '../icons/SunSvg';
 import { useTheme } from '../../hooks/useTheme';
 import { FONT_FAMILY, palette } from '../../theme';
 
@@ -44,9 +46,16 @@ export function ColorSchemeToggle({ label, description, style }) {
         style,
       ]}>
       <View style={styles.copy}>
-        <Text style={[styles.label, { color: colors.text }]}>
-          {isDark ? 'Գիշերային ռեժիմ' : 'Լուսավոր թեմա'}
-        </Text>
+        <View style={styles.labelRow}>
+          {isDark ? (
+            <MoonSvg width={20} height={20} fill={palette.mainBlue} />
+          ) : (
+            <SunSvg width={20} height={20} fill={palette.mainBlue} />
+          )}
+          <Text style={[styles.label, { color: colors.text }]}>
+            {isDark ? 'Գիշերային ռեժիմ' : 'Ցերեկային ռեժիմ'}
+          </Text>
+        </View>
       </View>
 
       <ThemeSwitch isOn={isDark} />
@@ -66,6 +75,11 @@ const styles = StyleSheet.create({
   copy: {
     flex: 1,
     paddingRight: 12,
+  },
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   label: {
     fontFamily: FONT_FAMILY.regular,

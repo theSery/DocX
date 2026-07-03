@@ -3,6 +3,7 @@ export { authApi } from './authApi';
 export { categoriesApi } from './categoriesApi';
 export { personalDataApi } from './personalDataApi';
 export { signatureApi } from './signatureApi';
+export { smsApi } from './smsApi';
 export { templatesApi } from './templatesApi';
 export { userApi } from './userApi';
 export {

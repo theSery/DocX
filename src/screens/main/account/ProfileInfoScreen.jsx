@@ -1,13 +1,23 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
-import { AnimatedView, FormDateField, FormField, Typography } from '../../../components';
+import {
+  AnimatedView,
+  FormDateField,
+  FormField,
+  Typography,
+} from '../../../components';
 import { useForm } from 'react-hook-form';
 import MailIconSvg from '../../../components/icons/MailIconSvg';
 import GradientButton from '../../../components/buttons/GradientButton';
 import UserSvg from '../../../components/icons/UserSvg';
 import { FONT_FAMILY, palette } from '../../../theme';
-import { EMAIL_PATTERN, ARMENIAN_NAME_RULES, PHONE_NUMBER_PATTERN } from '../../../utils/patterns';
+import {
+  EMAIL_PATTERN,
+  ARMENIAN_NAME_RULES,
+  PHONE_NUMBER_PATTERN,
+} from '../../../utils/patterns';
 import PhoneSvg from '../../../components/icons/PhoneSvg';
 import CalendarSvg from '../../../components/icons/CalendarSvg';
 import AuthButton from '../../../components/buttons/AuthButton';
@@ -17,6 +27,7 @@ import {
   selectPersonalDataStatus,
   updatePersonalData,
 } from '../../../store/slices/personalDataSlice';
+import { smsApi } from '../../../api';
 
 const CONTACT_INFO_FIELDS = [
   {
@@ -51,15 +62,15 @@ const CONTACT_INFO_FIELDS = [
   },
   {
     name: 'middleName',
-    label: 'Միջանուն *',
+    label: 'Հայրանուն *',
     startIcon: <UserSvg width={24} height={24} fill={palette.gray} />,
-    placeholder: 'Ձեր Միջանունը',
+    placeholder: 'Ձեր Հայրանուն',
     keyboardType: 'default',
     rules: ARMENIAN_NAME_RULES,
   },
 ];
 
-const createStyles = (colors) =>
+const createStyles = colors =>
   StyleSheet.create({
     screen: {
       flex: 1,
@@ -91,14 +102,24 @@ const createStyles = (colors) =>
       alignItems: 'center',
       justifyContent: 'center',
       marginTop: 20,
+      borderWidth: 1,
+      borderColor: palette.mainBlue,
+      marginBottom: 12,
     },
     primaryButtonText: {
       fontFamily: FONT_FAMILY.regular,
-      color: palette.white,
+      color: palette.mainBlue,
       letterSpacing: 1.2,
     },
     buttonPressed: {
       opacity: 0.88,
+    },
+    phoneText: {
+      fontFamily: FONT_FAMILY.semiBold,
+      color: palette.mainBlue,
+      letterSpacing: 1.2,
+      marginTop: 8,
+      fontSize: 12,
     },
   });
 
@@ -128,7 +149,8 @@ function mapFormValuesToPersonalData(values) {
     surname: values.lastName,
     patronymic: values.middleName,
     phoneNumber: values.phone,
-    birthday: values.birthDate instanceof Date ? values.birthDate.toISOString() : null,
+    birthday:
+      values.birthDate instanceof Date ? values.birthDate.toISOString() : null,
   };
 }
 
@@ -143,28 +165,59 @@ function resolveFormValuesAfterUpdate(submittedValues, apiData) {
 export function ProfileInfoScreen() {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
+  const navigation = useNavigation();
   const { showToast } = useToast();
   const dispatch = useAppDispatch();
   const personalData = useAppSelector(selectPersonalData);
   const personalDataStatus = useAppSelector(selectPersonalDataStatus);
+  const [isSendingCode, setIsSendingCode] = useState(false);
 
   const {
     control,
     handleSubmit,
     reset,
+    getValues,
+    trigger,
     formState: { isSubmitting, isLoading },
   } = useForm({
     defaultValues: EMPTY_FORM_VALUES,
     mode: 'onBlur',
   });
-console.log('personalData', personalData);
+  console.log('personalData', personalData);
   useEffect(() => {
     if (personalDataStatus === 'succeeded' && personalData) {
       reset(mapPersonalDataToFormValues(personalData));
     }
   }, [personalData, personalDataStatus, reset]);
 
-  const onSubmit = handleSubmit(async (data) => {
+  const handleSendCode = async () => {
+    const isPhoneValid = await trigger('phone');
+    if (!isPhoneValid) {
+      return;
+    }
+
+    const phoneNumber = getValues('phone');
+    setIsSendingCode(true);
+    try {
+      await smsApi.requestCode({ phoneNumber });
+      showToast({
+        title: 'Կոդը ուղարկված է',
+        body: 'Հաստատման կոդը ուղարկվել է ձեր հեռախոսահամարին',
+        type: 'success',
+      });
+      navigation.navigate('ConfirmPhoneCode', { phoneNumber });
+    } catch (error) {
+      showToast({
+        title: 'Ուղարկումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    } finally {
+      setIsSendingCode(false);
+    }
+  };
+
+  const onSubmit = handleSubmit(async data => {
     try {
       const response = await dispatch(
         updatePersonalData(mapFormValuesToPersonalData(data)),
@@ -198,7 +251,7 @@ console.log('personalData', personalData);
           Անձնական տվյալներ
         </Typography>
         <View style={styles.formFieldContainer}>
-          {CONTACT_INFO_FIELDS.map((field) => (
+          {CONTACT_INFO_FIELDS.map(field => (
             <FormField
               key={field.name}
               control={control}
@@ -214,7 +267,9 @@ console.log('personalData', personalData);
             control={control}
             name="birthDate"
             label="Ծննդյան ամսաթիվ"
-            startIcon={<CalendarSvg width={20} height={20} fill={palette.mainBlue} />}
+            startIcon={
+              <CalendarSvg width={20} height={20} fill={palette.mainBlue} />
+            }
           />
           <FormField
             control={control}
@@ -223,7 +278,9 @@ console.log('personalData', personalData);
             keyboardType="phone-pad"
             placeholder="91 123 456"
             placeholderTextColor={palette.lightGray}
-            startIcon={<PhoneSvg width={20} height={20} fill={palette.mainBlue} />}
+            startIcon={
+              <PhoneSvg width={20} height={20} fill={palette.mainBlue} />
+            }
             rules={{
               required: 'Հեռախոսահամարը պարտադիր է',
               pattern: {
@@ -233,27 +290,29 @@ console.log('personalData', personalData);
             }}
           />
         </View>
+        <Typography variant="h5" style={styles.phoneText}>
+          ⓘ Խնդրում ենք հաստատել հեռախոսահամարը
+        </Typography>
       </AnimatedView>
-      {/* <Pressable
-        onPress={onSubmit}
-        disabled={isSubmitting}
+      <Pressable
+        // onPress={handleSendCode}
+        onPress={() => navigation.navigate('ConfirmPhoneCode', { phoneNumber: getValues('phone') })}
+        disabled={isSubmitting || isSendingCode}
         style={({ pressed }) => [
           styles.primaryButton,
-          (pressed || isSubmitting) && styles.buttonPressed,
+          (pressed || isSubmitting || isSendingCode) && styles.buttonPressed,
         ]}
       >
-        <GradientButton height={45} isLight={false}>
-          <Typography variant="h5" style={styles.primaryButtonText}>
-            Պահպանել
-          </Typography>
-        </GradientButton>
-      </Pressable> */}
-                  <AuthButton
-                  disabled={isSubmitting}
-              title={'Պահպանել'}
-              onPress={onSubmit}
-              isLoading={isLoading}
-            />
+        <Typography variant="h5" style={styles.primaryButtonText}>
+          {isSendingCode ? 'Ուղարկվում է...' : 'Ուղարկել կոդը'}
+        </Typography>
+      </Pressable>
+      <AuthButton
+        disabled={isSubmitting}
+        title={'Պահպանել'}
+        onPress={onSubmit}
+        isLoading={isLoading}
+      />
     </ScrollView>
   );
 }
