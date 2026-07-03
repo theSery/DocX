@@ -11,7 +11,7 @@ import { CategoryScreen } from '../../screens/main/home/CategoryScreen';
 import { HomeStackHeaderScrollProvider } from '../../context/HomeStackHeaderScrollContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const Stack = createNativeStackNavigator();
+const Home = createNativeStackNavigator();
 
 const nestedScreenOptionsWithHeader = (
   nestedScreenOptions,
@@ -42,11 +42,11 @@ export function HomeStackNavigator() {
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
     <HomeStackHeaderScrollProvider>
-    <Stack.Navigator
+    <Home.Navigator
      initialRouteName="HomeMain" 
      screenOptions={{ headerShown: false, animation: 'fade' }}
      >
-      <Stack.Screen
+      <Home.Screen
         name="HomeMain"
         component={HomeScreen}
         options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
@@ -56,7 +56,7 @@ export function HomeStackNavigator() {
           isMainHeader: true
         })}
       />
-      <Stack.Screen
+      <Home.Screen
         name="Category"
         component={CategoryScreen}
         options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
@@ -67,7 +67,7 @@ export function HomeStackNavigator() {
           
         })}
       />
-           <Stack.Screen
+           <Home.Screen
         name="SubCategoryScreen"
         component={SubCategoryScreen}
         options={({ route }) =>
@@ -79,17 +79,17 @@ export function HomeStackNavigator() {
           
         })}
       />
-      <Stack.Screen
+      <Home.Screen
         name="FillInDetails"
         component={FillInDetailsScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen
+      <Home.Screen
         name="DocumentCreate"
         component={DocumentCreateScreen}
         options={{ headerShown: false }}
       />
-    </Stack.Navigator>
+    </Home.Navigator>
     </HomeStackHeaderScrollProvider>
     </SafeAreaView>
   );

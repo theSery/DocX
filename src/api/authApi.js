@@ -35,4 +35,8 @@ export const authApi = {
   logout() {
     return axiosClient.post('/auth/logout');
   },
+
+  changePassword({ oldPassword, newPassword }) {
+    return axiosClient.put('/auth/password', { oldPassword, newPassword });
+  },
 };

@@ -81,9 +81,13 @@ const AccountStackHeader = ({
   const personalData = useAppSelector(selectPersonalData);
   const name = personalData?.name ?? '';
   const surname = personalData?.surname ?? '';
-  console.log('personalData', personalData);
+
   return (
-    <View style={{height: isMinHeight ? ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT : ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT}}>
+    <View
+      style={{
+        height: isMinHeight ? ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT : ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT,
+        overflow: 'hidden',
+      }}>
       <StatusBar barStyle="light-content" />
       <GradientBackground
         isAccountScreen

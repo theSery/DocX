@@ -258,7 +258,10 @@ function GoogleAddressAutocompleteInput({
           minLength={MIN_QUERY_LENGTH}
           debounce={300}
           enablePoweredByContainer={false}
-          fetchDetails={false}
+          fetchDetails
+          GooglePlacesDetailsQuery={{
+            fields: 'formatted_address',
+          }}
           keepResultsAfterBlur
           listViewDisplayed="auto"
           keyboardShouldPersistTaps="always"
@@ -267,10 +270,12 @@ function GoogleAddressAutocompleteInput({
             key: ENV.GOOGLE_PLACES_API_KEY,
             language: 'hy',
             components: 'country:am',
-            types: 'geocode',
+            region: 'am',
+            location: '40.1772,44.5133',
+            radius: 300000,
           }}
-          onPress={(data) => {
-            const address = data.description ?? '';
+          onPress={(data, details = null) => {
+            const address = details?.formatted_address ?? data.description ?? '';
             syncedValueRef.current = address;
             onChange(address);
           }}

@@ -45,7 +45,11 @@ export function TabNavigator() {
       <Tab.Screen
         name="Account"
         component={AccountStackNavigator}
-        options={{ headerShown: false, title: 'Հաշիվ' }}
+        options={{
+          headerShown: false,
+          title: 'Հաշիվ',
+          // unmountOnBlur: true,
+        }}
       />
     </Tab.Navigator>
   );

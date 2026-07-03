@@ -12,14 +12,14 @@ import {
 export function HomeScreen({ navigation }) {
   const dispatch = useAppDispatch();
   const { items } = useAppSelector(state => state.categories);
-  // const personalDataStatus = useAppSelector(selectPersonalDataStatus);
-  // const styles = useGlobalStyles();
+  const personalDataStatus = useAppSelector(selectPersonalDataStatus);
+  const styles = useGlobalStyles();
 
-  // useEffect(() => {
-  //   if (personalDataStatus === 'idle') {
-  //     dispatch(fetchPersonalData());
-  //   }
-  // }, [dispatch, personalDataStatus]);
+  useEffect(() => {
+    if (personalDataStatus === 'idle') {
+      dispatch(fetchPersonalData());
+    }
+  }, [dispatch, personalDataStatus]);
 
   return (
     <View style={{ flex: 1 }}>

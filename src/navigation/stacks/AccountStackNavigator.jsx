@@ -12,7 +12,7 @@ import {
 import { useAuthSession, useStackScreenOptions } from '../../hooks';
 import AccountStackHeader from '../../components/headers/accountStackHeader/AccountStackHeader';
 
-const Stack = createNativeStackNavigator();
+const Account = createNativeStackNavigator();
 
 const nestedScreenOptionsWithHeader = (
   nestedScreenOptions,
@@ -24,6 +24,8 @@ const nestedScreenOptionsWithHeader = (
   isBackButton,
   isLogoutButton,
   isMinHeight,
+  headerShown: true,
+  contentStyle: { zIndex: 0 },
   header: ({ navigation, options }) => (
     <AccountStackHeader
       onPress={() => navigation.goBack()}
@@ -41,10 +43,10 @@ export function AccountStackNavigator() {
   const { logout } = useAuthSession();
 
   return (
-    <Stack.Navigator
+    <Account.Navigator
       initialRouteName="AccountMain"
-      screenOptions={{ headerShown: false, animation: 'fade' }}>
-      <Stack.Screen
+      screenOptions={{ headerShown: false, animation: 'default' }}>
+      <Account.Screen
         name="AccountMain"
         component={AccountScreen}
         options={nestedScreenOptionsWithHeader(
@@ -53,7 +55,7 @@ export function AccountStackNavigator() {
           logout,
         )}
       />
-      <Stack.Screen
+      <Account.Screen
         name="ProfileInfo"
         component={ProfileInfoScreen}
         options={nestedScreenOptionsWithHeader(
@@ -62,7 +64,7 @@ export function AccountStackNavigator() {
           logout,
         )}
       />
-      <Stack.Screen
+      <Account.Screen
         name="PassportInfo"
         component={PassportInfoScreen}
         options={nestedScreenOptionsWithHeader(
@@ -71,12 +73,16 @@ export function AccountStackNavigator() {
           logout,
         )}
       />
-      <Stack.Screen
+      <Account.Screen
         name="PinCodeChange"
         component={PinCodeChangeScreen}
-        options={{ ...nestedScreenOptions, title: 'Change PIN' }}
+        options={nestedScreenOptionsWithHeader(
+          nestedScreenOptions,
+          { title: 'PIN կոդ', isLogoutButton: true, isBackButton: true , isMinHeight: true},
+          logout,
+        )}
       />
-      <Stack.Screen
+      <Account.Screen
         name="ChangePassword"
         component={ChangePasswordScreen}
         options={nestedScreenOptionsWithHeader(
@@ -84,7 +90,7 @@ export function AccountStackNavigator() {
           { title: 'Գաղտնաբառ', isLogoutButton: false, isBackButton: true },
         )}
       />
-      <Stack.Screen
+      <Account.Screen
         name="Wallet"
         component={WalletScreen}
         options={nestedScreenOptionsWithHeader(
@@ -92,7 +98,7 @@ export function AccountStackNavigator() {
           { title: 'Դրամապանակ', isLogoutButton: false, isBackButton: true, isMinHeight: true },
         )}
       />
-      <Stack.Screen
+      <Account.Screen
         name="Signature"
         component={SignatureScreen}
         options={nestedScreenOptionsWithHeader(
@@ -100,15 +106,15 @@ export function AccountStackNavigator() {
           { title: 'Ստորագրություն', isLogoutButton: false, isBackButton: true, isMinHeight: true },
         )}
       />
-      <Stack.Screen
+      <Account.Screen
         name="Settings"
         component={SettingsScreen}
         options={nestedScreenOptionsWithHeader(
           nestedScreenOptions,
-          { title: 'Settings', isLogoutButton: true, isBackButton: true },
+          { title: 'Կարգավորումներ', isLogoutButton: true, isBackButton: true, isMinHeight: true },
           logout,
         )}
       />
-    </Stack.Navigator>
+    </Account.Navigator>
   );
 }

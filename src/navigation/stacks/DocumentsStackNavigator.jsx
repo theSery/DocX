@@ -6,7 +6,7 @@ import { useStackScreenOptions } from '../../hooks';
 import HomeStackHeader from '../../components/headers/HomeStackHeader';
 import { HomeStackHeaderScrollProvider } from '../../context/HomeStackHeaderScrollContext';
 
-const Stack = createNativeStackNavigator();
+const Documents = createNativeStackNavigator();
 
 const nestedScreenOptionsWithHeader = (
   nestedScreenOptions,
@@ -37,11 +37,11 @@ export function DocumentsStackNavigator() {
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
       <HomeStackHeaderScrollProvider>
-        <Stack.Navigator
+        <Documents.Navigator
           initialRouteName="DocumentsMain"
           screenOptions={{ headerShown: false, animation: 'fade' }}
         >
-          <Stack.Screen
+          <Documents.Screen
             name="DocumentsMain"
             component={DocumentsScreen}
             options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
@@ -51,7 +51,7 @@ export function DocumentsStackNavigator() {
               isMainHeader: true,
             })}
           />
-        </Stack.Navigator>
+        </Documents.Navigator>
       </HomeStackHeaderScrollProvider>
     </SafeAreaView>
   );
