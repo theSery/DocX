@@ -1,9 +1,17 @@
+import { useCallback, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { Typography } from '../../../../components';
+import { showGlobalSheet } from '../../../../components/GlobalSheet';
 import AttachSvg from '../../../../components/icons/AttachSvg';
 import DotsVerticalSvg from '../../../../components/icons/DotsVerticalSvg';
+import DownloadSvg from '../../../../components/icons/DownloadSvg';
 import MailIconSvg from '../../../../components/icons/MailIconSvg';
+import PenSvg from '../../../../components/icons/PenSvg';
+import SendSvg from '../../../../components/icons/SendSvg';
+import SignatureSvg from '../../../../components/icons/SignatureSvg';
+import StarOutlineSvg from '../../../../components/icons/StarOutlineSvg';
+import TrashSvg from '../../../../components/icons/TrashSvg';
 import { FONT_FAMILY } from '../../../../theme';
 import { useGlobalStyles, useThemedStyles, useTheme } from '../../../../hooks';
 
@@ -13,14 +21,64 @@ const STATUS_CONFIG = {
   sent: { label: 'Ուղարկված', colorKey: 'primary' },
 };
 
+const CARD_BACKGROUND = '#E8EFFF';
+
 export function DocumentCard({ document }) {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const status = STATUS_CONFIG[document.status] ?? STATUS_CONFIG.draft;
+  const canSend = document.status === 'signed';
+  const iconColor = colors.mainBlue;
+  const disabledIconColor = colors.textDisabled;
+
+  const handleMenuPress = useCallback(() => {
+    setIsMenuOpen(true);
+
+    showGlobalSheet({
+      variant: 'menu',
+      onDismiss: () => setIsMenuOpen(false),
+      menuItems: [
+        {
+          label: 'Ջնջել',
+          icon: <TrashSvg width={20} height={20} fill={iconColor} />,
+        },
+        {
+          label: 'Խմբագրել',
+          icon: <PenSvg width={20} height={20} fill={iconColor} />,
+        },
+        {
+          label: 'Ստորագրել',
+          icon: <SignatureSvg width={20} height={20} fill={iconColor} />,
+        },
+        {
+          label: 'Ներբեռնել',
+          icon: <DownloadSvg width={20} height={20} fill={iconColor} />,
+        },
+        {
+          label: 'Նշել որպես նախընտրելի',
+          icon: <StarOutlineSvg width={20} height={20} fill={iconColor} />,
+        },
+        {
+          label: `Ուղարկել ՀՀ ${document.organization}`,
+          icon: (
+            <SendSvg width={20} height={20} fill={canSend ? iconColor : disabledIconColor} />
+          ),
+          disabled: !canSend,
+        },
+      ],
+    });
+  }, [canSend, document.organization, iconColor, disabledIconColor]);
 
   return (
-    <View style={[globalStyles.cardShadow, styles.card]}>
+    <View
+      style={[
+        globalStyles.cardShadow,
+        styles.card,
+        isMenuOpen && styles.cardSelected,
+      ]}
+    >
       <View style={styles.headerRow}>
         <Typography variant="h6" tone="secondary" style={styles.date}>
           {document.date}
@@ -36,7 +94,11 @@ export function DocumentCard({ document }) {
         <Typography variant="h4" style={styles.title} numberOfLines={2}>
           {document.title}
         </Typography>
-        <TouchableOpacity activeOpacity={0.7} style={styles.menuButton}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          style={[styles.menuButton, isMenuOpen && styles.menuButtonActive]}
+          onPress={handleMenuPress}
+        >
           <DotsVerticalSvg fill={colors.primary} />
         </TouchableOpacity>
       </View>
@@ -65,13 +127,17 @@ const createStyles = colors =>
   StyleSheet.create({
     card: {
       borderRadius: 24,
-      backgroundColor: colors.pureWhite,
+      // backgroundColor: CARD_BACKGROUND,
       borderColor: colors.borderSubtle,
       borderWidth: 1,
       paddingHorizontal: 16,
       paddingTop: 14,
       paddingBottom: 14,
       marginBottom: 12,
+    },
+    cardSelected: {
+      backgroundColor: CARD_BACKGROUND,
+      borderColor: colors.primary,
     },
     headerRow: {
       flexDirection: 'row',
@@ -83,7 +149,7 @@ const createStyles = colors =>
       letterSpacing: 0.2,
     },
     statusBadge: {
-      borderRadius: 10,
+      borderRadius: 6,
       paddingHorizontal: 10,
       paddingVertical: 4,
     },
@@ -107,10 +173,13 @@ const createStyles = colors =>
       width: 30,
       height: 30,
       borderRadius: 15,
-      backgroundColor: colors.input,
+      backgroundColor: colors.buttonTextOnPrimary,
       alignItems: 'center',
       justifyContent: 'center',
       marginTop: 2,
+    },
+    menuButtonActive: {
+      backgroundColor: colors.skyBlue,
     },
     footerRow: {
       flexDirection: 'row',

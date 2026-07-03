@@ -7,6 +7,7 @@ import {
   ProfileInfoScreen,
   SettingsScreen,
   SignatureScreen,
+  WalletScreen,
 } from '../../screens/main/account';
 import { useAuthSession, useStackScreenOptions } from '../../hooks';
 import AccountStackHeader from '../../components/headers/accountStackHeader/AccountStackHeader';
@@ -78,7 +79,18 @@ export function AccountStackNavigator() {
       <Stack.Screen
         name="ChangePassword"
         component={ChangePasswordScreen}
-        options={{ ...nestedScreenOptions, title: 'Change password' }}
+        options={nestedScreenOptionsWithHeader(
+          nestedScreenOptions,
+          { title: 'Գաղտնաբառ', isLogoutButton: false, isBackButton: true },
+        )}
+      />
+      <Stack.Screen
+        name="Wallet"
+        component={WalletScreen}
+        options={nestedScreenOptionsWithHeader(
+          nestedScreenOptions,
+          { title: 'Դրամապանակ', isLogoutButton: false, isBackButton: true, isMinHeight: true },
+        )}
       />
       <Stack.Screen
         name="Signature"

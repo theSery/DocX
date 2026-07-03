@@ -51,7 +51,7 @@ const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutBu
     <View style={styles.container}>
       <View style={styles.backButtonContainer}>
         {isBackButton ? (
-          <GlassButtonContainer onPress={onPress} height={50} width={50} variant="blue">
+          <GlassButtonContainer onPress={onPress} height={50} width={50} variant="blue"    backgroundColor={'#1D3D81'}>
             <ArrowSvg fill={palette.white} width={17} height={17} rotate={180} />
           </GlassButtonContainer>
         ) : null}

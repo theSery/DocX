@@ -25,7 +25,8 @@ export function DocumentFilterChips({ filters, activeFilterId, onFilterChange })
               style={[styles.chip, isActive ? styles.chipActive : styles.chipInactive]}
             >
               <Typography
-                variant="h5"
+                variant="h6"
+                tone="secondary"
                 style={[styles.chipText, isActive ? styles.chipTextActive : styles.chipTextInactive]}
               >
                 {filter.label}
@@ -41,34 +42,36 @@ export function DocumentFilterChips({ filters, activeFilterId, onFilterChange })
 const createStyles = colors =>
   StyleSheet.create({
     wrapper: {
-      marginBottom: 4,
+      marginVertical: 14,
     },
     container: {
       paddingHorizontal: 16,
       gap: 8,
     },
     chip: {
-      borderRadius: 18,
+      borderRadius: 6,
       paddingHorizontal: 14,
-      paddingVertical: 8,
+      paddingVertical: 4,
+      // maarginVertical: 14,
     },
     chipActive: {
       backgroundColor: colors.primary,
     },
     chipInactive: {
-      backgroundColor: colors.input,
-      borderWidth: 1,
+      backgroundColor: '#E8EFFF',
+      // borderWidth: 1,
       borderColor: colors.borderSubtle,
     },
     chipText: {
       fontFamily: FONT_FAMILY.medium,
       fontSize: 13,
       lineHeight: 18,
+      
     },
     chipTextActive: {
       color: colors.buttonTextOnPrimary,
     },
     chipTextInactive: {
-      color: colors.primary,
+      // color: colors.primary,
     },
   });

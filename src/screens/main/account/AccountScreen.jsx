@@ -35,7 +35,7 @@ const ACCOUNT_MENU = [
   {
     id: 3,
     label: 'Գաղտնաբառ',
-    screen: 'PasswordChange',
+    screen: 'ChangePassword',
     icon: <LockIconSbg fill={palette.mainBlue} width={20} height={20} />,
   },
 ];

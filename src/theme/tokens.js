@@ -12,7 +12,7 @@ export const palette = Object.freeze({
   backgroundWhite: '#F4F6FB',
   gray: '#5D6983',
   lightGray: '#9DA6BA',
-  green: '#00A88C',
+  green: '#00856F',
   red: '#FF5C5C',
   /** Light sky accent — also used as light gradient end stop */
   skyBlue: '#CFF1FF',

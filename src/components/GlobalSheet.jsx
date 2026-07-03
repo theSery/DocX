@@ -28,12 +28,23 @@ let showSheetHandler = null;
 
 /**
  * @typedef {{
- *   variant?: 'default' | 'info';
- *   message: string;
+ *   label: string;
+ *   icon?: import('react').ReactNode;
+ *   disabled?: boolean;
+ *   onPress?: () => void;
+ * }} MenuItem
+ */
+
+/**
+ * @typedef {{
+ *   variant?: 'default' | 'info' | 'menu';
+ *   message?: string;
  *   description?: string;
  *   content?: import('react-native').ImageSourcePropType | string | null;
  *   videoUrl?: string | null;
- *   actions: SheetAction[];
+ *   actions?: SheetAction[];
+ *   menuItems?: MenuItem[];
+ *   onDismiss?: () => void;
  * }} GlobalSheetOptions
  */
 
@@ -136,6 +147,34 @@ function DefaultSheetContent({ sheet, styles, onActionPress }) {
   );
 }
 
+function MenuSheetContent({ sheet, styles, onMenuItemPress }) {
+  return (
+    <View style={styles.menuContainer}>
+      {sheet.menuItems?.map((item, index) => (
+        <View key={`${item.label}-${index}`}>
+          <Pressable
+            disabled={item.disabled}
+            onPress={() => onMenuItemPress(item)}
+            style={({ pressed }) => [
+              styles.menuItem,
+              pressed && !item.disabled && styles.menuItemPressed,
+            ]}
+          >
+            {item.icon ? <View style={styles.menuItemIcon}>{item.icon}</View> : null}
+            <Typography
+              variant="h5"
+              style={[styles.menuItemText, item.disabled && styles.menuItemTextDisabled]}
+            >
+              {item.label}
+            </Typography>
+          </Pressable>
+          {index < sheet.menuItems.length - 1 ? <View style={styles.menuItemDivider} /> : null}
+        </View>
+      ))}
+    </View>
+  );
+}
+
 function InfoSheetContent({ sheet, styles, onActionPress }) {
   const imageSource = resolveImageSource(sheet.content);
 
@@ -188,8 +227,9 @@ export function GlobalSheetProvider({ children }) {
   }, []);
 
   const closeSheet = useCallback(() => {
+    sheet?.onDismiss?.();
     setVisible(false);
-  }, []);
+  }, [sheet]);
 
   const handleModalDismiss = useCallback(() => {
     setSheet(null);
@@ -204,9 +244,20 @@ export function GlobalSheetProvider({ children }) {
   }, [sheet, visible]);
 
   const handleActionPress = useCallback(action => {
+    sheet?.onDismiss?.();
     setVisible(false);
     action.onPress?.();
-  }, []);
+  }, [sheet]);
+
+  const handleMenuItemPress = useCallback(item => {
+    if (item.disabled) {
+      return;
+    }
+
+    sheet?.onDismiss?.();
+    setVisible(false);
+    item.onPress?.();
+  }, [sheet]);
 
   return (
     <>
@@ -226,6 +277,12 @@ export function GlobalSheetProvider({ children }) {
                   sheet={sheet}
                   styles={styles}
                   onActionPress={handleActionPress}
+                />
+              ) : sheet.variant === 'menu' ? (
+                <MenuSheetContent
+                  sheet={sheet}
+                  styles={styles}
+                  onMenuItemPress={handleMenuItemPress}
                 />
               ) : (
                 <DefaultSheetContent
@@ -338,5 +395,35 @@ const createStyles = colors =>
       fontSize: 16,
       fontFamily: FONT_FAMILY.regular,
       color: palette.white,
+    },
+    menuContainer: {
+      paddingBottom: 8,
+    },
+    menuItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 14,
+      paddingVertical: 16,
+      paddingHorizontal: 4,
+    },
+    menuItemPressed: {
+      opacity: 0.7,
+    },
+    menuItemIcon: {
+      width: 24,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    menuItemText: {
+      flex: 1,
+      fontFamily: FONT_FAMILY.regular,
+      lineHeight: 22,
+    },
+    menuItemTextDisabled: {
+      color: colors.textDisabled,
+    },
+    menuItemDivider: {
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: colors.borderSubtle,
     },
   });

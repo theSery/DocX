@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
-import { AnimatedView, CheckBox, FormDateField, FormField, Typography } from '../../../components';
+import { AnimatedView, CheckBox, FormAddressField, FormDateField, FormField, Typography } from '../../../components';
 import { useForm } from 'react-hook-form';
 import PasportSvg from '../../../components/icons/PasportSvg';
 import { FONT_FAMILY, palette } from '../../../theme';
@@ -59,18 +59,16 @@ const CONTACT_INFO_FIELDS = [
   {
     name: 'notificationAddress',
     label: 'Հաշվառման հասցե ',
+    type: 'address',
     startIcon: <AddressSvg width={18} height={18} fill={palette.gray} />,
     placeholder: 'Մարզ, Քաղաք, Հասցե, 0000',
-    // keyboardType: 'default',
-    // rules: ARMENIAN_NAME_RULES,
   },
   {
     name: 'registrationAddress',
     label: 'Բնակության հասցե*',
+    type: 'address',
     startIcon: <AddressSvg width={18} height={18} fill={palette.gray} />,
     placeholder: 'Մարզ, Քաղաք, Հասցե, 0000',
-    // keyboardType: 'default',
-    // rules: ARMENIAN_NAME_RULES,
   },
 ];
 
@@ -90,6 +88,7 @@ const createStyles = (colors) =>
       justifyContent: 'flex-start',
       alignItems: 'flex-start',
       paddingTop: 20,
+      overflow: 'visible',
     },
     screenTitle: {
       letterSpacing: 0.9,
@@ -99,6 +98,7 @@ const createStyles = (colors) =>
       marginTop: 20,
       gap: 20,
       marginBottom: 40,
+      overflow: 'visible',
     },
     primaryButton: {
       height: 45,
@@ -226,17 +226,16 @@ export function PassportInfoScreen() {
                 startIcon={field.startIcon}
                 placeholder={field.placeholder}
               />
-            ) : (
-              <View key={field.name}>
-                <FormField
-                  // key={field.name}
+            ) : field.type === 'address' ? (
+              <View key={field.name} style={{ overflow: 'visible', zIndex: field.name === 'registrationAddress' ? 2 : 1 }}>
+                <FormAddressField
                   control={control}
                   name={field.name}
                   label={field.label}
                   startIcon={field.startIcon}
                   placeholder={field.placeholder}
-                  keyboardType={field.keyboardType}
                   rules={field.rules}
+                  useGoogleAutocomplete
                 />
                 {field.name === 'notificationAddress' && (
                   <CheckBox
@@ -246,6 +245,18 @@ export function PassportInfoScreen() {
                     label="Հաշվառման և բնակության հասցեն տարբերվում են"
                   />
                 )}
+              </View>
+            ) : (
+              <View key={field.name}>
+                <FormField
+                  control={control}
+                  name={field.name}
+                  label={field.label}
+                  startIcon={field.startIcon}
+                  placeholder={field.placeholder}
+                  keyboardType={field.keyboardType}
+                  rules={field.rules}
+                />
               </View>
             )
           ))}
