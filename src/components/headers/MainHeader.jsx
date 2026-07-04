@@ -15,7 +15,7 @@ const MainHeader = ({ onPress }) => {
     <View style={styles.container}>
       <View style={styles.side}>
         {onPress ? (
-          <BackButton onPress={onPress} />
+             <BackButton onPress={onPress} />
         ) : (
           <GlassButtonContainer height={44}>
             <StarSvg />
@@ -56,6 +56,13 @@ const createStyles = () =>
       width: '100%',
       height: 40,
       maxWidth: 180,
+    },
+    sideButton: {
+      width: 4,
+      height: 44,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginLeft: 12,
     },
   });
 

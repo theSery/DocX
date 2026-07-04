@@ -2,7 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { FilesMainScreen } from '../../screens/main/files';
+import { FilesMainScreen, PersonalDocumentViewScreen } from '../../screens/main/files';
 import { useStackScreenOptions, useThemedStyles } from '../../hooks';
 import MainHeader from '../../components/headers/MainHeader';
 
@@ -38,6 +38,11 @@ export function FaylStackNavigator() {
           name="FilesMain"
           component={FilesMainScreen}
           options={faylMainScreenOptions(nestedScreenOptions)}
+        />
+        <Fayl.Screen
+          name="PersonalDocumentView"
+          component={PersonalDocumentViewScreen}
+          options={{ headerShown: false }}
         />
       </Fayl.Navigator>
     </SafeAreaView>

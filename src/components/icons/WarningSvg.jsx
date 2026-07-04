@@ -1,11 +1,11 @@
 
 import * as React from "react";
 import Svg, { Path } from "react-native-svg";
-const WarningSvg = ({ width, height, fill }) => (
+const WarningSvg = ({ width = 18, height = 18, fill = '#1D3D81' }) => (
   <Svg
     width={width}
     height={height}
-    // viewBox="0 0 45 41"
+    viewBox="0 0 45 41"
     fill={fill}
   >
     <Path

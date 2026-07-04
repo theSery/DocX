@@ -99,6 +99,15 @@ export function FilesMainScreen() {
     fetchFiles(1);
   }, [fetchFiles]);
 
+  const handleFileDeleted = useCallback(deletedId => {
+    setFiles(currentFiles => currentFiles.filter(file => file.id !== deletedId));
+    setTotal(currentTotal => Math.max(0, currentTotal - 1));
+  }, []);
+
+  const handleFileUploaded = useCallback(() => {
+    fetchFiles(1);
+  }, [fetchFiles]);
+
   const renderEmptyComponent = useCallback(() => {
     if (isLoading) {
       return (
@@ -164,7 +173,13 @@ export function FilesMainScreen() {
         showsVerticalScrollIndicator={false}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.3}
-        renderItem={({ item }) => <PersonalDocumentCard document={item} />}
+        renderItem={({ item }) => (
+          <PersonalDocumentCard
+            document={item}
+            onDeleted={handleFileDeleted}
+            onUploaded={handleFileUploaded}
+          />
+        )}
       />
     </View>
   );

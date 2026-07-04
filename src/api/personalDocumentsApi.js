@@ -13,4 +13,19 @@ export const personalDocumentsApi = {
       signal,
     });
   },
+
+  deletePersonalDocument(id) {
+    return axiosClient.delete(`/personal-documents/${id}`);
+  },
+
+  uploadPersonalDocument({ documentName, attachedDocumentId, uri, name, type }) {
+    const formData = new FormData();
+    formData.append('file', { uri, name, type });
+    formData.append('documentName', documentName);
+    formData.append('attachedDocumentId', String(attachedDocumentId));
+
+    return axiosClient.post('/personal-documents', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };

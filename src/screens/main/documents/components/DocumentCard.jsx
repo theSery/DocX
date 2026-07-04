@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import { Typography } from '../../../../components';
+import { AnimatedView, Typography } from '../../../../components';
 import { showGlobalSheet } from '../../../../components/GlobalSheet';
 import AttachSvg from '../../../../components/icons/AttachSvg';
 import DotsVerticalSvg from '../../../../components/icons/DotsVerticalSvg';
@@ -163,9 +163,12 @@ export function DocumentCard({ document, onDeleted, onRecommendedChange }) {
   ]);
 
   return (
-    <View
-      style={[styles.card, isMenuOpen && styles.cardSelected]}
+    <AnimatedView
+      animation="fadeInLeft"
+      animationConfig={{ duration: 600 }}
+      style={[styles.cardShadow, isMenuOpen && styles.cardShadowSelected]}
     >
+      <View style={[styles.card, isMenuOpen && styles.cardSelected]}>
       <View style={styles.headerRow}>
         <Typography variant="h6" tone="secondary" style={styles.date}>
           {document.sendDate}
@@ -213,26 +216,34 @@ export function DocumentCard({ document, onDeleted, onRecommendedChange }) {
           <View style={styles.attachPlaceholder} />
         )}
       </View>
-    </View>
+      </View>
+    </AnimatedView>
   );
 }
 
 const createStyles = colors =>
   StyleSheet.create({
+    cardShadow: {
+      marginBottom: 12,
+      borderRadius: 24,
+      backgroundColor: colors.background,
+      shadowColor: palette.black,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.12,
+      shadowRadius: 6,
+      elevation: 4,
+    },
+    cardShadowSelected: {
+      backgroundColor: CARD_BACKGROUND,
+    },
     card: {
       borderRadius: 24,
-      // backgroundColor: CARD_BACKGROUND,
+      backgroundColor: colors.background,
       borderColor: colors.borderSubtle,
       borderWidth: 1,
       paddingHorizontal: 16,
       paddingTop: 14,
       paddingBottom: 14,
-      marginBottom: 12,
-      shadowColor: palette.black,
-      shadowOffset: { width: 0, height: 0 },
-      shadowOpacity: 0.08,
-      shadowRadius: 8,
-      elevation: 2,
     },
     cardSelected: {
       backgroundColor: CARD_BACKGROUND,

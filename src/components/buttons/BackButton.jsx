@@ -12,9 +12,10 @@ const BackButton = ({ onPress }) => {
 
 const styles = StyleSheet.create({
   image: {
-    width: 50,
-    height: 50,
+    width: 44,
+    height: 44,
     borderRadius: 100,
+    marginLeft: 12,
   },
 });
 
