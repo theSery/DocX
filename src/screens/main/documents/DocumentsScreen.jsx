@@ -1,26 +1,102 @@
-import { useCallback, useMemo, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { complaintsApi } from '../../../api';
+import { Typography } from '../../../components';
+import SadIcon from '../../../components/icons/SadIcon';
+import { useThemedStyles, useTheme } from '../../../hooks';
 import { DocumentCard } from './components/DocumentCard';
 import { DocumentFilterChips } from './components/DocumentFilterChips';
-import { DOCUMENT_FILTERS, MOCK_DOCUMENTS } from './data/mockDocuments';
-import { useThemedStyles } from '../../../hooks';
+import { DOCUMENT_FILTERS } from './data/mockDocuments';
+import { mapComplaintToDocument } from './utils/mapComplaintToDocument';
 
 const TAB_BAR_HEIGHT = 60;
+const PAGE_LIMIT = 10;
 
 export function DocumentsScreen() {
   const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const [activeFilterId, setActiveFilterId] = useState('all');
+  const [documents, setDocuments] = useState([]);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [error, setError] = useState(null);
+  const isFetchingRef = useRef(false);
+
+  const fetchComplaints = useCallback(async (pageToLoad, { append = false } = {}) => {
+    if (isFetchingRef.current) {
+      return;
+    }
+
+    isFetchingRef.current = true;
+    setError(null);
+
+    if (append) {
+      setIsLoadingMore(true);
+    } else {
+      setIsLoading(true);
+    }
+
+    try {
+      const response = await complaintsApi.getComplaints({
+        page: pageToLoad,
+        limit: PAGE_LIMIT,
+      });
+      const { data = [], total: responseTotal = 0, lastPage: responseLastPage = 1 } =
+        response.data ?? {};
+      const mappedDocuments = data.map(mapComplaintToDocument);
+
+      setDocuments(currentDocuments =>
+        append ? [...currentDocuments, ...mappedDocuments] : mappedDocuments,
+      );
+      setPage(pageToLoad);
+      setTotal(responseTotal);
+      setLastPage(responseLastPage);
+    } catch (fetchError) {
+      setError(fetchError?.message || 'Չհաջողվեց բեռնել փաստաթղթերը');
+    } finally {
+      isFetchingRef.current = false;
+      setIsLoading(false);
+      setIsLoadingMore(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchComplaints(1);
+  }, [fetchComplaints]);
 
   const filteredDocuments = useMemo(() => {
     if (activeFilterId === 'all') {
-      return MOCK_DOCUMENTS;
+      return documents;
     }
 
-    return MOCK_DOCUMENTS.filter(document => document.category === activeFilterId);
-  }, [activeFilterId]);
+    return documents.filter(document => document.category === activeFilterId);
+  }, [activeFilterId, documents]);
+
+  const hasMorePages = page < lastPage;
+
+  const handleLoadMore = useCallback(() => {
+    if (!hasMorePages || isLoading || isLoadingMore) {
+      return;
+    }
+
+    fetchComplaints(page + 1, { append: true });
+  }, [fetchComplaints, hasMorePages, isLoading, isLoadingMore, page]);
+
+  const handleRetry = useCallback(() => {
+    fetchComplaints(1);
+  }, [fetchComplaints]);
 
   const renderListHeader = useCallback(
     () => (
@@ -28,10 +104,92 @@ export function DocumentsScreen() {
         filters={DOCUMENT_FILTERS}
         activeFilterId={activeFilterId}
         onFilterChange={setActiveFilterId}
+        total={total}
       />
     ),
-    [activeFilterId],
+    [activeFilterId, total],
   );
+
+  const renderListFooter = useCallback(() => {
+    if (isLoadingMore) {
+      return (
+        <View style={styles.footerLoader}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      );
+    }
+
+    if (!isLoading && !error && total > 0) {
+      return (
+        <View style={styles.paginationInfo}>
+          <Typography variant="h6" tone="secondary" style={styles.paginationText}>
+            {page} / {lastPage} · {filteredDocuments.length} / {total}
+          </Typography>
+        </View>
+      );
+    }
+
+    return null;
+  }, [
+    colors.primary,
+    error,
+    filteredDocuments.length,
+    isLoading,
+    isLoadingMore,
+    lastPage,
+    page,
+    styles.footerLoader,
+    styles.paginationInfo,
+    styles.paginationText,
+    total,
+  ]);
+
+  const renderEmptyComponent = useCallback(() => {
+    if (isLoading) {
+      return (
+        <View style={styles.centeredState}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      );
+    }
+
+    if (error) {
+      return (
+        <View style={styles.centeredState}>
+          <Typography variant="h5" tone="secondary" style={styles.stateText}>
+            {error}
+          </Typography>
+          <TouchableOpacity activeOpacity={0.8} onPress={handleRetry} style={styles.retryButton}>
+            <Typography variant="h6" tone="onDark">
+              Կրկին փորձել
+            </Typography>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    const emptyMessage =
+      documents.length > 0 ? 'Այս ֆիլտրով փաստաթղթեր չեն գտնվել' : 'Փաստաթղթեր չեն գտնվել';
+
+    return (
+      <View style={styles.centeredState}>
+        <SadIcon width={48} height={48} fill={colors.textDisabled} />
+        <Typography variant="h5" tone="secondary" style={styles.stateText}>
+          {emptyMessage}
+        </Typography>
+      </View>
+    );
+  }, [
+    colors.primary,
+    colors.textDisabled,
+    documents.length,
+    error,
+    handleRetry,
+    isLoading,
+    styles.centeredState,
+    styles.retryButton,
+    styles.stateText,
+  ]);
 
   return (
     <View style={styles.screen}>
@@ -39,11 +197,18 @@ export function DocumentsScreen() {
         data={filteredDocuments}
         keyExtractor={item => item.id}
         ListHeaderComponent={renderListHeader}
+        // ListFooterComponent={renderListFooter}
+        
+        ListEmptyComponent={renderEmptyComponent}
         contentContainerStyle={[
           styles.listContent,
+          filteredDocuments.length === 0 && styles.listContentEmpty,
           { paddingBottom: insets.bottom + TAB_BAR_HEIGHT + 24 },
         ]}
+        
         showsVerticalScrollIndicator={false}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.3}
         renderItem={({ item }) => <DocumentCard document={item} />}
       />
     </View>
@@ -59,5 +224,38 @@ const createStyles = colors =>
     listContent: {
       paddingHorizontal: 16,
       paddingTop: 4,
+    },
+    listContentEmpty: {
+      flexGrow: 1,
+    },
+    centeredState: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingTop: 80,
+      gap: 12,
+    },
+    stateText: {
+      textAlign: 'center',
+      paddingHorizontal: 24,
+    },
+    retryButton: {
+      marginTop: 8,
+      backgroundColor: colors.primary,
+      borderRadius: 8,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+    },
+    footerLoader: {
+      paddingVertical: 16,
+      alignItems: 'center',
+    },
+    paginationInfo: {
+      paddingTop: 4,
+      paddingBottom: 8,
+      alignItems: 'center',
+    },
+    paginationText: {
+      textAlign: 'center',
     },
   });

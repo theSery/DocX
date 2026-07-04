@@ -60,6 +60,9 @@ const createStyles = colors =>
     },
     inputRowSearch: {
       backgroundColor: colors.pureWhite,
+      borderColor: colors.border,
+    },
+    inputRowSearchFocused: {
       borderColor: colors.iconAccent,
     },
     inputIcon: {
@@ -111,6 +114,7 @@ export function FormField({
     (name === 'email' ? 'email-address' : name === 'phone' ? 'phone-pad' : 'default');
   const isPhoneField = name === 'phone';
   const [isSecureVisible, setIsSecureVisible] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const showDefaultEyeToggle = secureTextEntry && endButton == null;
   const isMasked = secureTextEntry && !isSecureVisible;
@@ -139,6 +143,7 @@ export function FormField({
               style={[
                 styles.inputRow,
                 isSearch && styles.inputRowSearch,
+                isSearch && isFocused && styles.inputRowSearchFocused,
                 error && styles.inputError,
               ]}
             >
@@ -149,7 +154,13 @@ export function FormField({
                 placeholderTextColor={colors.textDisabled}
                 value={displayValue}
                 onChangeText={isPhoneField ? handlePhoneChange : onChange}
-                onBlur={onBlur}
+                onFocus={() => isSearch && setIsFocused(true)}
+                onBlur={() => {
+                  if (isSearch) {
+                    setIsFocused(false);
+                  }
+                  onBlur();
+                }}
                 autoCapitalize={autoCapitalize}
                 autoCorrect={false}
                 keyboardType={resolvedKeyboardType}

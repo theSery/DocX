@@ -100,6 +100,8 @@ export function FormDateField({
   labelVariant = 'h6',
   maximumDate,
   minimumDate,
+  buttonStyle,
+  textStyle,
 }) {
   const styles = useThemedStyles(createStyles);
   const [showAndroidPicker, setShowAndroidPicker] = useState(false);
@@ -144,12 +146,12 @@ export function FormDateField({
             {label ? <Typography variant={labelVariant}>{label}</Typography> : null}
             <Pressable
               onPress={openPicker}
-              style={[styles.inputRow, error && styles.inputError]}
+              style={[styles.inputRow, error && styles.inputError, buttonStyle]}
               accessibilityRole="button"
             >
               {startIcon ? <View style={styles.inputIcon}>{startIcon}</View> : null}
               <Text
-                style={[styles.valueText, isPlaceholder && styles.placeholderText]}
+                style={[styles.valueText, isPlaceholder && styles.placeholderText,textStyle]}
                 numberOfLines={1}
               >
                 {displayText}

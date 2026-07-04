@@ -13,7 +13,8 @@ import SignatureSvg from '../../../../components/icons/SignatureSvg';
 import StarOutlineSvg from '../../../../components/icons/StarOutlineSvg';
 import TrashSvg from '../../../../components/icons/TrashSvg';
 import { FONT_FAMILY } from '../../../../theme';
-import { useGlobalStyles, useThemedStyles, useTheme } from '../../../../hooks';
+import { palette } from '../../../../theme/tokens';
+import { useThemedStyles, useTheme } from '../../../../hooks';
 
 const STATUS_CONFIG = {
   draft: { label: 'Սևագիր', colorKey: 'error' },
@@ -24,7 +25,6 @@ const STATUS_CONFIG = {
 const CARD_BACKGROUND = '#E8EFFF';
 
 export function DocumentCard({ document }) {
-  const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -73,15 +73,11 @@ export function DocumentCard({ document }) {
 
   return (
     <View
-      style={[
-        globalStyles.cardShadow,
-        styles.card,
-        isMenuOpen && styles.cardSelected,
-      ]}
+      style={[styles.card, isMenuOpen && styles.cardSelected]}
     >
       <View style={styles.headerRow}>
         <Typography variant="h6" tone="secondary" style={styles.date}>
-          {document.date}
+          {document.sendDate}
         </Typography>
         <View style={[styles.statusBadge, { backgroundColor: colors[status.colorKey] }]}>
           <Typography variant="h6" tone="onDark" style={styles.statusText}>
@@ -134,6 +130,11 @@ const createStyles = colors =>
       paddingTop: 14,
       paddingBottom: 14,
       marginBottom: 12,
+      shadowColor: palette.black,
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.08,
+      shadowRadius: 8,
+      elevation: 2,
     },
     cardSelected: {
       backgroundColor: CARD_BACKGROUND,

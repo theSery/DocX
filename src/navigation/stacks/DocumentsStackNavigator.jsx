@@ -1,34 +1,28 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DocumentsScreen } from '../../screens/main/documents';
-import { useStackScreenOptions } from '../../hooks';
-import HomeStackHeader from '../../components/headers/HomeStackHeader';
-import { HomeStackHeaderScrollProvider } from '../../context/HomeStackHeaderScrollContext';
+import { useStackScreenOptions, useThemedStyles } from '../../hooks';
+import MainHeader from '../../components/headers/MainHeader';
 
 const Documents = createNativeStackNavigator();
 
-const nestedScreenOptionsWithHeader = (
-  nestedScreenOptions,
-  { title, subtitle, showSearch = true, collapsible = true, isMainHeader = false },
-) => ({
+const DocumentsMainHeader = () => {
+  const styles = useThemedStyles(createHeaderStyles);
+
+  return (
+    <View style={styles.container}>
+      <MainHeader />
+    </View>
+  );
+};
+
+const documentsMainScreenOptions = nestedScreenOptions => ({
   ...nestedScreenOptions,
-  title,
-  headerSubtitle: subtitle,
-  headerShowSearch: showSearch,
-  headerCollapsible: collapsible,
   headerShown: true,
   contentStyle: { zIndex: 0 },
-  isMainHeader,
-  header: ({ navigation, options }) => (
-    <HomeStackHeader
-      onPress={options.isMainHeader ? undefined : () => navigation.goBack()}
-      title={options.title}
-      subtitle={options.headerSubtitle}
-      showSearch={options.headerShowSearch}
-      collapsible={options.headerCollapsible}
-    />
-  ),
+  header: DocumentsMainHeader,
 });
 
 export function DocumentsStackNavigator() {
@@ -36,23 +30,26 @@ export function DocumentsStackNavigator() {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-      <HomeStackHeaderScrollProvider>
-        <Documents.Navigator
-          initialRouteName="DocumentsMain"
-          screenOptions={{ headerShown: false, animation: 'fade' }}
-        >
-          <Documents.Screen
-            name="DocumentsMain"
-            component={DocumentsScreen}
-            options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
-              title: 'Փաստաթղթեր',
-              subtitle: 'Ընդհանուր գեներացվել է 3 փաստաթուղթ',
-              collapsible: false,
-              isMainHeader: true,
-            })}
-          />
-        </Documents.Navigator>
-      </HomeStackHeaderScrollProvider>
+      <Documents.Navigator
+        initialRouteName="DocumentsMain"
+        screenOptions={{ headerShown: false, animation: 'fade' }}
+      >
+        <Documents.Screen
+          name="DocumentsMain"
+          component={DocumentsScreen}
+          options={documentsMainScreenOptions(nestedScreenOptions)}
+        />
+      </Documents.Navigator>
     </SafeAreaView>
   );
 }
+
+const createHeaderStyles = colors =>
+  StyleSheet.create({
+    container: {
+      backgroundColor: colors.background,
+      paddingHorizontal: 16,
+      paddingTop: 10,
+      paddingBottom: 8,
+    },
+  });

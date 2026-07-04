@@ -214,8 +214,8 @@ function MailLogin({ handleTabPress }) {
         // password: values.password,
         //    email: 'girebic328@fixscal.com',
         // password: 'Ser1288642',
-        email: 'babajanyan.seyran@gmail.com',
-        password: 'Ser12886423&',
+        email: 'lawyerhovhannisyan@gmail.com',
+        password: 'PassDoc10!',
       });
       await persistAuthResponse(response);
       await saveUserCredentials({ email: 'girebic328@fixscal.com', password: 'Ser1288642', pinCode: '1111' });
