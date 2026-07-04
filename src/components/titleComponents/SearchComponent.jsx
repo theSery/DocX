@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Image, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -7,60 +7,32 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { BlurView } from '@react-native-community/blur';
+import { useNavigation } from '@react-navigation/native';
 import { Typography } from '../typography';
 import { useTheme, useThemedStyles } from '../../hooks';
 import { SearchField } from '../form/SearchField';
 import SearchIcon from '../icons/SearchIcon';
+import Chevron from '../icons/Chevron';
+import SadIcon from '../icons/SadIcon';
+import { useAppSelector } from '../../store';
 import { delay } from '../../utils/delay';
+import {
+  createExpandedGroupIds,
+  DROPDOWN_RADIUS,
+  flattenLegalIssues,
+  groupSearchResultsByCategory,
+  NO_RESULTS_LABEL,
+  resolveBucket,
+  resolveDropdownHeight,
+  resolveScrollMaxHeight,
+  resolveSearchState,
+  ROW_HEIGHT,
+  SEARCH_DEBOUNCE_MS,
+  SEARCH_Z_INDEX,
+  toggleExpandedGroupId,
+} from '../../utils/searchUtils';
 
-const ROW_HEIGHT = 44;
-const MAX_ITEMS = 5;
-const SMALL_ITEMS = 2;
-const SHRINK_THRESHOLD = 4;
-const MAX_HEIGHT = ROW_HEIGHT * MAX_ITEMS;
-const SMALL_HEIGHT = ROW_HEIGHT * (SMALL_ITEMS + 1);
 const ANIMATION = { duration: 280, easing: Easing.out(Easing.cubic) };
-const TYPING_DELAY_MS = 150;
-const NO_RESULTS_LABEL = 'անհաջող որոնում';
-
-const DATA_POOL = [
-  'Անձնագիր',
-  'Քաղվածք',
-  'Տեղեկանք',
-  'Արձանագրություն',
-  'Վկայական',
-  'Հայտարարություն',
-  'Դիմում',
-  'Պայմանագիր',
-  'Արձակուրդային',
-  'Թույլտվություն',
-  'Հաշվետվություն',
-  'Որոշում',
-];
-
-function pickRandomItems(count) {
-  const copy = [...DATA_POOL];
-  for (let i = copy.length - 1; i > 0; i -= 1) {
-    const swap = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[swap]] = [copy[swap], copy[i]];
-  }
-  return copy.slice(0, count).map((label, index) => ({
-    id: `${label}-${index}`,
-    label,
-  }));
-}
-
-function resolveBucket(length) {
-  if (length === 0) {
-    return 'closed';
-  }
-  if (length >= SHRINK_THRESHOLD) {
-    return 'shrunk';
-  }
-  return 'expanded';
-}
-
-const SEARCH_Z_INDEX = 2001;
 
 const createStyles = colors =>
   StyleSheet.create({
@@ -82,13 +54,55 @@ const createStyles = colors =>
       right: 0,
       zIndex: SEARCH_Z_INDEX + 1,
       elevation: SEARCH_Z_INDEX + 1,
+      flexDirection: 'column',
     },
     row: {
-      height: ROW_HEIGHT,
-      justifyContent: 'center',
+      minHeight: ROW_HEIGHT,
+      flexDirection: 'row',
+      alignItems: 'center',
       paddingHorizontal: 16,
+      paddingVertical: 8,
+      gap: 12,
       borderBottomWidth: StyleSheet.hairlineWidth,
       borderBottomColor: colors.borderSubtle,
+    },
+    rowIcon: {
+      width: 25,
+      height: 25,
+      resizeMode: 'contain',
+      backgroundColor: colors.skyBlue,
+      padding: 6,
+      borderRadius: 10,
+    },
+    titleIcon: {
+      width: 30,
+      height: 30,
+      resizeMode: 'contain',
+    },
+    rowText: {
+      flex: 1,
+    },
+    groupHeader: {
+      minHeight: ROW_HEIGHT,
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      gap: 12,
+      backgroundColor: colors.skyBlue,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.borderSubtle,
+    },
+    groupHeaderPressed: {
+      opacity: 0.85,
+    },
+    groupHeaderChevron: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    groupHeaderText: {
+      flex: 1,
+      letterSpacing: 0.4,
     },
     rowPressed: {
       backgroundColor: Platform.select({
@@ -97,7 +111,8 @@ const createStyles = colors =>
       }),
     },
     noResultsRow: {
-      borderBottomWidth: 0,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.iconAccent,
       backgroundColor: Platform.select({
         ios: colors.input,
         default: colors.input,
@@ -106,39 +121,76 @@ const createStyles = colors =>
     noResultsLabel: {
       fontStyle: 'italic',
     },
+    dropdownScroll: {
+      flexGrow: 0,
+      flexShrink: 1,
+      
+    },
+    dropdownScrollContent: {
+      flexGrow: 0,
+    },
   });
 
 export function SearchComponent() {
+  const navigation = useNavigation();
   const { isDarkMode, colors } = useTheme();
   const styles = useThemedStyles(createStyles);
-  const [search, setSearch] = useState('');
-  const length = search.length;
-  const bucket = resolveBucket(length);
+  const { items: categories } = useAppSelector(state => state.categories);
+  const flattenedLegalIssues = useMemo(
+    () => flattenLegalIssues(categories),
+    [categories],
+  );
 
-  const [items, setItems] = useState([]);
+  const [search, setSearch] = useState('');
+  const bucket = resolveBucket(search.length);
+  const [searchResults, setSearchResults] = useState([]);
   const [showNoResults, setShowNoResults] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [expandedGroupIds, setExpandedGroupIds] = useState(() => new Set());
   const height = useSharedValue(0);
-  const lastBucket = useRef('closed');
   const lastSelectedRef = useRef(null);
+
+  const groupedSearchResults = useMemo(
+    () => groupSearchResultsByCategory(searchResults),
+    [searchResults],
+  );
+
+  const dropdownContentHeight = useMemo(
+    () =>
+      resolveDropdownHeight({
+        groupedResults: groupedSearchResults,
+        expandedGroupIds,
+        showNoResults,
+        hasSearchResults: searchResults.length > 0,
+      }),
+    [expandedGroupIds, groupedSearchResults, searchResults.length, showNoResults],
+  );
+
+  const scrollMaxHeight = useMemo(
+    () => resolveScrollMaxHeight({ dropdownContentHeight, showNoResults }),
+    [dropdownContentHeight, showNoResults],
+  );
 
   const closeDropdown = () => {
     height.value = withTiming(0, ANIMATION);
-    setItems([]);
+    setSearchResults([]);
     setShowNoResults(false);
     setIsDropdownOpen(false);
-    lastBucket.current = 'closed';
+    setExpandedGroupIds(new Set());
   };
 
-  const handleSelect = label => {
-    lastSelectedRef.current = label;
-    setSearch(label);
+  const handleSelect = result => {
+    lastSelectedRef.current = result.label;
+    setSearch(result.label);
     closeDropdown();
-  };
-
-  const handleNoResultsPress = () => {
-    lastSelectedRef.current = search;
-    closeDropdown();
+    navigation.navigate('SubCategoryScreen', {
+      item: result.subCategory.legalIssues,
+      title: result.category.name,
+      subtitle: result.subCategory.name,
+      iconUrl: result.category.iconUrl,
+      initialOpenKey: result.legalIssue?.id ?? result.id,
+    });
+    handleClear();
   };
 
   const handleClear = () => {
@@ -150,57 +202,55 @@ export function SearchComponent() {
   useEffect(() => {
     let cancelled = false;
 
-    async function applyBucket() {
-      await delay(TYPING_DELAY_MS);
+    async function applySearch() {
+      await delay(SEARCH_DEBOUNCE_MS);
       if (cancelled) {
         return;
       }
 
       if (lastSelectedRef.current !== null && search === lastSelectedRef.current) {
-        height.value = withTiming(0, ANIMATION);
-        setItems([]);
+        setSearchResults([]);
         setShowNoResults(false);
         setIsDropdownOpen(false);
-        lastBucket.current = 'closed';
         return;
       }
+
       lastSelectedRef.current = null;
 
-      if (bucket === 'closed') {
-        height.value = withTiming(0, ANIMATION);
-        setItems([]);
-        setShowNoResults(false);
-        setIsDropdownOpen(false);
-        lastBucket.current = 'closed';
-        return;
-      }
+      const nextState = resolveSearchState({
+        bucket,
+        flattenedLegalIssues,
+        query: search,
+      });
 
-      if (bucket === 'expanded') {
-        if (lastBucket.current !== 'expanded') {
-          setItems(pickRandomItems(MAX_ITEMS));
-        }
-        setShowNoResults(false);
-        setIsDropdownOpen(true);
-        height.value = withTiming(MAX_HEIGHT, ANIMATION);
-        lastBucket.current = 'expanded';
-        return;
-      }
-
-      if (lastBucket.current !== 'shrunk') {
-        setItems(pickRandomItems(SMALL_ITEMS));
-      }
-      setShowNoResults(true);
-      setIsDropdownOpen(true);
-      height.value = withTiming(SMALL_HEIGHT, ANIMATION);
-      lastBucket.current = 'shrunk';
+      setSearchResults(nextState.matches);
+      setShowNoResults(nextState.showNoResults);
+      setIsDropdownOpen(nextState.isDropdownOpen);
     }
 
-    applyBucket();
+    applySearch();
 
     return () => {
       cancelled = true;
     };
-  }, [bucket, height, search]);
+  }, [bucket, flattenedLegalIssues, search]);
+
+  useEffect(() => {
+    setExpandedGroupIds(
+      groupedSearchResults.length > 0
+        ? createExpandedGroupIds(groupedSearchResults)
+        : new Set(),
+    );
+  }, [groupedSearchResults]);
+
+  useEffect(() => {
+    if (!isDropdownOpen || bucket === 'closed') {
+      height.value = withTiming(0, ANIMATION);
+      return;
+    }
+
+    height.value = withTiming(dropdownContentHeight, ANIMATION);
+  }, [bucket, dropdownContentHeight, height, isDropdownOpen]);
 
   const animatedPanelStyle = useAnimatedStyle(() => ({
     height: height.value,
@@ -236,35 +286,84 @@ export function SearchComponent() {
           blurAmount={24}
           reducedTransparencyFallbackColor={colors.background}
         />
-        {items.map(item => (
-          <Pressable
-            key={item.id}
-            onPress={() => handleSelect(item.label)}
-            style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-          >
-            <Typography variant="h5" numberOfLines={1}>
-              {item.label}
-            </Typography>
-          </Pressable>
-        ))}
-        {showNoResults ? (
-          <Pressable
-            onPress={handleNoResultsPress}
-            style={({ pressed }) => [
-              styles.row,
-              styles.noResultsRow,
-              pressed && styles.rowPressed,
+        {searchResults.length > 0 ? (
+          <ScrollView
+            style={[
+              styles.dropdownScroll,
+              scrollMaxHeight != null && { maxHeight: scrollMaxHeight },
             ]}
+            contentContainerStyle={styles.dropdownScrollContent}
+            nestedScrollEnabled
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator
           >
+            {groupedSearchResults.map(group => {
+              const isExpanded = expandedGroupIds.has(group.id);
+
+              return (
+                <View key={group.id}>
+                  <Pressable
+                    onPress={() =>
+                      setExpandedGroupIds(prev =>
+                        toggleExpandedGroupId(prev, group.id),
+                      )
+                    }
+                    style={({ pressed }) => [
+                      styles.groupHeader,
+                      pressed && styles.groupHeaderPressed,
+                    ]}
+                  >
+                    {group.iconUrl ? (
+                      <Image source={{ uri: group.iconUrl }} style={styles.titleIcon} />
+                    ) : null}
+                    <Typography variant="h5" numberOfLines={1} style={styles.groupHeaderText}>
+                      {group.name}
+                    </Typography>
+                    <View style={styles.groupHeaderChevron}>
+                      <Chevron
+                        width={16}
+                        height={16}
+                        fill={colors.iconAccent}
+                        rotate={isExpanded ? -90 : 90}
+                      />
+                    </View>
+                  </Pressable>
+                  {isExpanded
+                    ? group.results.map(result => (
+                        <Pressable
+                          key={result.id}
+                          onPress={() => handleSelect(result)}
+                          style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+                        >
+                          {result.subCategory.iconUrl ? (
+                            <Image
+                              source={{ uri: result.subCategory.iconUrl }}
+                              style={styles.rowIcon}
+                            />
+                          ) : null}
+                          <Typography variant="h6" numberOfLines={2} style={styles.rowText}>
+                            {result.label}
+                          </Typography>
+                        </Pressable>
+                      ))
+                    : null}
+                </View>
+              );
+            })}
+          </ScrollView>
+        ) : null}
+        {showNoResults ? (
+          <View style={[styles.row, styles.noResultsRow]}>
+            <SadIcon width={20} height={20} fill={colors.textSecondary} />
             <Typography
-              variant="h6"
+              variant="h5"
               tone="secondary"
-              style={styles.noResultsLabel}
+              style={[styles.noResultsLabel, styles.rowText]}
               numberOfLines={1}
             >
               {NO_RESULTS_LABEL}
             </Typography>
-          </Pressable>
+          </View>
         ) : null}
       </Animated.View>
     </View>

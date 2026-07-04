@@ -27,7 +27,7 @@ const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
 
 
 export function SubCategoryScreen({ route, navigation }) {
-  const { item, title, subtitle, iconUrl } = route.params;
+  const { item, title, subtitle, iconUrl, initialOpenKey } = route.params;
   const isFocused = useIsFocused();
   const styles = useThemedStyles(createStyles);
   useEffect(() => {
@@ -97,7 +97,9 @@ export function SubCategoryScreen({ route, navigation }) {
         >
           <AnimatedView animation="fadeInLeft" animationConfig={{ duration: 600 }}>
             <Accordion
+              key={initialOpenKey ?? 'default'}
               items={item}
+              initialOpenKey={initialOpenKey ?? null}
               scrollRef={scrollRef}
               scrollOffset={scrollY}
               renderHeader={category => (

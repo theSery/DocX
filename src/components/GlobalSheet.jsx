@@ -304,6 +304,7 @@ const createStyles = colors =>
     warningContainer: {
       alignItems: 'center',
       marginBottom: 24,
+      
     },
     infoContainer: {
       alignItems: 'stretch',
