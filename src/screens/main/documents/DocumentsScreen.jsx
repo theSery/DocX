@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -15,6 +15,7 @@ import { useThemedStyles, useTheme } from '../../../hooks';
 import { DocumentCard } from './components/DocumentCard';
 import { DocumentFilterChips } from './components/DocumentFilterChips';
 import { DOCUMENT_FILTERS } from './data/mockDocuments';
+import { formatApiDate } from './utils/formatApiDate';
 import { mapComplaintToDocument } from './utils/mapComplaintToDocument';
 
 const TAB_BAR_HEIGHT = 60;
@@ -25,6 +26,8 @@ export function DocumentsScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const [activeFilterId, setActiveFilterId] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
   const [documents, setDocuments] = useState([]);
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -33,6 +36,7 @@ export function DocumentsScreen() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const isFetchingRef = useRef(false);
+  const hasDocumentsRef = useRef(false);
 
   const fetchComplaints = useCallback(async (pageToLoad, { append = false } = {}) => {
     if (isFetchingRef.current) {
@@ -44,14 +48,21 @@ export function DocumentsScreen() {
 
     if (append) {
       setIsLoadingMore(true);
-    } else {
+    } else if (!hasDocumentsRef.current) {
       setIsLoading(true);
     }
 
     try {
+      const startDate = formatApiDate(dateRange.startDate);
+      const endDate = formatApiDate(dateRange.endDate);
+
       const response = await complaintsApi.getComplaints({
         page: pageToLoad,
         limit: PAGE_LIMIT,
+        ...(activeFilterId !== 'all' ? { recipientType: activeFilterId } : {}),
+        ...(startDate ? { startDate } : {}),
+        ...(endDate ? { endDate } : {}),
+        ...(searchTerm ? { searchTerm } : {}),
       });
       const { data = [], total: responseTotal = 0, lastPage: responseLastPage = 1 } =
         response.data ?? {};
@@ -70,19 +81,32 @@ export function DocumentsScreen() {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, []);
+  }, [activeFilterId, dateRange, searchTerm]);
+
+  useEffect(() => {
+    hasDocumentsRef.current = documents.length > 0;
+  }, [documents.length]);
 
   useEffect(() => {
     fetchComplaints(1);
   }, [fetchComplaints]);
 
-  const filteredDocuments = useMemo(() => {
-    if (activeFilterId === 'all') {
-      return documents;
-    }
+  const handleDateRangeChange = useCallback(range => {
+    setDateRange(current => {
+      if (
+        current.startDate === range.startDate &&
+        current.endDate === range.endDate
+      ) {
+        return current;
+      }
 
-    return documents.filter(document => document.category === activeFilterId);
-  }, [activeFilterId, documents]);
+      return range;
+    });
+  }, []);
+
+  const handleSearchChange = useCallback(term => {
+    setSearchTerm(current => (current === term ? current : term));
+  }, []);
 
   const hasMorePages = page < lastPage;
 
@@ -97,52 +121,6 @@ export function DocumentsScreen() {
   const handleRetry = useCallback(() => {
     fetchComplaints(1);
   }, [fetchComplaints]);
-
-  const renderListHeader = useCallback(
-    () => (
-      <DocumentFilterChips
-        filters={DOCUMENT_FILTERS}
-        activeFilterId={activeFilterId}
-        onFilterChange={setActiveFilterId}
-        total={total}
-      />
-    ),
-    [activeFilterId, total],
-  );
-
-  const renderListFooter = useCallback(() => {
-    if (isLoadingMore) {
-      return (
-        <View style={styles.footerLoader}>
-          <ActivityIndicator color={colors.primary} />
-        </View>
-      );
-    }
-
-    if (!isLoading && !error && total > 0) {
-      return (
-        <View style={styles.paginationInfo}>
-          <Typography variant="h6" tone="secondary" style={styles.paginationText}>
-            {page} / {lastPage} · {filteredDocuments.length} / {total}
-          </Typography>
-        </View>
-      );
-    }
-
-    return null;
-  }, [
-    colors.primary,
-    error,
-    filteredDocuments.length,
-    isLoading,
-    isLoadingMore,
-    lastPage,
-    page,
-    styles.footerLoader,
-    styles.paginationInfo,
-    styles.paginationText,
-    total,
-  ]);
 
   const renderEmptyComponent = useCallback(() => {
     if (isLoading) {
@@ -193,19 +171,26 @@ export function DocumentsScreen() {
 
   return (
     <View style={styles.screen}>
+      <View style={styles.header}>
+        <DocumentFilterChips
+          filters={DOCUMENT_FILTERS}
+          activeFilterId={activeFilterId}
+          onFilterChange={setActiveFilterId}
+          onDateRangeChange={handleDateRangeChange}
+          onSearchChange={handleSearchChange}
+          total={total}
+        />
+      </View>
       <FlatList
-        data={filteredDocuments}
+        style={styles.list}
+        data={documents}
         keyExtractor={item => item.id}
-        ListHeaderComponent={renderListHeader}
-        // ListFooterComponent={renderListFooter}
-        
         ListEmptyComponent={renderEmptyComponent}
         contentContainerStyle={[
           styles.listContent,
-          filteredDocuments.length === 0 && styles.listContentEmpty,
+          documents.length === 0 && styles.listContentEmpty,
           { paddingBottom: insets.bottom + TAB_BAR_HEIGHT + 24 },
         ]}
-        
         showsVerticalScrollIndicator={false}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.3}
@@ -220,6 +205,13 @@ const createStyles = colors =>
     screen: {
       flex: 1,
       backgroundColor: colors.background,
+    },
+    header: {
+      paddingHorizontal: 16,
+      paddingTop: 4,
+    },
+    list: {
+      flex: 1,
     },
     listContent: {
       paddingHorizontal: 16,

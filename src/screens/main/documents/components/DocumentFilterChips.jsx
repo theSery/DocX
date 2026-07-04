@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { FormDateField, FormField, Typography } from '../../../../components';
+import { delay } from '../../../../utils/delay';
+import { SEARCH_DEBOUNCE_MS } from '../../../../utils/searchUtils';
 import CalendarSvg from '../../../../components/icons/CalendarSvg';
 import SearchIcon from '../../../../components/icons/SearchIcon';
 import { useTheme, useThemedStyles } from '../../../../hooks';
@@ -14,6 +16,8 @@ export function DocumentFilterChips({
   filters,
   activeFilterId,
   onFilterChange,
+  onDateRangeChange,
+  onSearchChange,
   total,
 }) {
   const styles = useThemedStyles(createStyles);
@@ -22,12 +26,37 @@ export function DocumentFilterChips({
   const { control, reset, getValues } = useForm({
     defaultValues: { search: '', startDate: null, endDate: null },
   });
+  const search = useWatch({ control, name: 'search' });
   const startDate = useWatch({ control, name: 'startDate' });
   const endDate = useWatch({ control, name: 'endDate' });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function applySearch() {
+      await delay(SEARCH_DEBOUNCE_MS);
+      if (cancelled) {
+        return;
+      }
+
+      onSearchChange?.(search.trim());
+    }
+
+    applySearch();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [search, onSearchChange]);
+
+  useEffect(() => {
+    onDateRangeChange?.({ startDate, endDate });
+  }, [startDate, endDate, onDateRangeChange]);
 
   const handleDateFilterToggle = () => {
     if (isDateFilterOpen) {
       reset({ ...getValues(), startDate: null, endDate: null });
+      onDateRangeChange?.({ startDate: null, endDate: null });
     }
     setIsDateFilterOpen(current => !current);
   };
@@ -69,6 +98,9 @@ export function DocumentFilterChips({
       {isDateFilterOpen ? (
         <View style={styles.dateRangeRow}>
           <View style={styles.dateField}>
+            <Typography variant="h6" tone="secondary" style={{paddingBottom: 4}}>
+              Սկիզբ
+            </Typography>
             <FormDateField
               control={control}
               name="startDate"
@@ -89,9 +121,12 @@ export function DocumentFilterChips({
             tone="secondary"
             style={styles.dateRangeSeparator}
           >
-            —
+            {/* — */}
           </Typography>
           <View style={styles.dateField}>
+          <Typography variant="h6" tone="secondary" style={{paddingBottom: 4}}>
+              Վերջ
+            </Typography>
             <FormDateField
               control={control}
               name="endDate"
