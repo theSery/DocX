@@ -28,6 +28,7 @@ import LockIconSbg from '../../../../components/icons/LockIconSbg';
 import AuthButton from '../../../../components/buttons/AuthButton';
 import { authApi } from '../../../../api';
 import { useToast } from '../../../../hooks';
+import { PASSWORD_STRENGTH_RULE } from '../../../../utils/patterns';
 
 const CORNER_RADIUS = 30;
 const CONTAINER_TOP = 56;
@@ -137,7 +138,7 @@ function RegistrationForm() {
             secureTextEntry
             rules={{
               required: 'Գաղտնաբառը պարտադիր է',
-              minLength: { value: 6, message: 'Առնվազն 6 նիշ' },
+              ...PASSWORD_STRENGTH_RULE,
             }}
           />
         </View>

@@ -221,7 +221,7 @@ function MailLogin({ handleTabPress }) {
 
       });
       await persistAuthResponse(response);
-      await saveUserCredentials({ email: 'girebic328@fixscal.com', password: 'Ser1288642', pinCode: '1111' });
+      // await saveUserCredentials({ email: 'girebic328@fixscal.com', password: 'Ser1288642', pinCode: '1111' });
       await login();
     } catch (error) {
       console.log('Login error:', error);

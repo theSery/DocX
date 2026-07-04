@@ -123,9 +123,9 @@ const handleNavigate = () => {
 
   return (
     <AuthScreenLayout
-      style={[styles.screen, { backgroundColor: palette.mainWhite }]}
+      style={[styles.screen]}
     >
-      <MainHeader onPress={() => navigation.goBack()} />
+      <MainHeader onPress={() => navigation.goBack()} isHome={true}/>
       <ScrollView
         style={registrationScreenStyles.formArea}
         showsVerticalScrollIndicator={false}

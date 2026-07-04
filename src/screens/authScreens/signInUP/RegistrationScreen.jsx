@@ -1,4 +1,4 @@
-import { Linking, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Linking, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { AuthScreenLayout } from '../../../components/layout';
 import { useAuthScreenStyles } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
@@ -36,8 +36,16 @@ export function RegistrationScreen({ navigation, route }) {
   return (
     <AuthScreenLayout style={[styles.screen, {backgroundColor: palette.mainWhite}]}>
       <StatusBar barStyle="dark-content" />
-      <MainHeader  />
-        <View style={registrationScreenStyles.content}>
+      <MainHeader  onPress={() => navigation.goBack()} isHome={true}/>
+      <ScrollView
+        style={registrationScreenStyles.formArea}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        automaticallyAdjustKeyboardInsets
+        contentContainerStyle={registrationScreenStyles.content}
+      >
+        {/* <View style={registrationScreenStyles.content}> */}
         <View style={registrationScreenStyles.formContainer}>
         <ContentTiltes title={'Անձնական տվյալներ'} subtitle={'Գրանցումն ավարտելու համար լրացրեք տվյալները'} />
         <FormField
@@ -99,7 +107,8 @@ export function RegistrationScreen({ navigation, route }) {
               isLoading={isSubmitting}
             />
       </View>
-        </View>
+        {/* </View> */}
+        </ScrollView>
     </AuthScreenLayout>
   );
 }

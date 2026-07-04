@@ -18,7 +18,7 @@ export function AuthNavigator() {
         screenOptions={{
           headerShown: false,
           animation: 'fade',
-          contentStyle: { backgroundColor: 'white' },
+
         }}>
         <Stack.Screen name="AccountType" component={AccountTypeScreen} />
         <Stack.Screen name="SignInUp" component={SignInUpScreen} />

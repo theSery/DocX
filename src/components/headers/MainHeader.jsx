@@ -42,6 +42,7 @@ const createStyles = () =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
+
     },
     side: {
       width: 50,

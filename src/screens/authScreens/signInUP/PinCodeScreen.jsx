@@ -55,7 +55,7 @@ export function PinCodeScreen({ navigation, route }) {
     <AuthScreenLayout
       style={[styles.screen, { backgroundColor: palette.mainWhite }]}
     >
-      <MainHeader onPress={() => navigation.goBack()} />
+      <MainHeader onPress={() => navigation.goBack()} isHome={true}/>
       <View style={registrationScreenStyles.content}>
 
         <View style={registrationScreenStyles.formContainer}>

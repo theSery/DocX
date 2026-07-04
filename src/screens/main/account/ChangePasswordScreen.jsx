@@ -7,6 +7,7 @@ import { authApi } from '../../../api';
 import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
 import { palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
+import { PASSWORD_STRENGTH_RULE } from '../../../utils/patterns';
 
 const createStyles = () =>
   StyleSheet.create({
@@ -108,7 +109,7 @@ export function ChangePasswordScreen() {
               secureTextEntry
               rules={{
                 required: 'Նոր գաղտնաբառը պարտադիր է',
-                minLength: { value: 6, message: 'Առնվազն 6 նիշ' },
+                ...PASSWORD_STRENGTH_RULE,
               }}
             />
             <FormField
