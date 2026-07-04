@@ -1,7 +1,6 @@
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { FilesScreen } from '../screens/main/files';
-import { AccountStackNavigator, DocumentsStackNavigator, HomeStackNavigator } from './stacks';
+import { AccountStackNavigator, DocumentsStackNavigator, FaylStackNavigator, HomeStackNavigator } from './stacks';
 import { BlurTabBar } from './BlurTabBar';
 
 const Tab = createBottomTabNavigator();
@@ -39,7 +38,7 @@ export function TabNavigator() {
       />
       <Tab.Screen
         name="Files"
-        component={FilesScreen}
+        component={FaylStackNavigator}
         options={{ title: 'Ֆայլեր' }}
       />
       <Tab.Screen
