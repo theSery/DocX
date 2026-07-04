@@ -41,4 +41,27 @@ export const complaintsApi = {
   getComplaint(id) {
     return axiosClient.get(`/complaints/${id}`);
   },
+
+  createComplaint({ templateId, documentName, serialNumber, data, file }) {
+    const formData = new FormData();
+
+    formData.append('templateId', String(templateId));
+    formData.append('documentName', documentName);
+    formData.append('serialNumber', serialNumber);
+    formData.append('data', data);
+
+    if (file?.uri) {
+      const uri = file.uri.startsWith('file://') ? file.uri : `file://${file.uri}`;
+
+      formData.append('file', {
+        uri,
+        name: file.name,
+        type: file.type ?? 'application/pdf',
+      });
+    }
+console.log(formData, 'formData');
+    return axiosClient.post('/complaints', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };

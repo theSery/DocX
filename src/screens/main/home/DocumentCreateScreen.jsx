@@ -6,21 +6,29 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import AuthButton from '../../../components/buttons/AuthButton';
+import SignatureSvg from '../../../components/icons/SignatureSvg';
+import UploadSvg from '../../../components/icons/UploadSvg';
 import { WebView } from 'react-native-webview';
 import {
+  buildComplaintPayload,
   buildFilledTemplateBodyHtml,
-  buildFilledTemplateDocumentHtml,
+  buildPdfHtmlDocument,
   buildTypingAnimationHtml,
   DEFAULT_TYPING_DURATION,
   fetchSignatureImageDataUri,
   generateAndShareDocumentPdf,
+  generateComplaintSerialNumber,
+  generateDocumentPdf,
   getPdfWebViewBaseUrl,
+  prependSerialNumberToBodyHtml,
 } from '../../../documents';
+import { complaintsApi } from '../../../api';
 import { DocumentLoadingOverlay, Typography } from '../../../components';
 import { useAppSelector } from '../../../store';
 import { selectDocumentFill } from '../../../store/slices/documentFillSlice';
 import { selectPersonalData } from '../../../store/slices/personalDataSlice';
-import { useDocumentLoadingOverlay, useThemedStyles } from '../../../hooks';
+import { useDocumentLoadingOverlay, useThemedStyles, useToast } from '../../../hooks';
 import { palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import MainHeader from '../../../components/headers/MainHeader';
@@ -30,29 +38,44 @@ const WEBVIEW_HEIGHT = 10000;
 export function DocumentCreateScreen({ route, navigation }) {
 
   const styles = useThemedStyles(createStyles);
+  const { showToast } = useToast();
   const personalData = useAppSelector(selectPersonalData);
   const documentFill = useAppSelector(selectDocumentFill);
-  const { templateText = '', templateName = 'document' } = route.params ?? {};
+  const { templateText = '', templateName = 'document', templateId } = route.params ?? {};
   const [isWebViewLoading, setIsWebViewLoading] = useState(true);
   const [hasTypingFinished, setHasTypingFinished] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isAddingSignature, setIsAddingSignature] = useState(false);
+  const [isSubmittingComplaint, setIsSubmittingComplaint] = useState(false);
   const [signatureImageSrc, setSignatureImageSrc] = useState(null);
-
   const isContentLoading = !hasTypingFinished || isWebViewLoading;
   const showLoadingOverlay = useDocumentLoadingOverlay(isContentLoading);
 
-  const documentHtml = useMemo(
+  const userId = personalData?.id ?? personalData?.userId;
+
+  const serialNumber = useMemo(
+    () => generateComplaintSerialNumber(userId),
+    [userId],
+  );
+
+  const bodyHtml = useMemo(
     () =>
-      buildFilledTemplateDocumentHtml(
+      buildFilledTemplateBodyHtml(
         templateText,
-        {
-          personalData,
-          documentFill,
-        },
+        { personalData, documentFill },
         { signatureImageSrc: signatureImageSrc ?? undefined },
       ),
     [templateText, personalData, documentFill, signatureImageSrc],
+  );
+
+  const bodyHtmlWithSerial = useMemo(
+    () => prependSerialNumberToBodyHtml(bodyHtml, serialNumber),
+    [bodyHtml, serialNumber],
+  );
+
+  const documentHtml = useMemo(
+    () => buildPdfHtmlDocument(bodyHtmlWithSerial),
+    [bodyHtmlWithSerial],
   );
 
   const typingBodyHtml = useMemo(
@@ -112,6 +135,7 @@ export function DocumentCreateScreen({ route, navigation }) {
   }, [documentHtml, templateName]);
 
   const handleAddSignature = useCallback(async () => {
+    console.log('handleAddSignature', Date.now());
     setIsAddingSignature(true);
     try {
       const imageSrc = await fetchSignatureImageDataUri();
@@ -125,8 +149,80 @@ export function DocumentCreateScreen({ route, navigation }) {
     }
   }, []);
 
+  const handleSubmitComplaint = useCallback(async () => {
+    if (!templateId) {
+      showToast({
+        title: 'Սխալ',
+        body: 'Փաստաթղթի ձևանմուշը չի գտնվել։',
+        type: 'error',
+      });
+      return;
+    }
+
+    setIsSubmittingComplaint(true);
+    try {
+      const payload = buildComplaintPayload({
+        templateId,
+        documentName: templateName,
+        bodyHtml: bodyHtmlWithSerial,
+        userId,
+      });
+console.log(payload, 'payload');
+      const pdf = await generateDocumentPdf({
+        documentHtml,
+        fileName: `docx_${templateName.replace(/\s+/g, '_')}_${Date.now()}`,
+      });
+console.log(pdf, 'pdf');
+      await complaintsApi.createComplaint({
+        ...payload,
+        file: {
+          uri: pdf.filePath,
+          name: payload.documentName,
+          type: 'application/pdf',
+        },
+      });
+
+      showToast({
+        title: 'Հաջողություն',
+        body: 'Փաստաթուղթը ուղարկված է ՀՀ ՆԳՆ Պարեկային ծառայություն։',
+        type: 'success',
+      });
+
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'HomeMain' }],
+      });
+    } catch (error) {
+      console.log(error, 'error');
+      const message =
+        error?.message ??
+        (error instanceof Error
+          ? error.message
+          : 'Չհաջողվեց ուղարկել փաստաթուղթը։');
+
+      showToast({
+        title: 'Սխալ',
+        body: message,
+        type: 'error',
+      });
+    } finally {
+      setIsSubmittingComplaint(false);
+    }
+  }, [
+    templateId,
+    templateName,
+    bodyHtmlWithSerial,
+    documentHtml,
+    userId,
+    navigation,
+    showToast,
+  ]);
+
   const isActionDisabled =
-    showLoadingOverlay || isDownloading || isAddingSignature;
+    showLoadingOverlay ||
+    isDownloading ||
+    isAddingSignature ||
+    isSubmittingComplaint;
 
   return (
     <View style={styles.root}>
@@ -146,12 +242,36 @@ export function DocumentCreateScreen({ route, navigation }) {
         />
       </View>
 
-      <View style={[styles.actionBar, { bottom: TAB_BAR_BOTTOM_OFFSET }]}>
+      <View style={[styles.actionBar, { bottom: TAB_BAR_BOTTOM_OFFSET, flexDirection: 'column' }]}>
+        <View style={styles.actionRow}>
+          <AuthButton
+            title="Ստորագրել"
+            onPress={handleAddSignature}
+            isLoading={isAddingSignature}
+            disabled={isActionDisabled}
+            isLight
+            startIcon={
+              <SignatureSvg width={20} height={20} fill={palette.mainBlue} />
+            }
+            style={styles.rowButton}
+          />
+          <AuthButton
+            title="Ներբեռնել PDF"
+            onPress={handleDownloadPdf}
+            isLoading={isDownloading}
+            disabled={isActionDisabled}
+            endIcon={
+              <UploadSvg width={20} height={20} fill={palette.white} />
+            }
+            style={styles.rowButton}
+          />
+        </View>
+               
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Add signature"
+          accessibilityLabel="Submit to police patrol service"
           disabled={isActionDisabled}
-          onPress={handleAddSignature}
+          onPress={handleSubmitComplaint}
           style={({ pressed }) => [
             styles.actionButton,
             styles.signatureButton,
@@ -159,36 +279,16 @@ export function DocumentCreateScreen({ route, navigation }) {
             isActionDisabled && styles.actionButtonDisabled,
           ]}
         >
-          {isAddingSignature ? (
+          {isSubmittingComplaint ? (
             <ActivityIndicator color={palette.mainBlue} />
           ) : (
-            <Typography variant="h5">
-              Ստորագրել
-            </Typography>
-          )}
-        </Pressable>
-
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Download PDF"
-          disabled={isActionDisabled}
-          onPress={handleDownloadPdf}
-          style={({ pressed }) => [
-            styles.actionButton,
-            styles.downloadButton,
-            pressed && styles.actionButtonPressed,
-            isActionDisabled && styles.actionButtonDisabled,
-          ]}
-        >
-          {isDownloading ? (
-            <ActivityIndicator color={palette.white} />
-          ) : (
-            <Typography variant="h5" tone="onDark">
-              Ներբեռնել PDF
+            <Typography variant="h6">
+              Ուղարկված է ՀՀ ՆԳՆ Պարեկային ծառայություն
             </Typography>
           )}
         </Pressable>
       </View>
+      
       </View>
 
       <DocumentLoadingOverlay visible={showLoadingOverlay} />
@@ -205,12 +305,12 @@ function createStyles(colors) {
     screen: {
       flex: 1,
       // paddingTop: 1,
-      paddingBottom: TAB_BAR_BOTTOM_OFFSET + 60,
+      paddingBottom: TAB_BAR_BOTTOM_OFFSET + 120,
       paddingHorizontal: 10,
     },
     previewContainer: {
       flex: 1,
-      height: WEBVIEW_HEIGHT,
+      // height: WEBVIEW_HEIGHT - 100,
       width: '100%',
       overflow: 'hidden',
       // borderRadius: 12,
@@ -232,12 +332,20 @@ function createStyles(colors) {
       flexDirection: 'row',
       gap: 12,
     },
+    actionRow: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    rowButton: {
+      flex: 1,
+      marginTop: 0,
+    },
     actionButton: {
       flex: 1,
       minHeight: 48,
       paddingHorizontal: 16,
       paddingVertical: 12,
-      borderRadius: 24,
+      borderRadius: 16,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -245,9 +353,6 @@ function createStyles(colors) {
       backgroundColor: colors.surface,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: colors.primary,
-    },
-    downloadButton: {
-      backgroundColor: colors.primary,
     },
     actionButtonPressed: {
       opacity: 0.88,

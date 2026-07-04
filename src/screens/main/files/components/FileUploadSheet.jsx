@@ -26,22 +26,13 @@ function resolveImageSource(content) {
   return content;
 }
 
-function stripExtension(name) {
-  const lastDot = name.lastIndexOf('.');
-  return lastDot > 0 ? name.slice(0, lastDot) : name;
-}
-
 export function FileUploadSheet({ visible, pickedFile, onClose, onUpload, isUploading }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const [fileName, setFileName] = useState('');
 
   useEffect(() => {
-    if (pickedFile?.name) {
-      setFileName(stripExtension(pickedFile.name));
-    } else {
-      setFileName('');
-    }
+    setFileName('');
   }, [pickedFile]);
 
   const trimmedName = fileName.trim();
@@ -127,6 +118,7 @@ const createStyles = colors =>
       flex: 1,
       justifyContent: 'flex-end',
       backgroundColor: 'rgba(0, 0, 0, 0.4)',
+      // backgroundColor: "red",
     },
     sheet: {
       backgroundColor: colors.surface,
@@ -136,6 +128,7 @@ const createStyles = colors =>
       paddingTop: 24,
       paddingBottom: 32,
       alignItems: 'center',
+      height: '80%',
     },
     previewImage: {
       width: '100%',

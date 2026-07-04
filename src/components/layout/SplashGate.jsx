@@ -24,8 +24,9 @@ async function resolveStartupRoute(wasSignedIn) {
   }
 
   try {
-    await userApi.getMe();
-
+    const data = await userApi.getMe();
+    const templates = await userApi.getTemplates();
+    console.log('templates', templates);
     return 'main';
   } catch (error) {
     if (error?.status === 401) {

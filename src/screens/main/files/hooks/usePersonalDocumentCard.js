@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import { InteractionManager } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   errorCodes,
@@ -13,15 +12,8 @@ import { personalDocumentsApi } from '../../../../api';
 import { showGlobalSheet } from '../../../../components/GlobalSheet';
 import { downloadAndShareRemotePdf } from '../../../../documents';
 import { useToast } from '../../../../hooks';
+import { runAfterSheetDismiss } from '../../../../utils/runAfterSheetDismiss';
 import { getUploadPreviewContent } from '../utils/personalDocumentFilePicker';
-
-const SHEET_DISMISS_DELAY_MS = 350;
-
-function runAfterSheetDismiss(callback) {
-  InteractionManager.runAfterInteractions(() => {
-    setTimeout(callback, SHEET_DISMISS_DELAY_MS);
-  });
-}
 
 export function usePersonalDocumentCard({ document, onDeleted, onUploaded }) {
   const navigation = useNavigation();

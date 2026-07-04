@@ -4,16 +4,13 @@ import Share from 'react-native-share';
 import { getPdfGenerationDefaults } from './buildPdfHtmlDocument';
 
 /**
- * Renders document HTML as a PDF and opens the system share sheet
- * so the user can save or send the file.
- *
  * @param {{
  *   documentHtml: string;
  *   fileName?: string;
  * }} params
  * @returns {Promise<{ filePath: string; base64?: string }>}
  */
-export async function generateAndShareDocumentPdf({ documentHtml, fileName }) {
+export async function generateDocumentPdf({ documentHtml, fileName }) {
   const pdfDefaults = getPdfGenerationDefaults();
 
   const result = await generatePDF({
@@ -30,6 +27,25 @@ export async function generateAndShareDocumentPdf({ documentHtml, fileName }) {
     throw new Error('PDF file was not created.');
   }
 
+  return {
+    filePath: result.filePath,
+    base64: result.base64,
+  };
+}
+
+/**
+ * Renders document HTML as a PDF and opens the system share sheet
+ * so the user can save or send the file.
+ *
+ * @param {{
+ *   documentHtml: string;
+ *   fileName?: string;
+ * }} params
+ * @returns {Promise<{ filePath: string; base64?: string }>}
+ */
+export async function generateAndShareDocumentPdf({ documentHtml, fileName }) {
+  const result = await generateDocumentPdf({ documentHtml, fileName });
+
   const shareUrl =
     Platform.OS === 'android' && !result.filePath.startsWith('file://')
       ? `file://${result.filePath}`
@@ -42,8 +58,5 @@ export async function generateAndShareDocumentPdf({ documentHtml, fileName }) {
     showAppsToView: true,
   });
 
-  return {
-    filePath: result.filePath,
-    base64: result.base64,
-  };
+  return result;
 }

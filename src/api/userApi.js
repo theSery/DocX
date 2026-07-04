@@ -7,4 +7,7 @@ export const userApi = {
   getVariables() {
     return axiosClient.get('/variables');
   },
+  getTemplates() {
+    return axiosClient.get(`/variables`);
+  },
 };

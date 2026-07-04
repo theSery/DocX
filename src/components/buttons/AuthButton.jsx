@@ -12,9 +12,19 @@ export default function AuthButton({
   borderRadius = 16,
   style,
   endIcon,
+  startIcon,
+  isLight = false,
   titleStyle = {},
 }) {
   const isDisabled = disabled ?? isLoading;
+  const hasEndIcon = Boolean(endIcon);
+  const hasStartIcon = Boolean(startIcon);
+  const loaderColor = isLight ? palette.mainBlue : palette.white;
+  const textStyle = [
+    styles.primaryButtonText,
+    isLight && styles.lightButtonText,
+    titleStyle,
+  ];
 
   return (
     <Pressable
@@ -30,20 +40,27 @@ export default function AuthButton({
     >
       <GradientButton
         height={45}
-        isLight={false}
-        childrenStyle={endIcon ? styles.gradientContentWithEndIcon : undefined}
+        isLight={isLight}
+        childrenStyle={hasEndIcon ? styles.gradientContentWithEndIcon : undefined}
       >
         {isLoading ? (
-          <ActivityIndicator color={palette.white} />
-        ) : endIcon ? (
+          <ActivityIndicator color={loaderColor} />
+        ) : hasStartIcon && !hasEndIcon ? (
+          <View style={styles.buttonContentRow}>
+            {startIcon}
+            <Typography variant="h5" style={textStyle}>
+              {title}
+            </Typography>
+          </View>
+        ) : hasEndIcon ? (
           <View style={styles.buttonContentWithEndIcon}>
-            <Typography variant="h5" style={[styles.primaryButtonText, titleStyle]}>
+            <Typography variant="h5" style={textStyle}>
               {title}
             </Typography>
             <View style={styles.endIcon}>{endIcon}</View>
           </View>
         ) : (
-          <Typography variant="h5" style={styles.primaryButtonText}>
+          <Typography variant="h5" style={textStyle}>
             {title}
           </Typography>
         )}
@@ -78,9 +95,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 16,
   },
+  buttonContentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   primaryButtonText: {
     fontFamily: FONT_FAMILY.regular,
     color: palette.white,
     letterSpacing: 1.2,
+  },
+  lightButtonText: {
+    color: palette.mainBlue,
   },
 });

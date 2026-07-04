@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import { InteractionManager } from 'react-native';
 import {
   errorCodes,
   isErrorWithCode,
@@ -11,15 +10,8 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { filesApi } from '../../../../api';
 import { showGlobalSheet } from '../../../../components/GlobalSheet';
 import { useToast } from '../../../../hooks';
+import { runAfterSheetDismiss } from '../../../../utils/runAfterSheetDismiss';
 import { FileUploadSheet } from '../components/FileUploadSheet';
-
-const SHEET_DISMISS_DELAY_MS = 350;
-
-function runAfterSheetDismiss(callback) {
-  InteractionManager.runAfterInteractions(() => {
-    setTimeout(callback, SHEET_DISMISS_DELAY_MS);
-  });
-}
 
 export function useFileUpload({ onUploaded } = {}) {
   const { showToast } = useToast();
