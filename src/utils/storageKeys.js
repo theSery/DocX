@@ -5,4 +5,5 @@ export const STORAGE_KEYS = {
   COLOR_SCHEME: '@docx/color_scheme',
   PIN_CODE: '@docx/pin_code',
   APP_INSTALLED: '@docx/app_installed',
+  RECOMMENDED_DOCUMENTS: '@docx/recommended_documents',
 };

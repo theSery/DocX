@@ -1,5 +1,6 @@
 export { useAuthScreenStyles } from './useAuthScreenStyles';
 export { useAuthSession } from './useAuthSession';
+export { useDocumentLoadingOverlay } from './useDocumentLoadingOverlay';
 export { useGlobalStyles } from './useGlobalStyles';
 export { useMainScreenStyles } from './useMainScreenStyles';
 export { useNavigationTheme } from './useNavigationTheme';

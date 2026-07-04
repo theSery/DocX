@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -12,11 +12,13 @@ import { complaintsApi } from '../../../api';
 import { Typography } from '../../../components';
 import SadIcon from '../../../components/icons/SadIcon';
 import { useThemedStyles, useTheme } from '../../../hooks';
+import { getRecommendedDocumentIds } from '../../../utils/recommendedDocumentsStorage';
 import { DocumentCard } from './components/DocumentCard';
 import { DocumentFilterChips } from './components/DocumentFilterChips';
 import { DOCUMENT_FILTERS } from './data/mockDocuments';
 import { formatApiDate } from './utils/formatApiDate';
 import { mapComplaintToDocument } from './utils/mapComplaintToDocument';
+import { sortDocumentsWithRecommended } from './utils/sortDocumentsWithRecommended';
 
 const TAB_BAR_HEIGHT = 60;
 const PAGE_LIMIT = 10;
@@ -35,6 +37,7 @@ export function DocumentsScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState(null);
+  const [recommendedIds, setRecommendedIds] = useState([]);
   const isFetchingRef = useRef(false);
   const hasDocumentsRef = useRef(false);
 
@@ -84,6 +87,15 @@ export function DocumentsScreen() {
   }, [activeFilterId, dateRange, searchTerm]);
 
   useEffect(() => {
+    getRecommendedDocumentIds().then(setRecommendedIds);
+  }, []);
+
+  const sortedDocuments = useMemo(
+    () => sortDocumentsWithRecommended(documents, recommendedIds),
+    [documents, recommendedIds],
+  );
+
+  useEffect(() => {
     hasDocumentsRef.current = documents.length > 0;
   }, [documents.length]);
 
@@ -122,6 +134,18 @@ export function DocumentsScreen() {
     fetchComplaints(1);
   }, [fetchComplaints]);
 
+  const handleDocumentDeleted = useCallback(deletedId => {
+    setDocuments(currentDocuments =>
+      currentDocuments.filter(document => document.id !== deletedId),
+    );
+    setRecommendedIds(currentIds => currentIds.filter(id => id !== String(deletedId)));
+    setTotal(currentTotal => Math.max(0, currentTotal - 1));
+  }, []);
+
+  const handleRecommendedChange = useCallback(nextRecommendedIds => {
+    setRecommendedIds(nextRecommendedIds);
+  }, []);
+
   const renderEmptyComponent = useCallback(() => {
     if (isLoading) {
       return (
@@ -147,7 +171,7 @@ export function DocumentsScreen() {
     }
 
     const emptyMessage =
-      documents.length > 0 ? 'Այս ֆիլտրով փաստաթղթեր չեն գտնվել' : 'Փաստաթղթեր չեն գտնվել';
+      sortedDocuments.length > 0 ? 'Այս ֆիլտրով փաստաթղթեր չեն գտնվել' : 'Փաստաթղթեր չեն գտնվել';
 
     return (
       <View style={styles.centeredState}>
@@ -160,7 +184,7 @@ export function DocumentsScreen() {
   }, [
     colors.primary,
     colors.textDisabled,
-    documents.length,
+    sortedDocuments.length,
     error,
     handleRetry,
     isLoading,
@@ -183,18 +207,24 @@ export function DocumentsScreen() {
       </View>
       <FlatList
         style={styles.list}
-        data={documents}
+        data={sortedDocuments}
         keyExtractor={item => item.id}
         ListEmptyComponent={renderEmptyComponent}
         contentContainerStyle={[
           styles.listContent,
-          documents.length === 0 && styles.listContentEmpty,
+          sortedDocuments.length === 0 && styles.listContentEmpty,
           { paddingBottom: insets.bottom + TAB_BAR_HEIGHT + 24 },
         ]}
         showsVerticalScrollIndicator={false}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.3}
-        renderItem={({ item }) => <DocumentCard document={item} />}
+        renderItem={({ item }) => (
+          <DocumentCard
+            document={item}
+            onDeleted={handleDocumentDeleted}
+            onRecommendedChange={handleRecommendedChange}
+          />
+        )}
       />
     </View>
   );

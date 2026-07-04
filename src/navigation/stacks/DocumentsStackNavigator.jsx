@@ -2,7 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { DocumentsScreen } from '../../screens/main/documents';
+import { DocumentSignScreen, DocumentsScreen } from '../../screens/main/documents';
 import { useStackScreenOptions, useThemedStyles } from '../../hooks';
 import MainHeader from '../../components/headers/MainHeader';
 
@@ -38,6 +38,11 @@ export function DocumentsStackNavigator() {
           name="DocumentsMain"
           component={DocumentsScreen}
           options={documentsMainScreenOptions(nestedScreenOptions)}
+        />
+        <Documents.Screen
+          name="DocumentSign"
+          component={DocumentSignScreen}
+          options={{ headerShown: false }}
         />
       </Documents.Navigator>
     </SafeAreaView>

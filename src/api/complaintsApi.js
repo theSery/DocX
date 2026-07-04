@@ -33,4 +33,12 @@ export const complaintsApi = {
       signal,
     });
   },
+
+  deleteComplaint(id) {
+    return axiosClient.delete(`/complaints/${id}`);
+  },
+
+  getComplaint(id) {
+    return axiosClient.get(`/complaints/${id}`);
+  },
 };

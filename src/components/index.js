@@ -1,6 +1,7 @@
 export { Accordion, AccordionItem } from './accordion';
 export { AnimatedView, ANIMATION_PRESET_NAMES, buildLayoutAnimation } from './animation';
 export { CheckBox } from './checkbox';
+export { DocumentLoadingOverlay } from './DocumentLoadingOverlay';
 export { RadioButton, RadioGroup } from './radioButton';
 export { FormAddressField, FormDateField, FormField } from './form';
 export { AuthScreenLayout, SplashGate } from './layout';

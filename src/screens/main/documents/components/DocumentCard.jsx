@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import { Typography } from '../../../../components';
 import { showGlobalSheet } from '../../../../components/GlobalSheet';
@@ -7,14 +8,19 @@ import AttachSvg from '../../../../components/icons/AttachSvg';
 import DotsVerticalSvg from '../../../../components/icons/DotsVerticalSvg';
 import DownloadSvg from '../../../../components/icons/DownloadSvg';
 import MailIconSvg from '../../../../components/icons/MailIconSvg';
-import PenSvg from '../../../../components/icons/PenSvg';
 import SendSvg from '../../../../components/icons/SendSvg';
 import SignatureSvg from '../../../../components/icons/SignatureSvg';
 import StarOutlineSvg from '../../../../components/icons/StarOutlineSvg';
 import TrashSvg from '../../../../components/icons/TrashSvg';
+import { complaintsApi } from '../../../../api';
+import { downloadAndShareRemotePdf } from '../../../../documents';
 import { FONT_FAMILY } from '../../../../theme';
 import { palette } from '../../../../theme/tokens';
-import { useThemedStyles, useTheme } from '../../../../hooks';
+import { useThemedStyles, useTheme, useToast } from '../../../../hooks';
+import {
+  addRecommendedDocument,
+  removeRecommendedDocument,
+} from '../../../../utils/recommendedDocumentsStorage';
 
 const STATUS_CONFIG = {
   draft: { label: 'Սևագիր', colorKey: 'error' },
@@ -24,14 +30,89 @@ const STATUS_CONFIG = {
 
 const CARD_BACKGROUND = '#E8EFFF';
 
-export function DocumentCard({ document }) {
+export function DocumentCard({ document, onDeleted, onRecommendedChange }) {
+  const navigation = useNavigation();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  const { showToast } = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const status = STATUS_CONFIG[document.status] ?? STATUS_CONFIG.draft;
   const canSend = document.status === 'signed';
+  const isRecommended = Boolean(document.recommended);
   const iconColor = colors.mainBlue;
   const disabledIconColor = colors.textDisabled;
+
+  const handleDelete = useCallback(async () => {
+    try {
+      await complaintsApi.deleteComplaint(document.id);
+      await removeRecommendedDocument(document.id);
+      onDeleted?.(document.id);
+      showToast({
+        title: 'Փաստաթուղթը հաջողությամբ ջնջվեց',
+        type: 'success',
+      });
+    } catch (error) {
+      showToast({
+        title: 'Ջնջելը ձախողվեց',
+        body: error?.message ?? 'Անհայտ սխալ, փորձեք կրկին',
+        type: 'error',
+      });
+    }
+  }, [document.id, onDeleted, showToast]);
+
+  const handleToggleRecommended = useCallback(async () => {
+    try {
+      const nextRecommendedIds = isRecommended
+        ? await removeRecommendedDocument(document.id)
+        : await addRecommendedDocument(document.id);
+
+      onRecommendedChange?.(nextRecommendedIds);
+      showToast({
+        title: isRecommended
+          ? 'Հեռացվեց նախընտրելիից'
+          : 'Նշվեց որպես նախընտրելի',
+        type: 'success',
+      });
+    } catch (error) {
+      showToast({
+        title: 'Գործողությունը ձախողվեց',
+        body: error?.message ?? 'Անհայտ սխալ, փորձեք կրկին',
+        type: 'error',
+      });
+    }
+  }, [document.id, isRecommended, onRecommendedChange, showToast]);
+
+  const handleSign = useCallback(() => {
+    navigation.navigate('DocumentSign', {
+      id: document.id,
+    });
+  }, [document.id, navigation]);
+
+  const handleDownload = useCallback(async () => {
+    try {
+      await downloadAndShareRemotePdf({
+        url: document.downloadUrl,
+        fileName: document.title,
+      });
+    } catch (error) {
+      showToast({
+        title: 'Ներբեռնումը ձախողվեց',
+        body: error?.message ?? 'Անհայտ սխալ, փորձեք կրկին',
+        type: 'error',
+      });
+    }
+  }, [document.downloadUrl, document.title, showToast]);
+
+  const showDeleteConfirmation = useCallback(() => {
+    showGlobalSheet({
+      message: 'Դուք համոզված եք, որ ցանկանում եք ջնջել',
+      description: `${document.title}\n${document.organization} • ${document.sendDate}`,
+      actions: [
+        { label: 'Ջնջել', destructive: true, onPress: handleDelete },
+        { label: 'Չեղարկել' },
+      ],
+    });
+  }, [document.organization, document.sendDate, document.title, handleDelete]);
 
   const handleMenuPress = useCallback(() => {
     setIsMenuOpen(true);
@@ -43,22 +124,22 @@ export function DocumentCard({ document }) {
         {
           label: 'Ջնջել',
           icon: <TrashSvg width={20} height={20} fill={iconColor} />,
-        },
-        {
-          label: 'Խմբագրել',
-          icon: <PenSvg width={20} height={20} fill={iconColor} />,
+          onPress: showDeleteConfirmation,
         },
         {
           label: 'Ստորագրել',
           icon: <SignatureSvg width={20} height={20} fill={iconColor} />,
+          onPress: handleSign,
         },
         {
           label: 'Ներբեռնել',
           icon: <DownloadSvg width={20} height={20} fill={iconColor} />,
+          onPress: handleDownload,
         },
         {
-          label: 'Նշել որպես նախընտրելի',
-          icon: <StarOutlineSvg width={20} height={20} fill={iconColor} />,
+          label: isRecommended ? 'Հեռացնել նախընտրելից' : 'Նշել որպես նախընտրելի',
+          icon: <StarOutlineSvg width={20} height={20} fill={isRecommended ? disabledIconColor  : iconColor} />,
+          onPress: handleToggleRecommended,
         },
         {
           label: `Ուղարկել ՀՀ ${document.organization}`,
@@ -69,7 +150,17 @@ export function DocumentCard({ document }) {
         },
       ],
     });
-  }, [canSend, document.organization, iconColor, disabledIconColor]);
+  }, [
+    canSend,
+    document.organization,
+    handleDownload,
+    handleSign,
+    handleToggleRecommended,
+    iconColor,
+    disabledIconColor,
+    isRecommended,
+    showDeleteConfirmation,
+  ]);
 
   return (
     <View
@@ -79,10 +170,17 @@ export function DocumentCard({ document }) {
         <Typography variant="h6" tone="secondary" style={styles.date}>
           {document.sendDate}
         </Typography>
-        <View style={[styles.statusBadge, { backgroundColor: colors[status.colorKey] }]}>
-          <Typography variant="h6" tone="onDark" style={styles.statusText}>
-            {status.label}
-          </Typography>
+        <View style={styles.headerActions}>
+          {isRecommended ? (
+            <View style={styles.recommendedIcon}>
+              <StarOutlineSvg width={18} height={17} fill={colors.primary} />
+            </View>
+          ) : null}
+          <View style={[styles.statusBadge, { backgroundColor: colors[status.colorKey] }]}>
+            <Typography variant="h6" tone="onDark" style={styles.statusText}>
+              {status.label}
+            </Typography>
+          </View>
         </View>
       </View>
 
@@ -145,6 +243,15 @@ const createStyles = colors =>
       alignItems: 'center',
       justifyContent: 'space-between',
       marginBottom: 10,
+    },
+    headerActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    recommendedIcon: {
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     date: {
       letterSpacing: 0.2,
