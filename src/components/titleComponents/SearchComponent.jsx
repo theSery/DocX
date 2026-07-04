@@ -7,11 +7,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { BlurView } from '@react-native-community/blur';
-import { useForm, useWatch } from 'react-hook-form';
-
 import { Typography } from '../typography';
 import { useTheme, useThemedStyles } from '../../hooks';
-import { FormField } from '../form/FormField';
+import { SearchField } from '../form/SearchField';
 import SearchIcon from '../icons/SearchIcon';
 import { delay } from '../../utils/delay';
 
@@ -76,7 +74,8 @@ const createStyles = colors =>
       marginTop: -1,
       overflow: 'hidden',
       borderWidth: 1,
-      borderColor: colors.border,
+      borderTopWidth: 0,
+      borderColor: colors.iconAccent,
       position: 'absolute',
       top: '100%',
       left: 0,
@@ -112,13 +111,13 @@ const createStyles = colors =>
 export function SearchComponent() {
   const { isDarkMode, colors } = useTheme();
   const styles = useThemedStyles(createStyles);
-  const { control, setValue } = useForm({ defaultValues: { search: '' } });
-  const search = useWatch({ control, name: 'search' }) ?? '';
+  const [search, setSearch] = useState('');
   const length = search.length;
   const bucket = resolveBucket(length);
 
   const [items, setItems] = useState([]);
   const [showNoResults, setShowNoResults] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const height = useSharedValue(0);
   const lastBucket = useRef('closed');
   const lastSelectedRef = useRef(null);
@@ -127,17 +126,24 @@ export function SearchComponent() {
     height.value = withTiming(0, ANIMATION);
     setItems([]);
     setShowNoResults(false);
+    setIsDropdownOpen(false);
     lastBucket.current = 'closed';
   };
 
   const handleSelect = label => {
     lastSelectedRef.current = label;
-    setValue('search', label, { shouldDirty: true, shouldTouch: true });
+    setSearch(label);
     closeDropdown();
   };
 
   const handleNoResultsPress = () => {
     lastSelectedRef.current = search;
+    closeDropdown();
+  };
+
+  const handleClear = () => {
+    lastSelectedRef.current = null;
+    setSearch('');
     closeDropdown();
   };
 
@@ -154,6 +160,7 @@ export function SearchComponent() {
         height.value = withTiming(0, ANIMATION);
         setItems([]);
         setShowNoResults(false);
+        setIsDropdownOpen(false);
         lastBucket.current = 'closed';
         return;
       }
@@ -163,6 +170,7 @@ export function SearchComponent() {
         height.value = withTiming(0, ANIMATION);
         setItems([]);
         setShowNoResults(false);
+        setIsDropdownOpen(false);
         lastBucket.current = 'closed';
         return;
       }
@@ -172,6 +180,7 @@ export function SearchComponent() {
           setItems(pickRandomItems(MAX_ITEMS));
         }
         setShowNoResults(false);
+        setIsDropdownOpen(true);
         height.value = withTiming(MAX_HEIGHT, ANIMATION);
         lastBucket.current = 'expanded';
         return;
@@ -181,6 +190,7 @@ export function SearchComponent() {
         setItems(pickRandomItems(SMALL_ITEMS));
       }
       setShowNoResults(true);
+      setIsDropdownOpen(true);
       height.value = withTiming(SMALL_HEIGHT, ANIMATION);
       lastBucket.current = 'shrunk';
     }
@@ -207,11 +217,12 @@ export function SearchComponent() {
 
   return (
     <View style={styles.wrapper}>
-      <FormField
-        control={control}
-        isSearch
-        name="search"
+      <SearchField
+        value={search}
+        onChangeText={setSearch}
         placeholder="Որոնում"
+        isDropdownOpen={isDropdownOpen}
+        onClear={handleClear}
         startIcon={<SearchIcon width={24} height={24} fill={colors.primary} />}
       />
 
