@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
 import { AnimatedView, CheckBox, FormAddressField, FormDateField, FormField, Typography } from '../../../components';
 import { useForm } from 'react-hook-form';
 import PasportSvg from '../../../components/icons/PasportSvg';
 import { FONT_FAMILY, palette } from '../../../theme';
+import { ARMENIAN_ADDRESS_RULES } from '../../../utils/patterns';
 import CalendarSvg from '../../../components/icons/CalendarSvg';
 import AuthButton from '../../../components/buttons/AuthButton';
 import CodeSvg from '../../../components/icons/CodeSvg';
@@ -17,51 +19,56 @@ import {
   updatePersonalData,
 } from '../../../store/slices/personalDataSlice';
 
+import { PASSPORT_INFO_FIELD_NAMES } from '../../../utils/personalDataValidation';
+
+const DATE_OF_ISSUE_RULES = {
+  required: 'Տրման ամսաթիվը պարտադիր է',
+  validate: value =>
+    value instanceof Date || 'Տրման ամսաթիվը պարտադիր է',
+};
+
 const CONTACT_INFO_FIELDS = [
   {
     name: 'passportSeries',
     label: 'Սերիա *',
     startIcon: <PasportSvg width={19} height={15} fill={palette.gray} />,
     placeholder: 'AM000000',
-    // keyboardType: 'email-address',
-    // rules: {
-    //   required: 'Էլ.-փոստը պարտադիր է',
-    //   pattern: {
-    //     value: EMAIL_PATTERN,
-    //     message: 'Մուտքագրեք վավեր էլ.-փոստ',
-    //   },
-    // },
+    rules: {
+      required: 'Անձնագրի սերիան պարտադիր է',
+    },
   },
   {
     name: 'fromWhom',
     label: 'Ում կողմից է տրված *',
     startIcon: <PasporFromSvg width={18} height={16} fill={palette.gray} />,
     placeholder: '001',
-    // keyboardType: 'default',
-    // rules: ARMENIAN_NAME_RULES,
+    rules: {
+      required: 'Տրամադրող մարմինը պարտադիր է',
+    },
   },
   {
     name: 'dateOfIssue',
     label: 'Երբ է տրվել *',
     startIcon: <CalendarSvg width={24} height={24} fill={palette.gray} />,
     placeholder: 'ՕՕ / ԱԱ / ՏՏՏՏ',
-    // keyboardType: 'default',
-    // rules: ARMENIAN_NAME_RULES,
+    rules: DATE_OF_ISSUE_RULES,
   },
   {
     name: 'publicServiceLicensePlate',
     label: 'ՀԾՀ *',
     startIcon: <CodeSvg width={16} height={13} fill={palette.gray} />,
     placeholder: '0123456789',
-    // keyboardType: 'default',
-    // rules: ARMENIAN_NAME_RULES,
+    rules: {
+      required: 'ՀԾՀ-ն պարտադիր է',
+    },
   },
   {
     name: 'notificationAddress',
-    label: 'Հաշվառման հասցե ',
+    label: 'Հաշվառման հասցե *',
     type: 'address',
     startIcon: <AddressSvg width={18} height={18} fill={palette.gray} />,
     placeholder: 'Մարզ, Քաղաք, Հասցե, 0000',
+    rules: ARMENIAN_ADDRESS_RULES,
   },
   {
     name: 'registrationAddress',
@@ -69,6 +76,7 @@ const CONTACT_INFO_FIELDS = [
     type: 'address',
     startIcon: <AddressSvg width={18} height={18} fill={palette.gray} />,
     placeholder: 'Մարզ, Քաղաք, Հասցե, 0000',
+    rules: ARMENIAN_ADDRESS_RULES,
   },
 ];
 
@@ -160,6 +168,8 @@ export function PassportInfoScreen() {
   const globalStyles = useGlobalStyles();
   const [agreed, setAgreed] = useState(false);
   const styles = useThemedStyles(createStyles);
+  const route = useRoute();
+  const fromSubCategory = route.params?.fromSubCategory === true;
   const { showToast } = useToast();
   const dispatch = useAppDispatch();
   const personalData = useAppSelector(selectPersonalData);
@@ -169,17 +179,49 @@ export function PassportInfoScreen() {
     control,
     handleSubmit,
     reset,
+    trigger,
     formState: { isSubmitting, isLoading },
   } = useForm({
     defaultValues: EMPTY_FORM_VALUES,
-    mode: 'onBlur',
+    mode: 'onChange',
+    reValidateMode: 'onChange',
   });
 
+  const validateAllPassportFields = useCallback(async () => {
+    await trigger(PASSPORT_INFO_FIELD_NAMES, { shouldFocus: false });
+  }, [trigger]);
+
   useEffect(() => {
-    if (personalDataStatus === 'succeeded' && personalData) {
-      reset(mapPersonalDataToFormValues(personalData));
+    if (personalDataStatus !== 'succeeded' || !personalData) {
+      return undefined;
     }
-  }, [personalData, personalDataStatus, reset]);
+
+    reset(mapPersonalDataToFormValues(personalData));
+
+    if (!fromSubCategory) {
+      return undefined;
+    }
+
+    const timeoutId = setTimeout(() => {
+      validateAllPassportFields();
+    }, 50);
+
+    return () => clearTimeout(timeoutId);
+  }, [personalData, personalDataStatus, reset, fromSubCategory, validateAllPassportFields]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!fromSubCategory || personalDataStatus !== 'succeeded' || !personalData) {
+        return undefined;
+      }
+
+      const timeoutId = setTimeout(() => {
+        validateAllPassportFields();
+      }, 50);
+
+      return () => clearTimeout(timeoutId);
+    }, [fromSubCategory, personalDataStatus, personalData, validateAllPassportFields]),
+  );
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -225,6 +267,7 @@ export function PassportInfoScreen() {
                 label={field.label}
                 startIcon={field.startIcon}
                 placeholder={field.placeholder}
+                rules={field.rules}
               />
             ) : field.type === 'address' ? (
               <View key={field.name} style={{ overflow: 'visible', zIndex: field.name === 'registrationAddress' ? 2 : 1 }}>

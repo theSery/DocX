@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
 import {
   AnimatedView,
@@ -28,6 +28,13 @@ import {
   updatePersonalData,
 } from '../../../store/slices/personalDataSlice';
 import { smsApi } from '../../../api';
+import { PROFILE_INFO_FIELD_NAMES } from '../../../utils/personalDataValidation';
+
+const BIRTH_DATE_RULES = {
+  required: 'Ծննդյան ամսաթիվը պարտադիր է',
+  validate: value =>
+    value instanceof Date || 'Ծննդյան ամսաթիվը պարտադիր է',
+};
 
 const CONTACT_INFO_FIELDS = [
   {
@@ -166,6 +173,8 @@ export function ProfileInfoScreen() {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const navigation = useNavigation();
+  const route = useRoute();
+  const fromSubCategory = route.params?.fromSubCategory === true;
   const { showToast } = useToast();
   const dispatch = useAppDispatch();
   const personalData = useAppSelector(selectPersonalData);
@@ -181,14 +190,45 @@ export function ProfileInfoScreen() {
     formState: { isSubmitting, isLoading },
   } = useForm({
     defaultValues: EMPTY_FORM_VALUES,
-    mode: 'onBlur',
+    mode: 'onChange',
+    reValidateMode: 'onChange',
   });
 
+  const validateAllProfileFields = useCallback(async () => {
+    await trigger(PROFILE_INFO_FIELD_NAMES, { shouldFocus: false });
+  }, [trigger]);
+
   useEffect(() => {
-    if (personalDataStatus === 'succeeded' && personalData) {
-      reset(mapPersonalDataToFormValues(personalData));
+    if (personalDataStatus !== 'succeeded' || !personalData) {
+      return undefined;
     }
-  }, [personalData, personalDataStatus, reset]);
+
+    reset(mapPersonalDataToFormValues(personalData));
+
+    if (!fromSubCategory) {
+      return undefined;
+    }
+
+    const timeoutId = setTimeout(() => {
+      validateAllProfileFields();
+    }, 50);
+
+    return () => clearTimeout(timeoutId);
+  }, [personalData, personalDataStatus, reset, fromSubCategory, validateAllProfileFields]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!fromSubCategory || personalDataStatus !== 'succeeded' || !personalData) {
+        return undefined;
+      }
+
+      const timeoutId = setTimeout(() => {
+        validateAllProfileFields();
+      }, 50);
+
+      return () => clearTimeout(timeoutId);
+    }, [fromSubCategory, personalDataStatus, personalData, validateAllProfileFields]),
+  );
 
   const handleSendCode = async () => {
     const isPhoneValid = await trigger('phone');
@@ -266,7 +306,8 @@ export function ProfileInfoScreen() {
           <FormDateField
             control={control}
             name="birthDate"
-            label="Ծննդյան ամսաթիվ"
+            label="Ծննդյան ամսաթիվ *"
+            rules={BIRTH_DATE_RULES}
             startIcon={
               <CalendarSvg width={20} height={20} fill={palette.mainBlue} />
             }
