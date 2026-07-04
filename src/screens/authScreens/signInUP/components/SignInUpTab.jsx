@@ -87,6 +87,13 @@ function RegistrationForm() {
       console.log('Send OTP response:', response);
     } catch (error) {
       console.log('Send OTP error:', error);
+      if (error?.status === 400) {
+        navigation.navigate('Registration', {
+          email: values.email,
+          password: values.password,
+        });
+        return;
+      }
       showToast({
         title: 'Գրանցումը ձախողվեց',
         body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',

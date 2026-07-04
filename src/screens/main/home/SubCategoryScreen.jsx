@@ -20,6 +20,8 @@ import { useIsFocused } from '@react-navigation/native';
 import { useEffect } from 'react';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
+import { selectPersonalData, selectPersonalDataStatus } from '../../../store/slices/personalDataSlice';
+import { useAppSelector } from '../../../store';
 
 const TOP_HEADER_HEIGHT = HEIGHT * 0.3;
 const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
@@ -30,6 +32,8 @@ export function SubCategoryScreen({ route, navigation }) {
   const { item, title, subtitle, iconUrl, initialOpenKey } = route.params;
   const isFocused = useIsFocused();
   const styles = useThemedStyles(createStyles);
+  const personalData = useAppSelector(selectPersonalData);
+   console.log('personalDataStatus', personalData);
   useEffect(() => {
     navigation.setOptions({ title, subtitle });
   }, [title, subtitle, navigation]);
@@ -106,7 +110,7 @@ export function SubCategoryScreen({ route, navigation }) {
                 <>
                   <View style={styles.subCategoryIconWrap}>
                     <Image
-                      source={{ uri: category.iconUrl }}
+                      source={{ uri: category.iconUrl || iconUrl }}
                       style={styles.subCategoryIcon}
                     />
                   </View>

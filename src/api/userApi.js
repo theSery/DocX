@@ -8,6 +8,6 @@ export const userApi = {
     return axiosClient.get('/variables');
   },
   getTemplates() {
-    return axiosClient.get(`/variables`);
+    return axiosClient.get(`/templates`);
   },
 };

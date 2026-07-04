@@ -44,7 +44,7 @@ export function RegistrationScreen({ navigation, route }) {
           control={control}
           name="name"
           label="Անուն *"
-          rules={ARMENIAN_NAME_RULES}
+          // rules={ARMENIAN_NAME_RULES}
           startIcon={     <UserSvg width={24} height={24} fill={palette.gray} />}
           placeholder="Ձեր Անունը"
         />
@@ -54,7 +54,7 @@ export function RegistrationScreen({ navigation, route }) {
             name="surname"
             label="Ազգանուն *"
             placeholder="Ձեր Ազգանունը"
-            rules={ARMENIAN_NAME_RULES}
+            // rules={ARMENIAN_NAME_RULES}
             startIcon={     <UserSvg width={24} height={24} fill={palette.gray} />}
           />
         </View>
@@ -63,7 +63,7 @@ export function RegistrationScreen({ navigation, route }) {
           name="patronymic"
           label="Հայրանուն *"
           placeholder="Ձեր Հայրանունը"
-                rules={ARMENIAN_NAME_RULES}
+                // rules={ARMENIAN_NAME_RULES}
           startIcon={     <UserSvg width={24} height={24} fill={palette.gray} />}
         />
       </View>

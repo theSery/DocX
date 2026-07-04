@@ -84,7 +84,7 @@ export function CategoryScreen({ navigation, route }) {
 
                   <View style={styles.subCategoryIconWrap}>
                     <Image
-                      source={{ uri: category.iconUrl }}
+                      source={{ uri: category.iconUrl || item.iconUrl }}
                       style={styles.subCategoryIcon}
                     />
                   </View>

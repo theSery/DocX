@@ -210,12 +210,12 @@ function MailLogin({ handleTabPress }) {
   const handleSignIn = handleSubmit(async values => {
     try {
       const response = await authApi.login({
-        // email: values.email,
-        // password: values.password,
+        email: values.email,
+        password: values.password,
         //    email: 'girebic328@fixscal.com',
         // password: 'Ser1288642',
-        email: 'babajanyan.seyran@gmail.com',
-        password: 'Ser12886423&',
+        // email: 'babajanyan.seyran@gmail.com',
+        // password: 'Ser12886423&',
         // email: 'lawyerhovhannisyan@gmail.com',
         // password: 'PassDoc10!',
 
@@ -224,6 +224,14 @@ function MailLogin({ handleTabPress }) {
       await saveUserCredentials({ email: 'girebic328@fixscal.com', password: 'Ser1288642', pinCode: '1111' });
       await login();
     } catch (error) {
+      console.log('Login error:', error);
+      // if (error?.status === 401) {
+      //   navigation.navigate('Registration', {
+      //     email: values.email,
+      //     password: values.password,
+      //   });
+      //   return;
+      // }
       showToast({
         title: 'Մուտք ձախողվեց',
         body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',

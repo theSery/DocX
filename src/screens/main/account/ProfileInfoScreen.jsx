@@ -183,7 +183,7 @@ export function ProfileInfoScreen() {
     defaultValues: EMPTY_FORM_VALUES,
     mode: 'onBlur',
   });
-  console.log('personalData', personalData);
+
   useEffect(() => {
     if (personalDataStatus === 'succeeded' && personalData) {
       reset(mapPersonalDataToFormValues(personalData));

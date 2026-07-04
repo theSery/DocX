@@ -8,14 +8,14 @@ import StarSvg from '../icons/StarSvg';
 import darkLogo from '../../assets/images/darkLogo.webp';
 import { useThemedStyles } from '../../hooks';
 
-const MainHeader = ({ onPress }) => {
+const MainHeader = ({ onPress, isHome = false }) => {
   const styles = useThemedStyles(createStyles);
 
   return (
     <View style={styles.container}>
       <View style={styles.side}>
         {onPress ? (
-             <BackButton onPress={onPress} />
+             <BackButton onPress={onPress} isHome={isHome} />
         ) : (
           <GlassButtonContainer height={44}>
             <StarSvg />

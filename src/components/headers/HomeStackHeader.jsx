@@ -50,7 +50,7 @@ const StaticHomeStackHeader = ({
   >
     <View style={styles.collapsible}>
       <View style={styles.headerRow}>
-        <MainHeader onPress={onPress} />
+        <MainHeader onPress={onPress} isHome={true}/>
       </View>
       {title || subtitle ? (
         <View style={styles.titleContainer}>
@@ -139,7 +139,7 @@ const CollapsibleHomeStackHeader = ({
     }, ]}>
       <Animated.View style={[styles.collapsible, animatedCollapsibleStyle]}>
         <View style={styles.headerRow}>
-          <MainHeader onPress={onPress} />
+          <MainHeader onPress={onPress} isHome={true}/>
         </View>
         {(title || subtitle) && (
           <View style={styles.titleContainer}>
