@@ -65,7 +65,7 @@ export function CategoryScreen({ navigation, route }) {
         >
           {item.subCategories?.map((category, index) => {
             const enterDuration = 300;
-            const enterDelay = (index + 1) * 150;
+            const enterDelay = (index) * 100;
             return (
               <AnimatedView
                 animation="fadeInLeft"

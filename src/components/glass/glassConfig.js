@@ -2,11 +2,11 @@ import { palette } from '../../theme';
 
 export const GLASS = {
   light: {
-    blurAmount: 32,
-    tint: 'rgba(255, 255, 255, 1)',
-    overlayColor: 'rgba(255, 255, 255, 1)',
+    blurAmount: 4,
+    tint: 'rgba(255, 255, 255, 0.55)',
+    overlayColor: 'rgba(255, 255, 255, 0.55)',
     fallback: '#FFFFFF',
-    border: 'rgba(255, 255, 255, 1)',
+    border: 'rgba(255, 255, 255, 0.65)',
     sheen: [
       { offset: '0%', color: '#FFFFFF', opacity: 0.55 },
       { offset: '38%', color: '#FFFFFF', opacity: 0.14 },
@@ -15,7 +15,7 @@ export const GLASS = {
     rim: 'rgba(255, 255, 255, 1)',
   },
   dark: {
-    blurAmount: 28,
+    blurAmount: 2,
     tint: 'rgba(22, 24, 40, 0.42)',
     overlayColor: 'rgba(17, 17, 29, 0.45)',
     fallback: '#11111D',

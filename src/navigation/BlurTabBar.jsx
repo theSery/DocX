@@ -1,22 +1,24 @@
 import { useContext, useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
+import { BlurView } from '@react-native-community/blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabBarHeightCallbackContext } from '@react-navigation/bottom-tabs';
 
-import { GlassSurface } from '../components/glass/GlassSurface';
+import { GlassSheen } from '../components/glass/GlassSheen';
+import { GLASS } from '../components/glass/glassConfig';
 import { useTheme } from '../hooks';
 import { Typography } from '../components/typography';
 import DocumentsSvg from '../components/icons/DocumentsSvg';
 import UserSvg from '../components/icons/UserSvg';
 import HomeSvg from '../components/icons/HomeSvg';
 import FilesSvg from '../components/icons/FilesSvg';
-import { FONT_FAMILY } from '../theme';
+import { FONT_FAMILY, palette } from '../theme';
 import { useAuthSession } from '../hooks';
 import { PUBLIC_TAB_ROUTE_NAMES } from './TabNavigator';
 
@@ -92,7 +94,7 @@ function TabItem({
 }
 
 export function BlurTabBar({ state, descriptors, navigation }) {
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   const insets = useSafeAreaInsets();
   const { isAuthenticated, openAuth } = useAuthSession();
   const onHeightChange = useContext(BottomTabBarHeightCallbackContext);
@@ -107,8 +109,8 @@ export function BlurTabBar({ state, descriptors, navigation }) {
     }
   }, [isHidden, onHeightChange]);
 
-  const activeColor =  colors.background;
-  const inactiveColor =  colors.text;
+  const activeColor = colors.background;
+  const inactiveColor = colors.text;
   const tabCount = state.routes.length;
 
   const [trackWidth, setTrackWidth] = useState(0);
@@ -140,8 +142,17 @@ export function BlurTabBar({ state, descriptors, navigation }) {
       setTrackWidth(width);
     }
   };
+
+  const glass = isDarkMode ? GLASS.dark : GLASS.light;
+  const blurType = isDarkMode ? 'dark' : 'light';
+
   const containerStyle = {
     bottom: insets.bottom - 10,
+    borderColor: glass.border,
+    backgroundColor: Platform.select({
+      android: isDarkMode ? 'rgba(17, 17, 29, 0.55)' : 'rgba(255, 255, 255, 0.55)',
+      default: 'transparent',
+    }),
   };
 
   if (isHidden) {
@@ -153,18 +164,36 @@ export function BlurTabBar({ state, descriptors, navigation }) {
       pointerEvents="box-none"
       style={styles.host}
       onLayout={handleHostLayout}>
-      <GlassSurface
+      <View
         onLayout={handleTrackLayout}
-        gradientId="tabBarGlassSheen"
-        borderRadius={20}
         style={[styles.container, containerStyle]}>
-          <Animated.Image source={require('../assets/images/barIndicator.webp')}   style={[
-            styles.indicator,
-            indicatorAnimatedStyle,
-            {height: 55}
-          ]}
+        <BlurView
+          style={StyleSheet.absoluteFill}
+          blurType={blurType}
+          blurAmount={glass.blurAmount}
+          reducedTransparencyFallbackColor={glass.fallback}
+          {...(Platform.OS === 'android' && {
+            overlayColor: glass.overlayColor,
+          })}
+        />
+        <View
+          pointerEvents="none"
+          style={[styles.glassTint, { backgroundColor: glass.tint }]}
+        />
+        <GlassSheen
+          stops={glass.sheen}
+          gradientId="tabBarGlassSheen"
+          direction="vertical"
+        />
+        <View
+          pointerEvents="none"
+          style={[styles.glassRim, { backgroundColor: glass.rim }]}
+        />
+        <Animated.Image
+          source={require('../assets/images/barIndicator.webp')}
+          style={[styles.indicator, indicatorAnimatedStyle, { height: 55 }]}
           resizeMode="cover"
-          />
+        />
         <View style={styles.row}>
           {state.routes.map((route, index) => {
             const descriptor = descriptors[route.key];
@@ -213,7 +242,7 @@ export function BlurTabBar({ state, descriptors, navigation }) {
             );
           })}
         </View>
-      </GlassSurface>
+      </View>
     </View>
   );
 }
@@ -224,11 +253,31 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    // zIndex: 500,
+    zIndex: 500,
   },
   container: {
     marginHorizontal: HORIZONTAL_MARGIN,
     height: TAB_BAR_HEIGHT,
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    shadowColor: palette.black,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.14,
+    shadowRadius: 24,
+    elevation: 16,
+  },
+  glassTint: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  glassRim: {
+    position: 'absolute',
+    top: 0,
+    left: 12,
+    right: 12,
+    height: StyleSheet.hairlineWidth,
+    borderRadius: 1,
+    opacity: 0.85,
   },
   row: {
     flex: 1,
