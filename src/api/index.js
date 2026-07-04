@@ -2,6 +2,7 @@ export { axiosClient, normalizeApiError } from './axiosClient';
 export { authApi } from './authApi';
 export { categoriesApi } from './categoriesApi';
 export { complaintsApi } from './complaintsApi';
+export { filesApi } from './filesApi';
 export { personalDataApi } from './personalDataApi';
 export { personalDocumentsApi } from './personalDocumentsApi';
 export { signatureApi } from './signatureApi';

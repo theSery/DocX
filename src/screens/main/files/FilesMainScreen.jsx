@@ -158,7 +158,11 @@ export function FilesMainScreen() {
   return (
     <View style={styles.screen}>
       <View style={styles.header}>
-        <FileFilterHeader onSearchChange={handleSearchChange} total={total} />
+        <FileFilterHeader
+          onSearchChange={handleSearchChange}
+          total={total}
+          onFileUploaded={handleFileUploaded}
+        />
       </View>
       <FlatList
         style={styles.list}

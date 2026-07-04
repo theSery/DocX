@@ -27,7 +27,6 @@ export const fetchPersonalData = createAsyncThunk(
   async (_, { rejectWithValue, signal }) => {
     try {
       const response = await personalDataApi.getPersonalData({ signal });
-      console.log('response oooo', response);
       return parsePersonalDataResponse(response.data);
     } catch (error) {
       return rejectWithValue(toSerializableApiError(error));
