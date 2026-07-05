@@ -12,7 +12,7 @@ const Stack = createNativeStackNavigator();
 
 export function AuthNavigator() {
   return (
-    <LightThemeScope>
+    // <LightThemeScope>
       <Stack.Navigator
         initialRouteName="AccountType"
         screenOptions={{
@@ -26,6 +26,6 @@ export function AuthNavigator() {
         <Stack.Screen name="EmailVerification" component={EmailVerificationScreen} />
         <Stack.Screen name="PinCode" component={PinCodeScreen} />
       </Stack.Navigator>
-    </LightThemeScope>
+    // </LightThemeScope>
   );
 }

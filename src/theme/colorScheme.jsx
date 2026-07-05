@@ -21,7 +21,7 @@ import {
 import { Appearance, Dimensions, StatusBar, StyleSheet, View } from 'react-native';
 import { useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
 import { STORAGE_KEYS } from '../utils/storageKeys';
-import { ColorScheme, isColorScheme } from './constants';
+import { ColorScheme, isThemePreference, ThemePreference } from './constants';
 import { getPalette, lightColors } from './palettes';
 
 const TRANSITION_MS = 650;
@@ -32,30 +32,41 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 const getSystemScheme = () =>
   Appearance.getColorScheme() === ColorScheme.DARK ? ColorScheme.DARK : ColorScheme.LIGHT;
 
-const defaultScheme = getSystemScheme();
+const resolveColorScheme = (themePreference, systemScheme = getSystemScheme()) =>
+  themePreference === ThemePreference.SYSTEM ? systemScheme : themePreference;
+
+const defaultSystemScheme = getSystemScheme();
 
 const defaultContextValue = {
   active: false,
-  statusBarStyle: defaultScheme === ColorScheme.LIGHT ? 'dark' : 'light',
-  colorScheme: defaultScheme,
+  statusBarStyle: defaultSystemScheme === ColorScheme.LIGHT ? 'dark' : 'light',
+  colorScheme: defaultSystemScheme,
+  themePreference: ThemePreference.SYSTEM,
   overlay1: null,
   overlay2: null,
 };
 
 const ColorSchemeContext = createContext(null);
 
-const colorSchemeReducer = (_, colorScheme) => colorScheme;
+const colorSchemeReducer = (_, nextState) => nextState;
 
 const { width, height } = Dimensions.get('screen');
 const corners = [vec(0, 0), vec(width, 0), vec(width, height), vec(0, height)];
 
-function buildState(scheme, { active = false, overlay1 = null, overlay2 = null } = {}) {
+function buildState({
+  colorScheme,
+  themePreference,
+  active = false,
+  overlay1 = null,
+  overlay2 = null,
+}) {
   return {
     active,
-    colorScheme: scheme,
+    colorScheme,
+    themePreference,
     overlay1,
     overlay2,
-    statusBarStyle: scheme === ColorScheme.LIGHT ? 'dark' : 'light',
+    statusBarStyle: colorScheme === ColorScheme.LIGHT ? 'dark' : 'light',
   };
 }
 
@@ -67,6 +78,7 @@ export function useColorSchemeContext() {
 
   const {
     colorScheme,
+    themePreference,
     dispatch,
     ref,
     transition,
@@ -76,19 +88,28 @@ export function useColorSchemeContext() {
     isLightModeLocked,
   } = ctx;
 
-  const toggle = useCallback(
-    async (x, y) => {
-      const nextScheme =
-        colorScheme === ColorScheme.LIGHT ? ColorScheme.DARK : ColorScheme.LIGHT;
+  const setThemePreference = useCallback(
+    async (preference, x, y) => {
+      if (preference === themePreference) {
+        return;
+      }
 
-      dispatch(buildState(colorScheme, { active: true }));
+      const nextScheme = resolveColorScheme(preference);
+
+      if (nextScheme === colorScheme) {
+        dispatch(buildState({ colorScheme, themePreference: preference }));
+        await AsyncStorage.setItem(STORAGE_KEYS.COLOR_SCHEME, preference);
+        return;
+      }
+
+      dispatch(buildState({ colorScheme, themePreference, active: true }));
 
       const r = Math.max(...corners.map(corner => dist(corner, { x, y })));
       circle.value = { x, y, r };
 
       const overlay1 = await makeImageFromView(ref);
       dispatch({
-        ...buildState(colorScheme, { active: true }),
+        ...buildState({ colorScheme, themePreference, active: true }),
         overlay1,
         overlay2: null,
         statusBarStyle: nextScheme,
@@ -96,7 +117,7 @@ export function useColorSchemeContext() {
 
       await wait(FRAME_MS);
       dispatch({
-        ...buildState(nextScheme, { active: true }),
+        ...buildState({ colorScheme: nextScheme, themePreference: preference, active: true }),
         overlay1,
         overlay2: null,
         statusBarStyle: nextScheme,
@@ -105,7 +126,7 @@ export function useColorSchemeContext() {
       await wait(FRAME_MS);
       const overlay2 = await makeImageFromView(ref);
       dispatch({
-        ...buildState(nextScheme, { active: true }),
+        ...buildState({ colorScheme: nextScheme, themePreference: preference, active: true }),
         overlay1,
         overlay2,
         statusBarStyle: nextScheme,
@@ -114,20 +135,21 @@ export function useColorSchemeContext() {
       transition.value = 0;
       transition.value = withTiming(1, { duration: TRANSITION_MS });
       await wait(TRANSITION_MS);
-      dispatch(buildState(nextScheme));
-      await AsyncStorage.setItem(STORAGE_KEYS.COLOR_SCHEME, nextScheme);
+      dispatch(buildState({ colorScheme: nextScheme, themePreference: preference }));
+      await AsyncStorage.setItem(STORAGE_KEYS.COLOR_SCHEME, preference);
     },
-    [circle, colorScheme, dispatch, ref, transition],
+    [circle, colorScheme, dispatch, ref, themePreference, transition],
   );
 
   return {
     colorScheme,
+    themePreference,
     isDarkMode: isLightModeLocked ? false : colorScheme === ColorScheme.DARK,
     isLightModeLocked: Boolean(isLightModeLocked),
     isAnimating: active,
     active,
     colors,
-    toggle,
+    setThemePreference,
   };
 }
 
@@ -159,12 +181,19 @@ export function ColorSchemeProvider({ children }) {
   const transition = useSharedValue(0);
   const ref = useRef(null);
   const hasHydratedRef = useRef(false);
-  const [{ colorScheme, overlay1, overlay2, active, statusBarStyle }, dispatch] = useReducer(
-    colorSchemeReducer,
-    defaultContextValue,
-  );
+  const themePreferenceRef = useRef(ThemePreference.SYSTEM);
+  const activeRef = useRef(false);
+  const [
+    { colorScheme, themePreference, overlay1, overlay2, active, statusBarStyle },
+    dispatch,
+  ] = useReducer(colorSchemeReducer, defaultContextValue);
   const revealRadius = useDerivedValue(() => mix(transition.value, 0, circle.value.r));
   const colors = useMemo(() => getPalette(colorScheme), [colorScheme]);
+
+  useEffect(() => {
+    themePreferenceRef.current = themePreference;
+    activeRef.current = active;
+  }, [active, themePreference]);
 
   useEffect(() => {
     let cancelled = false;
@@ -174,9 +203,15 @@ export function ColorSchemeProvider({ children }) {
         return;
       }
       hasHydratedRef.current = true;
-      if (isColorScheme(stored)) {
-        dispatch(buildState(stored));
-      }
+
+      const preference = isThemePreference(stored) ? stored : ThemePreference.SYSTEM;
+      const systemScheme = getSystemScheme();
+      dispatch(
+        buildState({
+          colorScheme: resolveColorScheme(preference, systemScheme),
+          themePreference: preference,
+        }),
+      );
     });
 
     return () => {
@@ -184,10 +219,31 @@ export function ColorSchemeProvider({ children }) {
     };
   }, []);
 
+  useEffect(() => {
+    const subscription = Appearance.addChangeListener(({ colorScheme: systemScheme }) => {
+      if (themePreferenceRef.current !== ThemePreference.SYSTEM || activeRef.current) {
+        return;
+      }
+
+      const nextScheme =
+        systemScheme === ColorScheme.DARK ? ColorScheme.DARK : ColorScheme.LIGHT;
+
+      dispatch(
+        buildState({
+          colorScheme: nextScheme,
+          themePreference: ThemePreference.SYSTEM,
+        }),
+      );
+    });
+
+    return () => subscription.remove();
+  }, []);
+
   const value = useMemo(
     () => ({
       active,
       colorScheme,
+      themePreference,
       overlay1,
       overlay2,
       dispatch,
@@ -197,7 +253,7 @@ export function ColorSchemeProvider({ children }) {
       statusBarStyle,
       colors,
     }),
-    [active, circle, colorScheme, colors, overlay1, overlay2, statusBarStyle, transition],
+    [active, circle, colorScheme, colors, overlay1, overlay2, statusBarStyle, themePreference, transition],
   );
 
   return (

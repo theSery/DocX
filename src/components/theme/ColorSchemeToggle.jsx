@@ -1,114 +1,101 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import MoonSvg from '../icons/MoonSvg';
-import SunSvg from '../icons/SunSvg';
 import { useTheme } from '../../hooks/useTheme';
-import { FONT_FAMILY, palette } from '../../theme';
+import { FONT_FAMILY, palette, ThemePreference } from '../../theme';
 
-const TRACK_WIDTH = 52;
-const TRACK_HEIGHT = 32;
-const THUMB_SIZE = 26;
-const THUMB_INSET = 3;
+const THEME_OPTIONS = [
+  { value: ThemePreference.LIGHT, label: 'Ցերեկային' },
+  { value: ThemePreference.DARK, label: 'Գիշերային' },
+  { value: ThemePreference.SYSTEM, label: 'Լռելյայն' },
+];
 
-function ThemeSwitch({ isOn }) {
+function ThemeOptionButton({ label, selected, disabled, onPress }) {
+  const { colors } = useTheme();
+
   return (
-    <View style={styles.switchWrap} pointerEvents="none">
-      <View style={styles.track}>
-        <View style={[styles.thumb, isOn ? styles.thumbOn : styles.thumbOff]} />
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected, disabled }}
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.optionButton,
+        selected ? styles.optionButtonSelected : styles.optionButtonIdle,
+        pressed && !disabled && styles.optionButtonPressed,
+      ]}>
+      <Text
+        style={[
+          styles.optionLabel,
+          { color: selected ? palette.mainWhite : colors.text },
+        ]}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
+export function ColorSchemeToggle({ style }) {
+  const { isAnimating, themePreference, setThemePreference } = useTheme();
+
+  const handleSelect = (preference, event) => {
+    if (isAnimating || preference === themePreference) {
+      return;
+    }
+
+    const { pageX, pageY } = event.nativeEvent;
+    setThemePreference(preference, pageX, pageY).catch(() => {});
+  };
+
+  return (
+    <View style={[styles.container, style]}>
+      <View style={styles.optionRow}>
+        {THEME_OPTIONS.map(option => (
+          <ThemeOptionButton
+            key={option.value}
+            disabled={isAnimating}
+            label={option.label}
+            onPress={event => handleSelect(option.value, event)}
+            selected={themePreference === option.value}
+          />
+        ))}
       </View>
     </View>
   );
 }
 
-export function ColorSchemeToggle({ label, description, style }) {
-  const { colorScheme, colors, isAnimating, toggle } = useTheme();
-  const isDark = colorScheme === 'dark';
-
-  const handlePress = event => {
-    if (isAnimating) {
-      return;
-    }
-
-    const { pageX, pageY } = event.nativeEvent;
-    toggle(pageX, pageY).catch(() => {});
-  };
-
-  return (
-    <Pressable
-      accessibilityRole="switch"
-      accessibilityState={{ checked: isDark, disabled: isAnimating }}
-      accessibilityLabel={`Appearance: ${colorScheme} mode. Double tap to switch.`}
-      disabled={isAnimating}
-      onPress={handlePress}
-      style={({ pressed }) => [
-        styles.row,
-        { borderColor: colors.border },
-        pressed && styles.rowPressed,
-        style,
-      ]}>
-      <View style={styles.copy}>
-        <View style={styles.labelRow}>
-          {isDark ? (
-            <MoonSvg width={20} height={20} fill={palette.mainBlue} />
-          ) : (
-            <SunSvg width={20} height={20} fill={palette.mainBlue} />
-          )}
-          <Text style={[styles.label, { color: colors.text }]}>
-            {isDark ? 'Գիշերային ռեժիմ' : 'Ցերեկային ռեժիմ'}
-          </Text>
-        </View>
-      </View>
-
-      <ThemeSwitch isOn={isDark} />
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
-  row: {
+  container: {
+    width: '100%',
+    paddingHorizontal: 20,
+  },
+  optionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: 8,
   },
-  rowPressed: {
-    opacity: 0.88,
-  },
-  copy: {
+  optionButton: {
     flex: 1,
-    paddingRight: 12,
-  },
-  labelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  label: {
-    fontFamily: FONT_FAMILY.regular,
-    letterSpacing: 0.9,
-  },
-  switchWrap: {
-    padding: 2,
-  },
-  track: {
-    width: TRACK_WIDTH,
-    height: TRACK_HEIGHT,
-    borderRadius: TRACK_HEIGHT / 2,
-    backgroundColor: palette.skyBlue,
+    minHeight: 40,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: palette.mainWhite,
+    alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
-  thumb: {
-    position: 'absolute',
-    top: (TRACK_HEIGHT - THUMB_SIZE) / 2,
-    width: THUMB_SIZE,
-    height: THUMB_SIZE,
-    borderRadius: THUMB_SIZE / 2,
+  optionButtonIdle: {
+    backgroundColor: palette.skyBlue,
+  },
+  optionButtonSelected: {
     backgroundColor: palette.mainBlue,
   },
-  thumbOff: {
-    left: THUMB_INSET,
+  optionButtonPressed: {
+    opacity: 0.88,
   },
-  thumbOn: {
-    right: THUMB_INSET,
+  optionLabel: {
+    fontFamily: FONT_FAMILY.regular,
+    fontSize: 13,
+    letterSpacing: 0.5,
+    textAlign: 'center',
   },
 });

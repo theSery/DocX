@@ -10,7 +10,9 @@ export {
   gradientStops,
   gradients,
   isColorScheme,
+  isThemePreference,
   lightColors,
   palette,
+  ThemePreference,
 } from './colors';
 export { ColorSchemeProvider, LightThemeScope, useColorSchemeContext } from './colorScheme';

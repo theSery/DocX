@@ -1,10 +1,9 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { ColorSchemeToggle } from '../../../components/theme';
 import { useGlobalStyles, useThemedStyles } from '../../../hooks';
-import { useTheme } from '../../../hooks/useTheme';
 import { AnimatedView, Typography } from '../../../components';
 
-import { FONT_FAMILY, palette } from '../../../theme';
+import { palette } from '../../../theme';
 import ContactUsSvg from '../../../components/icons/ContactUsSvg';
 import PrivacyPolicySvg from '../../../components/icons/PrivacyPolicySvg';
 import TermsSvg from '../../../components/icons/TermsSvg';
@@ -14,8 +13,6 @@ export function SettingsScreen({ navigation }) {
   const globalStyles = useGlobalStyles();
 
   const styles = useThemedStyles(createStyles);
-  const { colorScheme, isAnimating, toggle } = useTheme();
-
 
   return (
     // <ScrollView style={[styles.container, { marginBottom: 72 }] } contentContainerStyle={{ paddingBottom: 32 }}>
@@ -35,11 +32,7 @@ export function SettingsScreen({ navigation }) {
 
         <View style={styles.section}>
           <View style={styles.menuList}>
-            <ColorSchemeToggle
-              label="Theme"
-              description="Tap to switch between light and dark with a smooth transition."
-              style={{ marginBottom: 16 }}
-            />
+            <ColorSchemeToggle style={{ marginBottom: 16 }} />
           </View>
         </View>
 
