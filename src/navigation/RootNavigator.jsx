@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../contexts';
 import { useSplash } from '../components/layout/SplashGate';
-import { AuthNavigator } from './authStacks/AuthNavigator';
+import { AuthNavigator } from './AuthStacks/AuthNavigator';
 import { TabNavigator } from './TabNavigator';
 import { OnboardingScreen } from '../screens/authScreens';
 import GradientBackground from '../components/GradientBackground';
