@@ -1,6 +1,6 @@
-import { Linking, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AuthScreenLayout } from '../../../components/layout';
-import { useAuthScreenStyles } from '../../../hooks';
+import { useAuthScreenStyles, useThemedFocusStatusBar } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
 import {FormField, Typography } from '../../../components';
 import { useForm } from 'react-hook-form';
@@ -14,6 +14,7 @@ import AuthButton from '../../../components/buttons/AuthButton';
 export function RegistrationScreen({ navigation, route }) {
   const { email, password } = route.params ?? {};
   const styles = useAuthScreenStyles();
+  useThemedFocusStatusBar();
   const {
     control,
     getValues,
@@ -35,7 +36,6 @@ export function RegistrationScreen({ navigation, route }) {
   });
   return (
     <AuthScreenLayout style={[styles.screen, {backgroundColor: palette.mainWhite}]}>
-      <StatusBar barStyle="dark-content" />
       <MainHeader  onPress={() => navigation.goBack()} isHome={true}/>
       <ScrollView
         style={registrationScreenStyles.formArea}

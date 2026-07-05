@@ -112,7 +112,7 @@ export function useColorSchemeContext() {
         ...buildState({ colorScheme, themePreference, active: true }),
         overlay1,
         overlay2: null,
-        statusBarStyle: nextScheme,
+        statusBarStyle: nextScheme === ColorScheme.LIGHT ? 'dark' : 'light',
       });
 
       await wait(FRAME_MS);
@@ -120,7 +120,7 @@ export function useColorSchemeContext() {
         ...buildState({ colorScheme: nextScheme, themePreference: preference, active: true }),
         overlay1,
         overlay2: null,
-        statusBarStyle: nextScheme,
+        statusBarStyle: nextScheme === ColorScheme.LIGHT ? 'dark' : 'light',
       });
 
       await wait(FRAME_MS);
@@ -129,7 +129,7 @@ export function useColorSchemeContext() {
         ...buildState({ colorScheme: nextScheme, themePreference: preference, active: true }),
         overlay1,
         overlay2,
-        statusBarStyle: nextScheme,
+        statusBarStyle: nextScheme === ColorScheme.LIGHT ? 'dark' : 'light',
       });
 
       transition.value = 0;

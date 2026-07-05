@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { StatusBar } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../contexts';
 import { useSplash } from '../components/layout/SplashGate';
@@ -43,6 +44,12 @@ export function RootNavigator() {
   }, [dispatch, categoriesStatus]);
 
   const isBootstrapping = categoriesStatus !== 'succeeded';
+
+  useEffect(() => {
+    if (!isSplashDone || !isReady || isBootstrapping) {
+      StatusBar.setBarStyle('light-content', true);
+    }
+  }, [isSplashDone, isReady, isBootstrapping]);
 
   if (!isSplashDone || !isReady || isBootstrapping) {
     return (

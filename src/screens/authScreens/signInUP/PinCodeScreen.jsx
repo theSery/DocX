@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { AuthScreenLayout } from '../../../components/layout';
-import { useAuthScreenStyles, useToast } from '../../../hooks';
+import { useAuthScreenStyles, useThemedFocusStatusBar, useToast } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
 import { useAuthSession } from '../../../hooks';
 import AuthButton from '../../../components/buttons/AuthButton';
@@ -17,6 +17,7 @@ export function PinCodeScreen({ navigation, route }) {
   const { name, surname, patronymic, email, password } = route.params;
   const styles = useAuthScreenStyles();
   const { showToast } = useToast();
+  useThemedFocusStatusBar();
   const { login } = useAuthSession();
   const [passcode, setPasscode] = useState([]);
   const [isLoading, setIsLoading] = useState(false);

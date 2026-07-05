@@ -7,7 +7,7 @@ import {
   View,
 } from 'react-native';
 import { AuthScreenLayout } from '../../../components/layout';
-import { useAuthScreenStyles, useToast } from '../../../hooks';
+import { useAuthScreenStyles, useThemedFocusStatusBar, useToast } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
 import { AnimatedView, FormField, Typography } from '../../../components';
 import { useForm } from 'react-hook-form';
@@ -74,6 +74,7 @@ function SuccessEmailVerification() {
 export function EmailVerificationScreen({ navigation, route }) {
   const styles = useAuthScreenStyles();
   const { showToast } = useToast();
+  useThemedFocusStatusBar();
   const { email, password } = route.params;
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [focusedIndex, setFocusedIndex] = useState(0);

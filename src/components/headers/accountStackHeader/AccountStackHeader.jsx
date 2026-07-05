@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { StatusBar, StyleSheet, View } from 'react-native';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import UserSvg from '../../icons/UserSvg';
 import PenSvg from '../../icons/PenSvg';
 import { useGlobalStyles, useThemedStyles } from '../../../hooks';
@@ -92,7 +92,6 @@ const AccountStackHeader = ({
         height: isMinHeight ? ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT : ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT,
         overflow: 'hidden',
       }}>
-      <StatusBar barStyle="light-content" />
       <GradientBackground
         isAccountScreen
         centered={false}

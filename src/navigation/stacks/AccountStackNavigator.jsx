@@ -10,7 +10,7 @@ import {
   SignatureScreen,
   WalletScreen,
 } from '../../screens/main/account';
-import { useAuthSession, useStackScreenOptions } from '../../hooks';
+import { useAuthSession, useFocusStatusBar, useStackScreenOptions } from '../../hooks';
 import AccountStackHeader from '../../components/headers/accountStackHeader/AccountStackHeader';
 
 const Account = createNativeStackNavigator();
@@ -42,6 +42,7 @@ const nestedScreenOptionsWithHeader = (
 export function AccountStackNavigator() {
   const nestedScreenOptions = useStackScreenOptions();
   const { logout } = useAuthSession();
+  useFocusStatusBar('light-content');
 
   return (
     <Account.Navigator

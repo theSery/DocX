@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DocumentSignScreen, DocumentsScreen } from '../../screens/main/documents';
-import { useStackScreenOptions, useThemedStyles } from '../../hooks';
+import { useStackScreenOptions, useThemedFocusStatusBar, useThemedStyles } from '../../hooks';
 import MainHeader from '../../components/headers/MainHeader';
 
 const Documents = createNativeStackNavigator();
@@ -27,6 +27,7 @@ const documentsMainScreenOptions = nestedScreenOptions => ({
 
 export function DocumentsStackNavigator() {
   const nestedScreenOptions = useStackScreenOptions();
+  useThemedFocusStatusBar();
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
