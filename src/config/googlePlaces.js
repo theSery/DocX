@@ -25,11 +25,13 @@ export const TEST_ARMENIAN_ADDRESSES = [
   'Սևան, Ծաթեր',
 ];
 
+import { includesSearchQuery, normalizeSearchText } from '../utils/armenianTransliteration';
+
 export function filterTestAddresses(query, addresses = TEST_ARMENIAN_ADDRESSES) {
-  const normalized = query?.trim().toLowerCase() ?? '';
+  const normalized = normalizeSearchText(query);
   if (normalized.length < 2) {
     return [];
   }
 
-  return addresses.filter((address) => address.toLowerCase().includes(normalized));
+  return addresses.filter(address => includesSearchQuery(address, query));
 }

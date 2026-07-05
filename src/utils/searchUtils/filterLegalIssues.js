@@ -1,5 +1,7 @@
+import { normalizeSearchText } from '../armenianTransliteration';
+
 export function filterLegalIssues(flattened, query) {
-  const normalizedQuery = query.trim().toLowerCase();
+  const normalizedQuery = normalizeSearchText(query);
   if (!normalizedQuery) {
     return [];
   }

@@ -1,3 +1,5 @@
+import { normalizeSearchText } from '../armenianTransliteration';
+
 export function flattenLegalIssues(categories) {
   if (!Array.isArray(categories)) {
     return [];
@@ -28,7 +30,7 @@ export function flattenLegalIssues(categories) {
             legalIssue.id ??
             `${category.id}-${subCategory.id}-${name}`,
           label: name,
-          normalizedName: name.toLowerCase(),
+          normalizedName: normalizeSearchText(name),
           legalIssue,
           category,
           subCategory,

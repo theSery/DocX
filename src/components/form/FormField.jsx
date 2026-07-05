@@ -6,6 +6,7 @@ import { Typography } from '../typography';
 import { FONT_FAMILY } from '../../theme';
 import { useTheme, useThemedStyles } from '../../hooks';
 import EyeIconSvg from '../icons/EyeIconSvg';
+import CloseIcon from '../icons/CloseIcon';
 
 const INPUT_RADIUS = 16;
 const ARMENIA_PHONE_PREFIX = '+374 ';
@@ -73,6 +74,14 @@ const createStyles = colors =>
       justifyContent: 'center',
       alignItems: 'center',
       paddingLeft: 8,
+    },
+    searchClearButton: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 3,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 100,
     },
     input: {
       flex: 1,
@@ -185,6 +194,16 @@ export function FormField({
                 </Pressable>
               ) : endButton ? (
                 <View style={styles.endButton}>{endButton}</View>
+              ) : isSearch && Boolean(value) ? (
+                <Pressable
+                  onPress={() => onChange('')}
+                  hitSlop={8}
+                  style={styles.searchClearButton}
+                  accessibilityRole="button"
+                  accessibilityLabel="Մաքրել"
+                >
+                  <CloseIcon width={15} height={15} fill={colors.textSecondary} />
+                </Pressable>
               ) : null}
             </View>
             {error?.message ? (

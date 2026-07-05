@@ -329,7 +329,7 @@ export function SearchComponent() {
                     </View>
                   </Pressable>
                   {isExpanded
-                    ? group.results.map(result => (
+                    ? group.results.slice(0, 10).map(result => (
                         <Pressable
                           key={result.id}
                           onPress={() => handleSelect(result)}
