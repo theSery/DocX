@@ -9,6 +9,10 @@
     <style name="SplashViewTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
     </style>
 
 </resources>

@@ -217,7 +217,7 @@ export function DocumentCreateScreen({ route, navigation }) {
     navigation,
     showToast,
   ]);
-
+console.log(signatureImageSrc, 'signatureImageSrc');
   const isActionDisabled =
     showLoadingOverlay ||
     isDownloading ||
@@ -268,9 +268,9 @@ export function DocumentCreateScreen({ route, navigation }) {
         </View>
         <AuthButton
             title=" Ուղարկված է ՀՀ ՆԳՆ Պարեկային ծառայություն"
-            onPress={handleDownloadPdf}
+            onPress={handleSubmitComplaint}
             isLoading={isSubmittingComplaint}
-            disabled={isActionDisabled}
+            disabled={isActionDisabled || !signatureImageSrc}
             endIcon={
               <UploadSvg width={20} height={20} fill={palette.white} />
             }

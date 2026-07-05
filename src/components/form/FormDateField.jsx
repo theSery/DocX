@@ -168,15 +168,9 @@ export function FormDateField({
                 display="default"
                 maximumDate={maximumDate}
                 minimumDate={minimumDate}
-                title="Ընտրել ամսաթիվ"
                 positiveButton={{ label: 'Ընտրել' }}
                 negativeButton={{ label: 'Չեղարկել' }}
-                onChange={(event, date) => {
-                  if (event.type === 'dismissed' || !(date instanceof Date)) {
-                    closeAndroidPicker();
-                    return;
-                  }
-
+                onValueChange={(_, date) => {
                   onChange(date);
                   closeAndroidPicker();
                 }}
