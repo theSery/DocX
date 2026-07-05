@@ -10,6 +10,7 @@ import HomeStackHeader from '../../components/headers/HomeStackHeader';
 import { CategoryScreen } from '../../screens/main/home/CategoryScreen';
 import { HomeStackHeaderScrollProvider } from '../../context/HomeStackHeaderScrollContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'react-native';
 
 const Home = createNativeStackNavigator();
 
@@ -47,7 +48,9 @@ export function HomeStackNavigator() {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+     
       <HomeStackHeaderScrollProvider>
+         <StatusBar barStyle="light-content"/>
         <Home.Navigator
           initialRouteName="HomeMain"
           screenOptions={{ headerShown: false, animation: 'fade' }}

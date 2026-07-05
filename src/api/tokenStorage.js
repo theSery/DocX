@@ -100,8 +100,9 @@ export async function clearAccessToken() {
 }
 
 export async function persistAuthResponse(response) {
-  const accessToken = response?.data?.accessToken;
-  const refreshToken = response?.data?.refreshToken;
+  const payload = response?.data?.data ?? response?.data;
+  const accessToken = payload?.accessToken;
+  const refreshToken = payload?.refreshToken;
   const tokens = {};
 
   if (accessToken) {

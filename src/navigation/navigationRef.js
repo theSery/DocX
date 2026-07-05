@@ -13,6 +13,23 @@ export function resetToMain() {
   }
 }
 
+export function completeAuthToMain() {
+  if (!navigationRef.isReady()) {
+    return;
+  }
+
+  const hasMainRoute = navigationRef
+    .getRootState()
+    .routes.some(route => route.name === 'Main');
+
+  if (hasMainRoute) {
+    navigationRef.navigate('Main');
+    return;
+  }
+
+  resetToMain();
+}
+
 export function resetToFaceId() {
   if (navigationRef.isReady()) {
     navigationRef.dispatch(

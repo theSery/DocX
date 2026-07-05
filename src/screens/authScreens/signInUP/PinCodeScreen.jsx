@@ -37,6 +37,12 @@ export function PinCodeScreen({ navigation, route }) {
       });
       await persistAuthResponse(response);
       await saveUserCredentials({ email, password, pinCode });
+      const payload = response?.data?.data ?? response?.data;
+      showToast({
+        title: 'Գրանցումը հաջողությամբ կատարվեց',
+        body: response?.data?.message ?? payload?.message ?? 'Օգտատերը հաջողությամբ գրանցվել է',
+        type: 'success',
+      });
       await login();
     } catch (error) {
       console.log('Register personal error:', error);

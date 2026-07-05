@@ -167,12 +167,12 @@ export function DocumentCreateScreen({ route, navigation }) {
         bodyHtml: bodyHtmlWithSerial,
         userId,
       });
-console.log(payload, 'payload');
+
       const pdf = await generateDocumentPdf({
         documentHtml,
         fileName: `docx_${templateName.replace(/\s+/g, '_')}_${Date.now()}`,
       });
-console.log(pdf, 'pdf');
+
       await complaintsApi.createComplaint({
         ...payload,
         file: {
@@ -266,8 +266,17 @@ console.log(pdf, 'pdf');
             style={styles.rowButton}
           />
         </View>
-               
-        <Pressable
+        <AuthButton
+            title=" Ուղարկված է ՀՀ ՆԳՆ Պարեկային ծառայություն"
+            onPress={handleDownloadPdf}
+            isLoading={isSubmittingComplaint}
+            disabled={isActionDisabled}
+            endIcon={
+              <UploadSvg width={20} height={20} fill={palette.white} />
+            }
+            style={styles.rowButton}
+          />   
+        {/* <Pressable
           accessibilityRole="button"
           accessibilityLabel="Submit to police patrol service"
           disabled={isActionDisabled}
@@ -286,7 +295,7 @@ console.log(pdf, 'pdf');
               Ուղարկված է ՀՀ ՆԳՆ Պարեկային ծառայություն
             </Typography>
           )}
-        </Pressable>
+        </Pressable> */}
       </View>
       
       </View>

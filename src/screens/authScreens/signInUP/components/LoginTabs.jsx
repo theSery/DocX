@@ -221,17 +221,17 @@ function MailLogin({ handleTabPress }) {
 
       });
       await persistAuthResponse(response);
-      // await saveUserCredentials({ email: 'girebic328@fixscal.com', password: 'Ser1288642', pinCode: '1111' });
+      await saveUserCredentials({ email: values.email, password: values.password, pinCode: '1111' });
+      const payload = response?.data?.data ?? response?.data;
+      showToast({
+        title: 'Մուտքը հաջողությամբ կատարվեց',
+        body: response?.data?.message ?? payload?.message ?? 'Բարի գալուստ',
+        type: 'success',
+      });
       await login();
+
     } catch (error) {
-      console.log('Login error:', error);
-      // if (error?.status === 401) {
-      //   navigation.navigate('Registration', {
-      //     email: values.email,
-      //     password: values.password,
-      //   });
-      //   return;
-      // }
+
       showToast({
         title: 'Մուտք ձախողվեց',
         body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',

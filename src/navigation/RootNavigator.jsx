@@ -67,10 +67,18 @@ export function RootNavigator() {
   return (
     <Stack.Navigator
       initialRouteName={resolveInitialRoute(hasCompletedOnboarding, startupRoute)}
-      screenOptions={{ headerShown: false }}>
+      screenOptions={{ headerShown: false, animation: 'fade' }}>
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-      <Stack.Screen name="Main" component={TabNavigator} />
-      <Stack.Screen name="Auth" component={AuthNavigator} />
+      <Stack.Screen
+        name="Main"
+        component={TabNavigator}
+        options={{ animation: 'fade' }}
+      />
+      <Stack.Screen
+        name="Auth"
+        component={AuthNavigator}
+        options={{ animation: 'fade' }}
+      />
       <Stack.Screen name="FaceId" component={FaceIdScreen} />
     </Stack.Navigator>
   );

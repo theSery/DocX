@@ -54,7 +54,7 @@ export default function AuthButton({
           </View>
         ) : hasEndIcon ? (
           <View style={styles.buttonContentWithEndIcon}>
-            <Typography variant="h5" style={textStyle}>
+            <Typography variant="h5" style={[textStyle, { width: '90%', textAlign: 'center'}]}>
               {title}
             </Typography>
             <View style={styles.endIcon}>{endIcon}</View>
@@ -89,11 +89,15 @@ const styles = StyleSheet.create({
   buttonContentWithEndIcon: {
     width: '100%',
     alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
   },
   endIcon: {
-    position: 'absolute',
-    right: 16,
+
+    width: '10%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   buttonContentRow: {
     flexDirection: 'row',
