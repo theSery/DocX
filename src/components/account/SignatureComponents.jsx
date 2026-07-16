@@ -25,6 +25,7 @@ import { useGlobalStyles, useThemedStyles, useToast } from '../../hooks';
 import { FONT_FAMILY, palette } from '../../theme';
 import { WIDTH } from '../../utils/dimensions';
 import { extractHandwritingToTransparentPng } from '../../utils/handwritingExtractor';
+import { runAfterSheetDismiss } from '../../utils/runAfterSheetDismiss';
 import TrashSvg from '../icons/TrashSvg';
 import PenSvg from '../icons/PenSvg';
 import { showGlobalSheet } from '../GlobalSheet';
@@ -192,7 +193,7 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress }) {
     }
   }, [showToast]);
 
-  const pickFromGallery = useCallback(() => {
+  const openImageLibrary = useCallback(() => {
     launchImageLibrary(
       {
         mediaType: 'photo',
@@ -201,6 +202,10 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress }) {
       onPickerResponse,
     );
   }, [onPickerResponse]);
+
+  const pickFromGallery = useCallback(() => {
+    runAfterSheetDismiss(openImageLibrary);
+  }, [openImageLibrary]);
   const handlePickFromGallery = () => {
     showGlobalSheet({
       content: require('../../assets/images/sigExample.jpg'),

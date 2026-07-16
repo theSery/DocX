@@ -76,31 +76,31 @@ export function SubCategoryScreen({ route, navigation }) {
       return;
     }
 
-    if (!isPersonalDataCompleteForTemplate(personalData)) {
-      showGlobalSheet({
-        message: 'Հարգելի օգտատեր',
-        description:
-          'Ձեր անձնական տվյալները լրացված չեն։ Շարունակելուց առաջ խնդրում ենք ճիշտ լրացնել ձեր տվյալները։',
-        actions: [
-          { label: 'Այո', onPress: navigateToProfileInfo },
-          { label: 'Փակել', destructive: true },
-        ],
-      });
-      return;
-    }
+    // if (!isPersonalDataCompleteForTemplate(personalData)) {
+    //   showGlobalSheet({
+    //     message: 'Հարգելի օգտատեր',
+    //     description:
+    //       'Ձեր անձնական տվյալները լրացված չեն։ Շարունակելուց առաջ խնդրում ենք ճիշտ լրացնել ձեր տվյալները։',
+    //     actions: [
+    //       { label: 'Այո', onPress: navigateToProfileInfo },
+    //       { label: 'Փակել', destructive: true },
+    //     ],
+    //   });
+    //   return;
+    // }
 
-    if (!isPassportDataCompleteForTemplate(personalData)) {
-      showGlobalSheet({
-        message: 'Հարգելի օգտատեր',
-        description:
-          'Ձեր անձնագրային տվյալները լրացված չեն։ Շարունակելուց առաջ խնդրում ենք ճիշտ լրացնել ձեր տվյալները։',
-        actions: [
-          { label: 'Այո', onPress: navigateToPassportInfo },
-          { label: 'Փակել', destructive: true },
-        ],
-      });
-      return;
-    }
+    // if (!isPassportDataCompleteForTemplate(personalData)) {
+    //   showGlobalSheet({
+    //     message: 'Հարգելի օգտատեր',
+    //     description:
+    //       'Ձեր անձնագրային տվյալները լրացված չեն։ Շարունակելուց առաջ խնդրում ենք ճիշտ լրացնել ձեր տվյալները։',
+    //     actions: [
+    //       { label: 'Այո', onPress: navigateToPassportInfo },
+    //       { label: 'Փակել', destructive: true },
+    //     ],
+    //   });
+    //   return;
+    // }
 
     showGlobalSheet({
       content: { uri: iconUrl },
