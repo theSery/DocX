@@ -23,6 +23,20 @@ import {
 
 const collapseEasing = Easing.out(Easing.cubic);
 
+// Constrain search to the category/subcategory the user navigated into.
+const resolveSearchScope = route => {
+  if (route?.name === 'Category') {
+    return { categoryId: route.params?.item?.id };
+  }
+  if (route?.name === 'SubCategoryScreen') {
+    return {
+      categoryId: route.params?.categoryId,
+      subCategoryId: route.params?.subCategoryId,
+    };
+  }
+  return {};
+};
+
 export {
   HOME_STACK_HEADER_EXPANDED_HEIGHT as HOME_STACK_HEADER_HEIGHT,
   HOME_STACK_HEADER_COLLAPSED_HEIGHT,
@@ -36,6 +50,7 @@ const StaticHomeStackHeader = ({
   title,
   subtitle,
   showSearch,
+  searchScope,
 }) => (
   <View
     style={[
@@ -69,7 +84,7 @@ const StaticHomeStackHeader = ({
     </View>
     {showSearch ? (
       <View style={styles.searchWrap}>
-        <SearchComponent />
+        <SearchComponent {...searchScope} />
       </View>
     ) : null}
   </View>
@@ -81,6 +96,7 @@ const CollapsibleHomeStackHeader = ({
   title,
   subtitle,
   showSearch,
+  searchScope,
 }) => {
   const { scrollY } = useHomeStackHeaderScroll();
 
@@ -157,8 +173,8 @@ const CollapsibleHomeStackHeader = ({
         )}
       </Animated.View>
       {showSearch ? (
-        <View style={styles.searchWrap}>
-          <SearchComponent />
+        <View style={[styles.searchWrap, { paddingTop: 0, paddingBottom: 0, marginTop: 0}]}>
+          <SearchComponent {...searchScope} />
         </View>
       ) : null}
     </Animated.View>
@@ -171,8 +187,10 @@ const HomeStackHeader = ({
   subtitle,
   showSearch = true,
   collapsible = true,
+  route,
 }) => {
   const styles = useThemedStyles(createStyles);
+  const searchScope = resolveSearchScope(route);
 
   if (!collapsible) {
     return (
@@ -182,6 +200,7 @@ const HomeStackHeader = ({
         title={title}
         subtitle={subtitle}
         showSearch={showSearch}
+        searchScope={searchScope}
       />
     );
   }
@@ -193,6 +212,7 @@ const HomeStackHeader = ({
       title={title}
       subtitle={subtitle}
       showSearch={showSearch}
+      searchScope={searchScope}
     />
   );
 };

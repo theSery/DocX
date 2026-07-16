@@ -32,13 +32,14 @@ const nestedScreenOptionsWithHeader = (
   headerShown: true,
   contentStyle: { zIndex: 0 },
   isMainHeader,
-  header: ({ navigation, options }) => (
+  header: ({ navigation, route, options }) => (
     <HomeStackHeader
       onPress={options.isMainHeader ? undefined : () => navigation.goBack()}
       title={options.title}
       subtitle={options.headerSubtitle}
       showSearch={options.headerShowSearch}
       collapsible={options.headerCollapsible}
+      route={route}
     />
   ),
 });

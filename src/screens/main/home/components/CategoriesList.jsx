@@ -45,12 +45,17 @@ export function CategoriesList({
               onPress={() => navigation.navigate('Category', { item })}
             >
               <View style={styles.categoryItemHeaderRow}>
+                <View style={styles.categoryItemImageContainer}>
                 <Image
                   source={{ uri: item.iconUrl }}
                   style={styles.categoryItemImageIcon}
                 />
+                </View>
+     
                 <Text style={styles.categoryItemText}>{item.name}</Text>
-                <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
+                <View style={styles.categoryItemArrowContainer}>
+                  <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
+                </View>
               </View>
             </TouchableOpacity>
           </StaggeredAnimatedView>
@@ -70,18 +75,27 @@ const createStyles = colors =>
       flex: 1,
       padding: SPACING,
     },
+    categoryItemImageContainer: {
+      width: "15%",
+      // height: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+
+    },
     categoryItemText: {
       fontSize: 16,
       fontFamily: FONT_FAMILY.medium,
       color: colors.text,
-      letterSpacing: 0.7,
-      width: '80%',
+      letterSpacing: 0.9,
+      width: '75%',
     },
     categoryItemImageIcon: {
       width: 56,
       height: 56,
       resizeMode: 'contain',
       borderRadius: 10,
+      // marginLeft: 10,
+      marginRight: 10,
     },
     categoryItem: {
       marginBottom: SPACING,
@@ -101,5 +115,10 @@ marginHorizontal: 5,
       alignItems: 'center',
 
     },
+    categoryItemArrowContainer: {
+      // width: "5%",
+      justifyContent: 'center',
+      alignItems: 'center',
 
+    },
   });

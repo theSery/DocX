@@ -42,6 +42,7 @@ const CONTACT_INFO_FIELDS = [
     label: 'Ում կողմից է տրված *',
     startIcon: <PasporFromSvg width={18} height={16} fill={palette.gray} />,
     placeholder: '001',
+    keyboardType: 'numeric',
     rules: {
       required: 'Տրամադրող մարմինը պարտադիր է',
     },
@@ -63,7 +64,7 @@ const CONTACT_INFO_FIELDS = [
     },
   },
   {
-    name: 'notificationAddress',
+    name: 'registrationAddress',
     label: 'Հաշվառման հասցե *',
     type: 'address',
     startIcon: <AddressSvg width={18} height={18} fill={palette.gray} />,
@@ -71,7 +72,7 @@ const CONTACT_INFO_FIELDS = [
     rules: ARMENIAN_ADDRESS_RULES,
   },
   {
-    name: 'registrationAddress',
+    name: 'notificationAddress',
     label: 'Բնակության հասցե*',
     type: 'address',
     startIcon: <AddressSvg width={18} height={18} fill={palette.gray} />,
@@ -259,7 +260,8 @@ export function PassportInfoScreen() {
         </Typography>
         <View style={styles.formFieldContainer}>
           {CONTACT_INFO_FIELDS.map((field) => (
-            field.name === 'dateOfIssue' ? (
+            field.name === 'registrationAddress' && !agreed ? null
+            : field.name === 'dateOfIssue' ? (
               <FormDateField
                 key={field.name}
                 control={control}

@@ -1,6 +1,6 @@
 import { buildPdfHtmlDocument } from './buildPdfHtmlDocument';
 
-export const DEFAULT_TYPING_DURATION = 2000;
+export const DEFAULT_TYPING_DURATION = 10000;
 
 /**
  * @param {string} bodyHtml

@@ -131,15 +131,22 @@ const createStyles = colors =>
     },
   });
 
-export function SearchComponent() {
+export function SearchComponent({ categoryId, subCategoryId } = {}) {
   const navigation = useNavigation();
   const { isDarkMode, colors } = useTheme();
   const styles = useThemedStyles(createStyles);
   const { items: categories } = useAppSelector(state => state.categories);
-  const flattenedLegalIssues = useMemo(
-    () => flattenLegalIssues(categories),
-    [categories],
-  );
+  const flattenedLegalIssues = useMemo(() => {
+    const flattened = flattenLegalIssues(categories);
+    if (categoryId == null) {
+      return flattened;
+    }
+    return flattened.filter(
+      entry =>
+        entry.category.id === categoryId &&
+        (subCategoryId == null || entry.subCategory.id === subCategoryId),
+    );
+  }, [categories, categoryId, subCategoryId]);
 
   const [search, setSearch] = useState('');
   const bucket = resolveBucket(search.length);
@@ -189,6 +196,8 @@ export function SearchComponent() {
       subtitle: result.subCategory.name,
       iconUrl: result.category.iconUrl,
       initialOpenKey: result.legalIssue?.id ?? result.id,
+      categoryId: result.category.id,
+      subCategoryId: result.subCategory.id,
     });
     handleClear();
   };

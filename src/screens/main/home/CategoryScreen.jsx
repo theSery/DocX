@@ -58,7 +58,7 @@ export function CategoryScreen({ navigation, route }) {
             >
               <TouchableOpacity
                 style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
-                onPress={() => navigation.navigate('SubCategoryScreen', { item: category.legalIssues, title: item.name, subtitle: category.name, iconUrl: item.iconUrl })}
+                onPress={() => navigation.navigate('SubCategoryScreen', { item: category.legalIssues, title: item.name, subtitle: category.name, iconUrl: item.iconUrl, categoryId: item.id, subCategoryId: category.id })}
               >
                 <View style={styles.subCategoryIconWrap}>
                   <Image
