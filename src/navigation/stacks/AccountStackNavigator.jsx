@@ -47,7 +47,7 @@ export function AccountStackNavigator() {
   return (
     <Account.Navigator
       initialRouteName="AccountMain"
-      screenOptions={{ headerShown: false, animation: 'default' }}>
+      screenOptions={{ headerShown: false}}>
       <Account.Screen
         name="AccountMain"
         component={AccountScreen}

@@ -110,9 +110,9 @@ const AccountStackHeader = ({
             <View style={styles.accountContainer}>
               <View style={styles.userImageContainer}>
                 <UserSvg width={45} height={45} />
-                <View style={styles.userImageOverlay}>
+                {/* <View style={styles.userImageOverlay}>
                   <PenSvg width={16} height={16} fill={palette.mainBlue} />
-                </View>
+                </View> */}
               </View>
               <View>
                 <Typography variant="h3" tone="onDark" style={styles.userName}>

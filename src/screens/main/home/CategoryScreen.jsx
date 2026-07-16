@@ -4,17 +4,11 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { SPACING } from './components/CategoriesList';
 import { AnimatedView } from '../../../components/animation/AnimatedView';
-import {
-  HEIGHT,
-  WIDTH,
-  customTransition,
-  customTransitionLinear,
-} from '../../../utils/dimensions';
+import { HEIGHT, WIDTH } from '../../../utils/dimensions';
 import { FONT_FAMILY } from '../../../theme';
 import { Typography } from '../../../components/typography/Typography';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
 import { useGlobalStyles, useHomeStackHeaderScrollHandler, useThemedStyles, useTheme } from '../../../hooks';
-import { useIsFocused } from '@react-navigation/native';
 
 const TOP_HEADER_HEIGHT = HEIGHT * 0.3;
 const TAB_BAR_HEIGHT = 60;
@@ -24,7 +18,6 @@ const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
 
 export function CategoryScreen({ navigation, route }) {
   const { item } = route.params;
-  const isFocused = useIsFocused();
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
@@ -37,23 +30,17 @@ export function CategoryScreen({ navigation, route }) {
     <View style={styles.screen}>
       <Animated.Image
         source={{ uri: item.iconUrl }}
-        sharedTransitionStyle={customTransitionLinear}
+        entering={FadeIn.duration(400)}
         style={styles.categoryItemImageIcon}
-        sharedTransitionTag={`category-image-${item.id}-${isFocused}`}
       />
       <Animated.Text
-        sharedTransitionTag={`category-text-${item.id}-${isFocused}`}
-        sharedTransitionStyle={customTransitionLinear}
+        entering={FadeIn.duration(400)}
         style={styles.categoryItemText}
       >
         {item.name}
       </Animated.Text>
 
-      <Animated.View
-        style={styles.bg}
-        sharedTransitionTag={`general-bg-${isFocused}`}
-        sharedTransitionStyle={customTransition}
-      >
+      <View style={styles.bg}>
         <Animated.ScrollView
           style={styles.scrollView}
           contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
@@ -103,7 +90,7 @@ export function CategoryScreen({ navigation, route }) {
             )
           })}
         </Animated.ScrollView>
-      </Animated.View>
+      </View>
     </View>
   );
 }

@@ -1,22 +1,16 @@
 import { Image, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { useAnimatedRef } from 'react-native-reanimated';
+import Animated, { FadeIn, useAnimatedRef } from 'react-native-reanimated';
 
 import { SPACING } from './components/CategoriesList';
 import { AnimatedView } from '../../../components/animation/AnimatedView';
 import { Accordion } from '../../../components/accordion';
-import {
-  HEIGHT,
-  WIDTH,
-  customTransition,
-  customTransitionLinear,
-} from '../../../utils/dimensions';
+import { HEIGHT, WIDTH } from '../../../utils/dimensions';
 import { FONT_FAMILY, palette } from '../../../theme';
 import { Typography } from '../../../components/typography/Typography';
 import AuthButton from '../../../components/buttons/AuthButton';
 import { useHomeStackHeaderScrollHandler, useThemedStyles, useAuthSession } from '../../../hooks';
 import { useHomeStackHeaderScroll } from '../../../context/HomeStackHeaderScrollContext';
-import { useIsFocused } from '@react-navigation/native';
 import { useEffect } from 'react';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
@@ -32,7 +26,6 @@ const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
 
 export function SubCategoryScreen({ route, navigation }) {
   const { item, title, subtitle, iconUrl, initialOpenKey } = route.params;
-  const isFocused = useIsFocused();
   const styles = useThemedStyles(createStyles);
   const personalData = useAppSelector(selectPersonalData);
   useEffect(() => {
@@ -116,22 +109,16 @@ export function SubCategoryScreen({ route, navigation }) {
     <View style={styles.screen}>
       <Animated.Image
         source={{ uri: item.iconUrl }}
-        sharedTransitionStyle={customTransitionLinear}
+        entering={FadeIn.duration(400)}
         style={styles.categoryItemImageIcon}
-        sharedTransitionTag={`category-image-${item.id}-${isFocused}`}
       />
       <Animated.Text
-        sharedTransitionTag={`category-text-${item.id}-${isFocused}`}
-        sharedTransitionStyle={customTransitionLinear}
+        entering={FadeIn.duration(400)}
         style={styles.categoryItemText}
       >
         {item.name}
       </Animated.Text>
-      <Animated.View
-        style={styles.bg}
-        sharedTransitionTag={`general-bg-${isFocused}`}
-        sharedTransitionStyle={customTransition}
-      >
+      <View style={styles.bg}>
         <Animated.ScrollView
           ref={scrollRef}
           style={styles.scrollView}
@@ -188,7 +175,7 @@ export function SubCategoryScreen({ route, navigation }) {
             />
           </AnimatedView>
         </Animated.ScrollView>
-      </Animated.View>
+      </View>
     </View>
   );
 }

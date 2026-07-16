@@ -1,13 +1,6 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { BounceIn, FadeIn } from 'react-native-reanimated';
-
-import {
-  WIDTH,
-  HEIGHT,
-  customTransition,
-  customTransitionLinear,
-} from '../../../../utils/dimensions';
-import { Typography } from '../../../../components';
+import { HEIGHT } from '../../../../utils/dimensions';
 import ArrowSvg from '../../../../components/icons/ArrowSvg';
 import { FONT_FAMILY } from '../../../../theme';
 import {
@@ -16,7 +9,6 @@ import {
   useThemedStyles,
   useTheme,
 } from '../../../../hooks';
-import { useIsFocused } from '@react-navigation/native';
 
 export const SPACING = 10;
 export const ITEM_HEIGHT = HEIGHT * 0.2;
@@ -31,7 +23,6 @@ export function CategoriesList({
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
-  const isFocused = useIsFocused();
   const { onScroll, onScrollViewLayout, onContentSizeChange } =
     useHomeStackHeaderScrollHandler(collapsibleHeader);
 
@@ -59,48 +50,23 @@ export function CategoriesList({
               entering={FadeIn.duration(enterDuration).delay(enterDelay)}
             >
               <View style={styles.categoryItemHeaderRow}>
-                <Animated.Image
+                <Image
                   source={{ uri: item.iconUrl }}
-                  sharedTransitionStyle={customTransitionLinear}
                   style={styles.categoryItemImageIcon}
-                  sharedTransitionTag={`category-image-${item.id}-${isFocused}`}
                 />
-                <Animated.View
-                  sharedTransitionStyle={customTransitionLinear}
-                  style={styles.bgCategoryItem}
-                  sharedTransitionTag={`category-frame-${item.id}-${isFocused}`}
-                />
-                <Animated.Text
-                  sharedTransitionTag={`category-text-${item.id}-${isFocused}`}
-                  sharedTransitionStyle={customTransitionLinear}
-                  style={styles.categoryItemText}
-                >
-                  {item.name}
-                </Animated.Text>
-              </View>
-              <View style={styles.categoryItemFooterRow}>
-                <Typography
-                  variant="h6"
-                  tone="secondary"
-                  style={styles.categoryItemDescription}
-                >
-                  Երևանի քաղաքապետարանի կողմից տրամադրվող ակտեր
-                </Typography>
+                {/* <View style={styles.bgCategoryItem} /> */}
+                <Text style={styles.categoryItemText}>{item.name}</Text>
                 <Animated.View
                   entering={BounceIn.duration(enterDuration + 100).delay(enterDelay)}
                 >
                   <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
                 </Animated.View>
               </View>
+
             </Animated.View>
           </TouchableOpacity>
           );
         }}
-      />
-      <Animated.View
-        style={styles.bg}
-        sharedTransitionTag={`general-bg-${isFocused}`}
-        sharedTransitionStyle={customTransition}
       />
     </View>
   );
@@ -129,21 +95,6 @@ const createStyles = colors =>
       resizeMode: 'contain',
       borderRadius: 10,
     },
-    bgCategoryItem: {
-      height: 60,
-      resizeMode: 'contain',
-      borderRadius: 10,
-      position: 'absolute',
-      width: '100%',
-      zIndex: -1000,
-    },
-    bg: {
-      position: 'absolute',
-      width: WIDTH,
-      height: HEIGHT,
-      transform: [{ translateY: HEIGHT }],
-      borderRadius: 32,
-    },
     categoryItem: {
       marginBottom: SPACING,
       borderRadius: 24,
@@ -157,20 +108,10 @@ const createStyles = colors =>
 marginHorizontal: 5,
     },
     categoryItemHeaderRow: {
-      flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-    },
-    categoryItemFooterRow: {
-      flex: 1,
-      borderRadius: 10,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginTop: SPACING,
+
     },
-    categoryItemDescription: {
-      width: '80%',
-      letterSpacing: 0.4,
-    },
+
   });

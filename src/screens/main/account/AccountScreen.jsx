@@ -175,7 +175,7 @@ export function AccountScreen({ navigation }) {
   const navigateToScreen = (screen) => {
     navigation.navigate(screen);
   };
-
+console.log('SECONDARY_MENU');
   return (
     <ScrollView style={[globalStyles.screen, styles.screen]}>
       <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
