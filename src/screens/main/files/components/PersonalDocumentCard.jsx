@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
-import { AnimatedView, Typography } from '../../../../components';
+import { StaggeredAnimatedView, Typography } from '../../../../components';
 import { showGlobalSheet } from '../../../../components/GlobalSheet';
 import AttachSvg from '../../../../components/icons/AttachSvg';
 import CameraSvg from '../../../../components/icons/CameraSvg';
@@ -18,7 +18,12 @@ import { usePersonalDocumentCard } from '../hooks';
 
 const CARD_BACKGROUND = '#E8EFFF';
 
-export function PersonalDocumentCard({ document, onDeleted, onUploaded }) {
+export function PersonalDocumentCard({
+  document,
+  index = 0,
+  onDeleted,
+  onUploaded,
+}) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const iconColor = colors.mainBlue;
@@ -117,9 +122,8 @@ export function PersonalDocumentCard({ document, onDeleted, onUploaded }) {
   ]);
 
   return (
-    <AnimatedView
-      animation="fadeInLeft"
-      animationConfig={{ duration: 600 }}
+    <StaggeredAnimatedView
+      index={index}
       style={[styles.cardShadow, isMenuOpen && styles.cardShadowSelected]}
     >
       <View style={[styles.card, isMenuOpen && styles.cardSelected]}>
@@ -185,7 +189,7 @@ export function PersonalDocumentCard({ document, onDeleted, onUploaded }) {
           </TouchableOpacity>
         </View>
       </View>
-    </AnimatedView>
+    </StaggeredAnimatedView>
   );
 }
 

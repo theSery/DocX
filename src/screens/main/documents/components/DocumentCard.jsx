@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import { AnimatedView, Typography } from '../../../../components';
+import { StaggeredAnimatedView, Typography } from '../../../../components';
 import { showGlobalSheet } from '../../../../components/GlobalSheet';
 import AttachSvg from '../../../../components/icons/AttachSvg';
 import DotsVerticalSvg from '../../../../components/icons/DotsVerticalSvg';
@@ -30,7 +30,12 @@ const STATUS_CONFIG = {
 
 const CARD_BACKGROUND = '#E8EFFF';
 
-export function DocumentCard({ document, onDeleted, onRecommendedChange }) {
+export function DocumentCard({
+  document,
+  index = 0,
+  onDeleted,
+  onRecommendedChange,
+}) {
   const navigation = useNavigation();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
@@ -163,9 +168,8 @@ export function DocumentCard({ document, onDeleted, onRecommendedChange }) {
   ]);
 
   return (
-    <AnimatedView
-      animation="fadeInLeft"
-      animationConfig={{ duration: 600 }}
+    <StaggeredAnimatedView
+      index={index}
       style={[styles.cardShadow, isMenuOpen && styles.cardShadowSelected]}
     >
       <View style={[styles.card, isMenuOpen && styles.cardSelected]}>
@@ -217,7 +221,7 @@ export function DocumentCard({ document, onDeleted, onRecommendedChange }) {
         )}
       </View>
       </View>
-    </AnimatedView>
+    </StaggeredAnimatedView>
   );
 }
 

@@ -3,7 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { SPACING } from './components/CategoriesList';
-import { AnimatedView } from '../../../components/animation/AnimatedView';
+import { StaggeredAnimatedView } from '../../../components/animation';
 import { HEIGHT, WIDTH } from '../../../utils/dimensions';
 import { FONT_FAMILY } from '../../../theme';
 import { Typography } from '../../../components/typography/Typography';
@@ -50,45 +50,33 @@ export function CategoryScreen({ navigation, route }) {
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
         >
-          {item.subCategories?.map((category, index) => {
-            const enterDuration = 300;
-            const enterDelay = (index) * 100;
-            return (
-              <AnimatedView
-                animation="fadeInLeft"
-                animationConfig={{
-                  duration: enterDuration,
-                  delay: enterDelay,
-                }}
-                key={category.id}
-                style={[globalStyles.cardShadow, styles.categoryItem]}
+          {item.subCategories?.map((category, index) => (
+            <StaggeredAnimatedView
+              key={category.id}
+              index={index}
+              style={[globalStyles.cardShadow, styles.categoryItem]}
+            >
+              <TouchableOpacity
+                style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+                onPress={() => navigation.navigate('SubCategoryScreen', { item: category.legalIssues, title: item.name, subtitle: category.name, iconUrl: item.iconUrl })}
               >
-
-                <TouchableOpacity
-                  style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
-                  onPress={() => navigation.navigate('SubCategoryScreen', { item: category.legalIssues, title: item.name, subtitle: category.name, iconUrl: item.iconUrl })}
-                >
-
-                  <View style={styles.subCategoryIconWrap}>
-                    <Image
-                      source={{ uri: category.iconUrl || item.iconUrl }}
-                      style={styles.subCategoryIcon}
-                    />
-                  </View>
-                  <View style={styles.subCategoryTextWrap}>
-                    <Typography variant="h5" style={styles.subCategoryName}>
-                      {category.name}
-                    </Typography>
-                  </View>
-                  <View style={styles.subCategoryArrowWrap}>
-                    <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
-                  </View>
-                </TouchableOpacity>
-              </AnimatedView>
-
-
-            )
-          })}
+                <View style={styles.subCategoryIconWrap}>
+                  <Image
+                    source={{ uri: category.iconUrl || item.iconUrl }}
+                    style={styles.subCategoryIcon}
+                  />
+                </View>
+                <View style={styles.subCategoryTextWrap}>
+                  <Typography variant="h5" style={styles.subCategoryName}>
+                    {category.name}
+                  </Typography>
+                </View>
+                <View style={styles.subCategoryArrowWrap}>
+                  <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
+                </View>
+              </TouchableOpacity>
+            </StaggeredAnimatedView>
+          ))}
         </Animated.ScrollView>
       </View>
     </View>

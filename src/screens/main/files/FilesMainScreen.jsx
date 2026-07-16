@@ -177,9 +177,10 @@ export function FilesMainScreen() {
         showsVerticalScrollIndicator={false}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.3}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <PersonalDocumentCard
             document={item}
+            index={index}
             onDeleted={handleFileDeleted}
             onUploaded={handleFileUploaded}
           />

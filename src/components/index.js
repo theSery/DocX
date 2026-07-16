@@ -1,5 +1,13 @@
 export { Accordion, AccordionItem } from './accordion';
-export { AnimatedView, ANIMATION_PRESET_NAMES, buildLayoutAnimation } from './animation';
+export {
+  AnimatedView,
+  StaggeredAnimatedView,
+  ANIMATION_PRESET_NAMES,
+  STAGGERED_ENTER,
+  buildLayoutAnimation,
+  getStaggeredEnterConfig,
+  getStaggeredEnterProps,
+} from './animation';
 export { CheckBox } from './checkbox';
 export { DocumentLoadingOverlay } from './DocumentLoadingOverlay';
 export { RadioButton, RadioGroup } from './radioButton';

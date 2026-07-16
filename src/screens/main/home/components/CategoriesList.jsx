@@ -1,7 +1,8 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, { BounceIn, FadeIn } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { HEIGHT } from '../../../../utils/dimensions';
 import ArrowSvg from '../../../../components/icons/ArrowSvg';
+import { StaggeredAnimatedView } from '../../../../components/animation';
 import { FONT_FAMILY } from '../../../../theme';
 import {
   useGlobalStyles,
@@ -12,8 +13,6 @@ import {
 
 export const SPACING = 10;
 export const ITEM_HEIGHT = HEIGHT * 0.2;
-
-
 
 export function CategoriesList({
   navigation,
@@ -36,37 +35,26 @@ export function CategoriesList({
         scrollEventThrottle={collapsibleHeader ? 16 : undefined}
         contentContainerStyle={styles.contentContainer}
         keyExtractor={item => item.id.toString()}
-        renderItem={({ item, index }) => {
-          const enterDuration = 500;
-          const enterDelay = (index + 1) * 200;
-
-          return (
-          <TouchableOpacity
+        renderItem={({ item, index }) => (
+          <StaggeredAnimatedView
+            index={index}
             style={[globalStyles.cardShadow, styles.categoryItem]}
-            onPress={() => navigation.navigate('Category', { item })}
           >
-            <Animated.View
+            <TouchableOpacity
               style={styles.categoryItemImage}
-              entering={FadeIn.duration(enterDuration).delay(enterDelay)}
+              onPress={() => navigation.navigate('Category', { item })}
             >
               <View style={styles.categoryItemHeaderRow}>
                 <Image
                   source={{ uri: item.iconUrl }}
                   style={styles.categoryItemImageIcon}
                 />
-                {/* <View style={styles.bgCategoryItem} /> */}
                 <Text style={styles.categoryItemText}>{item.name}</Text>
-                <Animated.View
-                  entering={BounceIn.duration(enterDuration + 100).delay(enterDelay)}
-                >
-                  <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
-                </Animated.View>
+                <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
               </View>
-
-            </Animated.View>
-          </TouchableOpacity>
-          );
-        }}
+            </TouchableOpacity>
+          </StaggeredAnimatedView>
+        )}
       />
     </View>
   );

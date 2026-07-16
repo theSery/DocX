@@ -3,7 +3,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, useAnimatedRef } from 'react-native-reanimated';
 
 import { SPACING } from './components/CategoriesList';
-import { AnimatedView } from '../../../components/animation/AnimatedView';
 import { Accordion } from '../../../components/accordion';
 import { HEIGHT, WIDTH } from '../../../utils/dimensions';
 import { FONT_FAMILY, palette } from '../../../theme';
@@ -129,51 +128,48 @@ export function SubCategoryScreen({ route, navigation }) {
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
         >
-          <AnimatedView animation="fadeInLeft" animationConfig={{ duration: 600 }}>
-            <Accordion
-              key={initialOpenKey ?? 'default'}
-              items={item}
-              initialOpenKey={initialOpenKey ?? null}
-              scrollRef={scrollRef}
-              scrollOffset={scrollY}
-              renderHeader={category => (
-                <>
-                  <View style={styles.subCategoryIconWrap}>
-                    <Image
-                      source={{ uri: category.iconUrl || iconUrl }}
-                      style={styles.subCategoryIcon}
-                    />
-                  </View>
-                  <View style={styles.subCategoryTextWrap}>
-                    <Typography variant="h5" style={styles.subCategoryName}>
-                      {category.name}
-                    </Typography>
-                  </View>
-                </>
-              )}
-              renderContent={category =>
-                category.templates?.length > 0 ? (
-                  category.templates.map(template => (
-                    <AuthButton
-                      key={template.id}
-                      titleStyle={{width: '90%', lineHeight: 0}}
-                      endIcon={
-                       <ArrowSvg width={14} height={14} fill={palette.white} /> 
-                      }
-                      title={template.name}
-                        onPress={() =>
-                          onChooseTemplate(template)
-                        }
-                    />
-                  ))
-                ) : (
-                  <Typography variant="h5" tone="secondary">
-                    {'Մանրամասները շուտով հասանելի կլինեն'}
+          <Accordion
+            key={initialOpenKey ?? 'default'}
+            items={item}
+            initialOpenKey={initialOpenKey ?? null}
+            scrollRef={scrollRef}
+            scrollOffset={scrollY}
+            staggeredEnter
+            renderHeader={category => (
+              <>
+                <View style={styles.subCategoryIconWrap}>
+                  <Image
+                    source={{ uri: category.iconUrl || iconUrl }}
+                    style={styles.subCategoryIcon}
+                  />
+                </View>
+                <View style={styles.subCategoryTextWrap}>
+                  <Typography variant="h5" style={styles.subCategoryName}>
+                    {category.name}
                   </Typography>
-                )
-              }
-            />
-          </AnimatedView>
+                </View>
+              </>
+            )}
+            renderContent={category =>
+              category.templates?.length > 0 ? (
+                category.templates.map(template => (
+                  <AuthButton
+                    key={template.id}
+                    titleStyle={{ width: '90%', lineHeight: 0 }}
+                    endIcon={
+                      <ArrowSvg width={14} height={14} fill={palette.white} />
+                    }
+                    title={template.name}
+                    onPress={() => onChooseTemplate(template)}
+                  />
+                ))
+              ) : (
+                <Typography variant="h5" tone="secondary">
+                  {'Մանրամասները շուտով հասանելի կլինեն'}
+                </Typography>
+              )
+            }
+          />
         </Animated.ScrollView>
       </View>
     </View>

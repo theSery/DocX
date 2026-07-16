@@ -3,6 +3,11 @@ import { View } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 
 import { AccordionItem } from './AccordionItem';
+import { AnimatedView } from '../animation/AnimatedView';
+import {
+  STAGGERED_ENTER,
+  getStaggeredEnterConfig,
+} from '../animation/staggeredEnterAnimation';
 import { Typography } from '../typography/Typography';
 
 const DEFAULT_DURATION = 320;
@@ -42,6 +47,9 @@ function defaultKeyExtractor(item, index) {
  *   style?: import('react-native').StyleProp<import('react-native').ViewStyle>;
  *   itemStyle?: import('react-native').StyleProp<import('react-native').ViewStyle>;
  *   contentStyle?: import('react-native').StyleProp<import('react-native').ViewStyle>;
+ *   staggeredEnter?: boolean;
+ *   itemAnimation?: string | import('react-native-reanimated').IEntryExitAnimationBuilder;
+ *   itemAnimationConfig?: object | ((item: object, index: number) => object);
  * }} props
  */
 export function Accordion({
@@ -56,6 +64,9 @@ export function Accordion({
   style,
   itemStyle,
   contentStyle,
+  staggeredEnter = false,
+  itemAnimation,
+  itemAnimationConfig,
 }) {
   const [openKey, setOpenKey] = useState(initialOpenKey);
   const openKeyRef = useRef(initialOpenKey);
@@ -79,7 +90,7 @@ export function Accordion({
         const key = keyExtractor(item, index);
         const isOpen = openKey === key;
 
-        return (
+        const accordionItem = (
           <AccordionItem
             key={key}
             itemKey={key}
@@ -108,6 +119,31 @@ export function Accordion({
               </Typography>
             )}
           </AccordionItem>
+        );
+
+        const resolvedAnimation =
+          itemAnimation ?? (staggeredEnter ? STAGGERED_ENTER.animation : null);
+
+        if (!resolvedAnimation) {
+          return accordionItem;
+        }
+
+        const animationConfig = itemAnimationConfig
+          ? typeof itemAnimationConfig === 'function'
+            ? itemAnimationConfig(item, index)
+            : itemAnimationConfig
+          : staggeredEnter
+            ? getStaggeredEnterConfig(index)
+            : undefined;
+
+        return (
+          <AnimatedView
+            key={key}
+            animation={resolvedAnimation}
+            animationConfig={animationConfig}
+          >
+            {accordionItem}
+          </AnimatedView>
         );
       })}
     </View>

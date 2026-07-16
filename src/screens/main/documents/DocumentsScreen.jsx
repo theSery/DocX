@@ -218,9 +218,10 @@ export function DocumentsScreen() {
         showsVerticalScrollIndicator={false}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.3}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <DocumentCard
             document={item}
+            index={index}
             onDeleted={handleDocumentDeleted}
             onRecommendedChange={handleRecommendedChange}
           />
