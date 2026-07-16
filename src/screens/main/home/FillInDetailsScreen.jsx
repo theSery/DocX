@@ -17,10 +17,15 @@ import {
 } from '../../../store/slices/documentFillSlice';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import { palette } from '../../../theme';
-import { fetchPersonalData, selectPersonalDataStatus } from '../../../store/slices/personalDataSlice';
-import LogoIcon from '../../../components/icons/LogoIcon';
-import LottieAnimation from '../../../components/animation/LottieAnimation';
-import DocCreatLoading from '../../../components/animation/DocCreatLoading';
+import {
+  fetchPersonalData,
+  selectPersonalData,
+  selectPersonalDataStatus,
+} from '../../../store/slices/personalDataSlice';
+import {
+  isPersonalDataCompleteForTemplate,
+  isPassportDataCompleteForTemplate,
+} from '../../../utils/personalDataValidation';
 
 function buildSteps(templateFactGroups = []) {
   const actStep = { key: 'act', label: 'Մանրամասներ' };
@@ -67,15 +72,14 @@ export function FillInDetailsScreen({ navigation, route }) {
     },
     reValidateMode: 'onChange',
   });
+  const personalData = useAppSelector(selectPersonalData);
   const personalDataStatus = useAppSelector(selectPersonalDataStatus);
-
 
   useEffect(() => {
     if (personalDataStatus === 'idle') {
       dispatch(fetchPersonalData());
     }
   }, [dispatch, personalDataStatus]);
-
 
   useEffect(() => {
     dispatch(resetDocumentFill());
@@ -141,6 +145,19 @@ export function FillInDetailsScreen({ navigation, route }) {
         return;
       }
 
+      if (
+        !isPersonalDataCompleteForTemplate(personalData) ||
+        !isPassportDataCompleteForTemplate(personalData)
+      ) {
+        setStepError('');
+        navigation.navigate('CompletePersonalData', {
+          templateText,
+          templateName,
+          templateId,
+        });
+        return;
+      }
+
       setStepError('');
       navigation.navigate('DocumentCreate', {
         templateText,
@@ -159,6 +176,7 @@ export function FillInDetailsScreen({ navigation, route }) {
     templateFactGroups,
     selectedFacts,
     radioFacts,
+    personalData,
     navigation,
     templateText,
     templateName,

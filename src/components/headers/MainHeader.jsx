@@ -1,10 +1,6 @@
 import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
-
 import BackButton from '../buttons/BackButton';
-import { GlassButtonContainer } from '../buttons/GlassButtonContainer';
-import BellSvg from '../icons/BellSvg';
-import StarSvg from '../icons/StarSvg';
 import darkLogo from '../../assets/images/darkLogo.webp';
 import { useThemedStyles } from '../../hooks';
 
@@ -16,21 +12,12 @@ const MainHeader = ({ onPress, isHome = false }) => {
       <View style={styles.side}>
         {onPress ? (
              <BackButton onPress={onPress} isHome={isHome} />
-        ) : (
-          <GlassButtonContainer height={44}>
-            <StarSvg />
-          </GlassButtonContainer>
-        )}
+        ) : null}
       </View>
       <View style={styles.logoContainer}>
         <Image source={darkLogo} style={styles.logo} resizeMode="contain" />
       </View>
       <View style={styles.side}>
-        {!onPress ? (
-          <GlassButtonContainer height={44}>
-            <BellSvg />
-          </GlassButtonContainer>
-        ) : null}
       </View>
     </View>
   );

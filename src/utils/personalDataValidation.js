@@ -52,6 +52,26 @@ export function isPassportDataCompleteForTemplate(data) {
   );
 }
 
+export const PERSONAL_DATA_FIELD_VALIDATORS = {
+  name: isValidArmenianName,
+  surname: isValidArmenianName,
+  patronymic: isValidArmenianName,
+  birthday: value => Boolean(value),
+  phoneNumber: isValidPhoneNumber,
+  passportSeries: isNonEmptyString,
+  fromWhom: isNonEmptyString,
+  dateOfIssue: value => Boolean(value),
+  publicServiceLicensePlate: isNonEmptyString,
+  notificationAddress: isValidArmenianAddress,
+  registrationAddress: isValidArmenianAddress,
+};
+
+export function getIncompletePersonalDataFields(data) {
+  return Object.entries(PERSONAL_DATA_FIELD_VALIDATORS)
+    .filter(([field, isValid]) => !isValid(data?.[field]))
+    .map(([field]) => field);
+}
+
 export const PROFILE_INFO_FIELD_NAMES = [
   'email',
   'name',

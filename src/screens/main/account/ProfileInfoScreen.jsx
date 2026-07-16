@@ -317,7 +317,7 @@ export function ProfileInfoScreen() {
             name="phone"
             label="Հեռախոսահամար"
             keyboardType="phone-pad"
-            placeholder="91 123 456"
+            placeholder="+374 91 123 456"
             placeholderTextColor={palette.lightGray}
             startIcon={
               <PhoneSvg width={20} height={20} fill={palette.mainBlue} />

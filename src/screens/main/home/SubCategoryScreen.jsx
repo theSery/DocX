@@ -13,10 +13,6 @@ import { useHomeStackHeaderScroll } from '../../../context/HomeStackHeaderScroll
 import { useEffect } from 'react';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
-import { selectPersonalData } from '../../../store/slices/personalDataSlice';
-import { useAppSelector } from '../../../store';
-import { isPersonalDataCompleteForTemplate, isPassportDataCompleteForTemplate } from '../../../utils/personalDataValidation';
-import { runAfterSheetDismiss } from '../../../utils/runAfterSheetDismiss';
 
 const TOP_HEADER_HEIGHT = HEIGHT * 0.3;
 const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
@@ -26,7 +22,6 @@ const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
 export function SubCategoryScreen({ route, navigation }) {
   const { item, title, subtitle, iconUrl, initialOpenKey } = route.params;
   const styles = useThemedStyles(createStyles);
-  const personalData = useAppSelector(selectPersonalData);
   useEffect(() => {
     navigation.setOptions({ title, subtitle });
   }, [title, subtitle, navigation]);
@@ -39,26 +34,8 @@ export function SubCategoryScreen({ route, navigation }) {
   const scrollBottomPadding = insets.bottom + 24;
   const { isAuthenticated, openAuth } = useAuthSession();
   const navigateToFillInDetails = (template) => {
-
     navigation.navigate('FillInDetails', {
       templateId: template.id,
-    });
-  }
-  const navigateToProfileInfo = () => {
-    runAfterSheetDismiss(() => {
-      navigation.navigate('Account', {
-        screen: 'ProfileInfo',
-        params: { fromSubCategory: true },
-      });
-    });
-  };
-
-  const navigateToPassportInfo = () => {
-    runAfterSheetDismiss(() => {
-      navigation.navigate('Account', {
-        screen: 'PassportInfo',
-        params: { fromSubCategory: true },
-      });
     });
   };
 
@@ -67,32 +44,6 @@ export function SubCategoryScreen({ route, navigation }) {
       openAuth();
       return;
     }
-
-    // if (!isPersonalDataCompleteForTemplate(personalData)) {
-    //   showGlobalSheet({
-    //     message: 'Հարգելի օգտատեր',
-    //     description:
-    //       'Ձեր անձնական տվյալները լրացված չեն։ Շարունակելուց առաջ խնդրում ենք ճիշտ լրացնել ձեր տվյալները։',
-    //     actions: [
-    //       { label: 'Այո', onPress: navigateToProfileInfo },
-    //       { label: 'Փակել', destructive: true },
-    //     ],
-    //   });
-    //   return;
-    // }
-
-    // if (!isPassportDataCompleteForTemplate(personalData)) {
-    //   showGlobalSheet({
-    //     message: 'Հարգելի օգտատեր',
-    //     description:
-    //       'Ձեր անձնագրային տվյալները լրացված չեն։ Շարունակելուց առաջ խնդրում ենք ճիշտ լրացնել ձեր տվյալները։',
-    //     actions: [
-    //       { label: 'Այո', onPress: navigateToPassportInfo },
-    //       { label: 'Փակել', destructive: true },
-    //     ],
-    //   });
-    //   return;
-    // }
 
     showGlobalSheet({
       content: { uri: iconUrl },

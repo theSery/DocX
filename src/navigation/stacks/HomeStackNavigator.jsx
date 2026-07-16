@@ -1,5 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
+  CompletePersonalDataScreen,
   DocumentCreateScreen,
   FillInDetailsScreen,
   HomeScreen,
@@ -89,6 +90,15 @@ export function HomeStackNavigator() {
             name="FillInDetails"
             component={FillInDetailsScreen}
             options={{ headerShown: false }}
+          />
+          <Home.Screen
+            name="CompletePersonalData"
+            component={CompletePersonalDataScreen}
+            options={{
+              headerShown: false,
+              presentation: 'modal',
+              animation: 'slide_from_bottom',
+            }}
           />
           <Home.Screen
             name="DocumentCreate"

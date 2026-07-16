@@ -120,8 +120,8 @@ export function FormField({
   const { colors } = useTheme();
   const resolvedKeyboardType =
     keyboardType ??
-    (name === 'email' ? 'email-address' : name === 'phone' ? 'phone-pad' : 'default');
-  const isPhoneField = name === 'phone';
+    (name === 'email' ? 'email-address' : name === 'phone' || name === 'phoneNumber' ? 'phone-pad' : 'default');
+  const isPhoneField = name === 'phone' || name === 'phoneNumber';
   const [isSecureVisible, setIsSecureVisible] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 

@@ -1,16 +1,13 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { AnimatedView, Typography } from '../../../components';
-import AuthButton from '../../../components/buttons/AuthButton';
-import MainHeader from '../../../components/headers/MainHeader';
-import { AuthScreenLayout } from '../../../components/layout';
-import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
-import { OtpInputRowCode } from '../../authScreens/signInUP/components/OtpInputRowCode';
-import { smsApi } from '../../../api';
-import { useThemedStyles, useToast } from '../../../hooks';
-import { FONT_FAMILY, palette } from '../../../theme';
-import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
+import { AnimatedView, Typography } from '../../../../components';
+import AuthButton from '../../../../components/buttons/AuthButton';
+import { ContentTiltes } from '../../../../components/titleComponents/ContentTiltles';
+import { OtpInputRowCode } from '../../../authScreens/signInUP/components/OtpInputRowCode';
+import { smsApi } from '../../../../api';
+import { useThemedStyles, useToast } from '../../../../hooks';
+import { FONT_FAMILY, palette } from '../../../../theme';
+import { TAB_BAR_BOTTOM_OFFSET } from '../../../../utils/dimensions';
 
 function formatPhoneForDisplay(phoneNumber) {
   const digits = phoneNumber?.replace(/\D/g, '') ?? '';
@@ -30,12 +27,6 @@ function formatPhoneForDisplay(phoneNumber) {
 
 const createStyles = () =>
   StyleSheet.create({
-    layout: {
-      backgroundColor: palette.mainWhite,
-    },
-    layoutContent: {
-      paddingVertical: 0,
-    },
     body: {
       flex: 1,
     },
@@ -78,12 +69,9 @@ const createStyles = () =>
     },
   });
 
-export function ConfirmPhoneCodeScreen() {
+export function ConfirmPhoneCodeContent({ phoneNumber, onConfirmed }) {
   const styles = useThemedStyles(createStyles);
-  const navigation = useNavigation();
-  const route = useRoute();
   const { showToast } = useToast();
-  const phoneNumber = route.params?.phoneNumber ?? '';
 
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [focusedIndex, setFocusedIndex] = useState(0);
@@ -120,7 +108,7 @@ export function ConfirmPhoneCodeScreen() {
         title: 'Հեռախոսահամարը հաստատված է',
         type: 'success',
       });
-      navigation.goBack();
+      onConfirmed?.();
     } catch (error) {
       showToast({
         title: 'Հաստատումը ձախողվեց',
@@ -155,54 +143,51 @@ export function ConfirmPhoneCodeScreen() {
   };
 
   return (
-    <AuthScreenLayout style={styles.layout} contentStyle={styles.layoutContent}>
-      <MainHeader onPress={() => navigation.goBack()} isHome={true}/>
-      <View style={styles.body}>
-        <ScrollView
-          style={styles.scroll}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          automaticallyAdjustKeyboardInsets
-          contentContainerStyle={styles.contentContainer}
-        >
-          <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
-            <ContentTiltes
-              title="Հաստատման կոդ"
-              subtitle={`Մուտքագրեք Ձեր ${displayPhone} հեռախոսահամարին ուղարկված կոդը`}
-            />
-            <View style={styles.otpSection}>
-              <OtpInputRowCode
-                digits={digits}
-                onChangeDigit={handleChangeDigit}
-                focusedIndex={focusedIndex}
-                onFocusIndex={setFocusedIndex}
-              />
-            </View>
-            <View style={styles.resendContainer}>
-              <Typography style={styles.resendHelper}>Չե՞ք ստացել կոդը</Typography>
-              <Pressable
-                hitSlop={8}
-                onPress={handleResendCode}
-                disabled={isResending}
-                style={isResending && styles.disabledOpacity}
-              >
-                <Typography style={styles.resendLink}>
-                  {isResending ? 'Ուղարկվում է...' : 'Ուղարկել կրկին'}
-                </Typography>
-              </Pressable>
-            </View>
-          </AnimatedView>
-        </ScrollView>
-        <View style={[styles.footer, { paddingBottom: TAB_BAR_BOTTOM_OFFSET }]}>
-          <AuthButton
-            title="Հաստատել հեռախոսահամարը"
-            onPress={handleVerifyCode}
-            isLoading={isVerifying}
-            disabled={isConfirmDisabled}
+    <View style={styles.body}>
+      <ScrollView
+        style={styles.scroll}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        automaticallyAdjustKeyboardInsets
+        contentContainerStyle={styles.contentContainer}
+      >
+        <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
+          <ContentTiltes
+            title="Հաստատման կոդ"
+            subtitle={`Մուտքագրեք Ձեր ${displayPhone} հեռախոսահամարին ուղարկված կոդը`}
           />
-        </View>
+          <View style={styles.otpSection}>
+            <OtpInputRowCode
+              digits={digits}
+              onChangeDigit={handleChangeDigit}
+              focusedIndex={focusedIndex}
+              onFocusIndex={setFocusedIndex}
+            />
+          </View>
+          <View style={styles.resendContainer}>
+            <Typography style={styles.resendHelper}>Չե՞ք ստացել կոդը</Typography>
+            <Pressable
+              hitSlop={8}
+              onPress={handleResendCode}
+              disabled={isResending}
+              style={isResending && styles.disabledOpacity}
+            >
+              <Typography style={styles.resendLink}>
+                {isResending ? 'Ուղարկվում է...' : 'Ուղարկել կրկին'}
+              </Typography>
+            </Pressable>
+          </View>
+        </AnimatedView>
+      </ScrollView>
+      <View style={[styles.footer, { paddingBottom: TAB_BAR_BOTTOM_OFFSET }]}>
+        <AuthButton
+          title="Հաստատել հեռախոսահամարը"
+          onPress={handleVerifyCode}
+          isLoading={isVerifying}
+          disabled={isConfirmDisabled}
+        />
       </View>
-    </AuthScreenLayout>
+    </View>
   );
 }
