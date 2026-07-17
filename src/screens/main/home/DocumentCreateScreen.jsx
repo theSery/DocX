@@ -3,6 +3,7 @@ import {
   Alert,
   Pressable,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import AuthButton from '../../../components/buttons/AuthButton';
@@ -31,6 +32,7 @@ import { useDocumentLoadingOverlay, useThemedStyles, useToast } from '../../../h
 import { palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import MainHeader from '../../../components/headers/MainHeader';
+import SendSvg from '../../../components/icons/SendSvg';
 
 
 
@@ -134,7 +136,6 @@ export function DocumentCreateScreen({ route, navigation }) {
   }, [documentHtml, templateName]);
 
   const handleAddSignature = useCallback(async () => {
-    console.log('handleAddSignature', Date.now());
     setIsAddingSignature(true);
     try {
       const imageSrc = await fetchSignatureImageDataUri();
@@ -237,74 +238,52 @@ console.log(signatureImageSrc, 'signatureImageSrc');
     <View style={styles.root}>
       <MainHeader onPress={() => navigation.goBack()} />
       <View style={styles.screen}>
-      <View style={styles.previewContainer}>
-        <WebView
-          key={hasTypingFinished ? `final-${documentHtml.length}` : `typing-${typingSourceKey}`}
-          originWhitelist={['*']}
-          source={previewWebViewSource}
-          style={styles.webview}
-          scalesPageToFit
-          scrollEnabled
-          showsVerticalScrollIndicator={false}
-          onLoadEnd={() => setIsWebViewLoading(false)}
-          onLoadStart={() => setIsWebViewLoading(true)}
-        />
-      </View>
-
-      <View style={[styles.actionBar, { bottom: TAB_BAR_BOTTOM_OFFSET, flexDirection: 'column' }]}>
-        <View style={styles.actionRow}>
-          <AuthButton
-            title="Ստորագրել"
-            onPress={handleAddSignature}
-            isLoading={isAddingSignature}
-            disabled={isActionDisabled}
-            isLight
-            startIcon={
-              <SignatureSvg width={20} height={20} fill={palette.mainBlue} />
-            }
-            style={styles.rowButton}
-          />
-          <AuthButton
-            title="Ներբեռնել PDF"
-            onPress={handleDownloadPdf}
-            isLoading={isDownloading}
-            disabled={isActionDisabled}
-            endIcon={
-              <UploadSvg width={20} height={20} fill={palette.white} />
-            }
-            style={styles.rowButton}
+      <View style={styles.previewShadow}>
+        <View style={styles.previewContainer}>
+          <WebView
+            key={hasTypingFinished ? `final-${documentHtml.length}` : `typing-${typingSourceKey}`}
+            originWhitelist={['*']}
+            source={previewWebViewSource}
+            style={styles.webview}
+            scalesPageToFit
+            scrollEnabled
+            showsVerticalScrollIndicator={false}
+            onLoadEnd={() => setIsWebViewLoading(false)}
+            onLoadStart={() => setIsWebViewLoading(true)}
           />
         </View>
+      </View>
+      <View style={styles.actionRow}>
+
+                  <Pressable
+            onPress={handleAddSignature}
+            disabled={isActionDisabled}
+            style={styles.topButton}
+          >
+    <SignatureSvg width={25} height={25} fill={palette.mainBlue} />
+          </Pressable>
+          <Pressable
+            onPress={handleDownloadPdf}
+            disabled={isActionDisabled}
+            style={styles.topButton}
+          >
+            <UploadSvg width={25} height={25} fill={palette.mainBlue} />
+          </Pressable>
+  
+        </View>
+      <View style={[styles.actionBar, { bottom: TAB_BAR_BOTTOM_OFFSET, flexDirection: 'column' }]}>
+ 
         <AuthButton
             title={templateSolution?.name ?? 'Ուղարկել'}
             onPress={handleSubmitComplaint}
             isLoading={isSubmittingComplaint}
             disabled={isActionDisabled || !signatureImageSrc}
             endIcon={
-              <UploadSvg width={20} height={20} fill={palette.white} />
+              <SendSvg width={20} height={20} fill={palette.white} />
             }
             style={styles.rowButton}
           />   
-        {/* <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Submit to police patrol service"
-          disabled={isActionDisabled}
-          onPress={handleSubmitComplaint}
-          style={({ pressed }) => [
-            styles.actionButton,
-            styles.signatureButton,
-            pressed && styles.actionButtonPressed,
-            isActionDisabled && styles.actionButtonDisabled,
-          ]}
-        >
-          {isSubmittingComplaint ? (
-            <ActivityIndicator color={palette.mainBlue} />
-          ) : (
-            <Typography variant="h6">
-              Ուղարկված է ՀՀ ՆԳՆ Պարեկային ծառայություն
-            </Typography>
-          )}
-        </Pressable> */}
+
       </View>
       
       </View>
@@ -323,20 +302,28 @@ function createStyles(colors) {
     screen: {
       flex: 1,
       // paddingTop: 1,
-      paddingBottom: TAB_BAR_BOTTOM_OFFSET + 120,
+      paddingBottom: TAB_BAR_BOTTOM_OFFSET + 60,
       paddingHorizontal: 10,
+    },
+    previewShadow: {
+      flex: 1,
+      width: '100%',
+      marginTop: 16,
+      borderRadius: 8,
+      backgroundColor: colors.background,
+      shadowColor: palette.black,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.12,
+      shadowRadius: 6,
+      elevation: 4,
     },
     previewContainer: {
       flex: 1,
-      // height: WEBVIEW_HEIGHT - 100,
-      width: '100%',
       overflow: 'hidden',
-      // borderRadius: 12,
+      borderRadius: 8,
       backgroundColor: '#9DA6BA',
-      borderWidth: StyleSheet.hairlineWidth,
+      borderWidth: 1,
       borderColor: colors.border,
-      padding: 10,
-      marginTop: 16,
     },
     webview: {
       flex: 1,
@@ -351,12 +338,34 @@ function createStyles(colors) {
       gap: 12,
     },
     actionRow: {
-      flexDirection: 'row',
+      // flexDirection: 'row',
       gap: 12,
+      position: 'absolute',
+      // left: 20,
+      right: 20,
+      top: 20,
+
     },
     rowButton: {
       flex: 1,
       marginTop: 0,
+    },
+    topButton: {
+      // flex: 1,
+      width: 60,
+      height: 60,
+      borderRadius: 8,
+      backgroundColor: colors.surface,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 0,
+      opacity: 0.8,
+      transition: 'opacity 0.3s ease-in-out',
+      '&:hover': {
+        opacity: 1,
+      },
     },
     actionButton: {
       flex: 1,

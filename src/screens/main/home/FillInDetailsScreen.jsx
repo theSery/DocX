@@ -64,7 +64,7 @@ export function FillInDetailsScreen({ navigation, route }) {
   const [selectedFacts, setSelectedFacts] = useState({});
   const [radioFacts, setRadioFacts] = useState({});
   const [stepError, setStepError] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+
 
   const templateVariables = useMemo(
     () =>

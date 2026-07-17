@@ -7,7 +7,14 @@ const VARIABLE_SPAN_PATTERN =
 const SIGNATURE_DATE_SPAN_PATTERN =
   /<span\b[^>]*\bdata-label="signature_date"[^>]*>[\s\S]*?<\/span>/gi;
 
+const SIGN_SPAN_PATTERN =
+  /<span\b[^>]*\bdata-label="sign"[^>]*>[\s\S]*?<\/span>/gi;
+
 const HTML_VARIABLES = new Set(['past', 'hodvac', 'text2']);
+
+// Their default text must never be shown; they are kept as empty anchors so
+// injectSignatureAtPlaceholder can place the signature image and date later.
+const SIGNATURE_PLACEHOLDER_LABELS = new Set(['sign', 'signature_date']);
 
 /**
  * @param {string} html
@@ -73,8 +80,8 @@ function mapPersonalDataToVariables(personalData) {
 
 /**
  * @param {{
- *   Act_number?: string;
- *   Act_date?: string | null;
+ *   variableValues?: Record<string, unknown>;
+ *   variableDataTypes?: Record<string, string>;
  *   past?: string[];
  *   text2?: string[];
  *   articles?: string[];
@@ -83,10 +90,17 @@ function mapPersonalDataToVariables(personalData) {
 function mapDocumentFillToVariables(documentFill = {}) {
   const analyticalHtml = joinHtmlBlocks(documentFill.text2);
   const articlesHtml = joinHtmlBlocks(documentFill.articles);
+  const configuredVariables = Object.fromEntries(
+    Object.entries(documentFill.variableValues ?? {}).map(([name, value]) => [
+      name,
+      documentFill.variableDataTypes?.[name] === 'date'
+        ? formatDocumentDate(value)
+        : value ?? '',
+    ]),
+  );
 
   return {
-    Act_number: documentFill.Act_number ?? '',
-    Act_date: formatDocumentDate(documentFill.Act_date),
+    ...configuredVariables,
     past: buildNumberedHtmlList(documentFill.past),
     hodvac: [analyticalHtml, articlesHtml].filter(Boolean).join(''),
     text2: analyticalHtml,
@@ -103,9 +117,12 @@ export function injectSignatureAtPlaceholder(templateText, imageSrc) {
   }
 
   const date = formatDocumentDateTime(new Date());
-  const replacement = `<img src="${imageSrc}" alt="signature" style="max-width:200px; height:auto; display:inline-block;" data-signature="true" /><span style="display:inline-block" data-signature-date="true">${escapeHtml(date)}</span>`;
+  const signatureImage = `<span style="display:block; text-align:center;" data-signature="true"><img src="${imageSrc}" alt="signature" style="max-width:150px; height:auto; display:inline-block;" /></span>`;
+  const signatureDate = `<span style="display:inline-block" data-signature-date="true">${escapeHtml(date)}</span>`;
 
-  return templateText.replace(SIGNATURE_DATE_SPAN_PATTERN, replacement);
+  return templateText
+    .replace(SIGN_SPAN_PATTERN, signatureImage)
+    .replace(SIGNATURE_DATE_SPAN_PATTERN, signatureDate);
 }
 
 /**
@@ -115,8 +132,8 @@ export function injectSignatureAtPlaceholder(templateText, imageSrc) {
  * @param {{
  *   personalData?: Record<string, unknown> | null;
  *   documentFill?: {
- *     Act_number?: string;
- *     Act_date?: string | null;
+ *     variableValues?: Record<string, unknown>;
+ *     variableDataTypes?: Record<string, string>;
  *     past?: string[];
  *     text2?: string[];
  *     articles?: string[];
@@ -134,6 +151,10 @@ export function fillTemplateText(templateText, { personalData, documentFill } = 
   };
 
   return templateText.replace(VARIABLE_SPAN_PATTERN, (match, label) => {
+    if (SIGNATURE_PLACEHOLDER_LABELS.has(label)) {
+      return `<span data-label="${label}"></span>`;
+    }
+
     if (!(label in variables)) {
       return match;
     }

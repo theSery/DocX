@@ -46,6 +46,8 @@ export function generateComplaintSerialNumber(userId, timestamp = Date.now()) {
 const DOCX_HEADER_HTML =
   '<p style="text-align: center;"><a target="_blank" rel="noopener noreferrer nofollow" class="text-blue-600 underline" href="http://DOCX.AM"><strong><u>DOCX.AM</u> - Փաստաթղթերի կազմման էլեկտրոնաին հարթակ</strong></a></p><hr>';
 
+const DOCX_HEADER_PATTERN = /Փաստաթղթերի կազմման էլեկտրոնա(?:յ)?ին հարթակ/i;
+
 /**
  * @param {string} bodyHtml
  * @param {string} serialNumber
@@ -55,8 +57,10 @@ export function prependSerialNumberToBodyHtml(bodyHtml, serialNumber) {
     return bodyHtml;
   }
 
+  // Backend templates may already include the DOCX.AM header; avoid duplicating it.
+  const headerHtml = DOCX_HEADER_PATTERN.test(bodyHtml) ? '' : DOCX_HEADER_HTML;
   const serialParagraph = `<p data-serial-number="true" style="text-align:left"><strong>${serialNumber}</strong></p>`;
-  return `${serialParagraph}${DOCX_HEADER_HTML}${bodyHtml}`;
+  return `${serialParagraph}${headerHtml}${bodyHtml}`;
 }
 
 /**

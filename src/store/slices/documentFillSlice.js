@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  Act_number: '',
-  Act_date: null,
+  variableValues: {},
+  variableDataTypes: {},
   past: [],
   text2: [],
   articles: [],
@@ -22,6 +22,14 @@ function toSerializableDate(value) {
   }
 
   return null;
+}
+
+function serializeVariableValue(value, dataType) {
+  if (dataType === 'date') {
+    return toSerializableDate(value);
+  }
+
+  return value ?? '';
 }
 
 function collectSelectedFacts(templateFactGroups, selectedFacts, radioFacts) {
@@ -77,16 +85,34 @@ const documentFillSlice = createSlice({
   name: 'documentFill',
   initialState,
   reducers: {
-    setActNumber: (state, action) => {
-      state.Act_number = action.payload ?? '';
-    },
-    setActDate: {
+    syncVariableValues: {
       reducer: (state, action) => {
-        state.Act_date = action.payload;
+        state.variableValues = action.payload.variableValues;
+        state.variableDataTypes = action.payload.variableDataTypes;
       },
-      prepare: value => ({
-        payload: toSerializableDate(value),
-      }),
+      prepare: ({ variables = [], values = {} }) => {
+        const variableValues = {};
+        const variableDataTypes = {};
+
+        variables.forEach(variable => {
+          if (!variable?.name) {
+            return;
+          }
+
+          variableValues[variable.name] = serializeVariableValue(
+            values?.[variable.name],
+            variable.dataType,
+          );
+          variableDataTypes[variable.name] = variable.dataType;
+        });
+
+        return {
+          payload: {
+            variableValues,
+            variableDataTypes,
+          },
+        };
+      },
     },
     syncFactSelections: (state, action) => {
       const { templateFactGroups = [], selectedFacts = {}, radioFacts = {} } =
@@ -106,7 +132,7 @@ const documentFillSlice = createSlice({
   },
 });
 
-export const { setActNumber, setActDate, syncFactSelections, resetDocumentFill } =
+export const { syncVariableValues, syncFactSelections, resetDocumentFill } =
   documentFillSlice.actions;
 
 export const selectDocumentFill = state => state.documentFill;

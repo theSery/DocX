@@ -8,7 +8,7 @@ import UserSvg from '../../../../../components/icons/UserSvg';
 import { palette } from '../../../../../theme';
 import { ARMENIAN_NAME_RULES } from '../../../../../utils/patterns';
 import { useAppDispatch } from '../../../../../store';
-import { setActDate, setActNumber } from '../../../../../store/slices/documentFillSlice';
+import { syncVariableValues } from '../../../../../store/slices/documentFillSlice';
 
 function buildRules(variable) {
   const requiredMessage = `${variable.description} դաշտը պարտադիր է`;
@@ -55,16 +55,11 @@ function getFieldConfig(variable) {
 
 export function FillAct({ control, variables = [] }) {
   const dispatch = useAppDispatch();
-  const actNumber = useWatch({ control, name: 'Act_number' });
-  const actDate = useWatch({ control, name: 'Act_date' });
+  const variableValues = useWatch({ control });
 
   useEffect(() => {
-    dispatch(setActNumber(actNumber ?? ''));
-  }, [actNumber, dispatch]);
-
-  useEffect(() => {
-    dispatch(setActDate(actDate ?? null));
-  }, [actDate, dispatch]);
+    dispatch(syncVariableValues({ variables, values: variableValues }));
+  }, [dispatch, variableValues, variables]);
 
   return (
     <View style={styles.container}>
