@@ -135,6 +135,9 @@ export function SearchComponent({ categoryId, subCategoryId } = {}) {
   const navigation = useNavigation();
   const { isDarkMode, colors } = useTheme();
   const styles = useThemedStyles(createStyles);
+  // Scoped search (Category/SubCategory screens) covers a single category,
+  // so the collapsible category header adds no value there.
+  const showGroupHeaders = categoryId == null;
   const { items: categories } = useAppSelector(state => state.categories);
   const flattenedLegalIssues = useMemo(() => {
     const flattened = flattenLegalIssues(categories);
@@ -169,8 +172,15 @@ export function SearchComponent({ categoryId, subCategoryId } = {}) {
         expandedGroupIds,
         showNoResults,
         hasSearchResults: searchResults.length > 0,
+        includeGroupHeaders: showGroupHeaders,
       }),
-    [expandedGroupIds, groupedSearchResults, searchResults.length, showNoResults],
+    [
+      expandedGroupIds,
+      groupedSearchResults,
+      searchResults.length,
+      showGroupHeaders,
+      showNoResults,
+    ],
   );
 
   const scrollMaxHeight = useMemo(
@@ -307,36 +317,39 @@ export function SearchComponent({ categoryId, subCategoryId } = {}) {
             showsVerticalScrollIndicator
           >
             {groupedSearchResults.map(group => {
-              const isExpanded = expandedGroupIds.has(group.id);
+              const isExpanded =
+                !showGroupHeaders || expandedGroupIds.has(group.id);
 
               return (
                 <View key={group.id}>
-                  <Pressable
-                    onPress={() =>
-                      setExpandedGroupIds(prev =>
-                        toggleExpandedGroupId(prev, group.id),
-                      )
-                    }
-                    style={({ pressed }) => [
-                      styles.groupHeader,
-                      pressed && styles.groupHeaderPressed,
-                    ]}
-                  >
-                    {group.iconUrl ? (
-                      <Image source={{ uri: group.iconUrl }} style={styles.titleIcon} />
-                    ) : null}
-                    <Typography variant="h5" numberOfLines={1} style={styles.groupHeaderText}>
-                      {group.name}
-                    </Typography>
-                    <View style={styles.groupHeaderChevron}>
-                      <Chevron
-                        width={16}
-                        height={16}
-                        fill={colors.iconAccent}
-                        rotate={isExpanded ? -90 : 90}
-                      />
-                    </View>
-                  </Pressable>
+                  {showGroupHeaders ? (
+                    <Pressable
+                      onPress={() =>
+                        setExpandedGroupIds(prev =>
+                          toggleExpandedGroupId(prev, group.id),
+                        )
+                      }
+                      style={({ pressed }) => [
+                        styles.groupHeader,
+                        pressed && styles.groupHeaderPressed,
+                      ]}
+                    >
+                      {group.iconUrl ? (
+                        <Image source={{ uri: group.iconUrl }} style={styles.titleIcon} />
+                      ) : null}
+                      <Typography variant="h5" numberOfLines={1} style={styles.groupHeaderText}>
+                        {group.name}
+                      </Typography>
+                      <View style={styles.groupHeaderChevron}>
+                        <Chevron
+                          width={16}
+                          height={16}
+                          fill={colors.iconAccent}
+                          rotate={isExpanded ? -90 : 90}
+                        />
+                      </View>
+                    </Pressable>
+                  ) : null}
                   {isExpanded
                     ? group.results.slice(0, 10).map(result => (
                         <Pressable

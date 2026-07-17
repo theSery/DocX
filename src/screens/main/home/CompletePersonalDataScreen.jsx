@@ -338,7 +338,6 @@ export function CompletePersonalDataScreen({ navigation, route }) {
             startIcon={config.startIcon}
             placeholder={config.placeholder}
             rules={config.rules}
-            useGoogleAutocomplete
           />
           {field === 'notificationAddress' && registrationAddressMissing && (
             <CheckBox

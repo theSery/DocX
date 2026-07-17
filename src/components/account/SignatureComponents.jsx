@@ -37,7 +37,7 @@ const INPUT_RADIUS = 16;
 const STROKE_COLOR = '#000000';
 const STROKE_WIDTH = 3;
 
-function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress }) {
+function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveSuccess }) {
   const canvasRef = useCanvasRef();
   const styles = useThemedStyles(createStyles);
   const { showToast } = useToast();
@@ -138,6 +138,7 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress }) {
         await signatureApi.uploadSignature({ uri: `file://${filePath}` });
       }
       showToast({ title: 'Ստորագրությունը պահպանվել է', type: 'success' });
+      onSaveSuccess?.();
     } catch (error) {
       console.log('error', error);
       showToast({
@@ -324,7 +325,7 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress }) {
   );
 }
 
-export function SignatureComponents() {
+export function SignatureComponents({ onSaveSuccess }) {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { showToast } = useToast();
@@ -377,6 +378,7 @@ export function SignatureComponents() {
       <SignatureDrawCanvas
         signatureUrl={signature?.fileUrl}
         handleDeleteSignaturePress={handleDeleteSignaturePress}
+        onSaveSuccess={onSaveSuccess}
       />
     </ScrollView>
   );

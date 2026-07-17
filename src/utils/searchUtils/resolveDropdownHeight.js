@@ -1,11 +1,15 @@
 import { MAX_HEIGHT, ROW_HEIGHT } from './constants';
 
-function countVisibleRows(groups, expandedGroupIds) {
+function countVisibleRows(groups, expandedGroupIds, includeGroupHeaders) {
   let count = 0;
 
   for (const group of groups) {
-    count += 1;
-    if (expandedGroupIds.has(group.id)) {
+    if (includeGroupHeaders) {
+      count += 1;
+      if (expandedGroupIds.has(group.id)) {
+        count += group.results.length;
+      }
+    } else {
       count += group.results.length;
     }
   }
@@ -18,6 +22,7 @@ export function resolveDropdownHeight({
   expandedGroupIds,
   showNoResults,
   hasSearchResults,
+  includeGroupHeaders = true,
 }) {
   if (!hasSearchResults && showNoResults) {
     return ROW_HEIGHT;
@@ -27,7 +32,11 @@ export function resolveDropdownHeight({
     return 0;
   }
 
-  const contentRows = countVisibleRows(groupedResults, expandedGroupIds);
+  const contentRows = countVisibleRows(
+    groupedResults,
+    expandedGroupIds,
+    includeGroupHeaders,
+  );
   const noResultsRows = showNoResults ? 1 : 0;
   const naturalHeight = (contentRows + noResultsRows) * ROW_HEIGHT;
 

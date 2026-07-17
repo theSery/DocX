@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
-import { templatesApi } from '../../../api';
+import { templatesApi, userApi } from '../../../api';
 import AuthButton from '../../../components/buttons/AuthButton';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
 import { AnimatedView } from '../../../components/animation/AnimatedView';
@@ -64,6 +64,7 @@ export function FillInDetailsScreen({ navigation, route }) {
   const [selectedFacts, setSelectedFacts] = useState({});
   const [radioFacts, setRadioFacts] = useState({});
   const [stepError, setStepError] = useState('');
+  const [isCheckingSignature, setIsCheckingSignature] = useState(false);
 
 
   const templateVariables = useMemo(
@@ -145,7 +146,7 @@ export function FillInDetailsScreen({ navigation, route }) {
   const isLastStep = currentStep >= totalSteps - 1;
   const currentFactGroup = currentStep > 0 ? templateFactGroups[currentStep - 1] : null;
 
-  const handleNext = useCallback(() => {
+  const handleNext = useCallback(async () => {
     if (currentStep === 0) {
       handleSubmit(() => {
         setStepError('');
@@ -175,6 +176,30 @@ export function FillInDetailsScreen({ navigation, route }) {
       }
 
       setStepError('');
+      setIsCheckingSignature(true);
+      try {
+        const { data } = await userApi.getVariables();
+        const hasSignature = data?.hasSignature ?? data?.data?.hasSignature;
+
+        if (!hasSignature) {
+          navigation.navigate('Account', {
+            screen: 'Signature',
+            params: {
+              templateText,
+              templateName,
+              templateId,
+              templateSolution,
+              fromDocumentFlow: true,
+            },
+          });
+          return;
+        }
+      } catch (error) {
+        console.log('signature check error:', error);
+      } finally {
+        setIsCheckingSignature(false);
+      }
+
       navigation.navigate('DocumentCreate', {
         templateText,
         templateName,
@@ -357,6 +382,8 @@ export function FillInDetailsScreen({ navigation, route }) {
         <AuthButton
           title={isLastStep ? 'Կազմել բողոք' : 'Առաջ'}
           onPress={handleNext}
+          disabled={isCheckingSignature}
+          isLoading={isCheckingSignature}
           endIcon={
             !isLastStep ? <ArrowSvg width={14} height={14} fill={palette.white} /> : null
           }

@@ -280,7 +280,6 @@ export function PassportInfoScreen() {
                   startIcon={field.startIcon}
                   placeholder={field.placeholder}
                   rules={field.rules}
-                  useGoogleAutocomplete
                 />
                 {field.name === 'notificationAddress' && (
                   <CheckBox

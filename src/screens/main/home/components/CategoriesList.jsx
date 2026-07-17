@@ -61,6 +61,7 @@ export function CategoriesList({
           </StaggeredAnimatedView>
         )}
       />
+      <Image source={require('../../../../assets/images/Femidi.webp')} style={styles.image} />
     </View>
   );
 }
@@ -120,5 +121,17 @@ marginHorizontal: 5,
       justifyContent: 'center',
       alignItems: 'center',
 
+    },
+    image: {
+      width: '100%',
+      height: 150,
+      resizeMode: 'contain',
+      position: 'absolute',
+      bottom: 50,
+      left: 0,
+      right: 0,
+      // top: 0,
+      zIndex: -1000,
+      opacity: 0.4,
     },
   });
