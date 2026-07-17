@@ -1,7 +1,7 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useThemedStyles } from '../../hooks';
 
-export function StepIndicator({ steps, currentStep = 0 }) {
+export function StepIndicator({ steps, currentStep = 0, onStepPress }) {
   const styles = useThemedStyles(createStyles);
 
   return (
@@ -9,9 +9,16 @@ export function StepIndicator({ steps, currentStep = 0 }) {
       {steps.map((step, index) => {
         const isCompleted = index < currentStep;
         const isActive = index === currentStep;
+        const isPressable = Boolean(onStepPress) && index !== currentStep;
 
         return (
-          <View key={step.key ?? index} style={styles.stepRow}>
+          <Pressable
+            key={step.key ?? index}
+            style={styles.stepRow}
+            disabled={!isPressable}
+            onPress={() => onStepPress?.(index)}
+            hitSlop={{ top: 12, bottom: 12 }}
+          >
             <View style={styles.stepContent}>
               <View
                 style={[
@@ -21,7 +28,7 @@ export function StepIndicator({ steps, currentStep = 0 }) {
                 ]}
               />
             </View>
-          </View>
+          </Pressable>
         );
       })}
     </View>
@@ -60,6 +67,7 @@ const createStyles = colors =>
       backgroundColor: colors.mainBlue,
     },
     circleCompleted: {
+      opacity: 1,
       backgroundColor: colors.mainBlue,
     },
   });

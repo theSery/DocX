@@ -5,6 +5,7 @@ import { AnimatedView } from './animation';
 import LottieAnimation from './animation/LottieAnimation';
 import LogoIcon from './icons/LogoIcon';
 import { Typography } from './typography';
+import { FONT_FAMILY } from '../theme';
 
 export const DOCUMENT_LOADING_QUOTE =
   '«Յուրաքանչյուր նոր փաստաթուղթ՝ քո ապագայի քայլ է»';
@@ -89,6 +90,7 @@ const styles = StyleSheet.create({
   quote: {
     textAlign: 'center',
     fontStyle: 'italic',
-    fontSize: 18,
+    fontSize: 22,
+    fontFamily: FONT_FAMILY.black,
   },
 });

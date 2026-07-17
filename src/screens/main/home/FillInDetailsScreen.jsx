@@ -183,6 +183,33 @@ export function FillInDetailsScreen({ navigation, route }) {
     templateId,
   ]);
 
+  const handleStepPress = useCallback(
+    stepIndex => {
+      if (stepIndex === currentStep) {
+        return;
+      }
+
+      if (stepIndex < currentStep) {
+        setStepError('');
+        setCurrentStep(stepIndex);
+        return;
+      }
+
+      // Moving forward from the first step requires the form to be valid.
+      if (currentStep === 0) {
+        handleSubmit(() => {
+          setStepError('');
+          setCurrentStep(stepIndex);
+        })();
+        return;
+      }
+
+      setStepError('');
+      setCurrentStep(stepIndex);
+    },
+    [currentStep, handleSubmit],
+  );
+
   const handleBack = useCallback(() => {
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
@@ -203,10 +230,6 @@ export function FillInDetailsScreen({ navigation, route }) {
       const isSelected = selectedIds.includes(fact.id);
 
       if (isSelected) {
-        if (selectedIds.length <= 1) {
-          return prev;
-        }
-
         return {
           ...prev,
           [groupId]: selectedIds.filter(id => id !== fact.id),
@@ -268,28 +291,24 @@ export function FillInDetailsScreen({ navigation, route }) {
         <Typography variant="h6" style={styles.headerSubtitle}>
           {headerContent.subtitle}
         </Typography>
-        <StepIndicator steps={steps} currentStep={currentStep} />
+        <StepIndicator
+          steps={steps}
+          currentStep={currentStep}
+          onStepPress={handleStepPress}
+        />
       </>
     ),
-    [steps, currentStep, headerContent, styles.headerTitle, styles.headerSubtitle],
+    [
+      steps,
+      currentStep,
+      handleStepPress,
+      headerContent,
+      styles.headerTitle,
+      styles.headerSubtitle,
+    ],
   );
-//  if (isLoading) {
-//   return (
-//     <DocCreatLoading
-//     source={require('../../../assets/lottie/Law.json')}
-
-//     />
-
-//   );
-// }
   return (
     <>
-{/* {isLoading && (
-  <DocCreatLoading
-  source={require('../../../assets/lottie/Law.json')}
-
-  />
-) } */}
       <View style={[styles.screen, ]}>
       <MainHeader onPress={handleBack} />
         <FlatList
