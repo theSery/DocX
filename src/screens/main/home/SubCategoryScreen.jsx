@@ -34,8 +34,11 @@ export function SubCategoryScreen({ route, navigation }) {
   const scrollBottomPadding = insets.bottom + 24;
   const { isAuthenticated, openAuth } = useAuthSession();
   const navigateToFillInDetails = (template) => {
+
     navigation.navigate('FillInDetails', {
       templateId: template.id,
+      templateForm: template.form,
+      templateSolution: template.solution,
     });
   };
 

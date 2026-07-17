@@ -56,6 +56,7 @@ export const fetchCategoryHierarchy = createAsyncThunk(
       });
       return parseCategoryHierarchyResponse(response.data, page, limit);
     } catch (error) {
+      console.log('error:', error);
       return rejectWithValue(toSerializableApiError(error));
     }
   },

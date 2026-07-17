@@ -182,7 +182,7 @@ function buildPayload(missingFields, formValues, personalData) {
 }
 
 export function CompletePersonalDataScreen({ navigation, route }) {
-  const { templateText, templateName, templateId } = route.params ?? {};
+  const { templateText, templateName, templateId, templateSolution } = route.params ?? {};
   const styles = useThemedStyles(createStyles);
   const insets = useSafeAreaInsets();
   const { showToast } = useToast();
@@ -293,6 +293,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
         templateText,
         templateName,
         templateId,
+        templateSolution,
       });
     } catch (error) {
       console.log(error, 'error');

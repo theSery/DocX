@@ -59,7 +59,7 @@ export const complaintsApi = {
         type: file.type ?? 'application/pdf',
       });
     }
-console.log(formData, 'formData');
+console.log('formData:', formData);
     return axiosClient.post('/complaints', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });

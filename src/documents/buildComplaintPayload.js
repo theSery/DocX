@@ -40,8 +40,11 @@ export function generateComplaintSerialNumber(userId, timestamp = Date.now()) {
   const timeCode = generateTimeCode(timestamp);
   const prefix = userId != null && userId !== '' ? String(userId) : '00';
 
-  return `M-${prefix}-${monthYear}-${timeCode}`;
+  return `${prefix}-${monthYear}-${timeCode}`;
 }
+
+const DOCX_HEADER_HTML =
+  '<p style="text-align: center;"><a target="_blank" rel="noopener noreferrer nofollow" class="text-blue-600 underline" href="http://DOCX.AM"><strong><u>DOCX.AM</u> - Փաստաթղթերի կազմման էլեկտրոնաին հարթակ</strong></a></p><hr>';
 
 /**
  * @param {string} bodyHtml
@@ -53,7 +56,7 @@ export function prependSerialNumberToBodyHtml(bodyHtml, serialNumber) {
   }
 
   const serialParagraph = `<p data-serial-number="true" style="text-align:left"><strong>${serialNumber}</strong></p>`;
-  return `${serialParagraph}${bodyHtml}`;
+  return `${serialParagraph}${DOCX_HEADER_HTML}${bodyHtml}`;
 }
 
 /**

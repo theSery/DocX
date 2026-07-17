@@ -23,7 +23,7 @@ import { sortDocumentsWithRecommended } from './utils/sortDocumentsWithRecommend
 const TAB_BAR_HEIGHT = 60;
 const PAGE_LIMIT = 10;
 
-export function DocumentsScreen() {
+export function DocumentsScreen({ route }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -102,6 +102,14 @@ export function DocumentsScreen() {
   useEffect(() => {
     fetchComplaints(1);
   }, [fetchComplaints]);
+
+  const refreshedAt = route?.params?.refreshedAt;
+
+  useEffect(() => {
+    if (refreshedAt) {
+      fetchComplaints(1);
+    }
+  }, [refreshedAt, fetchComplaints]);
 
   const handleDateRangeChange = useCallback(range => {
     setDateRange(current => {

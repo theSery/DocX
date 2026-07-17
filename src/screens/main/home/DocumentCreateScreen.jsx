@@ -22,7 +22,7 @@ import {
   getPdfWebViewBaseUrl,
   prependSerialNumberToBodyHtml,
 } from '../../../documents';
-import { complaintsApi } from '../../../api';
+import { complaintsApi, personalDocumentsApi } from '../../../api';
 import { DocumentLoadingOverlay, Typography } from '../../../components';
 import { useAppSelector } from '../../../store';
 import { selectDocumentFill } from '../../../store/slices/documentFillSlice';
@@ -40,7 +40,7 @@ export function DocumentCreateScreen({ route, navigation }) {
   const { showToast } = useToast();
   const personalData = useAppSelector(selectPersonalData);
   const documentFill = useAppSelector(selectDocumentFill);
-  const { templateText = '', templateName = 'document', templateId } = route.params ?? {};
+  const { templateText = '', templateName = 'document', templateId, templateSolution } = route.params ?? {};
   const [isWebViewLoading, setIsWebViewLoading] = useState(true);
   const [hasTypingFinished, setHasTypingFinished] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -187,9 +187,19 @@ export function DocumentCreateScreen({ route, navigation }) {
         type: 'success',
       });
 
+      try {
+        await personalDocumentsApi.getPersonalDocuments();
+      } catch (refreshError) {
+        console.log(refreshError, 'personal documents refresh error');
+      }
+
       navigation.reset({
         index: 0,
         routes: [{ name: 'HomeMain' }],
+      });
+      navigation.navigate('Documents', {
+        screen: 'DocumentsMain',
+        params: { refreshedAt: Date.now() },
       });
     } catch (error) {
       console.log(error, 'error');
@@ -266,7 +276,7 @@ console.log(signatureImageSrc, 'signatureImageSrc');
           />
         </View>
         <AuthButton
-            title=" Ուղարկված է ՀՀ ՆԳՆ Պարեկային ծառայություն"
+            title={templateSolution?.name ?? 'Ուղարկել'}
             onPress={handleSubmitComplaint}
             isLoading={isSubmittingComplaint}
             disabled={isActionDisabled || !signatureImageSrc}

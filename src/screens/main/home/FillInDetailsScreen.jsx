@@ -56,7 +56,7 @@ function hasAnyFactSelection(templateFactGroups, selectedFacts, radioFacts) {
 export function FillInDetailsScreen({ navigation, route }) {
   const styles = useThemedStyles(createStyles);
   const dispatch = useAppDispatch();
-  const { templateId = 73 } = route.params ?? {};
+  const { templateId = 73, templateForm, templateSolution } = route.params ?? {};
   const [currentStep, setCurrentStep] = useState(0);
   const [templateFactGroups, setTemplateFactGroups] = useState([]);
   const [templateText, setTemplateText] = useState('');
@@ -65,11 +65,26 @@ export function FillInDetailsScreen({ navigation, route }) {
   const [radioFacts, setRadioFacts] = useState({});
   const [stepError, setStepError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+
+  const templateVariables = useMemo(
+    () =>
+      [...(templateForm?.variables ?? [])].sort(
+        (a, b) => (a.sequence ?? 0) - (b.sequence ?? 0),
+      ),
+    [templateForm],
+  );
+
+  const defaultValues = useMemo(
+    () =>
+      templateVariables.reduce((acc, variable) => {
+        acc[variable.name] = variable.dataType === 'date' ? null : '';
+        return acc;
+      }, {}),
+    [templateVariables],
+  );
+
   const { control, handleSubmit } = useForm({
-    defaultValues: {
-      Act_date: null,
-      Act_number: '',
-    },
+    defaultValues,
     reValidateMode: 'onChange',
   });
   const personalData = useAppSelector(selectPersonalData);
@@ -154,6 +169,7 @@ export function FillInDetailsScreen({ navigation, route }) {
           templateText,
           templateName,
           templateId,
+          templateSolution,
         });
         return;
       }
@@ -163,6 +179,7 @@ export function FillInDetailsScreen({ navigation, route }) {
         templateText,
         templateName,
         templateId,
+        templateSolution,
       });
       return;
     }
@@ -181,6 +198,7 @@ export function FillInDetailsScreen({ navigation, route }) {
     templateText,
     templateName,
     templateId,
+    templateSolution,
   ]);
 
   const handleStepPress = useCallback(
@@ -263,7 +281,7 @@ export function FillInDetailsScreen({ navigation, route }) {
 
   const renderStepContent = () => {
     if (currentStep === 0) {
-      return <FillAct control={control} />;
+      return <FillAct control={control} variables={templateVariables} />;
     }
 
     if (currentFactGroup) {

@@ -1,5 +1,5 @@
 import { escapeHtml } from './escapeHtml';
-import { formatDocumentDate } from './formatDocumentDate';
+import { formatDocumentDate, formatDocumentDateTime } from './formatDocumentDate';
 
 const VARIABLE_SPAN_PATTERN =
   /<span\b[^>]*\bdata-label="([^"]+)"[^>]*>[\s\S]*?<\/span>/gi;
@@ -102,8 +102,8 @@ export function injectSignatureAtPlaceholder(templateText, imageSrc) {
     return templateText ?? '';
   }
 
-  const date = formatDocumentDate(new Date());
-  const replacement = `<img src="${imageSrc}" alt="" style="max-height:56px;max-width:180px;display:block;margin:0 auto;" /><span>${escapeHtml(date)}</span>`;
+  const date = formatDocumentDateTime(new Date());
+  const replacement = `<img src="${imageSrc}" alt="signature" style="max-width:200px; height:auto; display:inline-block;" data-signature="true" /><span style="display:inline-block" data-signature-date="true">${escapeHtml(date)}</span>`;
 
   return templateText.replace(SIGNATURE_DATE_SPAN_PATTERN, replacement);
 }
