@@ -21,6 +21,7 @@ import {
   addRecommendedDocument,
   removeRecommendedDocument,
 } from '../../../../utils/recommendedDocumentsStorage';
+import EyeIconSvg from '../../../../components/icons/EyeIconSvg';
 
 const STATUS_CONFIG = {
   draft: { label: 'Սևագիր', colorKey: 'error' },
@@ -132,8 +133,10 @@ export function DocumentCard({
           onPress: showDeleteConfirmation,
         },
         {
-          label: 'Ստորագրել',
-          icon: <SignatureSvg width={20} height={20} fill={iconColor} />,
+          label: 'Դիտել ֆայլը',
+                icon: (
+                  <EyeIconSvg width={20} height={20} fill={iconColor} visible />
+                ),
           onPress: handleSign,
         },
         {

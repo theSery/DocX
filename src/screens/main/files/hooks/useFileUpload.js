@@ -12,6 +12,9 @@ import { showGlobalSheet } from '../../../../components/GlobalSheet';
 import { useToast } from '../../../../hooks';
 import { runAfterSheetDismiss } from '../../../../utils/runAfterSheetDismiss';
 import { FileUploadSheet } from '../components/FileUploadSheet';
+import CameraSvg from '../../../../components/icons/CameraSvg';
+import { palette } from '../../../../theme';
+import AttachSvg from '../../../../components/icons/AttachSvg';
 
 export function useFileUpload({ onUploaded } = {}) {
   const { showToast } = useToast();
@@ -167,10 +170,12 @@ export function useFileUpload({ onUploaded } = {}) {
       menuItems: [
         {
           label: 'Գալերեա',
+          icon: <CameraSvg width={20} height={20} fill={palette.gray} />,
           onPress: pickFromGallery,
         },
         {
           label: 'Ֆայլեր',
+          icon: <AttachSvg width={20} height={20} fill={palette.gray} />,
           onPress: pickFromFiles,
         },
       ],

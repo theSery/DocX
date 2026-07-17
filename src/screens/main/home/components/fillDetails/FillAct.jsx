@@ -10,13 +10,48 @@ import { ARMENIAN_NAME_RULES } from '../../../../../utils/patterns';
 import { useAppDispatch } from '../../../../../store';
 import { syncVariableValues } from '../../../../../store/slices/documentFillSlice';
 
+const ACT_DATE_FIELD = 'Act_date';
+const ACT_RECEIVE_DATE_FIELD = 'Act_resive_day';
+
+function startOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
 function buildRules(variable) {
   const requiredMessage = `${variable.description} դաշտը պարտադիր է`;
 
   if (variable.dataType === 'date') {
     return {
       required: requiredMessage,
-      validate: value => value instanceof Date || requiredMessage,
+      validate: {
+        isDate: value => value instanceof Date || requiredMessage,
+        notInFuture: value => {
+          if (!(value instanceof Date)) {
+            return true;
+          }
+          return (
+            startOfDay(value) <= startOfDay(new Date()) ||
+            `${variable.description} դաշտը չի կարող լինել այսօրվանից ուշ`
+          );
+        },
+        notBeforeActDate: (value, formValues) => {
+          if (variable.name !== ACT_RECEIVE_DATE_FIELD) {
+            return true;
+          }
+          const actDate = formValues?.[ACT_DATE_FIELD];
+          if (!(value instanceof Date) || !(actDate instanceof Date)) {
+            return true;
+          }
+          return (
+            startOfDay(value) >= startOfDay(actDate) ||
+            'Որոշումը ստանալու օրը չի կարող վաղ լինել որոշման ամսաթվից'
+          );
+        },
+      },
+      // Re-validate the receive date when the act date changes
+      ...(variable.name === ACT_DATE_FIELD
+        ? { deps: [ACT_RECEIVE_DATE_FIELD] }
+        : {}),
     };
   }
 
@@ -73,6 +108,7 @@ export function FillAct({ control, variables = [] }) {
               label={`${variable.description} *`}
               startIcon={<CalendarSvg width={20} height={20} fill={palette.gray} />}
               rules={buildRules(variable)}
+              maximumDate={new Date()}
             />
           );
         }

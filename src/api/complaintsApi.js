@@ -42,6 +42,15 @@ export const complaintsApi = {
     return axiosClient.get(`/complaints/${id}`);
   },
 
+  sendComplaint(id, { recipientType, recipientEmail, addresseeEmail, attachedDocuments }) {
+    return axiosClient.post(`/complaints/${id}/send`, {
+      recipientType,
+      recipientEmail,
+      addresseeEmail,
+      attachedDocuments,
+    });
+  },
+
   createComplaint({ templateId, documentName, serialNumber, data, file }) {
     const formData = new FormData();
 

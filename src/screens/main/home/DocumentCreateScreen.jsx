@@ -149,6 +149,39 @@ export function DocumentCreateScreen({ route, navigation }) {
     }
   }, []);
 
+  // Test helper for POST /api/complaints/{id}/send
+  const testSendComplaint = useCallback(
+    async complaintId => {
+      if (!complaintId) {
+        console.log('[testSendComplaint] Missing complaint id, skipping send');
+        return;
+      }
+
+      const attachedDocuments = (templateSolution?.solutionAttachments ?? [])
+        .map(attachment => attachment?.attachedDocumentId ?? attachment?.attachedDocument?.id)
+        .filter(id => id != null);
+
+      try {
+        const response = await complaintsApi.sendComplaint(complaintId, {
+          recipientType: 'email',
+          recipientEmail: templateSolution?.addressee?.email ?? '',
+          addresseeEmail: personalData?.email ?? '',
+          attachedDocuments,
+        });
+        console.log(
+          `[testSendComplaint] POST /complaints/${complaintId}/send`,
+          response.data,
+        );
+      } catch (error) {
+        console.log(
+          `[testSendComplaint] POST /complaints/${complaintId}/send error`,
+          error,
+        );
+      }
+    },
+    [personalData?.email, templateSolution],
+  );
+
   const handleSubmitComplaint = useCallback(async () => {
     if (!templateId) {
       showToast({
@@ -173,7 +206,7 @@ export function DocumentCreateScreen({ route, navigation }) {
         fileName: `docx_${templateName.replace(/\s+/g, '_')}_${Date.now()}`,
       });
 
-      await complaintsApi.createComplaint({
+      const createResponse = await complaintsApi.createComplaint({
         ...payload,
         file: {
           uri: pdf.filePath,
@@ -181,6 +214,10 @@ export function DocumentCreateScreen({ route, navigation }) {
           type: 'application/pdf',
         },
       });
+
+      const createdComplaintId =
+        createResponse.data?.data?.id ?? createResponse.data?.id;
+      await testSendComplaint(createdComplaintId);
 
       showToast({
         title: 'Հաջողություն',
@@ -226,6 +263,7 @@ export function DocumentCreateScreen({ route, navigation }) {
     userId,
     navigation,
     showToast,
+    testSendComplaint,
   ]);
 console.log(signatureImageSrc, 'signatureImageSrc');
   const isActionDisabled =
