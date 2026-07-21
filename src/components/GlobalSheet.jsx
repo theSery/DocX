@@ -345,6 +345,11 @@ const createStyles = colors =>
       paddingTop: 24,
       paddingBottom: 32,
       maxHeight: '90%',
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: -3 },
+      shadowOpacity: 0.12,
+      shadowRadius: 6,
+      elevation: 8,
     },
     message: {
       width: '80%',
