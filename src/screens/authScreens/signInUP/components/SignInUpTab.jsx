@@ -21,13 +21,13 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { AUTH_SCREEN_HORIZONTAL_PADDING } from '../../../../components/layout/authLayoutConstants';
-import { FONT_FAMILY, palette } from '../../../../theme';
+import { FONT_FAMILY } from '../../../../theme';
 import { FormField, Typography } from '../../../../components';
 import { LoginTabs } from './LoginTabs';
 import LockIconSbg from '../../../../components/icons/LockIconSbg';
 import AuthButton from '../../../../components/buttons/AuthButton';
 import { authApi } from '../../../../api';
-import { useToast } from '../../../../hooks';
+import { useTheme, useThemedStyles, useToast } from '../../../../hooks';
 import { PASSWORD_STRENGTH_RULE } from '../../../../utils/patterns';
 
 const CORNER_RADIUS = 30;
@@ -37,14 +37,15 @@ const CONTENT_PADDING = 24;
 const SCREEN_HEIGHT = Dimensions.get('window').height / 2;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function TabLabel({ activeTab, index, label }) {
+function TabLabel({ activeTab, index, label, activeColor, inactiveColor }) {
+  const styles = useThemedStyles(createStyles);
   const animatedStyle = useAnimatedStyle(() => ({
     color: interpolateColor(
       activeTab.value,
       [0, 1],
       index === 0
-        ? [palette.mainBlue, palette.white]
-        : [palette.white, palette.mainBlue],
+        ? [activeColor, inactiveColor]
+        : [inactiveColor, activeColor],
     ),
   }));
 
@@ -56,6 +57,8 @@ function TabLabel({ activeTab, index, label }) {
 }
 
 function RegistrationForm() {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const navigation = useNavigation();
   const { showToast } = useToast();
   const {
@@ -118,7 +121,7 @@ function RegistrationForm() {
           control={control}
           name="email"
           label="Էլ.-փոստ *"
-          startIcon={<MailIconSvg width={19} height={15} />}
+          startIcon={<MailIconSvg width={19} height={15} fill={colors.icons} />}
           placeholder="example@docx.am"
           rules={{
             required: 'Էլ.-փոստը պարտադիր է',
@@ -134,7 +137,7 @@ function RegistrationForm() {
             name="password"
             label="Ստեղծել նոր գաղտնաբառ *"
             placeholder="********"
-            startIcon={<LockIconSbg width={17} height={19} />}
+            startIcon={<LockIconSbg width={17} height={19} fill={colors.icons} />}
             secureTextEntry
             rules={{
               required: 'Գաղտնաբառը պարտադիր է',
@@ -147,7 +150,7 @@ function RegistrationForm() {
           name="confirmPassword"
           label="Կրկնել գաղտնաբառը *"
           placeholder="********"
-          startIcon={<LockIconSbg width={17} height={19} />}
+          startIcon={<LockIconSbg width={17} height={19} fill={colors.icons} />}
           secureTextEntry
           rules={{
             required: 'Կրկնեք գաղտնաբառը',
@@ -179,6 +182,8 @@ function RegistrationForm() {
 }
 
 export function SignInUpTab({ onPhoneLogin }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const activeTab = useSharedValue(0);
   const layoutWidth = useSharedValue(0);
   const layoutHeight = useSharedValue(0);
@@ -281,15 +286,27 @@ export function SignInUpTab({ onPhoneLogin }) {
   return (
     <View style={styles.container} onLayout={onLayout}>
       <Canvas style={StyleSheet.absoluteFill}>
-        <Path path={animatedPath} color={palette.white} />
+        <Path path={animatedPath} color={colors.surface} />
       </Canvas>
 
       <View style={styles.tabRow}>
         <Pressable style={styles.tabButton} onPress={() => handleTabPress(0)}>
-          <TabLabel activeTab={activeTab} index={0} label="Մուտք" />
+          <TabLabel
+            activeTab={activeTab}
+            index={0}
+            label="Մուտք"
+            activeColor={colors.icons}
+            inactiveColor={colors.buttonTextOnPrimary}
+          />
         </Pressable>
         <Pressable style={styles.tabButton} onPress={() => handleTabPress(1)}>
-          <TabLabel activeTab={activeTab} index={1} label="Գրանցում" />
+          <TabLabel
+            activeTab={activeTab}
+            index={1}
+            label="Գրանցում"
+            activeColor={colors.icons}
+            inactiveColor={colors.buttonTextOnPrimary}
+          />
         </Pressable>
       </View>
 
@@ -327,7 +344,8 @@ export function SignInUpTab({ onPhoneLogin }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = colors =>
+  StyleSheet.create({
   container: {
     flex: 1,
     height: '100%',
@@ -376,20 +394,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-
   privacyText: {
     fontSize: 10,
     lineHeight: 18,
     fontFamily: FONT_FAMILY.regular,
-    color: palette.gray,
+    color: colors.textSecondary,
     marginTop: 4,
     marginBottom: 20,
     textAlign: 'center',
   },
   privacyTextBold: {
     fontFamily: FONT_FAMILY.semiBold,
-    color: palette.mainBlue,
+    color: colors.icons,
     textDecorationLine: 'underline',
-    // marginHorizontal: 4,
   },
 });

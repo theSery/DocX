@@ -12,6 +12,8 @@ export const palette = Object.freeze({
   backgroundWhite: '#F4F6FB',
   gray: '#5D6983',
   lightGray: '#9DA6BA',
+  /** Soft gray for dark-mode disabled / muted text */
+  darkModeGray: '#E7E7E7',
   green: '#00856F',
   red: '#FF5C5C',
   /** Light sky accent — also used as light gradient end stop */

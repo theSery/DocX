@@ -5,7 +5,7 @@ import { FormDateField, FormField } from '../../../../../components';
 import CalendarSvg from '../../../../../components/icons/CalendarSvg';
 import ActNumberSvg from '../../../../../components/icons/ActNumberSvg';
 import UserSvg from '../../../../../components/icons/UserSvg';
-import { palette } from '../../../../../theme';
+import { useTheme } from '../../../../../hooks';
 import { ARMENIAN_NAME_RULES } from '../../../../../utils/patterns';
 import { useAppDispatch } from '../../../../../store';
 import { syncVariableValues } from '../../../../../store/slices/documentFillSlice';
@@ -67,18 +67,18 @@ function buildRules(variable) {
   };
 }
 
-function getFieldConfig(variable) {
+function getFieldConfig(variable, iconColor) {
   if (variable.dataType === 'digit') {
     return {
       keyboardType: 'numeric',
-      startIcon: <ActNumberSvg width={17} height={19} fill={palette.gray} />,
+      startIcon: <ActNumberSvg width={17} height={19} fill={iconColor} />,
     };
   }
 
   if (variable.dataType === 'armenian') {
     return {
       keyboardType: 'default',
-      startIcon: <UserSvg width={24} height={24} fill={palette.gray} />,
+      startIcon: <UserSvg width={24} height={24} fill={iconColor} />,
     };
   }
 
@@ -90,6 +90,7 @@ function getFieldConfig(variable) {
 
 export function FillAct({ control, variables = [] }) {
   const dispatch = useAppDispatch();
+  const { colors } = useTheme();
   const variableValues = useWatch({ control });
 
   useEffect(() => {
@@ -106,14 +107,14 @@ export function FillAct({ control, variables = [] }) {
               control={control}
               name={variable.name}
               label={`${variable.description} *`}
-              startIcon={<CalendarSvg width={20} height={20} fill={palette.gray} />}
+              startIcon={<CalendarSvg width={20} height={20} fill={colors.icons} />}
               rules={buildRules(variable)}
               maximumDate={new Date()}
             />
           );
         }
 
-        const { keyboardType, startIcon } = getFieldConfig(variable);
+        const { keyboardType, startIcon } = getFieldConfig(variable, colors.icons);
 
         return (
           <FormField

@@ -24,19 +24,19 @@ const ACCOUNT_MENU = [
     id: 1,
     label: 'Անձնական տվյալներ',
     screen: 'ProfileInfo',
-    icon: <AccountInfoSvg fill={palette.mainBlue} width={20} height={20} />,
+    Icon: AccountInfoSvg,
   },
   {
     id: 2,
     label: 'Անձնագրային տվյալներ',
     screen: 'PassportInfo',
-    icon: <PasportSvg fill={palette.mainBlue} width={20} height={20} />,
+    Icon: PasportSvg,
   },
   {
     id: 3,
     label: 'Գաղտնաբառ',
     screen: 'ChangePassword',
-    icon: <LockIconSbg fill={palette.mainBlue} width={20} height={20} />,
+    Icon: LockIconSbg,
   },
 ];
 
@@ -45,25 +45,26 @@ const SECONDARY_MENU = [
     id: 1,
     label: 'Կարգավորումներ',
     screen: 'Settings',
-    icon: <SettingSvg fill={palette.mainBlue} width={20} height={20} />,
+    Icon: SettingSvg,
   },
   {
     id: 2,
     label: 'Պին կոդ',
     screen: 'PinCodeChange',
-    icon: <PinCodeSvg fill={palette.mainBlue} width={20} height={20} />,
+    Icon: PinCodeSvg,
   },
   {
     id: 3,
     label: 'Ստորագրություն',
     screen: 'Signature',
-    icon: <SignatureSvg fill={palette.mainBlue} width={20} height={20} />,
+    Icon: SignatureSvg,
   },
   {
     id: 4,
     label: 'Ջնջել հաշիվը',
     screen: 'DeleteAccount',
-    icon: <TrashSvg fill={palette.lightGray} width={20} height={20} />,
+    Icon: TrashSvg,
+    muted: true,
   },
 ];
 
@@ -210,10 +211,10 @@ export function AccountScreen({ navigation }) {
                 onPress={() => navigateToScreen(item.screen)}
               >
                 <View style={styles.menuItemRow}>
-                  {item.icon}
+                  <item.Icon fill={colors.icons} width={20} height={20} />
                   <Typography variant="h5">{item.label}</Typography>
                 </View>
-                <Chevron width={11} height={11} fill={colors.mainBlue} />
+                <Chevron width={11} height={11} fill={colors.icons} />
               </Pressable>
             ))}
           </View>
@@ -231,7 +232,11 @@ export function AccountScreen({ navigation }) {
                 onPress={() => (item.id === 4 ? handleLogoutPress() : navigateToScreen(item.screen))}
               >
                 <View style={styles.menuItemRow}>
-                  {item.icon}
+                  <item.Icon
+                    fill={item.muted ? colors.textDisabled : colors.icons}
+                    width={20}
+                    height={20}
+                  />
                   <Typography
                     variant="h5"
                     tone={item.id === 4 ? 'disabled' : 'default'}

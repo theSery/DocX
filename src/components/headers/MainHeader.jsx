@@ -2,10 +2,12 @@ import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import BackButton from '../buttons/BackButton';
 import darkLogo from '../../assets/images/darkLogo.webp';
-import { useThemedStyles } from '../../hooks';
+import whiteLogo from '../../assets/images/whiteLogo.webp';
+import { useTheme, useThemedStyles } from '../../hooks';
 
 const MainHeader = ({ onPress, isHome = false }) => {
   const styles = useThemedStyles(createStyles);
+  const { isDarkMode } = useTheme();
 
   return (
     <View style={styles.container}>
@@ -15,7 +17,11 @@ const MainHeader = ({ onPress, isHome = false }) => {
         ) : null}
       </View>
       <View style={styles.logoContainer}>
-        <Image source={darkLogo} style={styles.logo} resizeMode="contain" />
+        <Image
+          source={isDarkMode ? whiteLogo : darkLogo}
+          style={styles.logo}
+          resizeMode="contain"
+        />
       </View>
       <View style={styles.side}>
       </View>

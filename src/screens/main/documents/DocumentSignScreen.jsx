@@ -15,7 +15,7 @@ import {
   downloadAndShareRemotePdf,
   fetchSignatureImageDataUri,
 } from '../../../documents';
-import { useDocumentLoadingOverlay, useThemedStyles } from '../../../hooks';
+import { useDocumentLoadingOverlay, useTheme, useThemedStyles } from '../../../hooks';
 import { palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import MainHeader from '../../../components/headers/MainHeader';
@@ -36,6 +36,7 @@ function buildPdfPreviewSource(fileUrl) {
 
 export function DocumentSignScreen({ route, navigation }) {
   const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const { id } = route.params ?? {};
   const [complaint, setComplaint] = useState(null);
   const [isFetchingComplaint, setIsFetchingComplaint] = useState(true);
@@ -172,7 +173,7 @@ export function DocumentSignScreen({ route, navigation }) {
             disabled={isActionDisabled}
             style={styles.topButton}
           >
-            <UploadSvg width={25} height={25} fill={palette.mainBlue} />
+            <UploadSvg width={25} height={25} fill={colors.icons} />
           </Pressable>
         </View>
       </View>

@@ -29,8 +29,6 @@ const STATUS_CONFIG = {
   sent: { label: 'Ուղարկված', colorKey: 'primary' },
 };
 
-const CARD_BACKGROUND = '#E8EFFF';
-
 export function DocumentCard({
   document,
   index = 0,
@@ -45,7 +43,7 @@ export function DocumentCard({
   const status = STATUS_CONFIG[document.status] ?? STATUS_CONFIG.draft;
   const canSend = document.status === 'signed';
   const isRecommended = Boolean(document.recommended);
-  const iconColor = colors.mainBlue;
+  const iconColor = colors.icons;
   const disabledIconColor = colors.textDisabled;
 
   const handleDelete = useCallback(async () => {
@@ -183,7 +181,7 @@ export function DocumentCard({
         <View style={styles.headerActions}>
           {isRecommended ? (
             <View style={styles.recommendedIcon}>
-              <StarOutlineSvg width={18} height={17} fill={colors.primary} />
+              <StarOutlineSvg width={18} height={17} fill={colors.icons} />
             </View>
           ) : null}
           <View style={[styles.statusBadge, { backgroundColor: colors[status.colorKey] }]}>
@@ -203,7 +201,7 @@ export function DocumentCard({
           style={[styles.menuButton, isMenuOpen && styles.menuButtonActive]}
           onPress={handleMenuPress}
         >
-          <DotsVerticalSvg fill={colors.primary} />
+          <DotsVerticalSvg fill={colors.icons} />
         </TouchableOpacity>
       </View>
 
@@ -217,7 +215,7 @@ export function DocumentCard({
 
         {document.hasAttachment ? (
           <View style={styles.attachIcon}>
-            <AttachSvg fill={colors.primary} />
+            <AttachSvg fill={colors.icons} />
           </View>
         ) : (
           <View style={styles.attachPlaceholder} />
@@ -241,7 +239,7 @@ const createStyles = colors =>
       elevation: 4,
     },
     cardShadowSelected: {
-      backgroundColor: CARD_BACKGROUND,
+      backgroundColor: colors.cardSelected,
     },
     card: {
       borderRadius: 24,
@@ -253,7 +251,7 @@ const createStyles = colors =>
       paddingBottom: 14,
     },
     cardSelected: {
-      backgroundColor: CARD_BACKGROUND,
+      backgroundColor: colors.cardSelected,
       borderColor: colors.primary,
     },
     headerRow: {

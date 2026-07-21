@@ -2,9 +2,10 @@ import React, { useCallback, useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import { FONT_FAMILY, palette } from '../../../../theme';
+import { FONT_FAMILY } from '../../../../theme';
 import { Typography } from '../../../../components';
 import DeleteSvg from '../../../../components/icons/DeleteSvg';
+import { useTheme, useThemedStyles } from '../../../../hooks';
 
 const PASSCODE_LENGTH = 4;
 
@@ -31,7 +32,7 @@ const KEYPAD_ROWS = [
   ],
 ];
 
-function FaceIdIcon({ size = 32, color = palette.mainBlue }) {
+function FaceIdIcon({ size = 32, color }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 32 32" fill="none">
       <Path
@@ -64,8 +65,7 @@ function FaceIdIcon({ size = 32, color = palette.mainBlue }) {
   );
 }
 
-
-function PasscodeDots({ filledCount, length }) {
+function PasscodeDots({ filledCount, length, styles }) {
   const dots = useMemo(() => Array.from({ length }), [length]);
 
   return (
@@ -83,13 +83,14 @@ function PasscodeDots({ filledCount, length }) {
   );
 }
 
-function KeypadButton({ children, onPress, accessibilityLabel }) {
+function KeypadButton({ children, onPress, accessibilityLabel, styles }) {
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      style={({ pressed }) => [styles.key, pressed && styles.keyPressed]}>
+      style={({ pressed }) => [styles.key, pressed && styles.keyPressed]}
+    >
       {children}
     </Pressable>
   );
@@ -103,6 +104,8 @@ export function Passcode({
   length = PASSCODE_LENGTH,
   hasBiometric = true,
 }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const passcode = useMemo(
     () => (Array.isArray(value) ? value : []),
     [value],
@@ -144,8 +147,12 @@ export function Passcode({
         <KeypadButton
           key={`digit-${key.value}`}
           onPress={() => handleDigitPress(key.value)}
-          accessibilityLabel={`Digit ${key.value}`}>
-          <Typography variant="h1" style={styles.keyDigit}>{key.value}</Typography>
+          accessibilityLabel={`Digit ${key.value}`}
+          styles={styles}
+        >
+          <Typography variant="h1" style={styles.keyDigit}>
+            {key.value}
+          </Typography>
         </KeypadButton>
       );
     }
@@ -153,11 +160,11 @@ export function Passcode({
       return (
         <KeypadButton
           key="biometric"
-          onPress={ hasBiometric ? handleBiometric : undefined}
-          accessibilityLabel="Biometric authentication">
-            {hasBiometric && (
-              <FaceIdIcon />
-            )}
+          onPress={hasBiometric ? handleBiometric : undefined}
+          accessibilityLabel="Biometric authentication"
+          styles={styles}
+        >
+          {hasBiometric && <FaceIdIcon color={colors.icons} />}
         </KeypadButton>
       );
     }
@@ -165,15 +172,21 @@ export function Passcode({
       <KeypadButton
         key="backspace"
         onPress={handleBackspace}
-        accessibilityLabel="Delete last digit">
-        <DeleteSvg width={34} height={34} fill={palette.mainBlue} />
+        accessibilityLabel="Delete last digit"
+        styles={styles}
+      >
+        <DeleteSvg width={34} height={34} fill={colors.icons} />
       </KeypadButton>
     );
   };
 
   return (
     <View style={styles.container}>
-      <PasscodeDots filledCount={passcode.length} length={length} />
+      <PasscodeDots
+        filledCount={passcode.length}
+        length={length}
+        styles={styles}
+      />
       <View style={styles.keypad}>
         {KEYPAD_ROWS.map((row, rowIndex) => (
           <View key={`row-${rowIndex}`} style={styles.keypadRow}>
@@ -187,66 +200,62 @@ export function Passcode({
 
 const DOT_SIZE = 14;
 
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 20,
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 52,
-  },
-  dotsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 18,
-  },
-  dot: {
-    width: DOT_SIZE,
-    height: DOT_SIZE,
-    borderRadius: DOT_SIZE / 2,
-  },
-  dotFilled: {
-    backgroundColor: palette.mainBlue,
-  },
-  dotEmpty: {
-    backgroundColor: palette.mainWhite,
-    borderWidth: 1,
-    borderColor: palette.mainBlue,
-  },
-  keypad: {
-    width: '80%',
-    gap: 34,
-  },
-  keypadRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 14,
-  },
-  key: {
-    // flex: 1,
-    // aspectRatio: 1.6,
-  height: 88,
-  width: 88,
-    borderRadius: 18,
-    // backgroundColor: 'red',
-    borderWidth: 1,
-    borderColor: palette.skyBlue,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  keyPressed: {
-    opacity: 0.6,
-  },
-  keyDigit: {
-    fontFamily: FONT_FAMILY.semiBold,
-    fontSize: 32,
-    lineHeight: 38,
-    // color: palette.mainBlue,
-    letterSpacing: 0.5,
-    includeFontPadding: false,
-  },
-});
+const createStyles = colors =>
+  StyleSheet.create({
+    container: {
+      marginTop: 20,
+      width: '100%',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 52,
+    },
+    dotsRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 18,
+    },
+    dot: {
+      width: DOT_SIZE,
+      height: DOT_SIZE,
+      borderRadius: DOT_SIZE / 2,
+    },
+    dotFilled: {
+      backgroundColor: colors.icons,
+    },
+    dotEmpty: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.icons,
+    },
+    keypad: {
+      width: '80%',
+      gap: 34,
+    },
+    keypadRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: 14,
+    },
+    key: {
+      height: 88,
+      width: 88,
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: colors.cardSelected,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    keyPressed: {
+      opacity: 0.6,
+    },
+    keyDigit: {
+      fontFamily: FONT_FAMILY.semiBold,
+      fontSize: 32,
+      lineHeight: 38,
+      letterSpacing: 0.5,
+      includeFontPadding: false,
+    },
+  });
 
 export default Passcode;

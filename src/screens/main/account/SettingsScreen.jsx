@@ -1,9 +1,8 @@
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { ColorSchemeToggle } from '../../../components/theme';
-import { useGlobalStyles, useThemedStyles } from '../../../hooks';
+import { useGlobalStyles, useTheme, useThemedStyles } from '../../../hooks';
 import { AnimatedView, Typography } from '../../../components';
 
-import { palette } from '../../../theme';
 import ContactUsSvg from '../../../components/icons/ContactUsSvg';
 import PrivacyPolicySvg from '../../../components/icons/PrivacyPolicySvg';
 import TermsSvg from '../../../components/icons/TermsSvg';
@@ -11,6 +10,7 @@ import TermsSvg from '../../../components/icons/TermsSvg';
 export function SettingsScreen({ navigation }) {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
 
   return (
     <ScrollView style={[globalStyles.screen, styles.screen]} contentContainerStyle={[styles.contentContainer]}>
@@ -37,7 +37,7 @@ export function SettingsScreen({ navigation }) {
               onPress={() => navigation.navigate('Help')}
             >
               <View style={styles.menuItemRow}>
-                <ContactUsSvg fill={palette.mainBlue} width={20} height={20} />
+                <ContactUsSvg fill={colors.icons} width={20} height={20} />
                 <Typography
                   variant="h5"
                 >
@@ -58,7 +58,7 @@ export function SettingsScreen({ navigation }) {
               onPress={() => navigation.navigate('Help')}
             >
               <View style={styles.menuItemRow}>
-                <PrivacyPolicySvg fill={palette.mainBlue} width={20} height={20} />
+                <PrivacyPolicySvg fill={colors.icons} width={20} height={20} />
                 <Typography
                   variant="h5"
                 >
@@ -71,7 +71,7 @@ export function SettingsScreen({ navigation }) {
               onPress={() => navigation.navigate('Help')}
             >
               <View style={styles.menuItemRow}>
-                <TermsSvg fill={palette.mainBlue} width={20} height={20} />
+                <TermsSvg fill={colors.icons} width={20} height={20} />
                 <Typography
                   variant="h5"
                 >

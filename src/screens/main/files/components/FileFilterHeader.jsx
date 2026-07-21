@@ -45,7 +45,7 @@ export function FileFilterHeader({ onSearchChange, total, onFileUploaded }) {
         <Typography variant="h2" style={styles.title}>
           Ֆայլեր
         </Typography>
-        <Typography variant="h6" style={styles.subTitle}>
+        <Typography variant="h6" tone="secondary" style={styles.subTitle}>
           Ընդհանուր {total} ֆայլ
         </Typography>
       </View>
@@ -57,12 +57,12 @@ export function FileFilterHeader({ onSearchChange, total, onFileUploaded }) {
             isSearch
             placeholder="Որոնում"
             startIcon={
-              <SearchIcon width={24} height={24} fill={colors.primary} />
+              <SearchIcon width={24} height={24} fill={colors.icons} />
             }
           />
         </View>
         <TouchableOpacity style={styles.addButton} onPress={handleAddPress}>
-          <UploadSvg width={20} height={20} fill={colors.textSecondary} />
+          <UploadSvg width={20} height={20} fill={colors.icons} />
         </TouchableOpacity>
       </View>
     </View>
@@ -78,7 +78,6 @@ const createStyles = colors =>
       letterSpacing: 2,
     },
     subTitle: {
-      color: colors.gray,
       marginBottom: 16,
       marginTop: 5,
       letterSpacing: 0.4,

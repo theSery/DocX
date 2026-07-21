@@ -54,7 +54,7 @@ export function CategoriesList({
      
                 <Text style={styles.categoryItemText}>{item.name}</Text>
                 <View style={styles.categoryItemArrowContainer}>
-                  <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
+                  <ArrowSvg width={20} height={20} fill={colors.icons} />
                 </View>
               </View>
             </TouchableOpacity>

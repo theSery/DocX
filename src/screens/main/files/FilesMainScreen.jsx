@@ -137,7 +137,7 @@ export function FilesMainScreen() {
 
     return (
       <View style={styles.centeredState}>
-        <SadIcon width={48} height={48} fill={colors.textDisabled} />
+        <SadIcon width={48} height={48} fill={colors.icons} />
         <Typography variant="h5" tone="secondary" style={styles.stateText}>
           {emptyMessage}
         </Typography>
@@ -145,7 +145,7 @@ export function FilesMainScreen() {
     );
   }, [
     colors.primary,
-    colors.textDisabled,
+    colors.icons,
     error,
     handleRetry,
     isLoading,

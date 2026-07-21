@@ -6,7 +6,7 @@ import { ContentTiltes } from '../../../../components/titleComponents/ContentTil
 import { OtpInputRowCode } from '../../../authScreens/signInUP/components/OtpInputRowCode';
 import { smsApi } from '../../../../api';
 import { useThemedStyles, useToast } from '../../../../hooks';
-import { FONT_FAMILY, palette } from '../../../../theme';
+import { FONT_FAMILY } from '../../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../../utils/dimensions';
 
 function formatPhoneForDisplay(phoneNumber) {
@@ -25,7 +25,7 @@ function formatPhoneForDisplay(phoneNumber) {
   return `${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5)}`;
 }
 
-const createStyles = () =>
+const createStyles = colors =>
   StyleSheet.create({
     body: {
       flex: 1,
@@ -52,12 +52,12 @@ const createStyles = () =>
     resendHelper: {
       fontSize: 12,
       fontFamily: FONT_FAMILY.regular,
-      color: palette.gray,
+      color: colors.textSecondary,
     },
     resendLink: {
       fontSize: 12,
       fontFamily: FONT_FAMILY.semiBold,
-      color: palette.mainBlue,
+      color: colors.icons,
       textDecorationLine: 'underline',
     },
     disabledOpacity: {
@@ -65,7 +65,7 @@ const createStyles = () =>
     },
     footer: {
       paddingTop: 12,
-      backgroundColor: palette.mainWhite,
+      backgroundColor: colors.background,
     },
   });
 

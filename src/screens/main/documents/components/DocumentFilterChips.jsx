@@ -67,7 +67,7 @@ export function DocumentFilterChips({
         <Typography variant="h2" style={styles.loginTitle}>
           Փաստաթղթեր
         </Typography>
-        <Typography variant="h6" style={styles.subTitle}>
+        <Typography variant="h6" tone="secondary" style={styles.subTitle}>
           Ընդհանուր գեներացվել է {total} փաստաթուղթ
         </Typography>
       </View>
@@ -79,7 +79,7 @@ export function DocumentFilterChips({
             isSearch
             placeholder="Որոնում"
             startIcon={
-              <SearchIcon width={24} height={24} fill={colors.primary} />
+              <SearchIcon width={24} height={24} fill={colors.icons} />
             }
           />
         </View>
@@ -88,9 +88,9 @@ export function DocumentFilterChips({
           onPress={handleDateFilterToggle}
         >
           {isDateFilterOpen ? (
-            <CloseIcon width={20} height={20} fill={colors.textSecondary} />
+            <CloseIcon width={20} height={20} fill={colors.icons} />
           ) : (
-            <FilterSvg width={20} height={20} fill={colors.textSecondary} />
+            <FilterSvg width={20} height={20} fill={colors.icons} />
           )}
         </TouchableOpacity>
       </View>
@@ -108,7 +108,7 @@ export function DocumentFilterChips({
                 <CalendarSvg
                   width={20}
                   height={20}
-                  fill={colors.textSecondary}
+                  fill={colors.icons}
                 />
               }
               maximumDate={endDate instanceof Date ? endDate : undefined}
@@ -134,7 +134,7 @@ export function DocumentFilterChips({
                 <CalendarSvg
                   width={20}
                   height={20}
-                  fill={colors.textSecondary}
+                  fill={colors.icons}
                 />
               }
               minimumDate={startDate instanceof Date ? startDate : undefined}
@@ -191,7 +191,6 @@ const createStyles = colors =>
       // marginTop: 10,
     },
     subTitle: {
-      color: colors.gray,
       marginBottom: 16,
       marginTop: 5,
       letterSpacing: 0.4,
@@ -227,7 +226,7 @@ const createStyles = colors =>
       backgroundColor: colors.primary,
     },
     chipInactive: {
-      backgroundColor: '#E8EFFF',
+      backgroundColor: colors.cardSelected,
       // borderWidth: 1,
       borderColor: colors.borderSubtle,
     },

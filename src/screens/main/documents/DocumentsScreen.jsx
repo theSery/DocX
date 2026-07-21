@@ -183,7 +183,7 @@ export function DocumentsScreen({ route }) {
 
     return (
       <View style={styles.centeredState}>
-        <SadIcon width={48} height={48} fill={colors.textDisabled} />
+        <SadIcon width={48} height={48} fill={colors.icons} />
         <Typography variant="h5" tone="secondary" style={styles.stateText}>
           {emptyMessage}
         </Typography>
@@ -191,7 +191,7 @@ export function DocumentsScreen({ route }) {
     );
   }, [
     colors.primary,
-    colors.textDisabled,
+    colors.icons,
     sortedDocuments.length,
     error,
     handleRetry,

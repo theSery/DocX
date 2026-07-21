@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { useForm } from 'react-hook-form';
-import { FONT_FAMILY, palette } from '../../../../theme';
+import { FONT_FAMILY } from '../../../../theme';
 import { FormField, Typography } from '../../../../components';
 import AuthButton from '../../../../components/buttons/AuthButton';
 import GradientButton from '../../../../components/buttons/GradientButton';
@@ -18,8 +18,7 @@ import PhoneSvg from '../../../../components/icons/PhoneSvg';
 import bg from '../../../../assets/images/bg.webp';
 import { OtpInputRowCode } from './OtpInputRowCode';
 import { authApi, persistAuthResponse, smsApi } from '../../../../api';
-import { useAuthSession } from '../../../../hooks';
-import { useToast } from '../../../../hooks';
+import { useAuthSession, useTheme, useThemedStyles, useToast } from '../../../../hooks';
 import { saveUserCredentials } from '../../../../utils/secureStorage';
 const INPUT_RADIUS = 16;
 
@@ -39,6 +38,7 @@ const FADE_OUT_MS = 160;
 const FADE_IN_MS = 220;
 
 function OrDivider() {
+  const styles = useThemedStyles(createStyles);
   return (
     <View style={styles.dividerRow}>
       <View style={styles.dividerLine} />
@@ -49,6 +49,7 @@ function OrDivider() {
 }
 
 function OutlineButton({ title, onPress, icon }) {
+  const styles = useThemedStyles(createStyles);
   return (
     <Pressable
       style={({ pressed }) => [
@@ -77,6 +78,8 @@ function OtpInputRow({ digits, onChangeDigit, focusedIndex, onFocusIndex }) {
 }
 
 function PhoneOtpVerification({ phoneNumber, handleTabPress, onResendCode }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -186,7 +189,7 @@ function PhoneOtpVerification({ phoneNumber, handleTabPress, onResendCode }) {
           <OutlineButton
             title="Մուտք Էլեկտրոնային փոստով"
             onPress={() => handleTabPress('mail')}
-            icon={<MailIconSvg width={19} height={15} />}
+            icon={<MailIconSvg width={19} height={15} fill={colors.icons} />}
           />
         </View>
       </>
@@ -195,6 +198,8 @@ function PhoneOtpVerification({ phoneNumber, handleTabPress, onResendCode }) {
 }
 
 function MailLogin({ handleTabPress }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const {
     control,
     handleSubmit,
@@ -249,7 +254,7 @@ function MailLogin({ handleTabPress }) {
             name="email"
             label="Էլ.-փոստ"
             placeholder="example@docx.am"
-            startIcon={<MailIconSvg width={19} height={15} />}
+            startIcon={<MailIconSvg width={19} height={15} fill={colors.icons} />}
             // rules={{
             //   required: 'Էլ.-փոստը պարտադիր է',
             //   pattern: {
@@ -265,7 +270,7 @@ function MailLogin({ handleTabPress }) {
             name="password"
             label="Գաղտնաբառ"
             placeholder="********"
-            startIcon={<LockIconSbg width={17} height={19} />}
+            startIcon={<LockIconSbg width={17} height={19} fill={colors.icons} />}
             secureTextEntry
             // rules={{
             //   required: 'Գաղտնաբառը պարտադիր է',
@@ -292,7 +297,7 @@ function MailLogin({ handleTabPress }) {
           <OutlineButton
             title="Մուտք հեռախոսահամարով"
             onPress={() => handleTabPress('phone')}
-            icon={<PhoneSvg width={20} height={20} fill={palette.mainBlue} />}
+            icon={<PhoneSvg width={20} height={20} fill={colors.icons} />}
           />
         </View>
       </>
@@ -301,6 +306,8 @@ function MailLogin({ handleTabPress }) {
 }
 
 function PhoneLogin({ handleTabPress, onSendCode }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const [isSending, setIsSending] = useState(false);
   const { control, handleSubmit } = useForm({
     defaultValues: { phone: '' },
@@ -324,8 +331,8 @@ function PhoneLogin({ handleTabPress, onSendCode }) {
         label="Հեռախոսահամար"
         keyboardType="phone-pad"
         placeholder="91 123 456"
-        placeholderTextColor={palette.lightGray}
-        startIcon={<PhoneSvg width={20} height={20} fill={palette.mainBlue} />}
+        placeholderTextColor={colors.textDisabled}
+        startIcon={<PhoneSvg width={20} height={20} fill={colors.icons} />}
         rules={{
           required: 'Հեռախոսահամարը պարտադիր է',
           pattern: {
@@ -355,7 +362,7 @@ function PhoneLogin({ handleTabPress, onSendCode }) {
         <OutlineButton
           title="Մուտք էլեկտրոնային փոստով"
           onPress={() => handleTabPress('mail')}
-          icon={<MailIconSvg width={19} height={15} />}
+          icon={<MailIconSvg width={19} height={15} fill={colors.icons} />}
         />
         <Image source={bg} resizeMode="cover" style={styles.bg} />
       </View>
@@ -394,6 +401,7 @@ function renderLoginContent(
 }
 
 export function LoginTabs({ onPhoneLogin }) {
+  const styles = useThemedStyles(createStyles);
   const [activeTab, setActiveTab] = useState('mail');
   const [phoneStep, setPhoneStep] = useState('entry');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -514,7 +522,8 @@ export function LoginTabs({ onPhoneLogin }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = colors =>
+  StyleSheet.create({
   form: {
     gap: 16,
   },
@@ -533,7 +542,7 @@ const styles = StyleSheet.create({
   forgotLinkText: {
     fontSize: 8,
     fontFamily: FONT_FAMILY.semiBold,
-    color: palette.mainBlue,
+    color: colors.icons,
     textDecorationLine: 'underline',
   },
   primaryButton: {
@@ -549,15 +558,15 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     fontFamily: FONT_FAMILY.regular,
-    color: palette.white,
+    color: colors.buttonTextOnPrimary,
     letterSpacing: 1.2,
   },
   outlineButton: {
     height: 45,
     borderRadius: INPUT_RADIUS,
     borderWidth: 1,
-    borderColor: palette.mainBlue,
-    backgroundColor: palette.white,
+    borderColor: colors.icons,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'flex-start',
     flexDirection: 'row',
@@ -567,7 +576,7 @@ const styles = StyleSheet.create({
   outlineButtonText: {
     width: '80%',
     textAlign: 'center',
-    color: palette.mainBlue,
+    color: colors.icons,
     letterSpacing: 2,
   },
   buttonPressed: {
@@ -582,24 +591,23 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: StyleSheet.hairlineWidth,
-    backgroundColor: palette.gray,
+    backgroundColor: colors.textSecondary,
   },
   dividerText: {
     fontSize: 13,
     fontFamily: FONT_FAMILY.regular,
-    color: palette.lightGray,
+    color: colors.textDisabled,
   },
   loginTitle: {
     fontFamily: FONT_FAMILY.medium,
     letterSpacing: 1.2,
-    // marginBottom: 4,
     textAlign: 'center',
     marginBottom: 20,
   },
   otpSubtitle: {
     fontSize: 13,
     fontFamily: FONT_FAMILY.regular,
-    color: palette.gray,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -612,13 +620,13 @@ const styles = StyleSheet.create({
     height: OTP_BOX_SIZE,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: OTP_BORDER_COLOR,
-    backgroundColor: palette.white,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
   otpBoxFocused: {
-    borderColor: palette.mainBlue,
+    borderColor: colors.icons,
     borderWidth: 1.5,
   },
   otpInput: {
@@ -627,12 +635,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 20,
     fontFamily: FONT_FAMILY.semiBold,
-    color: palette.black,
+    color: colors.text,
     padding: 0,
   },
   otpInputPlaceholder: {
     fontFamily: FONT_FAMILY.regular,
-    color: palette.lightGray,
+    color: colors.textDisabled,
   },
   resendRow: {
     flexDirection: 'row',
@@ -645,12 +653,12 @@ const styles = StyleSheet.create({
   resendHelper: {
     fontSize: 12,
     fontFamily: FONT_FAMILY.regular,
-    color: palette.gray,
+    color: colors.textSecondary,
   },
   resendLink: {
     fontSize: 12,
     fontFamily: FONT_FAMILY.semiBold,
-    color: palette.mainBlue,
+    color: colors.icons,
     textDecorationLine: 'underline',
   },
   bg: {

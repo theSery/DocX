@@ -2,11 +2,15 @@ import { Image, Pressable, StatusBar, StyleSheet, View } from 'react-native';
 import { AnimatedView, Typography } from '../../../components';
 import { AuthScreenLayout } from '../../../components/layout';
 import whiteLogo from '../../../assets/images/whiteLogo.webp';
-import { palette } from '../../../theme';
 import UserSvg from '../../../components/icons/UserSvg';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
 import BriefcaseSvg from '../../../components/icons/BriefcaseSvg';
+import { useTheme, useThemedStyles } from '../../../hooks';
+
 export function AccountTypeScreen({ navigation }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
+
   return (
     <AuthScreenLayout
       withGradient
@@ -25,10 +29,11 @@ export function AccountTypeScreen({ navigation }) {
           <Image source={whiteLogo} style={styles.logo} />
         </AnimatedView>
       </View>
-      <AnimatedView 
-       animation="fadeIn"
-       duration={500}
-      style={[styles.content]}>
+      <AnimatedView
+        animation="fadeIn"
+        duration={500}
+        style={[styles.content]}
+      >
         <Typography variant="h2" style={styles.title}>
           Ընտրեք հաշվի տեսակը`
         </Typography>
@@ -42,7 +47,7 @@ export function AccountTypeScreen({ navigation }) {
         >
           <View style={styles.buttonContent}>
             <View style={styles.iconContainer}>
-              <UserSvg width={24} height={24} fill={palette.black} />
+              <UserSvg width={24} height={24} fill={colors.icons} />
             </View>
             <Typography variant="h4">Ֆիզիկական անձ</Typography>
           </View>
@@ -50,18 +55,20 @@ export function AccountTypeScreen({ navigation }) {
             Անհատներ, ՀՀ քաղաքացիներ
           </Typography>
           <View style={styles.buttonContent}>
-            <Typography variant="h5" style={styles.buttonText}>Ընտրել</Typography>
-            <ArrowSvg width={13} height={13} fill={palette.black} />
+            <Typography variant="h5" style={styles.buttonText}>
+              Ընտրել
+            </Typography>
+            <ArrowSvg width={13} height={13} fill={colors.icons} />
           </View>
         </Pressable>
-        <View style={styles.buttonsContainer}></View>
+        <View style={styles.buttonsContainer} />
         <Pressable
           onPress={() => navigation.navigate('SignInUp')}
           style={[styles.button]}
         >
           <View style={styles.buttonContent}>
             <View style={styles.iconContainer}>
-              <BriefcaseSvg width={24} height={24} fill={palette.black} />
+              <BriefcaseSvg width={24} height={24} fill={colors.icons} />
             </View>
             <Typography variant="h4">Իրավաբանական անձ</Typography>
           </View>
@@ -69,75 +76,78 @@ export function AccountTypeScreen({ navigation }) {
             Իրավաբանական անձի կողմից կազմված անվանական հաշիվ
           </Typography>
           <View style={styles.buttonContent}>
-            <Typography variant="h5" style={styles.buttonText}>Ընտրել</Typography>
-            <ArrowSvg width={13} height={13} fill={palette.black} />
+            <Typography variant="h5" style={styles.buttonText}>
+              Ընտրել
+            </Typography>
+            <ArrowSvg width={13} height={13} fill={colors.icons} />
           </View>
         </Pressable>
       </AnimatedView>
     </AuthScreenLayout>
   );
 }
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    width: '100%',
-    marginTop: '10%',
-  },
-  container: {
-    width: '100%',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  logoContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logo: {
-    height: 62,
-    width: 250,
-  },
-  content: {
-    // flex: 0.5,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    width: '100%',
-  },
-  title: {
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  subtitle: {
-    marginBottom: 32,
-    textAlign: 'center',
-  },
-  button: {
-    borderWidth: 1,
-    borderColor: palette.lightGray,
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-    marginBottom: 16,
-    padding: 16,
-    borderRadius: 16,
-    width: '100%',
-    gap: 16,
-  },
-  buttonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  iconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: palette.skyBlue,
-  },
-  buttonText: {
-    fontFamily: palette.blueMainStart,
-    letterSpacing: 2,
-  },
-});
+
+const createStyles = colors =>
+  StyleSheet.create({
+    screen: {
+      flex: 1,
+      justifyContent: 'space-around',
+      alignItems: 'center',
+      width: '100%',
+      marginTop: '10%',
+    },
+    container: {
+      width: '100%',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    logoContainer: {
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    logo: {
+      height: 62,
+      width: 250,
+    },
+    content: {
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+      width: '100%',
+    },
+    title: {
+      marginBottom: 16,
+      textAlign: 'center',
+    },
+    subtitle: {
+      marginBottom: 32,
+      textAlign: 'center',
+    },
+    button: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: 'flex-start',
+      justifyContent: 'flex-start',
+      marginBottom: 16,
+      padding: 16,
+      borderRadius: 16,
+      width: '100%',
+      gap: 16,
+    },
+    buttonContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 16,
+    },
+    iconContainer: {
+      width: 56,
+      height: 56,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.cardSelected,
+    },
+    buttonText: {
+      letterSpacing: 2,
+    },
+    buttonsContainer: {},
+  });

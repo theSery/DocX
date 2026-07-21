@@ -152,13 +152,13 @@ const createStyles = colors =>
       width: 32,
       height: 32,
       borderRadius: 50,
-      backgroundColor: colors.mainBlue,
+      backgroundColor: colors.icons,
       alignItems: 'center',
       justifyContent: 'center',
     },
     factButtonSelected: {
-      borderColor: colors.mainBlue,
-      backgroundColor: colors.skyBlue,
+      borderColor: colors.icons,
+      backgroundColor: colors.cardSelected,
     },
     factButtonPressed: {
       opacity: 0.88,

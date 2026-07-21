@@ -91,9 +91,9 @@ export function ColorSchemeToggle({ style }) {
     <View style={[styles.row, style]}>
       <View style={styles.labelRow}>
         {isDark ? (
-          <MoonSvg fill={colors.mainBlue} width={20} height={20} />
+          <MoonSvg fill={colors.icons} width={20} height={20} />
         ) : (
-          <SunSvg fill={colors.mainBlue} width={20} height={20} />
+          <SunSvg fill={colors.icons} width={20} height={20} />
         )}
         <Typography variant="h5">{isDark ? 'Գիշերային' : 'Ցերեկային'}</Typography>
       </View>

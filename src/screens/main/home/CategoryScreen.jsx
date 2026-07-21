@@ -72,7 +72,7 @@ export function CategoryScreen({ navigation, route }) {
                   </Typography>
                 </View>
                 <View style={styles.subCategoryArrowWrap}>
-                  <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
+                  <ArrowSvg width={20} height={20} fill={colors.icons} />
                 </View>
               </TouchableOpacity>
             </StaggeredAnimatedView>
@@ -147,7 +147,7 @@ const createStyles = colors =>
       width: 50,
       height: 50,
       resizeMode: 'contain',
-      backgroundColor: colors.skyBlue,
+      backgroundColor: colors.cardSelected,
       padding: 10,
       borderRadius: 16,
     },

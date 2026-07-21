@@ -179,12 +179,12 @@ const createStyles = colors =>
     },
     cancelButton: {
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.mainBlue,
+      borderColor: colors.icons,
     },
     cancelText: {
       fontSize: 16,
       fontFamily: FONT_FAMILY.regular,
-      color: colors.mainBlue,
+      color: colors.icons,
     },
     uploadText: {
       fontSize: 16,

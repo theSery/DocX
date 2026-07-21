@@ -9,15 +9,15 @@ import { launchImageLibrary } from 'react-native-image-picker';
 
 import { filesApi } from '../../../../api';
 import { showGlobalSheet } from '../../../../components/GlobalSheet';
-import { useToast } from '../../../../hooks';
+import { useToast, useTheme } from '../../../../hooks';
 import { runAfterSheetDismiss } from '../../../../utils/runAfterSheetDismiss';
 import { FileUploadSheet } from '../components/FileUploadSheet';
 import CameraSvg from '../../../../components/icons/CameraSvg';
-import { palette } from '../../../../theme';
 import AttachSvg from '../../../../components/icons/AttachSvg';
 
 export function useFileUpload({ onUploaded } = {}) {
   const { showToast } = useToast();
+  const { colors } = useTheme();
   const [pendingFile, setPendingFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -170,17 +170,17 @@ export function useFileUpload({ onUploaded } = {}) {
       menuItems: [
         {
           label: 'Գալերեա',
-          icon: <CameraSvg width={20} height={20} fill={palette.gray} />,
+          icon: <CameraSvg width={20} height={20} fill={colors.icons} />,
           onPress: pickFromGallery,
         },
         {
           label: 'Ֆայլեր',
-          icon: <AttachSvg width={20} height={20} fill={palette.gray} />,
+          icon: <AttachSvg width={20} height={20} fill={colors.icons} />,
           onPress: pickFromFiles,
         },
       ],
     });
-  }, [pickFromFiles, pickFromGallery]);
+  }, [colors.icons, pickFromFiles, pickFromGallery]);
 
   const uploadSheet = (
     <FileUploadSheet

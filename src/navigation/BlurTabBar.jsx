@@ -109,8 +109,8 @@ export function BlurTabBar({ state, descriptors, navigation }) {
     }
   }, [isHidden, onHeightChange]);
 
-  const activeColor = colors.background;
-  const inactiveColor = colors.text;
+  const activeColor = palette.mainWhite;
+  const inactiveColor = isDarkMode ? colors.textSecondary : colors.text;
   const tabCount = state.routes.length;
 
   const [trackWidth, setTrackWidth] = useState(0);
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     elevation: 16,
   },
   glassTint: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   glassRim: {
     position: 'absolute',

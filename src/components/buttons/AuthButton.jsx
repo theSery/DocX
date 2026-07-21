@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '../typography';
 import GradientButton from './GradientButton';
 import { FONT_FAMILY, palette } from '../../theme';
+import { useTheme } from '../../hooks';
 
 export default function AuthButton({
   title,
@@ -16,15 +17,18 @@ export default function AuthButton({
   isLight = false,
   titleStyle = {},
 }) {
+  const { colors, isDarkMode } = useTheme();
+  const resolvedIsLight = isDarkMode ? !isLight : isLight;
   const isDisabled = disabled ?? isLoading;
   const hasEndIcon = Boolean(endIcon);
   const hasStartIcon = Boolean(startIcon);
-  const loaderColor = isLight ? palette.mainBlue : palette.white;
-  const textStyle = [
-    styles.primaryButtonText,
-    isLight && styles.lightButtonText,
-    titleStyle,
-  ];
+  const contentColor = resolvedIsLight
+    ? isDarkMode
+      ? palette.black
+      : colors.icons
+    : colors.buttonTextOnPrimary;
+  const loaderColor = contentColor;
+  const textStyle = [styles.primaryButtonText, { color: contentColor }, titleStyle];
 
   return (
     <Pressable
@@ -40,7 +44,7 @@ export default function AuthButton({
     >
       <GradientButton
         height={45}
-        isLight={isLight}
+        isLight={resolvedIsLight}
         childrenStyle={hasEndIcon ? styles.gradientContentWithEndIcon : undefined}
       >
         {isLoading ? (
@@ -54,7 +58,10 @@ export default function AuthButton({
           </View>
         ) : hasEndIcon ? (
           <View style={styles.buttonContentWithEndIcon}>
-            <Typography variant="h5" style={[textStyle, { width: '90%', textAlign: 'center'}]}>
+            <Typography
+              variant="h5"
+              style={[textStyle, { width: '90%', textAlign: 'center' }]}
+            >
               {title}
             </Typography>
             <View style={styles.endIcon}>{endIcon}</View>
@@ -94,7 +101,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   endIcon: {
-
     width: '10%',
     alignItems: 'center',
     justifyContent: 'center',
@@ -106,10 +112,6 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     fontFamily: FONT_FAMILY.regular,
-    color: palette.white,
     letterSpacing: 1.2,
-  },
-  lightButtonText: {
-    color: palette.mainBlue,
   },
 });

@@ -12,7 +12,7 @@ import { DocumentLoadingOverlay, Typography } from '../../../components';
 import MainHeader from '../../../components/headers/MainHeader';
 import UploadSvg from '../../../components/icons/UploadSvg';
 import { downloadAndShareRemotePdf } from '../../../documents';
-import { useDocumentLoadingOverlay, useThemedStyles } from '../../../hooks';
+import { useDocumentLoadingOverlay, useTheme, useThemedStyles } from '../../../hooks';
 import { palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 
@@ -34,6 +34,7 @@ function buildFilePreviewSource(fileUrl) {
 
 export function PersonalDocumentViewScreen({ route, navigation }) {
   const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const { title, documentUrl, downloadUrl } = route.params ?? {};
   const [isWebViewLoading, setIsWebViewLoading] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -105,7 +106,7 @@ export function PersonalDocumentViewScreen({ route, navigation }) {
               disabled={isActionDisabled}
               style={styles.topButton}
             >
-              <UploadSvg width={25} height={25} fill={palette.mainBlue} />
+              <UploadSvg width={25} height={25} fill={colors.icons} />
             </Pressable>
           </View>
         ) : null}

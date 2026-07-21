@@ -1,21 +1,24 @@
-
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { AuthScreenLayout } from '../../../components/layout';
-import { useAuthScreenStyles, useThemedFocusStatusBar, useToast } from '../../../hooks';
+import {
+  useAuthScreenStyles,
+  useAuthSession,
+  useThemedFocusStatusBar,
+  useThemedStyles,
+  useToast,
+} from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
-import { useAuthSession } from '../../../hooks';
 import AuthButton from '../../../components/buttons/AuthButton';
-import { FONT_FAMILY, palette } from '../../../theme';
 import { saveUserCredentials } from '../../../utils/secureStorage';
 import { Passcode } from './components/Passcode';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import { authApi, persistAuthResponse } from '../../../api';
-// import LottieAnimation from '../../../components/animation/LottieAnimation';
 
 export function PinCodeScreen({ navigation, route }) {
   const { name, surname, patronymic, email, password } = route.params;
   const styles = useAuthScreenStyles();
+  const localStyles = useThemedStyles(createStyles);
   const { showToast } = useToast();
   useThemedFocusStatusBar();
   const { login } = useAuthSession();
@@ -41,7 +44,10 @@ export function PinCodeScreen({ navigation, route }) {
       const payload = response?.data?.data ?? response?.data;
       showToast({
         title: 'Գրանցումը հաջողությամբ կատարվեց',
-        body: response?.data?.message ?? payload?.message ?? 'Օգտատերը հաջողությամբ գրանցվել է',
+        body:
+          response?.data?.message ??
+          payload?.message ??
+          'Օգտատերը հաջողությամբ գրանցվել է',
         type: 'success',
       });
       await login();
@@ -57,19 +63,16 @@ export function PinCodeScreen({ navigation, route }) {
     }
   };
 
-
   return (
-    <AuthScreenLayout
-      style={[styles.screen, { backgroundColor: palette.mainWhite }]}
-    >
-      <MainHeader onPress={() => navigation.goBack()} isHome={true}/>
-      <View style={registrationScreenStyles.content}>
-
-        <View style={registrationScreenStyles.formContainer}>
+    <AuthScreenLayout style={[styles.screen]}>
+      <MainHeader onPress={() => navigation.goBack()} isHome={true} />
+      <View style={localStyles.content}>
+        <View style={localStyles.formContainer}>
           <ContentTiltes
             title={'Սահմանել PIN կոդը'}
-            subtitle={'Մուտք լինելու համար խնդրում ենք մուտքագրել PIN-ը'} />
-          <View style={registrationScreenStyles.passcodeContainer}>
+            subtitle={'Մուտք լինելու համար խնդրում ենք մուտքագրել PIN-ը'}
+          />
+          <View style={localStyles.passcodeContainer}>
             <Passcode
               hasBiometric={false}
               value={passcode}
@@ -77,65 +80,35 @@ export function PinCodeScreen({ navigation, route }) {
               onComplete={code => console.log('PIN entered:', code)}
             />
           </View>
-
         </View>
 
         <View style={{ flex: 1, justifyContent: 'flex-end', width: '100%' }}>
-
-            <AuthButton
-              title="Սահմանել PIN կոդը"
-              onPress={handleComplete}
-              isLoading={isLoading}
-            />
-        
+          <AuthButton
+            title="Սահմանել PIN կոդը"
+            onPress={handleComplete}
+            isLoading={isLoading}
+          />
         </View>
       </View>
     </AuthScreenLayout>
   );
 }
-const registrationScreenStyles = StyleSheet.create({
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    // backgroundColor: 'red',
-    width: '100%',
-    marginBottom: 20,
-  },
-  container: {
-    flex: 1,
-    height: '100%',
-  },
 
-  formContainer: {
-    width: '100%',
-  },
-  privacyText: {
-    fontSize: 14,
-    lineHeight: 26,
-    fontFamily: FONT_FAMILY.regular,
-    color: palette.mainBlue,
-    marginTop: 4,
-    marginBottom: 20,
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-  },
-  privacyTextBold: {
-    fontFamily: FONT_FAMILY.semiBold,
-    color: palette.mainBlue,
-    textDecorationLine: 'underline',
-  },
-  passcodeContainer: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  lottieContainer: {
-    ...StyleSheet.absoluteFill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: palette.mainWhite,
-    zIndex: 1000,
-    opacity: 0.7,
-  },
-});
+const createStyles = () =>
+  StyleSheet.create({
+    content: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      marginBottom: 20,
+    },
+    formContainer: {
+      width: '100%',
+    },
+    passcodeContainer: {
+      width: '100%',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  });

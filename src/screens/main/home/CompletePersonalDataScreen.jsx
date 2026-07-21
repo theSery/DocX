@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useThemedStyles, useToast } from '../../../hooks';
+import { useThemedStyles, useTheme, useToast } from '../../../hooks';
 import {
   AnimatedView,
   CheckBox,
@@ -20,7 +20,7 @@ import PasportSvg from '../../../components/icons/PasportSvg';
 import PasporFromSvg from '../../../components/icons/PasporFromSvg';
 import CodeSvg from '../../../components/icons/CodeSvg';
 import AddressSvg from '../../../components/icons/AddressSvg';
-import { FONT_FAMILY, palette } from '../../../theme';
+import { FONT_FAMILY } from '../../../theme';
 import {
   ARMENIAN_ADDRESS_RULES,
   ARMENIAN_NAME_RULES,
@@ -45,29 +45,29 @@ const PASSPORT_STORE_FIELDS = [
   'registrationAddress',
 ];
 
-const FIELD_CONFIGS = {
+const FIELD_CONFIGS = colors => ({
   name: {
     label: 'Անուն *',
-    startIcon: <UserSvg width={24} height={24} fill={palette.gray} />,
+    startIcon: <UserSvg width={24} height={24} fill={colors.icons} />,
     placeholder: 'Ձեր Անունը',
     rules: ARMENIAN_NAME_RULES,
   },
   surname: {
     label: 'Ազգանուն *',
-    startIcon: <UserSvg width={24} height={24} fill={palette.gray} />,
+    startIcon: <UserSvg width={24} height={24} fill={colors.icons} />,
     placeholder: 'Ձեր Ազգանունը',
     rules: ARMENIAN_NAME_RULES,
   },
   patronymic: {
     label: 'Հայրանուն *',
-    startIcon: <UserSvg width={24} height={24} fill={palette.gray} />,
+    startIcon: <UserSvg width={24} height={24} fill={colors.icons} />,
     placeholder: 'Ձեր Հայրանուն',
     rules: ARMENIAN_NAME_RULES,
   },
   birthday: {
     type: 'date',
     label: 'Ծննդյան ամսաթիվ *',
-    startIcon: <CalendarSvg width={20} height={20} fill={palette.mainBlue} />,
+    startIcon: <CalendarSvg width={20} height={20} fill={colors.icons} />,
     placeholder: 'ՕՕ / ԱԱ / ՏՏՏՏ',
     rules: {
       required: 'Ծննդյան ամսաթիվը պարտադիր է',
@@ -76,10 +76,10 @@ const FIELD_CONFIGS = {
   },
   phoneNumber: {
     label: 'Հեռախոսահամար',
-    startIcon: <PhoneSvg width={20} height={20} fill={palette.mainBlue} />,
+    startIcon: <PhoneSvg width={20} height={20} fill={colors.icons} />,
     placeholder: '+374 91 123 456',
         name: "phone",
-    placeholderTextColor: palette.lightGray,
+    placeholderTextColor: colors.textDisabled,
     keyboardType: 'phone-pad',
     rules: {
       required: 'Հեռախոսահամարը պարտադիր է',
@@ -91,7 +91,7 @@ const FIELD_CONFIGS = {
   },
   passportSeries: {
     label: 'Սերիա *',
-    startIcon: <PasportSvg width={19} height={15} fill={palette.gray} />,
+    startIcon: <PasportSvg width={19} height={15} fill={colors.icons} />,
     placeholder: 'AM000000',
     rules: {
       required: 'Անձնագրի սերիան պարտադիր է',
@@ -99,7 +99,7 @@ const FIELD_CONFIGS = {
   },
   fromWhom: {
     label: 'Ում կողմից է տրված *',
-    startIcon: <PasporFromSvg width={18} height={16} fill={palette.gray} />,
+    startIcon: <PasporFromSvg width={18} height={16} fill={colors.icons} />,
     placeholder: '001',
     keyboardType: 'numeric',
     rules: {
@@ -109,7 +109,7 @@ const FIELD_CONFIGS = {
   dateOfIssue: {
     type: 'date',
     label: 'Երբ է տրվել *',
-    startIcon: <CalendarSvg width={24} height={24} fill={palette.gray} />,
+    startIcon: <CalendarSvg width={24} height={24} fill={colors.icons} />,
     placeholder: 'ՕՕ / ԱԱ / ՏՏՏՏ',
     rules: {
       required: 'Տրման ամսաթիվը պարտադիր է',
@@ -118,7 +118,7 @@ const FIELD_CONFIGS = {
   },
   publicServiceLicensePlate: {
     label: 'ՀԾՀ *',
-    startIcon: <CodeSvg width={16} height={13} fill={palette.gray} />,
+    startIcon: <CodeSvg width={16} height={13} fill={colors.icons} />,
     placeholder: '0123456789',
     rules: {
       required: 'ՀԾՀ-ն պարտադիր է',
@@ -127,18 +127,18 @@ const FIELD_CONFIGS = {
   notificationAddress: {
     type: 'address',
     label: 'Հաշվառման հասցե *',
-    startIcon: <AddressSvg width={18} height={18} fill={palette.gray} />,
+    startIcon: <AddressSvg width={18} height={18} fill={colors.icons} />,
     placeholder: 'Մարզ, Քաղաք, Հասցե, 0000',
     rules: ARMENIAN_ADDRESS_RULES,
   },
   registrationAddress: {
     type: 'address',
     label: 'Բնակության հասցե *',
-    startIcon: <AddressSvg width={18} height={18} fill={palette.gray} />,
+    startIcon: <AddressSvg width={18} height={18} fill={colors.icons} />,
     placeholder: 'Մարզ, Քաղաք, Հասցե, 0000',
     rules: ARMENIAN_ADDRESS_RULES,
   },
-};
+});
 
 const DATE_FIELDS = ['birthday', 'dateOfIssue'];
 
@@ -184,10 +184,12 @@ function buildPayload(missingFields, formValues, personalData) {
 export function CompletePersonalDataScreen({ navigation, route }) {
   const { templateText, templateName, templateId, templateSolution } = route.params ?? {};
   const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { showToast } = useToast();
   const dispatch = useAppDispatch();
   const personalData = useAppSelector(selectPersonalData);
+  const fieldConfigs = useMemo(() => FIELD_CONFIGS(colors), [colors]);
 
   // Captured once on mount so fields don't disappear while the user is typing.
   const [missingFields] = useState(() => getIncompletePersonalDataFields(personalData));
@@ -309,7 +311,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   });
 
   const renderField = field => {
-    const config = FIELD_CONFIGS[field];
+    const config = fieldConfigs[field];
 
     if (config.type === 'date') {
       return (
@@ -405,7 +407,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
           <Typography variant="h4" style={styles.screenTitle}>
             Լրացրեք բացակայող տվյալները
           </Typography>
-          <Typography variant="h6" style={styles.screenSubtitle}>
+          <Typography variant="h6" tone="secondary" style={styles.screenSubtitle}>
             Փաստաթուղթը կազմելու համար անհրաժեշտ է լրացնել հետևյալ դաշտերը
           </Typography>
 
@@ -533,7 +535,7 @@ const createStyles = colors =>
     },
     phoneText: {
       fontFamily: FONT_FAMILY.semiBold,
-      color: palette.mainBlue,
+      color: colors.icons,
       letterSpacing: 1.2,
       marginTop: 8,
       fontSize: 12,
@@ -547,12 +549,12 @@ const createStyles = colors =>
       justifyContent: 'center',
       marginTop: 20,
       borderWidth: 1,
-      borderColor: palette.mainBlue,
+      borderColor: colors.icons,
       marginBottom: 12,
     },
     primaryButtonText: {
       fontFamily: FONT_FAMILY.regular,
-      color: palette.mainBlue,
+      color: colors.icons,
       letterSpacing: 1.2,
     },
     buttonPressed: {

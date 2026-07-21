@@ -181,7 +181,7 @@ const createStyles = colors =>
       width: 50,
       height: 50,
       resizeMode: 'contain',
-      backgroundColor: colors.skyBlue,
+      backgroundColor: colors.cardSelected,
       padding: 10,
       borderRadius: 16,
     },

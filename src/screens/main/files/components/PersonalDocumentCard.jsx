@@ -16,8 +16,6 @@ import DotsVerticalSvg from '../../../../components/icons/DotsVerticalSvg';
 import { useThemedStyles, useTheme } from '../../../../hooks';
 import { usePersonalDocumentCard } from '../hooks';
 
-const CARD_BACKGROUND = '#E8EFFF';
-
 export function PersonalDocumentCard({
   document,
   index = 0,
@@ -26,7 +24,7 @@ export function PersonalDocumentCard({
 }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
-  const iconColor = colors.mainBlue;
+  const iconColor = colors.icons;
 
   const {
     isMenuOpen,
@@ -149,7 +147,7 @@ export function PersonalDocumentCard({
             style={[styles.menuButton, isMenuOpen && styles.menuButtonActive]}
             onPress={handleMenuPress}
           >
-            <DotsVerticalSvg fill={colors.primary} />
+            <DotsVerticalSvg fill={colors.icons} />
           </TouchableOpacity>
         </View>
 
@@ -157,7 +155,7 @@ export function PersonalDocumentCard({
           <View style={styles.attachIcon}>
             {hasDocument ? (
               <View style={styles.attachIcon}>
-                <AttachSvg fill={colors.primary} />
+                <AttachSvg fill={colors.icons} />
               </View>
             ) : (
               <View style={styles.attachIcon}>
@@ -176,14 +174,14 @@ export function PersonalDocumentCard({
                 <Typography variant="h6" style={styles.actionButtonText}>
                   Ներբեռնել
                 </Typography>
-                <DownloadSvg width={16} height={16} fill={colors.primary} />
+                <DownloadSvg width={16} height={16} fill={colors.icons} />
               </View>
             ) : (
               <View style={styles.actionButtonIcon}>
                 <Typography variant="h6" style={styles.actionButtonText}>
                   Վերբեռնել
                 </Typography>
-                <UploadSvg width={16} height={16} fill={colors.primary} />
+                <UploadSvg width={16} height={16} fill={colors.icons} />
               </View>
             )}
           </TouchableOpacity>
@@ -206,7 +204,7 @@ const createStyles = colors =>
       elevation: 4,
     },
     cardShadowSelected: {
-      backgroundColor: CARD_BACKGROUND,
+      backgroundColor: colors.cardSelected,
     },
     card: {
       borderRadius: 24,
@@ -218,7 +216,7 @@ const createStyles = colors =>
       paddingBottom: 14,
     },
     cardSelected: {
-      backgroundColor: CARD_BACKGROUND,
+      backgroundColor: colors.cardSelected,
       borderColor: colors.primary,
     },
     headerRow: {
@@ -283,7 +281,7 @@ const createStyles = colors =>
       fontFamily: FONT_FAMILY.regular,
       fontSize: 14,
       letterSpacing: 0.8,
-      color: colors.primary,
+      color: colors.icons,
     },
     actionButtonIcon: {
       flexDirection: 'row',

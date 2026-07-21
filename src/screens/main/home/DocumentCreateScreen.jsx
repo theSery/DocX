@@ -28,7 +28,7 @@ import { DocumentLoadingOverlay, Typography } from '../../../components';
 import { useAppSelector } from '../../../store';
 import { selectDocumentFill } from '../../../store/slices/documentFillSlice';
 import { selectPersonalData } from '../../../store/slices/personalDataSlice';
-import { useDocumentLoadingOverlay, useThemedStyles, useToast } from '../../../hooks';
+import { useDocumentLoadingOverlay, useTheme, useThemedStyles, useToast } from '../../../hooks';
 import { palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import MainHeader from '../../../components/headers/MainHeader';
@@ -39,6 +39,7 @@ import SendSvg from '../../../components/icons/SendSvg';
 export function DocumentCreateScreen({ route, navigation }) {
 
   const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const { showToast } = useToast();
   const personalData = useAppSelector(selectPersonalData);
   const documentFill = useAppSelector(selectDocumentFill);
@@ -298,14 +299,14 @@ console.log(signatureImageSrc, 'signatureImageSrc');
             disabled={isActionDisabled}
             style={styles.topButton}
           >
-    <SignatureSvg width={25} height={25} fill={palette.mainBlue} />
+    <SignatureSvg width={25} height={25} fill={colors.icons} />
           </Pressable>
           <Pressable
             onPress={handleDownloadPdf}
             disabled={isActionDisabled}
             style={styles.topButton}
           >
-            <UploadSvg width={25} height={25} fill={palette.mainBlue} />
+            <UploadSvg width={25} height={25} fill={colors.icons} />
           </Pressable>
   
         </View>
@@ -359,13 +360,13 @@ function createStyles(colors) {
       flex: 1,
       overflow: 'hidden',
       borderRadius: 8,
-      backgroundColor: '#9DA6BA',
+      backgroundColor: colors.border,
       borderWidth: 1,
       borderColor: colors.border,
     },
     webview: {
       flex: 1,
-      backgroundColor: 'white',
+      backgroundColor: colors.pureWhite,
       padding: 16,
     },
     actionBar: {
@@ -395,7 +396,7 @@ function createStyles(colors) {
       borderRadius: 8,
       backgroundColor: colors.surface,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.primary,
+      borderColor: colors.icons,
       alignItems: 'center',
       justifyContent: 'center',
       marginTop: 0,
@@ -417,7 +418,7 @@ function createStyles(colors) {
     signatureButton: {
       backgroundColor: colors.surface,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.primary,
+      borderColor: colors.icons,
     },
     actionButtonPressed: {
       opacity: 0.88,

@@ -15,9 +15,9 @@ export const GLASS = {
     rim: 'rgba(255, 255, 255, 1)',
   },
   dark: {
-    blurAmount: 2,
-    tint: 'rgba(22, 24, 40, 0.42)',
-    overlayColor: 'rgba(17, 17, 29, 0.45)',
+    blurAmount: 4,
+    tint: 'rgba(55, 61, 110, .3)',
+    overlayColor: 'rgba(55, 61, 110, .3)',
     fallback: '#11111D',
     border: 'rgba(255, 255, 255, 0.14)',
     sheen: [

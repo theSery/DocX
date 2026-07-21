@@ -331,7 +331,7 @@ export function FillInDetailsScreen({ navigation, route }) {
         <Typography variant="h2" style={styles.headerTitle}>
           {headerContent.title}
         </Typography>
-        <Typography variant="h6" style={styles.headerSubtitle}>
+        <Typography variant="h6" tone="secondary" style={styles.headerSubtitle}>
           {headerContent.subtitle}
         </Typography>
         <StepIndicator
