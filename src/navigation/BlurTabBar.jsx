@@ -153,6 +153,7 @@ export function BlurTabBar({ state, descriptors, navigation }) {
       android: isDarkMode ? 'rgba(17, 17, 29, 0.55)' : 'rgba(255, 255, 255, 0.55)',
       default: 'transparent',
     }),
+    shadowColor: colors.shadow,
   };
 
   if (isHidden) {
@@ -261,7 +262,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
     borderWidth: 1,
-    shadowColor: palette.black,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.14,
     shadowRadius: 24,

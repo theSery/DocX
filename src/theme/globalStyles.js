@@ -1,7 +1,5 @@
 import { StyleSheet } from 'react-native';
 
-import { palette } from './tokens';
-
 /**
  * Unified theme-aware styles for screens and shared layout/text utilities.
  * Pair with local `StyleSheet.create` via `useThemedStyles` for screen-specific layout.
@@ -38,7 +36,7 @@ export function createGlobalStyles(colors) {
       borderWidth: StyleSheet.hairlineWidth,
     },
     cardShadow: {
-      shadowColor: palette.black,
+      shadowColor: colors.shadow,
       shadowOffset: { width: 0, height: 0 },
       shadowOpacity: 0.08,
       shadowRadius: 8,

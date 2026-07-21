@@ -15,7 +15,6 @@ import TrashSvg from '../../../../components/icons/TrashSvg';
 import { complaintsApi } from '../../../../api';
 import { downloadAndShareRemotePdf } from '../../../../documents';
 import { FONT_FAMILY } from '../../../../theme';
-import { palette } from '../../../../theme/tokens';
 import { useThemedStyles, useTheme, useToast } from '../../../../hooks';
 import {
   addRecommendedDocument,
@@ -232,7 +231,7 @@ const createStyles = colors =>
       marginBottom: 12,
       borderRadius: 24,
       backgroundColor: colors.background,
-      shadowColor: palette.black,
+      shadowColor: colors.shadow,
       shadowOffset: { width: 0, height: 3 },
       shadowOpacity: 0.12,
       shadowRadius: 6,

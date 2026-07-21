@@ -11,7 +11,6 @@ import TrashSvg from '../../../../components/icons/TrashSvg';
 import UploadSvg from '../../../../components/icons/UploadSvg';
 import WarningSvg from '../../../../components/icons/WarningSvg';
 import { FONT_FAMILY } from '../../../../theme';
-import { palette } from '../../../../theme/tokens';
 import DotsVerticalSvg from '../../../../components/icons/DotsVerticalSvg';
 import { useThemedStyles, useTheme } from '../../../../hooks';
 import { usePersonalDocumentCard } from '../hooks';
@@ -197,7 +196,7 @@ const createStyles = colors =>
       marginBottom: 12,
       borderRadius: 24,
       backgroundColor: colors.background,
-      shadowColor: palette.black,
+      shadowColor: colors.shadow,
       shadowOffset: { width: 0, height: 3 },
       shadowOpacity: 0.12,
       shadowRadius: 6,

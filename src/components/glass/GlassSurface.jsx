@@ -2,7 +2,6 @@ import { Platform, StyleSheet, View } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 
 import { useTheme } from '../../hooks';
-import { palette } from '../../theme';
 import { BLUE_GLASS_BUTTON, GLASS } from './glassConfig';
 import { BlueGlassFill } from './BlueGlassFill';
 import { GlassSheen } from './GlassSheen';
@@ -18,7 +17,7 @@ export function GlassSurface({
   variant = 'default',
   blueColor,
 }) {
-  const { isDarkMode } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   const isBlue = variant === 'blue';
   const glass = isBlue ? BLUE_GLASS_BUTTON : isDarkMode ? GLASS.dark : GLASS.light;
   const blurType = isDarkMode ? 'dark' : 'light';
@@ -30,6 +29,7 @@ export function GlassSurface({
       onLayout={onLayout}
       style={[
         styles.container,
+        { shadowColor: colors.shadow },
         borderRadius != null && { borderRadius },
         { borderColor: glass.border },
         style,
@@ -79,7 +79,6 @@ const styles = StyleSheet.create({
   container: {
     overflow: 'hidden',
     borderWidth: 1,
-    shadowColor: palette.black,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.14,
     shadowRadius: 24,

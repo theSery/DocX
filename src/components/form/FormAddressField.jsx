@@ -226,7 +226,7 @@ function createAutocompleteStyles(colors) {
       overflow: 'hidden',
       zIndex: 30,
       elevation: 30,
-      shadowColor: '#000',
+      shadowColor: colors.shadow,
       shadowOpacity: 0.12,
       shadowRadius: 12,
       shadowOffset: { width: 0, height: -4 },

@@ -13,7 +13,6 @@ import MainHeader from '../../../components/headers/MainHeader';
 import UploadSvg from '../../../components/icons/UploadSvg';
 import { downloadAndShareRemotePdf } from '../../../documents';
 import { useDocumentLoadingOverlay, useTheme, useThemedStyles } from '../../../hooks';
-import { palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 
 function buildFilePreviewSource(fileUrl) {
@@ -134,7 +133,7 @@ function createStyles(colors) {
       marginTop: 16,
       borderRadius: 8,
       backgroundColor: colors.background,
-      shadowColor: palette.black,
+      shadowColor: colors.shadow,
       shadowOffset: { width: 0, height: 3 },
       shadowOpacity: 0.12,
       shadowRadius: 6,

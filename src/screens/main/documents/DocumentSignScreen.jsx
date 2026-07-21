@@ -200,7 +200,7 @@ function createStyles(colors) {
       marginTop: 16,
       borderRadius: 8,
       backgroundColor: colors.background,
-      shadowColor: palette.black,
+      shadowColor: colors.shadow,
       shadowOffset: { width: 0, height: 3 },
       shadowOpacity: 0.12,
       shadowRadius: 6,

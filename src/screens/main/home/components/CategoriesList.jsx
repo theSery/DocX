@@ -21,7 +21,7 @@ export function CategoriesList({
 }) {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   const { onScroll, onScrollViewLayout, onContentSizeChange } =
     useHomeStackHeaderScrollHandler(collapsibleHeader);
 
@@ -61,7 +61,10 @@ export function CategoriesList({
           </StaggeredAnimatedView>
         )}
       />
-      <Image source={require('../../../../assets/images/Femidi.webp')} style={styles.image} />
+      <Image
+        source={require('../../../../assets/images/Femidi.webp')}
+        style={[styles.image, { opacity: isDarkMode ? 1 : 0.4 }]}
+      />
     </View>
   );
 }
@@ -132,6 +135,5 @@ marginHorizontal: 5,
       right: 0,
       // top: 0,
       zIndex: -1000,
-      opacity: 0.4,
     },
   });
