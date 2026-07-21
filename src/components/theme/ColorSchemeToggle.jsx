@@ -1,101 +1,126 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+
+import { Switch } from '../switch';
+import { Typography } from '../typography';
+import SunSvg from '../icons/SunSvg';
+import MoonSvg from '../icons/MoonSvg';
 import { useTheme } from '../../hooks/useTheme';
-import { FONT_FAMILY, palette, ThemePreference } from '../../theme';
+import { ColorScheme, ThemePreference } from '../../theme';
 
-const THEME_OPTIONS = [
-  { value: ThemePreference.LIGHT, label: 'Ցերեկային' },
-  { value: ThemePreference.DARK, label: 'Գիշերային' },
-  { value: ThemePreference.SYSTEM, label: 'Լռելյայն' },
-];
-
-function ThemeOptionButton({ label, selected, disabled, onPress }) {
-  const { colors } = useTheme();
-
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityState={{ selected, disabled }}
-      disabled={disabled}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.optionButton,
-        selected ? styles.optionButtonSelected : styles.optionButtonIdle,
-        pressed && !disabled && styles.optionButtonPressed,
-      ]}>
-      <Text
-        style={[
-          styles.optionLabel,
-          { color: selected ? palette.mainWhite : colors.text },
-        ]}>
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
-
+/**
+ * Light / Dark appearance toggle.
+ * Starts the theme reveal late in the switch travel so the thumb keeps a
+ * continuous slide while both animations overlap briefly at the end.
+ *
+ * @param {{
+ *   style?: import('react-native').StyleProp<import('react-native').ViewStyle>;
+ * }} props
+ */
 export function ColorSchemeToggle({ style }) {
-  const { isAnimating, themePreference, setThemePreference } = useTheme();
+  const { colors, colorScheme, isAnimating, setThemePreference } = useTheme();
+  const isDarkMode = colorScheme === ColorScheme.DARK;
 
-  const handleSelect = (preference, event) => {
-    if (isAnimating || preference === themePreference) {
+  const [optimisticDark, setOptimisticDark] = useState(null);
+  const switchRef = useRef(null);
+  const pendingDarkRef = useRef(null);
+  const themeStartedRef = useRef(false);
+
+  const isDark = optimisticDark ?? isDarkMode;
+
+  useEffect(() => {
+    if (optimisticDark === null) {
       return;
     }
 
-    const { pageX, pageY } = event.nativeEvent;
-    setThemePreference(preference, pageX, pageY).catch(() => {});
-  };
+    if (isDarkMode === optimisticDark && !isAnimating) {
+      pendingDarkRef.current = null;
+      themeStartedRef.current = false;
+      setOptimisticDark(null);
+    }
+  }, [isAnimating, isDarkMode, optimisticDark]);
+
+  const handleValueChange = useCallback(
+    nextDark => {
+      if (isAnimating || pendingDarkRef.current !== null) {
+        return;
+      }
+
+      pendingDarkRef.current = nextDark;
+      themeStartedRef.current = false;
+      setOptimisticDark(nextDark);
+    },
+    [isAnimating],
+  );
+
+  const handleSecondHalf = useCallback(
+    nextDark => {
+      if (pendingDarkRef.current !== nextDark || themeStartedRef.current) {
+        return;
+      }
+
+      themeStartedRef.current = true;
+      const preference = nextDark ? ThemePreference.DARK : ThemePreference.LIGHT;
+
+      const applyTheme = (x, y, width, height) => {
+        setThemePreference(preference, x + width / 2, y + height / 2).catch(() => {
+          pendingDarkRef.current = null;
+          themeStartedRef.current = false;
+          setOptimisticDark(null);
+        });
+      };
+
+      // Let the current switch frame commit before heavy theme capture work.
+      requestAnimationFrame(() => {
+        if (switchRef.current?.measureInWindow) {
+          switchRef.current.measureInWindow(applyTheme);
+          return;
+        }
+
+        setThemePreference(preference, 0, 0).catch(() => {
+          pendingDarkRef.current = null;
+          themeStartedRef.current = false;
+          setOptimisticDark(null);
+        });
+      });
+    },
+    [setThemePreference],
+  );
 
   return (
-    <View style={[styles.container, style]}>
-      <View style={styles.optionRow}>
-        {THEME_OPTIONS.map(option => (
-          <ThemeOptionButton
-            key={option.value}
-            disabled={isAnimating}
-            label={option.label}
-            onPress={event => handleSelect(option.value, event)}
-            selected={themePreference === option.value}
-          />
-        ))}
+    <View style={[styles.row, style]}>
+      <View style={styles.labelRow}>
+        {isDark ? (
+          <MoonSvg fill={colors.mainBlue} width={20} height={20} />
+        ) : (
+          <SunSvg fill={colors.mainBlue} width={20} height={20} />
+        )}
+        <Typography variant="h5">{isDark ? 'Գիշերային' : 'Ցերեկային'}</Typography>
+      </View>
+
+      <View ref={switchRef} collapsable={false}>
+        <Switch
+          value={isDark}
+          onValueChange={handleValueChange}
+          onSecondHalf={handleSecondHalf}
+          disabled={isAnimating}
+        />
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    paddingHorizontal: 20,
-  },
-  optionRow: {
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'space-between',
+    width: '100%',
   },
-  optionButton: {
-    flex: 1,
-    minHeight: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: palette.mainWhite,
+  labelRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-  },
-  optionButtonIdle: {
-    backgroundColor: palette.skyBlue,
-  },
-  optionButtonSelected: {
-    backgroundColor: palette.mainBlue,
-  },
-  optionButtonPressed: {
-    opacity: 0.88,
-  },
-  optionLabel: {
-    fontFamily: FONT_FAMILY.regular,
-    fontSize: 13,
-    letterSpacing: 0.5,
-    textAlign: 'center',
+    gap: 10,
+    flexShrink: 1,
   },
 });

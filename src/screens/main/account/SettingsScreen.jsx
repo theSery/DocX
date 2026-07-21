@@ -8,20 +8,11 @@ import ContactUsSvg from '../../../components/icons/ContactUsSvg';
 import PrivacyPolicySvg from '../../../components/icons/PrivacyPolicySvg';
 import TermsSvg from '../../../components/icons/TermsSvg';
 
-
 export function SettingsScreen({ navigation }) {
   const globalStyles = useGlobalStyles();
-
   const styles = useThemedStyles(createStyles);
 
   return (
-    // <ScrollView style={[styles.container, { marginBottom: 72 }] } contentContainerStyle={{ paddingBottom: 32 }}>
-    //   <Text style={styles.title}>Settings</Text>
-    //   <Text style={styles.subtitle}>App preferences</Text>
-
-    //   <Text style={styles.sectionTitle}>Appearance</Text>
-
-    // </ScrollView>
     <ScrollView style={[globalStyles.screen, styles.screen]} contentContainerStyle={[styles.contentContainer]}>
       <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
         <View style={styles.balanceContainer}>
@@ -31,8 +22,8 @@ export function SettingsScreen({ navigation }) {
         </View>
 
         <View style={styles.section}>
-          <View style={styles.menuList}>
-            <ColorSchemeToggle style={{ marginBottom: 16 }} />
+          <View style={[styles.menuList, styles.menuItem]}>
+            <ColorSchemeToggle />
           </View>
         </View>
 

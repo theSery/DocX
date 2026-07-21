@@ -11,6 +11,8 @@ export {
 export { CheckBox } from './checkbox';
 export { DocumentLoadingOverlay } from './DocumentLoadingOverlay';
 export { RadioButton, RadioGroup } from './radioButton';
+export { Switch } from './switch';
+
 export { FormAddressField, FormDateField, FormField } from './form';
 export { AuthScreenLayout, SplashGate } from './layout';
 export { ColorSchemeToggle } from './theme';
