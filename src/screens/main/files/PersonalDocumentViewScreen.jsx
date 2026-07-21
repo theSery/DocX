@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   Platform,
   Pressable,
@@ -11,6 +10,7 @@ import { WebView } from 'react-native-webview';
 
 import { DocumentLoadingOverlay, Typography } from '../../../components';
 import MainHeader from '../../../components/headers/MainHeader';
+import UploadSvg from '../../../components/icons/UploadSvg';
 import { downloadAndShareRemotePdf } from '../../../documents';
 import { useDocumentLoadingOverlay, useThemedStyles } from '../../../hooks';
 import { palette } from '../../../theme';
@@ -73,47 +73,39 @@ export function PersonalDocumentViewScreen({ route, navigation }) {
     <View style={styles.root}>
       <MainHeader onPress={() => navigation.goBack()} />
       <View style={styles.screen}>
-        <View style={styles.previewContainer}>
-          {previewWebViewSource ? (
-            <WebView
-              originWhitelist={['*']}
-              source={previewWebViewSource}
-              style={styles.webview}
-              scalesPageToFit
-              scrollEnabled
-              showsVerticalScrollIndicator={false}
-              onLoadEnd={() => setIsWebViewLoading(false)}
-              onLoadStart={() => setIsWebViewLoading(true)}
-            />
-          ) : (
-            <View style={styles.emptyState}>
-              <Typography variant="h5" tone="secondary">
-                Ֆայլի հղում չի գտնվել
-              </Typography>
-            </View>
-          )}
+        <View style={styles.previewShadow}>
+          <View style={styles.previewContainer}>
+            {previewWebViewSource ? (
+              <WebView
+                originWhitelist={['*']}
+                source={previewWebViewSource}
+                style={styles.webview}
+                scalesPageToFit
+                scrollEnabled
+                showsVerticalScrollIndicator={false}
+                onLoadEnd={() => setIsWebViewLoading(false)}
+                onLoadStart={() => setIsWebViewLoading(true)}
+              />
+            ) : (
+              <View style={styles.emptyState}>
+                <Typography variant="h5" tone="secondary">
+                  Ֆայլի հղում չի գտնվել
+                </Typography>
+              </View>
+            )}
+          </View>
         </View>
 
         {downloadUrl ? (
-          <View style={[styles.actionBar, { bottom: TAB_BAR_BOTTOM_OFFSET }]}>
+          <View style={styles.actionRow}>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Download file"
-              disabled={isActionDisabled}
               onPress={handleDownload}
-              style={({ pressed }) => [
-                styles.actionButton,
-                pressed && styles.actionButtonPressed,
-                isActionDisabled && styles.actionButtonDisabled,
-              ]}
+              disabled={isActionDisabled}
+              style={styles.topButton}
             >
-              {isDownloading ? (
-                <ActivityIndicator color={palette.white} />
-              ) : (
-                <Typography variant="h5" tone="onDark">
-                  Ներբեռնել
-                </Typography>
-              )}
+              <UploadSvg width={25} height={25} fill={palette.mainBlue} />
             </Pressable>
           </View>
         ) : null}
@@ -132,47 +124,56 @@ function createStyles(colors) {
     },
     screen: {
       flex: 1,
-      paddingBottom: TAB_BAR_BOTTOM_OFFSET + 60,
+      paddingBottom: TAB_BAR_BOTTOM_OFFSET,
       paddingHorizontal: 10,
+    },
+    previewShadow: {
+      flex: 1,
+      width: '100%',
+      marginTop: 16,
+      borderRadius: 8,
+      backgroundColor: colors.background,
+      shadowColor: palette.black,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.12,
+      shadowRadius: 6,
+      elevation: 4,
     },
     previewContainer: {
       flex: 1,
-      width: '100%',
       overflow: 'hidden',
+      borderRadius: 8,
       backgroundColor: '#9DA6BA',
-      borderWidth: StyleSheet.hairlineWidth,
+      borderWidth: 1,
       borderColor: colors.border,
-      padding: 10,
-      marginTop: 16,
     },
     webview: {
       flex: 1,
       backgroundColor: 'white',
+      padding: 16,
     },
     emptyState: {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    actionBar: {
+    actionRow: {
+      gap: 12,
       position: 'absolute',
-      left: 20,
       right: 20,
+      top: 20,
     },
-    actionButton: {
-      minHeight: 48,
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-      borderRadius: 24,
+    topButton: {
+      width: 60,
+      height: 60,
+      borderRadius: 8,
+      backgroundColor: colors.surface,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.primary,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: colors.primary,
-    },
-    actionButtonPressed: {
-      opacity: 0.88,
-    },
-    actionButtonDisabled: {
-      opacity: 0.7,
+      marginTop: 0,
+      opacity: 0.8,
     },
   });
 }

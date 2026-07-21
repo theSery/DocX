@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   Platform,
   Pressable,
@@ -8,6 +7,8 @@ import {
   View,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
+import SignatureSvg from '../../../components/icons/SignatureSvg';
+import UploadSvg from '../../../components/icons/UploadSvg';
 import { DocumentLoadingOverlay, Typography } from '../../../components';
 import { complaintsApi } from '../../../api';
 import {
@@ -131,66 +132,47 @@ export function DocumentSignScreen({ route, navigation }) {
     <View style={styles.root}>
       <MainHeader onPress={() => navigation.goBack()} />
       <View style={styles.screen}>
-        <View style={styles.previewContainer}>
-          {previewWebViewSource ? (
-            <WebView
-              originWhitelist={['*']}
-              source={previewWebViewSource}
-              style={styles.webview}
-              scalesPageToFit
-              scrollEnabled
-              showsVerticalScrollIndicator={false}
-              onLoadEnd={() => setIsWebViewLoading(false)}
-              onLoadStart={() => setIsWebViewLoading(true)}
-            />
-          ) : !isFetchingComplaint ? (
-            <View style={styles.emptyState}>
-              <Typography variant="h5" tone="secondary">
-                Ֆայլի հղում չի գտնվել
-              </Typography>
-            </View>
-          ) : null}
+        <View style={styles.previewShadow}>
+          <View style={styles.previewContainer}>
+            {previewWebViewSource ? (
+              <WebView
+                originWhitelist={['*']}
+                source={previewWebViewSource}
+                style={styles.webview}
+                scalesPageToFit
+                scrollEnabled
+                showsVerticalScrollIndicator={false}
+                onLoadEnd={() => setIsWebViewLoading(false)}
+                onLoadStart={() => setIsWebViewLoading(true)}
+              />
+            ) : !isFetchingComplaint ? (
+              <View style={styles.emptyState}>
+                <Typography variant="h5" tone="secondary">
+                  Ֆայլի հղում չի գտնվել
+                </Typography>
+              </View>
+            ) : null}
+          </View>
         </View>
 
-        <View style={[styles.actionBar, { bottom: TAB_BAR_BOTTOM_OFFSET }]}>
-          <Pressable
+        <View style={styles.actionRow}>
+          {/* <Pressable
             accessibilityRole="button"
             accessibilityLabel="Add signature"
-            disabled={isActionDisabled}
             onPress={handleAddSignature}
-            style={({ pressed }) => [
-              styles.actionButton,
-              styles.signatureButton,
-              pressed && styles.actionButtonPressed,
-              isActionDisabled && styles.actionButtonDisabled,
-            ]}
+            disabled={isActionDisabled}
+            style={styles.topButton}
           >
-            {isAddingSignature ? (
-              <ActivityIndicator color={palette.mainBlue} />
-            ) : (
-              <Typography variant="h5">Ստորագրել</Typography>
-            )}
-          </Pressable>
-
+            <SignatureSvg width={25} height={25} fill={palette.mainBlue} />
+          </Pressable> */}
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Download PDF"
-            disabled={isActionDisabled}
             onPress={handleDownloadPdf}
-            style={({ pressed }) => [
-              styles.actionButton,
-              styles.downloadButton,
-              pressed && styles.actionButtonPressed,
-              isActionDisabled && styles.actionButtonDisabled,
-            ]}
+            disabled={isActionDisabled}
+            style={styles.topButton}
           >
-            {isDownloading ? (
-              <ActivityIndicator color={palette.white} />
-            ) : (
-              <Typography variant="h5" tone="onDark">
-                Ներբեռնել PDF
-              </Typography>
-            )}
+            <UploadSvg width={25} height={25} fill={palette.mainBlue} />
           </Pressable>
         </View>
       </View>
@@ -208,57 +190,56 @@ function createStyles(colors) {
     },
     screen: {
       flex: 1,
-      paddingBottom: TAB_BAR_BOTTOM_OFFSET + 60,
+      paddingBottom: TAB_BAR_BOTTOM_OFFSET ,
       paddingHorizontal: 10,
+    },
+    previewShadow: {
+      flex: 1,
+      width: '100%',
+      marginTop: 16,
+      borderRadius: 8,
+      backgroundColor: colors.background,
+      shadowColor: palette.black,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.12,
+      shadowRadius: 6,
+      elevation: 4,
     },
     previewContainer: {
       flex: 1,
-      width: '100%',
       overflow: 'hidden',
+      borderRadius: 8,
       backgroundColor: '#9DA6BA',
-      borderWidth: StyleSheet.hairlineWidth,
+      borderWidth: 1,
       borderColor: colors.border,
-      padding: 10,
-      marginTop: 16,
     },
     webview: {
       flex: 1,
       backgroundColor: 'white',
+      padding: 16,
     },
     emptyState: {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    actionBar: {
-      position: 'absolute',
-      left: 20,
-      right: 20,
-      flexDirection: 'row',
+    actionRow: {
       gap: 12,
+      position: 'absolute',
+      right: 20,
+      top: 20,
     },
-    actionButton: {
-      flex: 1,
-      minHeight: 48,
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-      borderRadius: 24,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    signatureButton: {
+    topButton: {
+      width: 60,
+      height: 60,
+      borderRadius: 8,
       backgroundColor: colors.surface,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: colors.primary,
-    },
-    downloadButton: {
-      backgroundColor: colors.primary,
-    },
-    actionButtonPressed: {
-      opacity: 0.88,
-    },
-    actionButtonDisabled: {
-      opacity: 0.7,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 0,
+      opacity: 0.8,
     },
   });
 }
