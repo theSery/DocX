@@ -21,7 +21,6 @@ const DocumentsMainHeader = () => {
 const documentsMainScreenOptions = nestedScreenOptions => ({
   ...nestedScreenOptions,
   headerShown: true,
-  contentStyle: { zIndex: 0 },
   header: DocumentsMainHeader,
 });
 
