@@ -265,6 +265,7 @@ export function GlobalSheetProvider({ children }) {
       <Modal
         visible={visible}
         transparent
+        statusBarTranslucent={true}
         animationType="fade"
         onRequestClose={closeSheet}
         onDismiss={handleModalDismiss}

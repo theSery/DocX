@@ -13,10 +13,10 @@ export function TabNavigator() {
   return (
     <Tab.Navigator
       initialRouteName="Home"
-      tabBar={renderBlurTabBar}
+      // tabBar={renderBlurTabBar}
       screenOptions={{
         headerShown: false,
-        animation: 'fade',
+        // animation: 'fade',
       }}>
       <Tab.Screen
         name="Home"

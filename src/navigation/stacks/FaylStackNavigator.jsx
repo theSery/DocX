@@ -33,7 +33,9 @@ export function FaylStackNavigator() {
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
       <Fayl.Navigator
         initialRouteName="FilesMain"
-        screenOptions={{ headerShown: false, animation: 'fade' }}
+        screenOptions={{ headerShown: false,
+           // animation: 'fade' 
+          }}
       >
         <Fayl.Screen
           name="FilesMain"

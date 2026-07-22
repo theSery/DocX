@@ -42,7 +42,7 @@ const nestedScreenOptionsWithHeader = (
 export function AccountStackNavigator() {
   const nestedScreenOptions = useStackScreenOptions();
   const { logout } = useAuthSession();
-  useFocusStatusBar('light-content');
+  // useFocusStatusBar('light-content');
 
   return (
     <Account.Navigator

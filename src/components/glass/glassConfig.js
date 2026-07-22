@@ -2,7 +2,7 @@ import { palette } from '../../theme';
 
 export const GLASS = {
   light: {
-    blurAmount: 4,
+    blurAmount: 1,
     tint: 'rgba(255, 255, 255, 0.55)',
     overlayColor: 'rgba(255, 255, 255, 0.55)',
     fallback: '#FFFFFF',

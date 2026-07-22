@@ -54,7 +54,9 @@ export function HomeStackNavigator() {
       <HomeStackHeaderScrollProvider>
         <Home.Navigator
           initialRouteName="HomeMain"
-          screenOptions={{ headerShown: false, animation: 'fade' }}
+          screenOptions={{ headerShown: false, 
+            // animation: 'fade' 
+          }}
         >
           <Home.Screen
             name="HomeMain"

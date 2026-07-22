@@ -109,7 +109,8 @@ export function SubCategoryScreen({ route, navigation }) {
                 category.templates.map(template => (
                   <AuthButton
                     key={template.id}
-                    titleStyle={{ width: '90%', lineHeight: 0 }}
+                    // titleStyle={{ width: '90%', lineHeight: 0 }}
+                    titleStyle={{ width: '90%'}}
                     endIcon={
                       <ArrowSvg width={14} height={14} fill={palette.white} />
                     }

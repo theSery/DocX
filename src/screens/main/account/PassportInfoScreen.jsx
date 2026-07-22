@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
 import { AnimatedView, CheckBox, FormAddressField, FormDateField, FormField, Typography } from '../../../components';
 import { useForm } from 'react-hook-form';
@@ -18,8 +17,6 @@ import {
   selectPersonalDataStatus,
   updatePersonalData,
 } from '../../../store/slices/personalDataSlice';
-
-import { PASSPORT_INFO_FIELD_NAMES } from '../../../utils/personalDataValidation';
 
 const DATE_OF_ISSUE_RULES = {
   required: 'Տրման ամսաթիվը պարտադիր է',
@@ -169,8 +166,6 @@ export function PassportInfoScreen() {
   const globalStyles = useGlobalStyles();
   const [agreed, setAgreed] = useState(false);
   const styles = useThemedStyles(createStyles);
-  const route = useRoute();
-  const fromSubCategory = route.params?.fromSubCategory === true;
   const { showToast } = useToast();
   const dispatch = useAppDispatch();
   const personalData = useAppSelector(selectPersonalData);
@@ -180,7 +175,6 @@ export function PassportInfoScreen() {
     control,
     handleSubmit,
     reset,
-    trigger,
     formState: { isSubmitting, isLoading },
   } = useForm({
     defaultValues: EMPTY_FORM_VALUES,
@@ -188,41 +182,13 @@ export function PassportInfoScreen() {
     reValidateMode: 'onChange',
   });
 
-  const validateAllPassportFields = useCallback(async () => {
-    await trigger(PASSPORT_INFO_FIELD_NAMES, { shouldFocus: false });
-  }, [trigger]);
-
   useEffect(() => {
     if (personalDataStatus !== 'succeeded' || !personalData) {
-      return undefined;
+      return;
     }
 
     reset(mapPersonalDataToFormValues(personalData));
-
-    if (!fromSubCategory) {
-      return undefined;
-    }
-
-    const timeoutId = setTimeout(() => {
-      validateAllPassportFields();
-    }, 50);
-
-    return () => clearTimeout(timeoutId);
-  }, [personalData, personalDataStatus, reset, fromSubCategory, validateAllPassportFields]);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (!fromSubCategory || personalDataStatus !== 'succeeded' || !personalData) {
-        return undefined;
-      }
-
-      const timeoutId = setTimeout(() => {
-        validateAllPassportFields();
-      }, 50);
-
-      return () => clearTimeout(timeoutId);
-    }, [fromSubCategory, personalDataStatus, personalData, validateAllPassportFields]),
-  );
+  }, [personalData, personalDataStatus, reset]);
 
   const onSubmit = handleSubmit(async (data) => {
     try {

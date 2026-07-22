@@ -1,5 +1,5 @@
 import { Modal, Platform, StyleSheet, View } from 'react-native';
-import { BlurView } from '@react-native-community/blur';
+import { BlurView } from '@sbaiahmed1/react-native-blur';
 
 import { AnimatedView } from './animation';
 import LottieAnimation from './animation/LottieAnimation';

@@ -33,7 +33,9 @@ export function DocumentsStackNavigator() {
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
       <Documents.Navigator
         initialRouteName="DocumentsMain"
-        screenOptions={{ headerShown: false, animation: 'fade' }}
+        screenOptions={{ headerShown: false, 
+          // animation: 'fade' 
+        }}
       >
         <Documents.Screen
           name="DocumentsMain"

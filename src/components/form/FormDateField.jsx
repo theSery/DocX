@@ -165,7 +165,7 @@ export function FormDateField({
               <DateTimePicker
                 value={selectedDate ?? new Date()}
                 mode="date"
-                display="default"
+                display="spinner"
                 maximumDate={maximumDate}
                 minimumDate={minimumDate}
                 positiveButton={{ label: 'Ընտրել' }}

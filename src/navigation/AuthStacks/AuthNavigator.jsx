@@ -17,8 +17,7 @@ export function AuthNavigator() {
         initialRouteName="AccountType"
         screenOptions={{
           headerShown: false,
-          animation: 'fade',
-
+          // animation: 'fade',
         }}>
         <Stack.Screen name="AccountType" component={AccountTypeScreen} />
         <Stack.Screen name="SignInUp" component={SignInUpScreen} />

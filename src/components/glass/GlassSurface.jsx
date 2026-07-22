@@ -1,5 +1,5 @@
 import { Platform, StyleSheet, View } from 'react-native';
-import { BlurView } from '@react-native-community/blur';
+import { BlurView } from '@sbaiahmed1/react-native-blur';
 
 import { useTheme } from '../../hooks';
 import { BLUE_GLASS_BUTTON, GLASS } from './glassConfig';
