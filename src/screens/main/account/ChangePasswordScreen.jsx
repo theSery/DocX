@@ -1,6 +1,6 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
-import { AnimatedView, FormField } from '../../../components';
+import { AnimatedView, FormField, FormScrollView } from '../../../components';
 import AuthButton from '../../../components/buttons/AuthButton';
 import LockIconSbg from '../../../components/icons/LockIconSbg';
 import { authApi } from '../../../api';
@@ -79,12 +79,9 @@ export function ChangePasswordScreen() {
 
   return (
     <View style={[globalStyles.screen, styles.screen]}>
-      <ScrollView
+      <FormScrollView
         style={styles.scroll}
         showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
-        automaticallyAdjustKeyboardInsets
         contentContainerStyle={styles.contentContainer}
       >
         <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
@@ -127,7 +124,7 @@ export function ChangePasswordScreen() {
             />
           </View>
         </AnimatedView>
-      </ScrollView>
+      </FormScrollView>
       <View style={[styles.footer, { paddingBottom: TAB_BAR_BOTTOM_OFFSET }]}>
         <AuthButton
           disabled={isSubmitting}

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { templatesApi, userApi } from '../../../api';
 import AuthButton from '../../../components/buttons/AuthButton';
@@ -9,7 +9,7 @@ import { StepIndicator } from '../../../components/stepIndicator';
 import { useThemedStyles } from '../../../hooks';
 import { FillAct, FillDates } from './components/fillDetails';
 import MainHeader from '../../../components/headers/MainHeader';
-import { Typography } from '../../../components';
+import { FormFlatList, Typography } from '../../../components';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   resetDocumentFill,
@@ -354,15 +354,12 @@ export function FillInDetailsScreen({ navigation, route }) {
     <>
       <View style={[styles.screen, ]}>
       <MainHeader onPress={handleBack} />
-        <FlatList
+        <FormFlatList
           style={styles.list}
           data={listData}
           extraData={[currentStep, radioFacts, selectedFacts]}
           keyExtractor={item => item.key}
           ListHeaderComponent={ListHeaderComponent}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          automaticallyAdjustKeyboardInsets
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.contentContainer,

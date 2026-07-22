@@ -8,6 +8,7 @@ import { FONT_FAMILY } from '../../theme';
 import { useTheme, useThemedStyles } from '../../hooks';
 import { ENV } from '../../config/env';
 import LocationSvg from '../icons/LocationSvg';
+import { useEnsureInputVisible } from './formKeyboard';
 
 const INPUT_RADIUS = 16;
 const MIN_QUERY_LENGTH = 2;
@@ -312,8 +313,10 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
   const rowStyles = useMemo(() => createRowStyles(colors), [colors]);
   const [isFocused, setIsFocused] = useState(false);
   const placesRef = useRef(null);
+  const inputContainerRef = useRef(null);
   const syncedValueRef = useRef(value ?? '');
   const localizationRequestRef = useRef(0);
+  const { onInputFocus, onInputBlur } = useEnsureInputVisible(inputContainerRef);
 
   useEffect(() => {
     const nextValue = value ?? '';
@@ -386,15 +389,19 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
         syncedValueRef.current = text;
         onChange(text);
       },
-      onFocus: () => setIsFocused(true),
+      onFocus: () => {
+        setIsFocused(true);
+        onInputFocus();
+      },
       onBlur: () => {
         setIsFocused(false);
+        onInputBlur();
         onBlur();
       },
       placeholderTextColor: colors.textDisabled,
       autoCorrect: false,
     }),
-    [onChange, onBlur, colors.textDisabled],
+    [onChange, onBlur, onInputFocus, onInputBlur, colors.textDisabled],
   );
 
   const renderRow = useCallback(
@@ -408,7 +415,11 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
   );
 
   return (
-    <View style={[styles.field, isFocused && styles.fieldFocused]}>
+    <View
+      ref={inputContainerRef}
+      collapsable={false}
+      style={[styles.field, isFocused && styles.fieldFocused]}
+    >
       <View style={[styles.autocompleteWrapper, hasError && styles.inputError]}>
         <GooglePlacesAutocomplete
           ref={placesRef}

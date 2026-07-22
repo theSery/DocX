@@ -13,7 +13,13 @@ export { DocumentLoadingOverlay } from './DocumentLoadingOverlay';
 export { RadioButton, RadioGroup } from './radioButton';
 export { Switch } from './switch';
 
-export { FormAddressField, FormDateField, FormField } from './form';
+export {
+  FormAddressField,
+  FormDateField,
+  FormField,
+  FormFlatList,
+  FormScrollView,
+} from './form';
 export { AuthScreenLayout, SplashGate } from './layout';
 export { ColorSchemeToggle } from './theme';
 export { Typography } from './typography';

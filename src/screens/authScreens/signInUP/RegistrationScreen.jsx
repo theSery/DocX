@@ -1,8 +1,8 @@
-import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 import { AuthScreenLayout } from '../../../components/layout';
 import { useAuthScreenStyles, useTheme, useThemedFocusStatusBar, useThemedStyles } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
-import { FormField } from '../../../components';
+import { FormField, FormScrollView } from '../../../components';
 import { useForm } from 'react-hook-form';
 import UserSvg from '../../../components/icons/UserSvg';
 import { FONT_FAMILY } from '../../../theme';
@@ -37,12 +37,9 @@ export function RegistrationScreen({ navigation, route }) {
   return (
     <AuthScreenLayout style={[styles.screen]}>
       <MainHeader onPress={() => navigation.goBack()} isHome={true} />
-      <ScrollView
+      <FormScrollView
         style={localStyles.formArea}
         showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
-        automaticallyAdjustKeyboardInsets
         contentContainerStyle={localStyles.content}
       >
         <View style={localStyles.formContainer}>
@@ -98,7 +95,7 @@ export function RegistrationScreen({ navigation, route }) {
             isLoading={isSubmitting}
           />
         </View>
-      </ScrollView>
+      </FormScrollView>
     </AuthScreenLayout>
   );
 }

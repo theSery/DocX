@@ -3,7 +3,6 @@ import {
   Dimensions,
   Linking,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -22,7 +21,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { AUTH_SCREEN_HORIZONTAL_PADDING } from '../../../../components/layout/authLayoutConstants';
 import { FONT_FAMILY } from '../../../../theme';
-import { FormField, Typography } from '../../../../components';
+import { FormField, FormScrollView, Typography } from '../../../../components';
 import { LoginTabs } from './LoginTabs';
 import LockIconSbg from '../../../../components/icons/LockIconSbg';
 import AuthButton from '../../../../components/buttons/AuthButton';
@@ -310,12 +309,9 @@ export function SignInUpTab({ onPhoneLogin }) {
         </Pressable>
       </View>
 
-      <ScrollView
+      <FormScrollView
         style={styles.formArea}
         showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
-        automaticallyAdjustKeyboardInsets
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.formsStack}>
@@ -339,7 +335,7 @@ export function SignInUpTab({ onPhoneLogin }) {
             </Animated.View>
           )}
         </View>
-      </ScrollView>
+      </FormScrollView>
     </View>
   );
 }

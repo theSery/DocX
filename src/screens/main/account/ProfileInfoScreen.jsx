@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
 import {
   AnimatedView,
   FormDateField,
   FormField,
+  FormScrollView,
   Typography,
 } from '../../../components';
 import { useForm } from 'react-hook-form';
@@ -27,6 +28,7 @@ import {
   updatePersonalData,
 } from '../../../store/slices/personalDataSlice';
 import { smsApi } from '../../../api';
+import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 
 const BIRTH_DATE_RULES = {
   required: 'Ծննդյան ամսաթիվը պարտադիր է',
@@ -80,7 +82,7 @@ const createStyles = colors =>
     screen: {
       flex: 1,
       paddingHorizontal: 16,
-      marginBottom: 72,
+      marginBottom: TAB_BAR_BOTTOM_OFFSET,
     },
     contentContainer: {
       paddingBottom: 32,
@@ -246,12 +248,9 @@ export function ProfileInfoScreen() {
   });
 
   return (
-    <ScrollView
+    <FormScrollView
       style={[globalStyles.screen, styles.screen]}
       showsVerticalScrollIndicator={false}
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="on-drag"
-      automaticallyAdjustKeyboardInsets
       contentContainerStyle={styles.contentContainer}
     >
       <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
@@ -322,6 +321,6 @@ export function ProfileInfoScreen() {
         onPress={onSubmit}
         isLoading={isLoading}
       />
-    </ScrollView>
+    </FormScrollView>
   );
 }

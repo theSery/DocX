@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
-import { AnimatedView, CheckBox, FormAddressField, FormDateField, FormField, Typography } from '../../../components';
+import {
+  AnimatedView,
+  CheckBox,
+  FormAddressField,
+  FormDateField,
+  FormField,
+  FormScrollView,
+  Typography,
+} from '../../../components';
 import { useForm } from 'react-hook-form';
 import PasportSvg from '../../../components/icons/PasportSvg';
 import { FONT_FAMILY, palette } from '../../../theme';
@@ -17,6 +25,7 @@ import {
   selectPersonalDataStatus,
   updatePersonalData,
 } from '../../../store/slices/personalDataSlice';
+import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 
 const DATE_OF_ISSUE_RULES = {
   required: 'Տրման ամսաթիվը պարտադիր է',
@@ -83,7 +92,7 @@ const createStyles = (colors) =>
     screen: {
       flex: 1,
       paddingHorizontal: 16,
-      marginBottom: 72,
+      marginBottom: TAB_BAR_BOTTOM_OFFSET,
     },
     contentContainer: {
       paddingBottom: 32,
@@ -212,12 +221,9 @@ export function PassportInfoScreen() {
   });
 
   return (
-    <ScrollView
+    <FormScrollView
       style={[globalStyles.screen, styles.screen]}
       showsVerticalScrollIndicator={false}
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="on-drag"
-      automaticallyAdjustKeyboardInsets
       contentContainerStyle={styles.contentContainer}
     >
       <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
@@ -279,6 +285,6 @@ export function PassportInfoScreen() {
         onPress={onSubmit}
         isLoading={isLoading}
       />
-    </ScrollView>
+    </FormScrollView>
   );
 }

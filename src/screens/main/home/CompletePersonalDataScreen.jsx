@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemedStyles, useTheme, useToast } from '../../../hooks';
@@ -9,6 +9,7 @@ import {
   FormAddressField,
   FormDateField,
   FormField,
+  FormScrollView,
   Typography,
 } from '../../../components';
 import MainHeader from '../../../components/headers/MainHeader';
@@ -392,12 +393,9 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   return (
     <View style={[styles.screen, { paddingTop: 10, paddingBottom: 10}]}>
       <MainHeader onPress={handleHeaderBack} />
-      <ScrollView
+      <FormScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
-        automaticallyAdjustKeyboardInsets
         contentContainerStyle={[
           styles.contentContainer,
           { paddingBottom: insets.bottom + 32 },
@@ -486,7 +484,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
             </Typography>
           ) : null}
         </AnimatedView>
-      </ScrollView>
+      </FormScrollView>
     </View>
   );
 }
