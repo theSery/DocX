@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -12,6 +12,7 @@ import {
   NavigationProvider,
   useLinkBuilder,
 } from '@react-navigation/native';
+import { BlurView } from '@sbaiahmed1/react-native-blur';
 
 import { GlassSheen } from '../components/glass/GlassSheen';
 import { GLASS } from '../components/glass/glassConfig';
@@ -24,7 +25,6 @@ import FilesSvg from '../components/icons/FilesSvg';
 import { FONT_FAMILY, palette } from '../theme';
 import { TAB_BAR_HEIGHT } from '../utils/dimensions';
 import { PUBLIC_TAB_ROUTE_NAMES } from './tabConstants';
-import { TabBarBlurBackground } from './TabBarBlurBackground';
 
 const HORIZONTAL_MARGIN = 16;
 const BOTTOM_OFFSET = 10;
@@ -44,8 +44,7 @@ const ROUTE_ICONS = {
 };
 
 /**
- * Simulated glass (safe): translucent fill + sheen + rim.
- * No native BlurView — that breaks nested react-native-screens pushes.
+ * Glass tokens: translucent fill + sheen + rim over native BlurView.
  */
 function getTabBarGlass(isDarkMode) {
   const base = isDarkMode ? GLASS.dark : GLASS.light;
@@ -87,7 +86,9 @@ function getTabBarGlass(isDarkMode) {
   };
 }
 
-function TabBarBackground({ glass }) {
+function TabBarBackground({ glass, isDarkMode }) {
+  const blurType = isDarkMode ? 'dark' : 'light';
+
   return (
     <View
       pointerEvents="none"
@@ -97,15 +98,21 @@ function TabBarBackground({ glass }) {
       <View
         style={[StyleSheet.absoluteFill, { backgroundColor: glass.fill }]}
       />
-      {/* Top light reflection */}
-      <TabBarBlurBackground />
-      <View style={[styles.glassHighlight, { backgroundColor: glass.highlight }]} />
+      {/* Native blur layer */}
+      <BlurView
+        pointerEvents="none"
+        style={StyleSheet.absoluteFill}
+        blurType={blurType}
+        blurAmount={glass.blurAmount}
+        reducedTransparencyFallbackColor={glass.fallback}
+      />
+      {/* <View style={[styles.glassHighlight, { backgroundColor: glass.highlight }]} /> */}
       {/* Vertical glass sheen */}
-      <GlassSheen
+      {/* <GlassSheen
         stops={glass.sheen}
         gradientId="tabBarGlassSheen"
         direction="vertical"
-      />
+      /> */}
       {/* Soft bottom depth */}
       <GlassSheen
         stops={glass.depth}
@@ -153,7 +160,7 @@ function TabItem({
   const accessibilityLabel =
     options.tabBarAccessibilityLabel !== undefined
       ? options.tabBarAccessibilityLabel
-      : Platform.OS === 'ios' && typeof label === 'string'
+      : typeof label === 'string'
         ? `${label}, tab`
         : undefined;
 
@@ -248,7 +255,7 @@ export function BlurTabBar({ state, descriptors, navigation, insets }) {
             shadowColor: colors.shadow,
           },
         ]}>
-        <TabBarBackground glass={glass} />
+        <TabBarBackground glass={glass} isDarkMode={isDarkMode} />
         <Animated.Image
           source={require('../assets/images/barIndicator.webp')}
           style={[
@@ -343,24 +350,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
     borderWidth: 1,
-    ...Platform.select({
-      ios: {
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.14,
-        shadowRadius: 24,
-      },
-      // Avoid Android elevation with BlurView — it creates a separate layer that
-      // breaks native-stack screen compositing during nested pushes.
-      android: {
-        elevation: 0,
-      },
-      default: {
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.14,
-        shadowRadius: 24,
-        elevation: 8,
-      },
-    }),
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.14,
+    shadowRadius: 24,
   },
   glassHighlight: {
     position: 'absolute',

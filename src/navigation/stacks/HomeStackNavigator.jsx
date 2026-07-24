@@ -11,7 +11,6 @@ import HomeStackHeader from '../../components/headers/HomeStackHeader';
 import { CategoryScreen } from '../../screens/main/home/CategoryScreen';
 import { HomeStackHeaderScrollProvider } from '../../context/HomeStackHeaderScrollContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { TabBarBlurBackground } from '../TabBarBlurBackground';
 import { animation } from '../constants';
 
 const Home = createNativeStackNavigator();
@@ -51,7 +50,6 @@ export function HomeStackNavigator() {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-     {/* <TabBarBlurBackground />  */}
       <HomeStackHeaderScrollProvider>
         <Home.Navigator
           initialRouteName="HomeMain"
