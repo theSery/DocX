@@ -201,7 +201,7 @@ function TabItem({
  * Custom glass tab bar whose navigation behavior mirrors
  * `@react-navigation/bottom-tabs` BottomTabBar exactly.
  */
-export function BlurTabBar({ state, descriptors, navigation, insets }) {
+export function TabBar({ state, descriptors, navigation, insets }) {
   const { colors, isDarkMode } = useTheme();
   const { buildHref } = useLinkBuilder();
   const { isAuthenticated, openAuth } = useAuthSession();

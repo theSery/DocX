@@ -92,7 +92,7 @@ const createStyles = (colors) =>
     screen: {
       flex: 1,
       paddingHorizontal: 16,
-      marginBottom: TAB_BAR_BOTTOM_OFFSET,
+      // marginBottom: TAB_BAR_BOTTOM_OFFSET,
     },
     contentContainer: {
       paddingBottom: 32,
@@ -356,6 +356,7 @@ export function PassportInfoScreen() {
         title={'Պահպանել'}
         onPress={onSubmit}
         isLoading={isLoading}
+        style={{ marginBottom: TAB_BAR_BOTTOM_OFFSET }}
       />
     </FormScrollView>
   );

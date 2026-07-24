@@ -134,7 +134,7 @@ function TabItem({
  * Material-style bottom tab bar matching `example/bottom-nav.png`:
  * white docked bar, rounded top corners, sliding pill behind the active icon.
  */
-export function AndroidTabBar({ state, descriptors, navigation, insets }) {
+export function TabBar({ state, descriptors, navigation, insets }) {
   const { colors, isDarkMode } = useTheme();
   const { buildHref } = useLinkBuilder();
   const { isAuthenticated, openAuth } = useAuthSession();
