@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
-import { templatesApi, userApi } from '../../../api';
+import { templatesApi } from '../../../api';
 import AuthButton from '../../../components/buttons/AuthButton';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
 import { AnimatedView } from '../../../components/animation/AnimatedView';
@@ -19,6 +19,7 @@ import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import { palette } from '../../../theme';
 import {
   fetchPersonalData,
+  selectHasSignature,
   selectPersonalData,
   selectPersonalDataStatus,
 } from '../../../store/slices/personalDataSlice';
@@ -64,8 +65,6 @@ export function FillInDetailsScreen({ navigation, route }) {
   const [selectedFacts, setSelectedFacts] = useState({});
   const [radioFacts, setRadioFacts] = useState({});
   const [stepError, setStepError] = useState('');
-  const [isCheckingSignature, setIsCheckingSignature] = useState(false);
-
 
   const templateVariables = useMemo(
     () =>
@@ -90,6 +89,7 @@ export function FillInDetailsScreen({ navigation, route }) {
   });
   const personalData = useAppSelector(selectPersonalData);
   const personalDataStatus = useAppSelector(selectPersonalDataStatus);
+  const hasSignature = useAppSelector(selectHasSignature);
 
   useEffect(() => {
     if (personalDataStatus === 'idle') {
@@ -176,28 +176,19 @@ export function FillInDetailsScreen({ navigation, route }) {
       }
 
       setStepError('');
-      setIsCheckingSignature(true);
-      try {
-        const { data } = await userApi.getVariables();
-        const hasSignature = data?.hasSignature ?? data?.data?.hasSignature;
 
-        if (!hasSignature) {
-          navigation.navigate('Account', {
-            screen: 'Signature',
-            params: {
-              templateText,
-              templateName,
-              templateId,
-              templateSolution,
-              fromDocumentFlow: true,
-            },
-          });
-          return;
-        }
-      } catch (error) {
-        console.log('signature check error:', error);
-      } finally {
-        setIsCheckingSignature(false);
+      if (!hasSignature) {
+        navigation.navigate('Account', {
+          screen: 'Signature',
+          params: {
+            templateText,
+            templateName,
+            templateId,
+            templateSolution,
+            fromDocumentFlow: true,
+          },
+        });
+        return;
       }
 
       navigation.navigate('DocumentCreate', {
@@ -219,6 +210,7 @@ export function FillInDetailsScreen({ navigation, route }) {
     selectedFacts,
     radioFacts,
     personalData,
+    hasSignature,
     navigation,
     templateText,
     templateName,
@@ -379,8 +371,6 @@ export function FillInDetailsScreen({ navigation, route }) {
         <AuthButton
           title={isLastStep ? 'Կազմել բողոք' : 'Առաջ'}
           onPress={handleNext}
-          disabled={isCheckingSignature}
-          isLoading={isCheckingSignature}
           endIcon={
             !isLastStep ? <ArrowSvg width={14} height={14} fill={palette.white} /> : null
           }

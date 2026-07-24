@@ -402,6 +402,8 @@ const createStyles = colors =>
       fontSize: 16,
       fontFamily: FONT_FAMILY.regular,
       color: palette.white,
+      width: '100%',
+      textAlign: 'center',
     },
     menuContainer: {
       paddingBottom: 8,

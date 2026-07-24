@@ -266,7 +266,7 @@ export function DocumentCreateScreen({ route, navigation }) {
     showToast,
     testSendComplaint,
   ]);
-console.log(signatureImageSrc, 'signatureImageSrc');
+  console.log(signatureImageSrc, 'signatureImageSrc');
   const isActionDisabled =
     showLoadingOverlay ||
     isDownloading ||
@@ -277,29 +277,29 @@ console.log(signatureImageSrc, 'signatureImageSrc');
     <View style={styles.root}>
       <MainHeader onPress={() => navigation.goBack()} />
       <View style={styles.screen}>
-      <View style={styles.previewShadow}>
-        <View style={styles.previewContainer}>
-          <WebView
-            key={hasTypingFinished ? `final-${documentHtml.length}` : `typing-${typingSourceKey}`}
-            originWhitelist={['*']}
-            source={previewWebViewSource}
-            style={styles.webview}
-            scalesPageToFit
-            scrollEnabled
-            showsVerticalScrollIndicator={false}
-            onLoadEnd={() => setIsWebViewLoading(false)}
-            onLoadStart={() => setIsWebViewLoading(true)}
-          />
+        <View style={styles.previewShadow}>
+          <View style={styles.previewContainer}>
+            <WebView
+              key={hasTypingFinished ? `final-${documentHtml.length}` : `typing-${typingSourceKey}`}
+              originWhitelist={['*']}
+              source={previewWebViewSource}
+              style={styles.webview}
+              scalesPageToFit
+              scrollEnabled
+              showsVerticalScrollIndicator={false}
+              onLoadEnd={() => setIsWebViewLoading(false)}
+              onLoadStart={() => setIsWebViewLoading(true)}
+            />
+          </View>
         </View>
-      </View>
-      <View style={styles.actionRow}>
+        <View style={styles.actionRow}>
 
-                  <Pressable
+          <Pressable
             onPress={handleAddSignature}
             disabled={isActionDisabled}
             style={styles.topButton}
           >
-    <SignatureSvg width={25} height={25} fill={colors.icons} />
+            <SignatureSvg width={25} height={25} fill={colors.icons} />
           </Pressable>
           <Pressable
             onPress={handleDownloadPdf}
@@ -308,11 +308,11 @@ console.log(signatureImageSrc, 'signatureImageSrc');
           >
             <UploadSvg width={25} height={25} fill={colors.icons} />
           </Pressable>
-  
+
         </View>
-      <View style={[styles.actionBar, { bottom: TAB_BAR_BOTTOM_OFFSET, flexDirection: 'column' }]}>
- 
-        <AuthButton
+        <View style={[styles.actionBar, { bottom: TAB_BAR_BOTTOM_OFFSET, flexDirection: 'column' }]}>
+
+          <AuthButton
             title={templateSolution?.name ?? 'Ուղարկել'}
             onPress={handleSubmitComplaint}
             isLoading={isSubmittingComplaint}
@@ -321,10 +321,10 @@ console.log(signatureImageSrc, 'signatureImageSrc');
               <SendSvg width={20} height={20} fill={palette.white} />
             }
             style={styles.rowButton}
-          />   
+          />
 
-      </View>
-      
+        </View>
+
       </View>
 
       <DocumentLoadingOverlay visible={showLoadingOverlay} />
@@ -366,7 +366,7 @@ function createStyles(colors) {
     },
     webview: {
       flex: 1,
-      backgroundColor: colors.pureWhite,
+      backgroundColor: palette.pureWhite,
       padding: 16,
     },
     actionBar: {
@@ -383,7 +383,7 @@ function createStyles(colors) {
       // left: 20,
       right: 20,
       top: 20,
-
+zIndex: 1000,
     },
     rowButton: {
       flex: 1,

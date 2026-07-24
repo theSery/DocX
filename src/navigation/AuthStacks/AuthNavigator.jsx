@@ -7,6 +7,7 @@ import {
 import { AccountTypeScreen } from '../../screens/authScreens/signInUP/AccountTypeScreen';
 import { EmailVerificationScreen } from '../../screens/authScreens/signInUP/EmailVerificationScreen';
 import { PinCodeScreen } from '../../screens/authScreens/signInUP/PinCodeScreen';
+import { animation } from '../constants';
 
 const Stack = createNativeStackNavigator();
 
@@ -17,7 +18,7 @@ export function AuthNavigator() {
         initialRouteName="AccountType"
         screenOptions={{
           headerShown: false,
-          // animation: 'fade',
+          animation,
         }}>
         <Stack.Screen name="AccountType" component={AccountTypeScreen} />
         <Stack.Screen name="SignInUp" component={SignInUpScreen} />

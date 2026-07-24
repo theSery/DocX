@@ -6,6 +6,7 @@ import { DocumentSignScreen, DocumentsScreen } from '../../screens/main/document
 import { useStackScreenOptions, useThemedFocusStatusBar, useThemedStyles } from '../../hooks';
 import MainHeader from '../../components/headers/MainHeader';
 import { TabBarBlurBackground } from '../TabBarBlurBackground';
+import { animation } from '../constants';
 
 const Documents = createNativeStackNavigator();
 
@@ -34,9 +35,7 @@ export function DocumentsStackNavigator() {
       {/* <TabBarBlurBackground />  */}
       <Documents.Navigator
         initialRouteName="DocumentsMain"
-        screenOptions={{ headerShown: false, 
-          // animation: 'fade' 
-        }}
+        screenOptions={{ headerShown: false, animation }}
       >
         <Documents.Screen
           name="DocumentsMain"

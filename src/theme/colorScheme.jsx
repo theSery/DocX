@@ -226,6 +226,12 @@ export function ColorSchemeProvider({ children }) {
   const revealRadius = useDerivedValue(() => mix(transition.value, 0, circle.value.r));
   const colors = useMemo(() => getPalette(colorScheme), [colorScheme]);
 
+  // Keep Android DayNight dialogs (e.g. DateTimePicker) in sync with the
+  // in-app scheme. Activity is not recreated because uiMode is in configChanges.
+  useEffect(() => {
+    Appearance.setColorScheme(colorScheme);
+  }, [colorScheme]);
+
   // Freeze Android status-bar chrome while overlays cover the UI, otherwise
   // StatusBar.backgroundColor jumps with the under-overlay theme swap.
   useEffect(() => {

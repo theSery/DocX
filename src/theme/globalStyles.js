@@ -37,11 +37,12 @@ export function createGlobalStyles(colors) {
     },
     cardShadow: {
       shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 0 },
-      shadowOpacity: 0.08,
-      shadowRadius: 8,
-      elevation: 2,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.12,
+      shadowRadius: 6,
+      elevation: 4,
     },
+
     text: {
       color: colors.text,
     },

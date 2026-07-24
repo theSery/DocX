@@ -18,6 +18,8 @@ function toSerializableApiError(error) {
 
 const initialState = {
   data: null,
+  hasSignature: false,
+  isPhoneVerified: false,
   status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
   error: null,
 };
@@ -51,6 +53,18 @@ const personalDataSlice = createSlice({
   initialState,
   reducers: {
     resetPersonalData: () => initialState,
+    setUserFlags: (state, action) => {
+      const { hasSignature, isPhoneVerified } = action.payload ?? {};
+      if (typeof hasSignature === 'boolean') {
+        state.hasSignature = hasSignature;
+      }
+      if (typeof isPhoneVerified === 'boolean') {
+        state.isPhoneVerified = isPhoneVerified;
+      }
+    },
+    setHasSignature: (state, action) => {
+      state.hasSignature = Boolean(action.payload);
+    },
   },
   extraReducers: builder => {
     builder
@@ -92,10 +106,13 @@ const personalDataSlice = createSlice({
   },
 });
 
-export const { resetPersonalData } = personalDataSlice.actions;
+export const { resetPersonalData, setUserFlags, setHasSignature } =
+  personalDataSlice.actions;
 
 export const selectPersonalData = state => state.personalData.data;
 export const selectPersonalDataStatus = state => state.personalData.status;
 export const selectPersonalDataError = state => state.personalData.error;
+export const selectHasSignature = state => state.personalData.hasSignature;
+export const selectIsPhoneVerified = state => state.personalData.isPhoneVerified;
 
 export default personalDataSlice.reducer;
