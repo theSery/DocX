@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { FilesMainScreen, PersonalDocumentViewScreen } from '../../screens/main/files';
 import { useStackScreenOptions, useThemedFocusStatusBar, useThemedStyles } from '../../hooks';
 import MainHeader from '../../components/headers/MainHeader';
+import { animation } from '../constants';
 
 const Fayl = createNativeStackNavigator();
 
@@ -32,9 +33,7 @@ export function FaylStackNavigator() {
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
       <Fayl.Navigator
         initialRouteName="FilesMain"
-        screenOptions={{ headerShown: false,
-           // animation: 'fade' 
-          }}
+        screenOptions={{ headerShown: false, animation }}
       >
         <Fayl.Screen
           name="FilesMain"

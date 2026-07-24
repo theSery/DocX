@@ -12,6 +12,7 @@ import {
 } from '../../screens/main/account';
 import { useAuthSession, useFocusStatusBar, useStackScreenOptions } from '../../hooks';
 import AccountStackHeader from '../../components/headers/accountStackHeader/AccountStackHeader';
+import { animation } from '../constants';
 
 const Account = createNativeStackNavigator();
 
@@ -46,7 +47,7 @@ export function AccountStackNavigator() {
   return (
     <Account.Navigator
       initialRouteName="AccountMain"
-      screenOptions={{ headerShown: false}}>
+      screenOptions={{ headerShown: false, animation }}>
       <Account.Screen
         name="AccountMain"
         component={AccountScreen}
