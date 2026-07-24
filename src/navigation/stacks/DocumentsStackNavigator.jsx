@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { DocumentSignScreen, DocumentsScreen } from '../../screens/main/documents';
 import { useStackScreenOptions, useThemedFocusStatusBar, useThemedStyles } from '../../hooks';
 import MainHeader from '../../components/headers/MainHeader';
+import { TabBarBlurBackground } from '../TabBarBlurBackground';
 
 const Documents = createNativeStackNavigator();
 
@@ -30,6 +31,7 @@ export function DocumentsStackNavigator() {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+      {/* <TabBarBlurBackground />  */}
       <Documents.Navigator
         initialRouteName="DocumentsMain"
         screenOptions={{ headerShown: false, 

@@ -1,27 +1,114 @@
+import { useCallback, useMemo } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { AccountStackNavigator, DocumentsStackNavigator, FaylStackNavigator, HomeStackNavigator } from './stacks';
-import { BlurTabBar } from './BlurTabBar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import DocumentsSvg from '../components/icons/DocumentsSvg';
+import FilesSvg from '../components/icons/FilesSvg';
+import HomeSvg from '../components/icons/HomeSvg';
+import UserSvg from '../components/icons/UserSvg';
+import { useAuthSession, useTheme } from '../hooks';
+import { FONT_FAMILY, palette } from '../theme';
+import { TabBarBlurBackground } from './TabBarBlurBackground';
+import {
+  TabBarGlassBackground,
+  TAB_BAR_LAYOUT,
+  tabBarFloatingStyle,
+} from './TabBarGlassBackground';
+import {
+  AccountStackNavigator,
+  DocumentsStackNavigator,
+  FaylStackNavigator,
+  HomeStackNavigator,
+} from './stacks';
 import { PUBLIC_TAB_ROUTE_NAMES } from './tabConstants';
+import { BlurTabBar } from './BlurTabBar';
+import { View } from 'react-native';
 
 export { PUBLIC_TAB_ROUTE_NAMES };
 
 const Tab = createBottomTabNavigator();
 
-const renderBlurTabBar = props => <BlurTabBar {...props} />;
+// const renderTabBarBackground = () => (
+//   <>
+//     {/* <TabBarBlurBackground /> */}
+//     <TabBarGlassBackground />
+//   </>
+// );
+
+function HomeTabIcon({ color }) {
+  return <HomeSvg width={23} height={23} fill={color} />;
+}
+
+function DocumentsTabIcon({ color }) {
+  return(
+    <View style={{ backgroundColor: '#1D3D81', width: 80, height: "100%", justifyContent: 'center', alignItems: 'center' }}>
+      <DocumentsSvg width={27} height={27} fill={color} />
+    </View>
+  );
+}
+
+function FilesTabIcon({ color }) {
+  return <FilesSvg width={23} height={23} fill={color} />;
+}
+
+function AccountTabIcon({ color }) {
+  return <UserSvg width={23} height={23} fill={color} />;
+}
 
 export function TabNavigator() {
+  // const insets = useSafeAreaInsets();
+  const { colors, isDarkMode } = useTheme();
+  const { isAuthenticated, openAuth } = useAuthSession();
+
+  // const bottomInset = Math.max(
+  //   (insets?.bottom ?? 0) - TAB_BAR_LAYOUT.bottomOffset,
+  //   0,
+  // );
+
+  const tabBarStyle = useMemo(
+    () => ({
+      // ...tabBarFloatingStyle,
+      // marginBottom: bottomInset,
+      shadowColor: colors.shadow,
+    }),
+    [colors.shadow],
+  );
+
+  const guardProtectedTab = useCallback(
+    e => {
+      if (!isAuthenticated) {
+        e.preventDefault();
+        openAuth();
+      }
+    },
+    [isAuthenticated, openAuth],
+  );
+
+  const protectedListeners = useMemo(
+    () => ({
+      tabPress: guardProtectedTab,
+    }),
+    [guardProtectedTab],
+  );
+// const renderTabBar = props => <BlurTabBar {...props} />
   return (
     <Tab.Navigator
       initialRouteName="Home"
-      tabBar={renderBlurTabBar}
+      // tabBar={renderTabBar}
+
+
       screenOptions={{
         headerShown: false,
-        // Keep scene content full-bleed under the floating blur tab bar.
-        tabBarStyle: {
-          position: 'absolute',
-          backgroundColor: 'transparent',
-          borderTopWidth: 0,
-          elevation: 0,
+        tabBarStyle,
+        // tabBarBackground: renderTabBarBackground,
+        tabBarActiveTintColor: colors.mainWhite,
+        tabBarInactiveTintColor: isDarkMode
+          ? colors.textSecondary
+          : colors.text,
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontFamily: FONT_FAMILY.semiBold,
+          marginTop: 2,
         },
       }}>
       <Tab.Screen
@@ -29,23 +116,26 @@ export function TabNavigator() {
         component={HomeStackNavigator}
         options={{
           title: 'Ստեղծել',
-          tabBarStyle: {
-            position: 'absolute',
-            backgroundColor: 'transparent',
-            borderTopWidth: 0,
-            elevation: 0,
-          },
+          tabBarIcon: HomeTabIcon,
         }}
       />
       <Tab.Screen
         name="Documents"
         component={DocumentsStackNavigator}
-        options={{ title: 'Փաստաթղթեր' }}
+        options={{
+          title: 'Փաստաթղթեր',
+          tabBarIcon: DocumentsTabIcon,
+        }}
+        listeners={protectedListeners}
       />
       <Tab.Screen
         name="Files"
         component={FaylStackNavigator}
-        options={{ title: 'Ֆայլեր' }}
+        options={{
+          title: 'Ֆայլեր',
+          tabBarIcon: FilesTabIcon,
+        }}
+        listeners={protectedListeners}
       />
       <Tab.Screen
         name="Account"
@@ -53,8 +143,9 @@ export function TabNavigator() {
         options={{
           headerShown: false,
           title: 'Հաշիվ',
-          // unmountOnBlur: true,
+          tabBarIcon: AccountTabIcon,
         }}
+        listeners={protectedListeners}
       />
     </Tab.Navigator>
   );

@@ -84,7 +84,7 @@ function useAndroidFormKeyboard(scrollToY, onScroll) {
  * the keyboard when the window does not resize, then scrolls the focused field
  * into view with a small gap.
  *
- * When the keyboard is open, any BlurTabBar `marginBottom` on `style` is cleared
+ * When the keyboard is open, any floating tab-bar `marginBottom` on `style` is cleared
  * so tab-bar spacing does not stack on top of the keyboard inset.
  */
 export const FormScrollView = forwardRef(function FormScrollView(
