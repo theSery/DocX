@@ -1,8 +1,10 @@
 import { StyleSheet } from 'react-native';
 import { Typography } from '../typography';
 import { palette } from '../../theme';
+import { useThemedStyles } from '../../hooks';
 
 export function ContentTiltes({ title, subtitle, isSearch = false }) {
+  const styles = useThemedStyles(createStyles);
   return (
     <>
       <Typography variant="h2" style={styles.loginTitle}>
@@ -15,13 +17,14 @@ export function ContentTiltes({ title, subtitle, isSearch = false }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) =>
+  StyleSheet.create({
   loginTitle: {
     letterSpacing: 2,
     marginTop: 20,
   },
   subTitle: {
-    color: palette.gray,
+    color: colors.text,
     marginBottom: 30,
     letterSpacing: 0.4,
   },

@@ -5,7 +5,7 @@ import AuthButton from '../../../components/buttons/AuthButton';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import { authApi } from '../../../api';
 import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
-import { palette } from '../../../theme';
+
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import { getStoredCredentials, saveUserCredentials } from '../../../utils/secureStorage';
 import { Passcode } from '../../authScreens/signInUP/components/Passcode';
@@ -23,7 +23,7 @@ const STEP_CONTENT = {
   },
 };
 
-const createStyles = () =>
+const createStyles = (colors) =>
   StyleSheet.create({
     screen: {
       flex: 1,
@@ -45,7 +45,7 @@ const createStyles = () =>
     },
     footer: {
       paddingTop: 12,
-      backgroundColor: palette.backgroundWhite,
+      backgroundColor: colors.background,
     },
   });
 

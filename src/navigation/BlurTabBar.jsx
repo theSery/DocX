@@ -24,6 +24,7 @@ import FilesSvg from '../components/icons/FilesSvg';
 import { FONT_FAMILY, palette } from '../theme';
 import { TAB_BAR_HEIGHT } from '../utils/dimensions';
 import { PUBLIC_TAB_ROUTE_NAMES } from './tabConstants';
+import { TabBarBlurBackground } from './TabBarBlurBackground';
 
 const HORIZONTAL_MARGIN = 16;
 const BOTTOM_OFFSET = 10;
@@ -97,6 +98,7 @@ function TabBarBackground({ glass }) {
         style={[StyleSheet.absoluteFill, { backgroundColor: glass.fill }]}
       />
       {/* Top light reflection */}
+      <TabBarBlurBackground />
       <View style={[styles.glassHighlight, { backgroundColor: glass.highlight }]} />
       {/* Vertical glass sheen */}
       <GlassSheen

@@ -10,6 +10,7 @@ import {
   HomeStackNavigator,
 } from './stacks';
 import { PUBLIC_TAB_ROUTE_NAMES } from './tabConstants';
+import { BlurTabBar } from './BlurTabBar';
 
 export { PUBLIC_TAB_ROUTE_NAMES };
 
@@ -35,8 +36,8 @@ export function TabNavigator() {
     [guardProtectedTab],
   );
 
-  const renderTabBar = useCallback(props => <AndroidTabBar {...props} />, []);
-
+  // const renderTabBar = useCallback(props => <AndroidTabBar {...props} />, []);
+  const renderTabBar = useCallback(props => <BlurTabBar {...props} />, []);
   return (
     <Tab.Navigator
       initialRouteName="Home"
