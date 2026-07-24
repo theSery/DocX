@@ -131,6 +131,21 @@ const createStyles = (colors) =>
     buttonPressed: {
       opacity: 0.88,
     },
+    addressBlock: {
+      width: '100%',
+      overflow: 'visible',
+      zIndex: 1,
+    },
+    addressCheckbox: {
+      marginTop: 20,
+    },
+    secondaryAddressField: {
+      marginTop: 20,
+      overflow: 'visible',
+      // Keep the lower address field above the primary one so its upward
+      // suggestions overlay registrationAddress instead of sitting under it.
+      zIndex: 2,
+    },
   });
 
 const EMPTY_FORM_VALUES = {
@@ -171,6 +186,10 @@ function resolveFormValuesAfterUpdate(submittedValues, apiData) {
   });
 }
 
+const NOTIFICATION_ADDRESS_FIELD = CONTACT_INFO_FIELDS.find(
+  (field) => field.name === 'notificationAddress',
+);
+
 export function PassportInfoScreen() {
   const globalStyles = useGlobalStyles();
   const [agreed, setAgreed] = useState(false);
@@ -184,6 +203,7 @@ export function PassportInfoScreen() {
     control,
     handleSubmit,
     reset,
+    unregister,
     formState: { isSubmitting, isLoading },
   } = useForm({
     defaultValues: EMPTY_FORM_VALUES,
@@ -196,15 +216,35 @@ export function PassportInfoScreen() {
       return;
     }
 
-    reset(mapPersonalDataToFormValues(personalData));
+    const formValues = mapPersonalDataToFormValues(personalData);
+    reset(formValues);
+
+    const registration = formValues.registrationAddress?.trim() ?? '';
+    const notification = formValues.notificationAddress?.trim() ?? '';
+    setAgreed(Boolean(registration && notification && registration !== notification));
   }, [personalData, personalDataStatus, reset]);
+
+  const handleAgreedChange = (checked) => {
+    setAgreed(checked);
+    if (!checked) {
+      unregister('notificationAddress');
+    }
+  };
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      const response = await dispatch(
-        updatePersonalData(mapFormValuesToPersonalData(data)),
-      ).unwrap();
-      const updatedFormValues = resolveFormValuesAfterUpdate(data, response);
+      const payload = mapFormValuesToPersonalData({
+        ...data,
+        // When addresses match, persist the registration value for both fields.
+        notificationAddress: agreed
+          ? data.notificationAddress
+          : data.registrationAddress,
+      });
+      const response = await dispatch(updatePersonalData(payload)).unwrap();
+      const updatedFormValues = resolveFormValuesAfterUpdate(
+        { ...data, notificationAddress: payload.notificationAddress },
+        response,
+      );
       reset(updatedFormValues);
       showToast({
         title: 'Տվյալները հաջողությամբ պահպանվեցին',
@@ -231,21 +271,16 @@ export function PassportInfoScreen() {
           Անձը հաստատող փաստաթուղթ` Անձնագիր. Նույն. քարտ
         </Typography>
         <View style={styles.formFieldContainer}>
-          {CONTACT_INFO_FIELDS.map((field) => (
-            field.name === 'registrationAddress' && !agreed ? null
-            : field.name === 'dateOfIssue' ? (
-              <FormDateField
-                key={field.name}
-                control={control}
-                name={field.name}
-                label={field.label}
-                startIcon={field.startIcon}
-                placeholder={field.placeholder}
-                rules={field.rules}
-              />
-            ) : field.type === 'address' ? (
-              <View key={field.name} style={{ overflow: 'visible', zIndex: field.name === 'registrationAddress' ? 2 : 1 }}>
-                <FormAddressField
+          {CONTACT_INFO_FIELDS.map((field) => {
+            // Rendered below the checkbox when addresses differ.
+            if (field.name === 'notificationAddress') {
+              return null;
+            }
+
+            if (field.name === 'dateOfIssue') {
+              return (
+                <FormDateField
+                  key={field.name}
                   control={control}
                   name={field.name}
                   label={field.label}
@@ -253,16 +288,43 @@ export function PassportInfoScreen() {
                   placeholder={field.placeholder}
                   rules={field.rules}
                 />
-                {field.name === 'notificationAddress' && (
+              );
+            }
+
+            if (field.type === 'address') {
+              return (
+                <View key={field.name} style={styles.addressBlock}>
+                  <FormAddressField
+                    control={control}
+                    name={field.name}
+                    label={field.label}
+                    startIcon={field.startIcon}
+                    placeholder={field.placeholder}
+                    rules={field.rules}
+                  />
                   <CheckBox
-                    style={{ marginTop: 20 }}
+                    style={styles.addressCheckbox}
                     checked={agreed}
-                    onChange={setAgreed}
+                    onChange={handleAgreedChange}
                     label="Հաշվառման և բնակության հասցեն տարբերվում են"
                   />
-                )}
-              </View>
-            ) : (
+                  {agreed ? (
+                    <View style={styles.secondaryAddressField}>
+                      <FormAddressField
+                        control={control}
+                        name={NOTIFICATION_ADDRESS_FIELD.name}
+                        label={NOTIFICATION_ADDRESS_FIELD.label}
+                        startIcon={NOTIFICATION_ADDRESS_FIELD.startIcon}
+                        placeholder={NOTIFICATION_ADDRESS_FIELD.placeholder}
+                        rules={NOTIFICATION_ADDRESS_FIELD.rules}
+                      />
+                    </View>
+                  ) : null}
+                </View>
+              );
+            }
+
+            return (
               <View key={field.name}>
                 <FormField
                   control={control}
@@ -274,9 +336,8 @@ export function PassportInfoScreen() {
                   rules={field.rules}
                 />
               </View>
-            )
-          ))}
-
+            );
+          })}
         </View>
       </AnimatedView>
       <AuthButton
