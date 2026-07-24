@@ -11,7 +11,7 @@ import ArrowSvg from '../../../components/icons/ArrowSvg';
 import { useGlobalStyles, useHomeStackHeaderScrollHandler, useThemedStyles, useTheme } from '../../../hooks';
 
 const TOP_HEADER_HEIGHT = HEIGHT * 0.3;
-const TAB_BAR_HEIGHT = 60;
+const TAB_BAR_HEIGHT = 64;
 const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
 
 

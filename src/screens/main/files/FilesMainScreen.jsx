@@ -16,7 +16,7 @@ import { FileFilterHeader } from './components/FileFilterHeader';
 import { PersonalDocumentCard } from './components/PersonalDocumentCard';
 import { mapPersonalDocumentToFile } from './utils/mapPersonalDocumentToFile';
 
-const TAB_BAR_HEIGHT = 60;
+const TAB_BAR_HEIGHT = 64;
 const PAGE_LIMIT = 10;
 
 export function FilesMainScreen() {

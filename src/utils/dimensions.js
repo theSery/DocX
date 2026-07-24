@@ -7,7 +7,7 @@ export const HEIGHT = Dimensions.get('window').height;
 
 export const ITEM_HEIGHT = HEIGHT * 0.2;
 
-export const TAB_BAR_HEIGHT = 60;
+export const TAB_BAR_HEIGHT = 64;
 export const AUTH_BUTTON_HEIGHT = 45;
 
 export const PADDING_B = Platform.select({

@@ -20,7 +20,7 @@ import { formatApiDate } from './utils/formatApiDate';
 import { mapComplaintToDocument } from './utils/mapComplaintToDocument';
 import { sortDocumentsWithRecommended } from './utils/sortDocumentsWithRecommended';
 
-const TAB_BAR_HEIGHT = 60;
+const TAB_BAR_HEIGHT = 64;
 const PAGE_LIMIT = 10;
 
 export function DocumentsScreen({ route }) {
