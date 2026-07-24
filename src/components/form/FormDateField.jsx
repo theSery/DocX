@@ -12,7 +12,7 @@ import {
 
 import { Typography } from '../typography';
 import { FONT_FAMILY } from '../../theme';
-import { useThemedStyles } from '../../hooks';
+import { useTheme, useThemedStyles } from '../../hooks';
 
 const INPUT_RADIUS = 16;
 export const DATE_FIELD_PLACEHOLDER = 'ՕՕ / ԱԱ / ՏՏՏՏ';
@@ -104,6 +104,8 @@ export function FormDateField({
   textStyle,
 }) {
   const styles = useThemedStyles(createStyles);
+  const { colors, isDarkMode } = useTheme();
+  const pickerThemeVariant = isDarkMode ? 'dark' : 'light';
   const [showAndroidPicker, setShowAndroidPicker] = useState(false);
   const [showIosPicker, setShowIosPicker] = useState(false);
   const [iosDraftDate, setIosDraftDate] = useState(new Date());
@@ -168,8 +170,8 @@ export function FormDateField({
                 display="spinner"
                 maximumDate={maximumDate}
                 minimumDate={minimumDate}
-                positiveButton={{ label: 'Ընտրել' }}
-                negativeButton={{ label: 'Չեղարկել' }}
+                positiveButton={{ label: 'Ընտրել', textColor: colors.text }}
+                negativeButton={{ label: 'Չեղարկել', textColor: colors.text }}
                 onValueChange={(_, date) => {
                   onChange(date);
                   closeAndroidPicker();
@@ -208,7 +210,7 @@ export function FormDateField({
                       maximumDate={maximumDate}
                       minimumDate={minimumDate}
                       onValueChange={(_, date) => setIosDraftDate(date)}
-                      themeVariant="light"
+                      themeVariant={pickerThemeVariant}
                     />
                   </Pressable>
                 </Pressable>

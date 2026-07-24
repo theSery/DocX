@@ -151,7 +151,7 @@ export function PersonalDocumentCard({
         </View>
 
         <View style={styles.footerRow}>
-          <View style={styles.attachIcon}>
+          <View style={styles.attachIconContainer}>
             {hasDocument ? (
               <View style={styles.attachIcon}>
                 <AttachSvg fill={colors.icons} />
@@ -267,6 +267,7 @@ const createStyles = colors =>
       width: 24,
       alignItems: 'center',
       justifyContent: 'center',
+
     },
     actionButton: {
       flexDirection: 'row',
@@ -275,17 +276,24 @@ const createStyles = colors =>
       paddingHorizontal: 12,
       paddingVertical: 8,
       borderRadius: 10,
+      width: '40%',
     },
     actionButtonText: {
       fontFamily: FONT_FAMILY.regular,
       fontSize: 14,
       letterSpacing: 0.8,
       color: colors.icons,
+      flexDirection: 'row',
+
+      alignItems: 'center',
+    
+      flex: 1,
     },
     actionButtonIcon: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: 10,
+      
     },
   });

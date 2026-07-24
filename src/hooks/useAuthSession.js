@@ -1,10 +1,14 @@
 import { useCallback } from 'react';
-import { authApi, clearAuthTokens } from '../api';
+import { authApi, clearAuthTokens, userApi } from '../api';
 import { useAuth } from '../contexts';
 import { clearUserCredentials } from '../utils/secureStorage';
 import { completeAuthToMain, navigateToAuth, resetToMain } from '../navigation/navigationRef';
 import { useAppDispatch } from '../store';
-import { fetchPersonalData, resetPersonalData } from '../store/slices/personalDataSlice';
+import {
+  fetchPersonalData,
+  resetPersonalData,
+  setUserFlags,
+} from '../store/slices/personalDataSlice';
 import { useToast } from './useToast';
 
 export function useAuthSession() {
@@ -14,6 +18,17 @@ export function useAuthSession() {
 
   const login = useCallback(async () => {
     dispatch(fetchPersonalData());
+    try {
+      const { data } = await userApi.getMe();
+      dispatch(
+        setUserFlags({
+          hasSignature: Boolean(data?.hasSignature),
+          isPhoneVerified: Boolean(data?.isPhoneVerified),
+        }),
+      );
+    } catch {
+      // Flags stay at defaults; splash/getMe on next launch will refresh them.
+    }
     await setIsSign(true);
     await setIsFaceID(true);
     completeAuthToMain();

@@ -165,6 +165,11 @@ const createStyles = colors =>
       marginBottom: 10,
       paddingHorizontal: 8,
       overflow: 'hidden',
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.12,
+      shadowRadius: 6,
+      elevation: 4,
     },
     header: {
       flexDirection: 'row',

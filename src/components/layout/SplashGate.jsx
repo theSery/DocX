@@ -3,6 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { hideSplash } from 'react-native-splash-view';
 import { userApi } from '../../api';
 import { useAuth } from '../../contexts';
+import { store } from '../../store';
+import { setUserFlags } from '../../store/slices/personalDataSlice';
 import { STORAGE_KEYS } from '../../utils/storageKeys';
 
 const SPLASH_HOLD_MS = 1500;
@@ -24,9 +26,15 @@ async function resolveStartupRoute(wasSignedIn) {
   }
 
   try {
-    const {data} = await userApi.getMe();
+    const { data } = await userApi.getMe();
+    store.dispatch(
+      setUserFlags({
+        hasSignature: Boolean(data?.hasSignature),
+        isPhoneVerified: Boolean(data?.isPhoneVerified),
+      }),
+    );
     // const {data: templates} = await userApi.getTemplates();
-    const {data: variables} = await userApi.getVariables();
+    const { data: variables } = await userApi.getVariables();
     console.log('data', data);
     // console.log('templates', templates);
     console.log('variables', variables);
