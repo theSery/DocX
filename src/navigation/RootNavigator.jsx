@@ -18,8 +18,6 @@ import {
 import { animation } from './constants';
 
 
-
-
 const Stack = createNativeStackNavigator();
 
 function resolveInitialRoute(hasCompletedOnboarding, startupRoute) {
