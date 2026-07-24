@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
     height: '42%',
   },
   glassTint: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   glassRim: {
     position: 'absolute',

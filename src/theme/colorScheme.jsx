@@ -18,22 +18,42 @@ import {
   useReducer,
   useRef,
 } from 'react';
-import { Appearance, Dimensions, StatusBar, StyleSheet, View } from 'react-native';
+import { Appearance, Dimensions, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
 import { STORAGE_KEYS } from '../utils/storageKeys';
-import { ColorScheme, isThemePreference, ThemePreference } from './constants';
+import { ColorScheme, isColorScheme } from './constants';
 import { getPalette, lightColors } from './palettes';
 
 const TRANSITION_MS = 650;
-const FRAME_MS = 16;
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+/** Wait N animation frames so React/Skia can commit before the next step. */
+const waitFrames = (n = 1) =>
+  new Promise(resolve => {
+    let remaining = n;
+    const tick = () => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        resolve();
+        return;
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+
+// Android needs extra settle time or the new theme flashes through before
+// the Skia overlay has painted (same race as circular-reveal theme libs).
+const SETTLE = {
+  // Extra frames on Android: Skia paint + React commit often lose the race
+  // against the under-overlay color swap (instant flash, then reveal).
+  skiaPaint: Platform.OS === 'android' ? 3 : 1,
+  treeRepaint: Platform.OS === 'android' ? 2 : 1,
+};
+
 const getSystemScheme = () =>
   Appearance.getColorScheme() === ColorScheme.DARK ? ColorScheme.DARK : ColorScheme.LIGHT;
-
-const resolveColorScheme = (themePreference, systemScheme = getSystemScheme()) =>
-  themePreference === ThemePreference.SYSTEM ? systemScheme : themePreference;
 
 const defaultSystemScheme = getSystemScheme();
 
@@ -41,7 +61,6 @@ const defaultContextValue = {
   active: false,
   statusBarStyle: defaultSystemScheme === ColorScheme.LIGHT ? 'dark' : 'light',
   colorScheme: defaultSystemScheme,
-  themePreference: ThemePreference.SYSTEM,
   overlay1: null,
   overlay2: null,
 };
@@ -53,17 +72,10 @@ const colorSchemeReducer = (_, nextState) => nextState;
 const { width, height } = Dimensions.get('screen');
 const corners = [vec(0, 0), vec(width, 0), vec(width, height), vec(0, height)];
 
-function buildState({
-  colorScheme,
-  themePreference,
-  active = false,
-  overlay1 = null,
-  overlay2 = null,
-}) {
+function buildState({ colorScheme, active = false, overlay1 = null, overlay2 = null }) {
   return {
     active,
     colorScheme,
-    themePreference,
     overlay1,
     overlay2,
     statusBarStyle: colorScheme === ColorScheme.LIGHT ? 'dark' : 'light',
@@ -78,7 +90,6 @@ export function useColorSchemeContext() {
 
   const {
     colorScheme,
-    themePreference,
     dispatch,
     ref,
     transition,
@@ -88,68 +99,94 @@ export function useColorSchemeContext() {
     isLightModeLocked,
   } = ctx;
 
-  const setThemePreference = useCallback(
-    async (preference, x, y) => {
-      if (preference === themePreference) {
+  // Synchronous lock so rapid taps can't start overlapping transitions
+  // before React re-renders `active` (same guard as the example's `!active`).
+  const transitionLockRef = useRef(false);
+
+  const setColorScheme = useCallback(
+    async (nextScheme, x, y) => {
+      if (
+        transitionLockRef.current ||
+        active ||
+        !isColorScheme(nextScheme) ||
+        nextScheme === colorScheme
+      ) {
         return;
       }
 
-      const nextScheme = resolveColorScheme(preference);
+      transitionLockRef.current = true;
 
-      if (nextScheme === colorScheme) {
-        dispatch(buildState({ colorScheme, themePreference: preference }));
-        await AsyncStorage.setItem(STORAGE_KEYS.COLOR_SCHEME, preference);
-        return;
+      // Keep status bar contrast for the *current* UI under the overlay
+      // (same as the example: statusBarStyle tracks the incoming scheme name).
+      const transitionStatusBarStyle = nextScheme;
+      const previousScheme = colorScheme;
+
+      try {
+        dispatch({
+          ...buildState({ colorScheme: previousScheme, active: true }),
+          statusBarStyle: transitionStatusBarStyle,
+        });
+
+        const r = Math.max(...corners.map(corner => dist(corner, { x, y })));
+        circle.value = { x, y, r };
+
+        // 1. Snapshot the current (old) theme
+        const overlay1 = await makeImageFromView(ref);
+        dispatch({
+          ...buildState({ colorScheme: previousScheme, active: true }),
+          overlay1,
+          overlay2: null,
+          statusBarStyle: transitionStatusBarStyle,
+        });
+
+        // 2. Let Skia paint the opaque overlay before swapping colors underneath.
+        //    Without this, Android flashes the new theme through the Canvas.
+        await waitFrames(SETTLE.skiaPaint);
+
+        // 3. Swap theme under the overlay (invisible to the user)
+        dispatch({
+          ...buildState({ colorScheme: nextScheme, active: true }),
+          overlay1,
+          overlay2: null,
+          statusBarStyle: transitionStatusBarStyle,
+        });
+
+        // 4. Let the new theme commit, then snapshot it for the reveal
+        await waitFrames(SETTLE.treeRepaint);
+        const overlay2 = await makeImageFromView(ref);
+        dispatch({
+          ...buildState({ colorScheme: nextScheme, active: true }),
+          overlay1,
+          overlay2,
+          statusBarStyle: transitionStatusBarStyle,
+        });
+
+        // Let overlay2 mount on the Canvas before the circle starts growing
+        await waitFrames(SETTLE.skiaPaint);
+
+        // 5. Circular reveal from the tap point
+        transition.value = 0;
+        transition.value = withTiming(1, { duration: TRANSITION_MS });
+        await wait(TRANSITION_MS);
+        dispatch(buildState({ colorScheme: nextScheme }));
+        await AsyncStorage.setItem(STORAGE_KEYS.COLOR_SCHEME, nextScheme);
+      } catch {
+        dispatch(buildState({ colorScheme: previousScheme }));
+      } finally {
+        transitionLockRef.current = false;
       }
-
-      dispatch(buildState({ colorScheme, themePreference, active: true }));
-
-      const r = Math.max(...corners.map(corner => dist(corner, { x, y })));
-      circle.value = { x, y, r };
-
-      const overlay1 = await makeImageFromView(ref);
-      dispatch({
-        ...buildState({ colorScheme, themePreference, active: true }),
-        overlay1,
-        overlay2: null,
-        statusBarStyle: nextScheme === ColorScheme.LIGHT ? 'dark' : 'light',
-      });
-
-      await wait(FRAME_MS);
-      dispatch({
-        ...buildState({ colorScheme: nextScheme, themePreference: preference, active: true }),
-        overlay1,
-        overlay2: null,
-        statusBarStyle: nextScheme === ColorScheme.LIGHT ? 'dark' : 'light',
-      });
-
-      await wait(FRAME_MS);
-      const overlay2 = await makeImageFromView(ref);
-      dispatch({
-        ...buildState({ colorScheme: nextScheme, themePreference: preference, active: true }),
-        overlay1,
-        overlay2,
-        statusBarStyle: nextScheme === ColorScheme.LIGHT ? 'dark' : 'light',
-      });
-
-      transition.value = 0;
-      transition.value = withTiming(1, { duration: TRANSITION_MS });
-      await wait(TRANSITION_MS);
-      dispatch(buildState({ colorScheme: nextScheme, themePreference: preference }));
-      await AsyncStorage.setItem(STORAGE_KEYS.COLOR_SCHEME, preference);
     },
-    [circle, colorScheme, dispatch, ref, themePreference, transition],
+    [active, circle, colorScheme, dispatch, ref, transition],
   );
 
   return {
     colorScheme,
-    themePreference,
     isDarkMode: isLightModeLocked ? false : colorScheme === ColorScheme.DARK,
     isLightModeLocked: Boolean(isLightModeLocked),
     isAnimating: active,
     active,
     colors,
-    setThemePreference,
+    setColorScheme,
   };
 }
 
@@ -181,19 +218,23 @@ export function ColorSchemeProvider({ children }) {
   const transition = useSharedValue(0);
   const ref = useRef(null);
   const hasHydratedRef = useRef(false);
-  const themePreferenceRef = useRef(ThemePreference.SYSTEM);
-  const activeRef = useRef(false);
-  const [
-    { colorScheme, themePreference, overlay1, overlay2, active, statusBarStyle },
-    dispatch,
-  ] = useReducer(colorSchemeReducer, defaultContextValue);
+  const statusBarBackgroundRef = useRef(getPalette(defaultSystemScheme).background);
+  const [{ colorScheme, overlay1, overlay2, active, statusBarStyle }, dispatch] = useReducer(
+    colorSchemeReducer,
+    defaultContextValue,
+  );
   const revealRadius = useDerivedValue(() => mix(transition.value, 0, circle.value.r));
   const colors = useMemo(() => getPalette(colorScheme), [colorScheme]);
 
+  // Freeze Android status-bar chrome while overlays cover the UI, otherwise
+  // StatusBar.backgroundColor jumps with the under-overlay theme swap.
   useEffect(() => {
-    themePreferenceRef.current = themePreference;
-    activeRef.current = active;
-  }, [active, themePreference]);
+    if (!active) {
+      statusBarBackgroundRef.current = colors.background;
+    }
+  }, [active, colors.background]);
+
+  const statusBarBackground = active ? statusBarBackgroundRef.current : colors.background;
 
   useEffect(() => {
     let cancelled = false;
@@ -204,14 +245,13 @@ export function ColorSchemeProvider({ children }) {
       }
       hasHydratedRef.current = true;
 
-      const preference = isThemePreference(stored) ? stored : ThemePreference.SYSTEM;
-      const systemScheme = getSystemScheme();
-      dispatch(
-        buildState({
-          colorScheme: resolveColorScheme(preference, systemScheme),
-          themePreference: preference,
-        }),
-      );
+      // First launch (or legacy "system"): seed from OS appearance, then persist light/dark.
+      const scheme = isColorScheme(stored) ? stored : getSystemScheme();
+      if (stored !== scheme) {
+        AsyncStorage.setItem(STORAGE_KEYS.COLOR_SCHEME, scheme);
+      }
+
+      dispatch(buildState({ colorScheme: scheme }));
     });
 
     return () => {
@@ -219,31 +259,10 @@ export function ColorSchemeProvider({ children }) {
     };
   }, []);
 
-  useEffect(() => {
-    const subscription = Appearance.addChangeListener(({ colorScheme: systemScheme }) => {
-      if (themePreferenceRef.current !== ThemePreference.SYSTEM || activeRef.current) {
-        return;
-      }
-
-      const nextScheme =
-        systemScheme === ColorScheme.DARK ? ColorScheme.DARK : ColorScheme.LIGHT;
-
-      dispatch(
-        buildState({
-          colorScheme: nextScheme,
-          themePreference: ThemePreference.SYSTEM,
-        }),
-      );
-    });
-
-    return () => subscription.remove();
-  }, []);
-
   const value = useMemo(
     () => ({
       active,
       colorScheme,
-      themePreference,
       overlay1,
       overlay2,
       dispatch,
@@ -253,19 +272,19 @@ export function ColorSchemeProvider({ children }) {
       statusBarStyle,
       colors,
     }),
-    [active, circle, colorScheme, colors, overlay1, overlay2, statusBarStyle, themePreference, transition],
+    [active, circle, colorScheme, colors, overlay1, overlay2, statusBarStyle, transition],
   );
 
   return (
     <View style={styles.fill}>
       <StatusBar
         barStyle={statusBarStyle === 'light' ? 'light-content' : 'dark-content'}
-        backgroundColor={colors.background}
+        backgroundColor={statusBarBackground}
       />
       <View ref={ref} style={styles.fill} collapsable={false}>
         <ColorSchemeContext.Provider value={value}>{children}</ColorSchemeContext.Provider>
       </View>
-      <Canvas style={StyleSheet.absoluteFill} pointerEvents="none">
+      <Canvas style={styles.overlay} pointerEvents="none">
         <Image image={overlay1} x={0} y={0} width={width} height={height} />
         {overlay2 ? (
           <Circle c={circle} r={revealRadius}>
@@ -279,4 +298,11 @@ export function ColorSchemeProvider({ children }) {
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
+  // elevation keeps the overlay above Android views that use elevation
+  // (tab bar, screens) — otherwise the live theme swap shows through.
+  overlay: {
+    ...StyleSheet.absoluteFill,
+    zIndex: 1000,
+    elevation: 1000,
+  },
 });

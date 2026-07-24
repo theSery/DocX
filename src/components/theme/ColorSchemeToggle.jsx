@@ -1,111 +1,60 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
-import { Switch } from '../switch';
 import { Typography } from '../typography';
 import SunSvg from '../icons/SunSvg';
 import MoonSvg from '../icons/MoonSvg';
 import { useTheme } from '../../hooks/useTheme';
-import { ColorScheme, ThemePreference } from '../../theme';
+import { ColorScheme } from '../../theme';
 
 /**
  * Light / Dark appearance toggle.
- * Starts the theme reveal late in the switch travel so the thumb keeps a
- * continuous slide while both animations overlap briefly at the end.
+ * Same interaction as example/ColorSchemeButton: tap starts the circular
+ * reveal from the finger position.
  *
  * @param {{
  *   style?: import('react-native').StyleProp<import('react-native').ViewStyle>;
  * }} props
  */
 export function ColorSchemeToggle({ style }) {
-  const { colors, colorScheme, isAnimating, setThemePreference } = useTheme();
-  const isDarkMode = colorScheme === ColorScheme.DARK;
+  const { colors, colorScheme, isAnimating, setColorScheme } = useTheme();
+  const isDark = colorScheme === ColorScheme.DARK;
 
-  const [optimisticDark, setOptimisticDark] = useState(null);
-  const switchRef = useRef(null);
-  const pendingDarkRef = useRef(null);
-  const themeStartedRef = useRef(false);
+  const tap = useMemo(
+    () =>
+      Gesture.Tap()
+        .runOnJS(true)
+        .enabled(!isAnimating)
+        .onStart(e => {
+          if (isAnimating) {
+            return;
+          }
 
-  const isDark = optimisticDark ?? isDarkMode;
-
-  useEffect(() => {
-    if (optimisticDark === null) {
-      return;
-    }
-
-    if (isDarkMode === optimisticDark && !isAnimating) {
-      pendingDarkRef.current = null;
-      themeStartedRef.current = false;
-      setOptimisticDark(null);
-    }
-  }, [isAnimating, isDarkMode, optimisticDark]);
-
-  const handleValueChange = useCallback(
-    nextDark => {
-      if (isAnimating || pendingDarkRef.current !== null) {
-        return;
-      }
-
-      pendingDarkRef.current = nextDark;
-      themeStartedRef.current = false;
-      setOptimisticDark(nextDark);
-    },
-    [isAnimating],
-  );
-
-  const handleSecondHalf = useCallback(
-    nextDark => {
-      if (pendingDarkRef.current !== nextDark || themeStartedRef.current) {
-        return;
-      }
-
-      themeStartedRef.current = true;
-      const preference = nextDark ? ThemePreference.DARK : ThemePreference.LIGHT;
-
-      const applyTheme = (x, y, width, height) => {
-        setThemePreference(preference, x + width / 2, y + height / 2).catch(() => {
-          pendingDarkRef.current = null;
-          themeStartedRef.current = false;
-          setOptimisticDark(null);
-        });
-      };
-
-      // Let the current switch frame commit before heavy theme capture work.
-      requestAnimationFrame(() => {
-        if (switchRef.current?.measureInWindow) {
-          switchRef.current.measureInWindow(applyTheme);
-          return;
-        }
-
-        setThemePreference(preference, 0, 0).catch(() => {
-          pendingDarkRef.current = null;
-          themeStartedRef.current = false;
-          setOptimisticDark(null);
-        });
-      });
-    },
-    [setThemePreference],
+          const nextScheme = isDark ? ColorScheme.LIGHT : ColorScheme.DARK;
+          setColorScheme(nextScheme, e.absoluteX, e.absoluteY);
+        }),
+    [isAnimating, isDark, setColorScheme],
   );
 
   return (
     <View style={[styles.row, style]}>
-      <View style={styles.labelRow}>
-        {isDark ? (
-          <MoonSvg fill={colors.icons} width={20} height={20} />
-        ) : (
-          <SunSvg fill={colors.icons} width={20} height={20} />
-        )}
-        <Typography variant="h5">{isDark ? 'Գիշերային' : 'Ցերեկային'}</Typography>
-      </View>
+      <Typography variant="h5">{isDark ? 'Գիշերային' : 'Ցերեկային'}</Typography>
 
-      <View ref={switchRef} collapsable={false}>
-        <Switch
-          value={isDark}
-          onValueChange={handleValueChange}
-          onSecondHalf={handleSecondHalf}
-          disabled={isAnimating}
-        />
-      </View>
+      <GestureDetector gesture={tap}>
+        <View
+          style={styles.button}
+          accessibilityRole="button"
+          accessibilityLabel={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          accessibilityState={{ disabled: isAnimating }}
+        >
+          {isDark ? (
+            <SunSvg fill={colors.icons} width={28} height={28} />
+          ) : (
+            <MoonSvg fill={colors.icons} width={28} height={28} />
+          )}
+        </View>
+      </GestureDetector>
     </View>
   );
 }
@@ -117,10 +66,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
   },
-  labelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    flexShrink: 1,
+  button: {
+    padding: 4,
   },
 });

@@ -6,21 +6,19 @@ import { useColorSchemeContext } from '../theme/colorScheme';
 export function useTheme() {
   const {
     colorScheme,
-    themePreference,
     colors,
     isDarkMode,
     isLightModeLocked,
     isAnimating,
-    setThemePreference,
+    setColorScheme,
   } = useColorSchemeContext();
 
   return {
     colorScheme,
-    themePreference,
     colors,
     isDarkMode,
     isLightModeLocked,
     isAnimating,
-    setThemePreference,
+    setColorScheme,
   };
 }

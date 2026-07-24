@@ -2,7 +2,7 @@
  * Theme public API — semantic palettes, tokens, and style factories.
  * Prefer `useTheme()` / `useGlobalStyles()` in components over static imports.
  */
-export { ColorScheme, isColorScheme, isThemePreference, ThemePreference } from './constants';
+export { ColorScheme, isColorScheme } from './constants';
 export { createGlobalStyles } from './globalStyles';
 export { createNavigationTheme } from './navigationTheme';
 export { createStackScreenOptions } from './stackScreenOptions';
