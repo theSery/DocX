@@ -58,7 +58,7 @@ const StaticHomeStackHeader = ({
       {
         height: showSearch
           ? HOME_STACK_HEADER_EXPANDED_HEIGHT
-          : HOME_STACK_HEADER_EXPANDED_HEIGHT -
+          : HOME_STACK_HEADER_EXPANDED_HEIGHT +
             HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
       }, 
     ]}

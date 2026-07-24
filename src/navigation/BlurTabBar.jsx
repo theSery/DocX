@@ -22,9 +22,9 @@ import UserSvg from '../components/icons/UserSvg';
 import HomeSvg from '../components/icons/HomeSvg';
 import FilesSvg from '../components/icons/FilesSvg';
 import { FONT_FAMILY, palette } from '../theme';
+import { TAB_BAR_HEIGHT } from '../utils/dimensions';
 import { PUBLIC_TAB_ROUTE_NAMES } from './tabConstants';
 
-const TAB_BAR_HEIGHT = 60;
 const HORIZONTAL_MARGIN = 16;
 const BOTTOM_OFFSET = 10;
 const INDICATOR_HEIGHT = 55;

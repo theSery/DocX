@@ -232,10 +232,10 @@ const createStyles = colors =>
       borderRadius: 24,
       backgroundColor: colors.background,
       shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 3 },
+      shadowOffset: { width: 0, height: 0 },
       shadowOpacity: 0.12,
       shadowRadius: 6,
-      elevation: 4,
+      elevation: 2,
     },
     cardShadowSelected: {
       backgroundColor: colors.cardSelected,

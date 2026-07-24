@@ -18,9 +18,9 @@ import { DocumentFilterChips } from './components/DocumentFilterChips';
 import { DOCUMENT_FILTERS } from './data/mockDocuments';
 import { formatApiDate } from './utils/formatApiDate';
 import { mapComplaintToDocument } from './utils/mapComplaintToDocument';
+import { TAB_BAR_HEIGHT } from '../../../utils/dimensions';
 import { sortDocumentsWithRecommended } from './utils/sortDocumentsWithRecommended';
 
-const TAB_BAR_HEIGHT = 64;
 const PAGE_LIMIT = 10;
 
 export function DocumentsScreen({ route }) {

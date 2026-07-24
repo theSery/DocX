@@ -7,6 +7,12 @@ export const HEIGHT = Dimensions.get('window').height;
 
 export const ITEM_HEIGHT = HEIGHT * 0.2;
 
+export const TOP_HEADER_HEIGHT = Platform.select({
+  ios: HEIGHT * 0.3,
+  android: HEIGHT * 0.05,
+  default: HEIGHT * 0.3,
+});
+
 export const TAB_BAR_HEIGHT = 64;
 export const AUTH_BUTTON_HEIGHT = 45;
 

@@ -14,9 +14,9 @@ import SadIcon from '../../../components/icons/SadIcon';
 import { useThemedStyles, useTheme } from '../../../hooks';
 import { FileFilterHeader } from './components/FileFilterHeader';
 import { PersonalDocumentCard } from './components/PersonalDocumentCard';
+import { TAB_BAR_HEIGHT } from '../../../utils/dimensions';
 import { mapPersonalDocumentToFile } from './utils/mapPersonalDocumentToFile';
 
-const TAB_BAR_HEIGHT = 64;
 const PAGE_LIMIT = 10;
 
 export function FilesMainScreen() {

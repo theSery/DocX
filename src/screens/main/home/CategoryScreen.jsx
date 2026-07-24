@@ -4,15 +4,14 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { SPACING } from './components/CategoriesList';
 import { StaggeredAnimatedView } from '../../../components/animation';
-import { HEIGHT, WIDTH } from '../../../utils/dimensions';
+import { TAB_BAR_HEIGHT, TOP_HEADER_HEIGHT, WIDTH } from '../../../utils/dimensions';
 import { FONT_FAMILY } from '../../../theme';
 import { Typography } from '../../../components/typography/Typography';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
 import { useGlobalStyles, useHomeStackHeaderScrollHandler, useThemedStyles, useTheme } from '../../../hooks';
 
-const TOP_HEADER_HEIGHT = HEIGHT * 0.3;
-const TAB_BAR_HEIGHT = 64;
 const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
+
 
 
 
@@ -43,7 +42,7 @@ export function CategoryScreen({ navigation, route }) {
       <View style={styles.bg}>
         <Animated.ScrollView
           style={styles.scrollView}
-          contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
+          contentContainerStyle={{ paddingBottom: scrollBottomPadding, }}
           onScroll={onScroll}
           onLayout={onScrollViewLayout}
           onContentSizeChange={onContentSizeChange}
@@ -72,7 +71,7 @@ export function CategoryScreen({ navigation, route }) {
                   </Typography>
                 </View>
                 <View style={styles.subCategoryArrowWrap}>
-                  <ArrowSvg width={20} height={20} fill={colors.icons} />
+                  <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
                 </View>
               </TouchableOpacity>
             </StaggeredAnimatedView>
@@ -147,7 +146,7 @@ const createStyles = colors =>
       width: 50,
       height: 50,
       resizeMode: 'contain',
-      backgroundColor: colors.cardSelected,
+      backgroundColor: colors.skyBlue,
       padding: 10,
       borderRadius: 16,
     },

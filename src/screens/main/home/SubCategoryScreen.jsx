@@ -4,7 +4,7 @@ import Animated, { FadeIn, useAnimatedRef } from 'react-native-reanimated';
 
 import { SPACING } from './components/CategoriesList';
 import { Accordion } from '../../../components/accordion';
-import { HEIGHT, WIDTH } from '../../../utils/dimensions';
+import { TOP_HEADER_HEIGHT, WIDTH } from '../../../utils/dimensions';
 import { FONT_FAMILY, palette } from '../../../theme';
 import { Typography } from '../../../components/typography/Typography';
 import AuthButton from '../../../components/buttons/AuthButton';
@@ -14,7 +14,6 @@ import { useEffect } from 'react';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
 
-const TOP_HEADER_HEIGHT = HEIGHT * 0.3;
 const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
 
 
