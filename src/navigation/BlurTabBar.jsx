@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View, Image } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -28,7 +28,10 @@ import { PUBLIC_TAB_ROUTE_NAMES } from './tabConstants';
 
 const HORIZONTAL_MARGIN = 16;
 const BOTTOM_OFFSET = 10;
-const INDICATOR_HEIGHT = 55;
+/** Matches example pill: ~4px inset from the 62–64px bar */
+const INDICATOR_INSET = 4;
+const PILL_RADIUS = TAB_BAR_HEIGHT / 2;
+const INDICATOR_RADIUS = (TAB_BAR_HEIGHT - INDICATOR_INSET * 2) / 2;
 
 const SPRING_CONFIG = {
   damping: 20,
@@ -44,84 +47,78 @@ const ROUTE_ICONS = {
 };
 
 /**
- * Glass tokens: translucent fill + sheen + rim over native BlurView.
+ * Glass tokens for the floating tab bar — tuned to example/ references.
  */
 function getTabBarGlass(isDarkMode) {
-  const base = isDarkMode ? GLASS.dark : GLASS.light;
-
-  if (isDarkMode) {
-    return {
-      ...base,
-      fill: 'rgba(17, 17, 29, 0.5)',
-      highlight: 'rgba(255, 255, 255, 0.08)',
-      sheen: [
-        { offset: '0%', color: '#FFFFFF', opacity: 0.22 },
-        { offset: '35%', color: '#FFFFFF', opacity: 0.06 },
-        { offset: '100%', color: '#FFFFFF', opacity: 0 },
-      ],
-      depth: [
-        { offset: '0%', color: '#000000', opacity: 0 },
-        { offset: '70%', color: '#000000', opacity: 0.04 },
-        { offset: '100%', color: '#000000', opacity: 0.14 },
-      ],
-      containerBackground: 'transparent',
-    };
-  }
-
-  return {
-    ...base,
-    fill: 'rgba(255, 255, 255, 0.5)',
-    highlight: 'rgba(255, 255, 255, 0.35)',
-    sheen: [
-      { offset: '0%', color: '#FFFFFF', opacity: 0.55 },
-      { offset: '38%', color: '#FFFFFF', opacity: 0.14 },
-      { offset: '100%', color: '#FFFFFF', opacity: 0 },
-    ],
-    depth: [
-      { offset: '0%', color: '#000000', opacity: 0 },
-      { offset: '65%', color: '#000000', opacity: 0.02 },
-      { offset: '100%', color: '#000000', opacity: 0.08 },
-    ],
-    containerBackground: 'transparent',
-  };
+  return isDarkMode ? GLASS.dark : GLASS.light;
 }
 
-function TabBarBackground({ glass, isDarkMode }) {
-  const blurType = isDarkMode ? 'dark' : 'light';
-
+/**
+ * Frosted glass plate: native blur → milky tint → refraction sheen → rims.
+ * Layer order matters — fill sits above blur so the backdrop stays visible.
+ */
+function TabBarBackground({ glass }) {
   return (
     <View
       pointerEvents="none"
       collapsable={false}
       style={StyleSheet.absoluteFill}>
-      {/* Base translucent plate */}
-      <View
-        style={[StyleSheet.absoluteFill, { backgroundColor: glass.fill }]}
-      />
-      {/* Native blur layer */}
       <BlurView
         pointerEvents="none"
         style={StyleSheet.absoluteFill}
-        blurType={blurType}
+        blurType={glass.blurType}
         blurAmount={glass.blurAmount}
         reducedTransparencyFallbackColor={glass.fallback}
       />
-      {/* <View style={[styles.glassHighlight, { backgroundColor: glass.highlight }]} /> */}
-      {/* Vertical glass sheen */}
-      {/* <GlassSheen
+      {/* Milky translucent plate */}
+      <View
+        style={[StyleSheet.absoluteFill, { backgroundColor: glass.fill }]}
+      />
+      {/* Soft top wash */}
+      <View
+        style={[styles.glassHighlight, { backgroundColor: glass.highlight }]}
+      />
+      {/* Vertical refraction (bright rims + lower-middle caustic) */}
+      <GlassSheen
         stops={glass.sheen}
         gradientId="tabBarGlassSheen"
         direction="vertical"
-      /> */}
-      {/* Soft bottom depth */}
-      <GlassSheen
-        stops={glass.depth}
-        gradientId="tabBarGlassDepth"
-        direction="vertical"
       />
-      {/* Top rim highlight */}
-      <View style={[styles.glassRim, { backgroundColor: glass.rim }]} />
+      {/* Crisp glass edge highlights */}
+      <View style={[styles.glassRimTop, { backgroundColor: glass.rim }]} />
+      <View
+        style={[styles.glassRimBottom, { backgroundColor: glass.rimBottom }]}
+      />
     </View>
+  );
+}
+
+/**
+ * Active-tab pill: rounded wrapper clips on all corners, with nested blur +
+ * tinted indicator image for a frosted blue glass look.
+ */
+function TabBarIndicator({ animatedStyle }) {
+  return (
+    <Animated.View
+      pointerEvents="none"
+      collapsable={false}
+      style={[styles.indicator, animatedStyle]}>
+      <BlurView
+        pointerEvents="none"
+        style={StyleSheet.absoluteFill}
+        blurType="extraDark"
+        blurAmount={18}
+        reducedTransparencyFallbackColor={palette.mainBlue}
+      />
+      <Image
+        source={require('../assets/images/barIndicator.webp')}
+        style={styles.indicatorImage}
+        resizeMode="cover"
+      />
+      {/* Soft blue glass tint so the asset reads translucent over the blur */}
+      <View style={styles.indicatorTint} />
+      <View style={styles.indicatorRim} />
+    </Animated.View>
   );
 }
 
@@ -149,12 +146,14 @@ function TabItem({
   }, [isFocused, progress]);
 
   const iconAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: 1 + progress.value * 0.08 }],
-    opacity: 0.7 + progress.value * 0.3,
+    transform: [{ scale: 1 + progress.value * 0.06 }],
   }));
 
   const labelAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: 0.6 + progress.value * 0.4,
+    opacity: progress.value,
+    maxHeight: 2 + progress.value * 14,
+    marginTop: progress.value * 2,
+    overflow: 'hidden',
   }));
 
   const accessibilityLabel =
@@ -190,10 +189,7 @@ function TabItem({
         <Typography
           variant="h6"
           numberOfLines={1}
-          style={[
-            styles.label,
-            { color: isFocused ? activeColor : inactiveColor },
-          ]}>
+          style={[styles.label, { color: activeColor }]}>
           {label}
         </Typography>
       </Animated.View>
@@ -217,8 +213,15 @@ export function BlurTabBar({ state, descriptors, navigation, insets }) {
   const indicatorX = useSharedValue(0);
 
   const glass = useMemo(() => getTabBarGlass(isDarkMode), [isDarkMode]);
+  const shadowWrapStyle = useMemo(
+    () => [
+      styles.shadowWrap,
+      { shadowColor: isDarkMode ? '#000000' : colors.shadow },
+    ],
+    [colors.shadow, isDarkMode],
+  );
   const activeColor = palette.mainWhite;
-  const inactiveColor = isDarkMode ? colors.textSecondary : colors.text;
+  const inactiveColor = colors.mainBlue;
   const bottomInset = Math.max((insets?.bottom ?? 0) - BOTTOM_OFFSET, 0);
 
   useEffect(() => {
@@ -230,8 +233,8 @@ export function BlurTabBar({ state, descriptors, navigation, insets }) {
   }, [indicatorX, itemWidth, state.index]);
 
   const indicatorAnimatedStyle = useAnimatedStyle(() => ({
-    width: itemWidth,
-    transform: [{ translateX: indicatorX.value }],
+    width: Math.max(itemWidth - INDICATOR_INSET * 2, 0),
+    transform: [{ translateX: indicatorX.value + INDICATOR_INSET }],
   }));
 
   const handleTrackLayout = useCallback(e => {
@@ -244,89 +247,77 @@ export function BlurTabBar({ state, descriptors, navigation, insets }) {
       pointerEvents="box-none"
       collapsable={false}
       style={[styles.host, { paddingBottom: bottomInset }]}>
-      <View
-        onLayout={handleTrackLayout}
-        collapsable={false}
-        style={[
-          styles.container,
-          {
-            borderColor: glass.border,
-            backgroundColor: glass.containerBackground,
-            shadowColor: colors.shadow,
-          },
-        ]}>
-        <TabBarBackground glass={glass} isDarkMode={isDarkMode} />
-        <Animated.Image
-          source={require('../assets/images/barIndicator.webp')}
-          style={[
-            styles.indicator,
-            indicatorAnimatedStyle,
-            { height: INDICATOR_HEIGHT },
-          ]}
-          resizeMode="cover"
-        />
-        <View style={styles.row} accessibilityRole="tablist">
-          {state.routes.map((route, index) => {
-            const descriptor = descriptors[route.key];
-            const isFocused = state.index === index;
+      {/* Shadow lives on an outer wrapper so overflow:hidden doesn't clip it */}
+      <View style={shadowWrapStyle}>
+        <View
+          onLayout={handleTrackLayout}
+          collapsable={false}
+          style={[styles.container, { borderColor: glass.border }]}>
+          <TabBarBackground glass={glass} />
+          <TabBarIndicator animatedStyle={indicatorAnimatedStyle} />
+          <View style={styles.row} accessibilityRole="tablist">
+            {state.routes.map((route, index) => {
+              const descriptor = descriptors[route.key];
+              const isFocused = state.index === index;
 
-            // Mirror @react-navigation/bottom-tabs BottomTabBar onPress exactly.
-            const onPress = () => {
-              if (
-                !isAuthenticated &&
-                !PUBLIC_TAB_ROUTE_NAMES.includes(route.name)
-              ) {
-                openAuth();
-                return;
-              }
+              // Mirror @react-navigation/bottom-tabs BottomTabBar onPress exactly.
+              const onPress = () => {
+                if (
+                  !isAuthenticated &&
+                  !PUBLIC_TAB_ROUTE_NAMES.includes(route.name)
+                ) {
+                  openAuth();
+                  return;
+                }
 
-              const event = navigation.emit({
-                type: 'tabPress',
-                target: route.key,
-                canPreventDefault: true,
-              });
-
-              if (!isFocused && !event.defaultPrevented) {
-                navigation.dispatch({
-                  ...CommonActions.navigate(route.name, route.params),
-                  target: state.key,
+                const event = navigation.emit({
+                  type: 'tabPress',
+                  target: route.key,
+                  canPreventDefault: true,
                 });
-              }
-            };
 
-            const onLongPress = () => {
-              if (
-                !isAuthenticated &&
-                !PUBLIC_TAB_ROUTE_NAMES.includes(route.name)
-              ) {
-                openAuth();
-                return;
-              }
+                if (!isFocused && !event.defaultPrevented) {
+                  navigation.dispatch({
+                    ...CommonActions.navigate(route.name, route.params),
+                    target: state.key,
+                  });
+                }
+              };
 
-              navigation.emit({
-                type: 'tabLongPress',
-                target: route.key,
-              });
-            };
+              const onLongPress = () => {
+                if (
+                  !isAuthenticated &&
+                  !PUBLIC_TAB_ROUTE_NAMES.includes(route.name)
+                ) {
+                  openAuth();
+                  return;
+                }
 
-            return (
-              <NavigationProvider
-                key={route.key}
-                route={route}
-                navigation={descriptor.navigation}>
-                <TabItem
+                navigation.emit({
+                  type: 'tabLongPress',
+                  target: route.key,
+                });
+              };
+
+              return (
+                <NavigationProvider
+                  key={route.key}
                   route={route}
-                  descriptor={descriptor}
-                  isFocused={isFocused}
-                  href={buildHref(route.name, route.params)}
-                  onPress={onPress}
-                  onLongPress={onLongPress}
-                  activeColor={activeColor}
-                  inactiveColor={inactiveColor}
-                />
-              </NavigationProvider>
-            );
-          })}
+                  navigation={descriptor.navigation}>
+                  <TabItem
+                    route={route}
+                    descriptor={descriptor}
+                    isFocused={isFocused}
+                    href={buildHref(route.name, route.params)}
+                    onPress={onPress}
+                    onLongPress={onLongPress}
+                    activeColor={activeColor}
+                    inactiveColor={inactiveColor}
+                  />
+                </NavigationProvider>
+              );
+            })}
+          </View>
         </View>
       </View>
     </View>
@@ -344,36 +335,54 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  container: {
+  shadowWrap: {
     marginHorizontal: HORIZONTAL_MARGIN,
+    borderRadius: PILL_RADIUS,
+    ...Platform.select({
+      ios: {
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.18,
+        shadowRadius: 22,
+      },
+      android: {
+        elevation: 12,
+      },
+      default: {
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.18,
+        shadowRadius: 22,
+      },
+    }),
+  },
+  container: {
     height: TAB_BAR_HEIGHT,
-    borderRadius: 20,
+    borderRadius: PILL_RADIUS,
     overflow: 'hidden',
-    borderWidth: 1,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.14,
-    shadowRadius: 24,
+    borderWidth: StyleSheet.hairlineWidth * 2,
+    backgroundColor: 'transparent',
   },
   glassHighlight: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: '42%',
+    height: '38%',
   },
-  glassTint: {
-    ...StyleSheet.absoluteFill,
-  },
-
-  
-  glassRim: {
+  glassRimTop: {
     position: 'absolute',
     top: 0,
-    left: 12,
-    right: 12,
+    left: 14,
+    right: 14,
     height: StyleSheet.hairlineWidth,
     borderRadius: 1,
-    opacity: 0.85,
+  },
+  glassRimBottom: {
+    position: 'absolute',
+    bottom: 0,
+    left: 18,
+    right: 18,
+    height: StyleSheet.hairlineWidth,
+    borderRadius: 1,
   },
   row: {
     flex: 1,
@@ -393,14 +402,37 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 10,
     fontFamily: FONT_FAMILY.semiBold,
-    marginTop: 2,
+    textAlign: 'center',
   },
   indicator: {
     position: 'absolute',
-    top: 2,
-    bottom: 2,
-    left: -4,
-    right: -4,
-    borderRadius: 15,
+    top: INDICATOR_INSET,
+    bottom: INDICATOR_INSET,
+    left: 0,
+    borderRadius: INDICATOR_RADIUS,
+    overflow: 'hidden',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255, 255, 255, 0.22)',
+  },
+  indicatorImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+    borderRadius: INDICATOR_RADIUS,
+    opacity: 0.72,
+  },
+  indicatorTint: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(29, 61, 129, 0.35)',
+    borderRadius: INDICATOR_RADIUS,
+  },
+  indicatorRim: {
+    position: 'absolute',
+    top: 0,
+    left: 10,
+    right: 10,
+    height: StyleSheet.hairlineWidth,
+    borderRadius: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.35)',
   },
 });
