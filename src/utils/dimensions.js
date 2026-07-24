@@ -9,7 +9,7 @@ export const ITEM_HEIGHT = HEIGHT * 0.2;
 
 export const TOP_HEADER_HEIGHT = Platform.select({
   ios: HEIGHT * 0.3,
-  android: HEIGHT * 0.05,
+  android: HEIGHT * 0.1,
   default: HEIGHT * 0.3,
 });
 

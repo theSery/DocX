@@ -40,7 +40,7 @@ export function generateComplaintSerialNumber(userId, timestamp = Date.now()) {
   const timeCode = generateTimeCode(timestamp);
   const prefix = userId != null && userId !== '' ? String(userId) : '00';
 
-  return `${prefix}-${monthYear}-${timeCode}`;
+  return `M-${prefix}-${monthYear}-${timeCode}`;
 }
 
 const DOCX_HEADER_HTML =

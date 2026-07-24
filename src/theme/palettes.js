@@ -51,7 +51,8 @@ export const darkColors = Object.freeze({
   error: palette.red,
   success: palette.green,
   tag: palette.green,
-  skyBlue: palette.skyBlue,
+  /** Muted sky tint for dark surfaces (light uses palette.skyBlue) */
+  skyBlue: '#1A3344',
   iconAccent: palette.accentBlue,
   icons: palette.accentBlue,
   mainBlue: palette.mainBlue,

@@ -38,7 +38,7 @@ function getDocumentStyles() {
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      padding: 0;
+      padding: 16px 20px;
       color: #111;
       font-family: 'Montserratarm', sans-serif;
       font-size: 11pt;

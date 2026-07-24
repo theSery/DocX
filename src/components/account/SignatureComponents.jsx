@@ -23,6 +23,8 @@ import { signatureApi } from '../../api';
 import { Typography } from '../typography';
 import { useGlobalStyles, useThemedStyles, useToast } from '../../hooks';
 import { FONT_FAMILY, palette } from '../../theme';
+import { useAppDispatch } from '../../store';
+import { setHasSignature } from '../../store/slices/personalDataSlice';
 import { WIDTH } from '../../utils/dimensions';
 import { extractHandwritingToTransparentPng } from '../../utils/handwritingExtractor';
 import { runAfterSheetDismiss } from '../../utils/runAfterSheetDismiss';
@@ -41,6 +43,7 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveS
   const canvasRef = useCanvasRef();
   const styles = useThemedStyles(createStyles);
   const { showToast } = useToast();
+  const dispatch = useAppDispatch();
 
   const [paths, setPaths] = useState([]);
   const [isDrawingEnabled, setIsDrawingEnabled] = useState(false);
@@ -138,6 +141,7 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveS
         await signatureApi.uploadSignature({ uri: `file://${filePath}` });
       }
       showToast({ title: 'Ստորագրությունը պահպանվել է', type: 'success' });
+      dispatch(setHasSignature(true));
       onSaveSuccess?.();
     } catch (error) {
       console.log('error', error);
@@ -329,6 +333,7 @@ export function SignatureComponents({ onSaveSuccess }) {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { showToast } = useToast();
+  const dispatch = useAppDispatch();
   const [signature, setSignature] = useState(null);
   useEffect(() => {
     signatureApi
@@ -346,6 +351,7 @@ export function SignatureComponents({ onSaveSuccess }) {
     try {
       await signatureApi.deleteSignature();
       setSignature(null);
+      dispatch(setHasSignature(false));
     } catch (error) {
       console.log('delete signature error', error);
       showToast({

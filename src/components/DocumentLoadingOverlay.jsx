@@ -1,5 +1,5 @@
 import { Modal, Platform, StyleSheet, View } from 'react-native';
-import { BlurView } from '@sbaiahmed1/react-native-blur';
+import { BlurView, ProgressiveBlurView } from '@sbaiahmed1/react-native-blur';
 
 import { AnimatedView } from './animation';
 import LottieAnimation from './animation/LottieAnimation';
@@ -22,7 +22,7 @@ export function DocumentLoadingOverlay({
       statusBarTranslucent
     >
       <View style={styles.fullScreenOverlay}>
-        <BlurView
+        {/* <BlurView
           style={StyleSheet.absoluteFill}
           blurType="dark"
           blurAmount={1}
@@ -30,7 +30,14 @@ export function DocumentLoadingOverlay({
           {...(Platform.OS === 'android' && {
             overlayColor: 'rgba(0, 0, 0, 0.25)',
           })}
-        />
+        /> */}
+        <ProgressiveBlurView
+  blurType="light"
+  blurAmount={16}
+  blurRounds={8}
+  direction="blurredBottomClearTop"
+  style={StyleSheet.absoluteFill}
+/>
         <View style={styles.overlayTint} />
         <View style={styles.overlayContent}>
           <AnimatedView animation="fadeInDown" duration={600} style={styles.logoContainer}>
