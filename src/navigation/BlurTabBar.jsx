@@ -370,6 +370,8 @@ const styles = StyleSheet.create({
   glassTint: {
     ...StyleSheet.absoluteFill,
   },
+
+  
   glassRim: {
     position: 'absolute',
     top: 0,
