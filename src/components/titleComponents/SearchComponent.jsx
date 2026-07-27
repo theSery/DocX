@@ -302,7 +302,7 @@ export function SearchComponent({ categoryId, subCategoryId } = {}) {
         <BlurView
           style={StyleSheet.absoluteFill}
           blurType={blurType}
-          blurAmount={24}
+          blurAmount={80}
           reducedTransparencyFallbackColor={colors.background}
         />
         {searchResults.length > 0 ? (

@@ -6,7 +6,7 @@ import { palette } from '../../theme';
  */
 export const GLASS = {
   light: {
-    blurAmount: 12,
+    blurAmount: 22,
     blurType: 'xlight',
     /** Translucent plate over the native blur — milky like example/BG.png */
     fill: 'rgba(244, 246, 251, 0.48)',
