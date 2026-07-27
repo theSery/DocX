@@ -28,8 +28,8 @@ import { PUBLIC_TAB_ROUTE_NAMES } from './tabConstants';
 
 const HORIZONTAL_MARGIN = 16;
 const BOTTOM_OFFSET = 10;
-/** Matches example pill: ~4px inset from the 62–64px bar */
-const INDICATOR_INSET = 4;
+/** Matches example pill: slight inset so long labels (e.g. Փաստաթղթեր) still fit */
+const INDICATOR_INSET = 1;
 const PILL_RADIUS = TAB_BAR_HEIGHT / 2;
 const INDICATOR_RADIUS = (TAB_BAR_HEIGHT - INDICATOR_INSET * 2) / 2;
 
@@ -71,24 +71,24 @@ function TabBarBackground({ glass }) {
         reducedTransparencyFallbackColor={glass.fallback}
       />
       {/* Milky translucent plate */}
-      <View
+      {/* <View
         style={[StyleSheet.absoluteFill, { backgroundColor: glass.fill }]}
-      />
+      /> */}
       {/* Soft top wash */}
-      <View
+      {/* <View
         style={[styles.glassHighlight, { backgroundColor: glass.highlight }]}
-      />
+      /> */}
       {/* Vertical refraction (bright rims + lower-middle caustic) */}
-      <GlassSheen
+      {/* <GlassSheen
         stops={glass.sheen}
         gradientId="tabBarGlassSheen"
         direction="vertical"
-      />
+      /> */}
       {/* Crisp glass edge highlights */}
-      <View style={[styles.glassRimTop, { backgroundColor: glass.rim }]} />
+      {/* <View style={[styles.glassRimTop, { backgroundColor: glass.rim }]} />
       <View
         style={[styles.glassRimBottom, { backgroundColor: glass.rimBottom }]}
-      />
+      /> */}
     </View>
   );
 }
@@ -117,7 +117,6 @@ function TabBarIndicator({ animatedStyle }) {
       />
       {/* Soft blue glass tint so the asset reads translucent over the blur */}
       <View style={styles.indicatorTint} />
-      <View style={styles.indicatorRim} />
     </Animated.View>
   );
 }
@@ -232,10 +231,20 @@ export function TabBar({ state, descriptors, navigation, insets }) {
     indicatorX.value = withSpring(itemWidth * state.index, SPRING_CONFIG);
   }, [indicatorX, itemWidth, state.index]);
 
-  const indicatorAnimatedStyle = useAnimatedStyle(() => ({
-    width: Math.max(itemWidth - INDICATOR_INSET * 2, 0),
-    transform: [{ translateX: indicatorX.value + INDICATOR_INSET }],
-  }));
+  const indicatorAnimatedStyle = useAnimatedStyle(() => {
+    // Slightly wider than the tab slot so long titles like «Փաստաթղթեր» fit.
+    const extraWidth = Math.min(itemWidth * 0.12, 10);
+    const width = Math.max(itemWidth - INDICATOR_INSET * 2 + extraWidth, 0);
+    return {
+      width,
+      transform: [
+        {
+          translateX:
+            indicatorX.value + INDICATOR_INSET - extraWidth / 2,
+        },
+      ],
+    };
+  });
 
   const handleTrackLayout = useCallback(e => {
     const { width } = e.nativeEvent.layout;
@@ -415,24 +424,15 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.22)',
   },
   indicatorImage: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     width: '100%',
     height: '100%',
     borderRadius: INDICATOR_RADIUS,
     opacity: 0.72,
   },
   indicatorTint: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(29, 61, 129, 0.35)',
     borderRadius: INDICATOR_RADIUS,
-  },
-  indicatorRim: {
-    position: 'absolute',
-    top: 0,
-    left: 10,
-    right: 10,
-    height: StyleSheet.hairlineWidth,
-    borderRadius: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.35)',
   },
 });

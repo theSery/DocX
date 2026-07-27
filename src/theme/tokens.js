@@ -58,6 +58,12 @@ export const gradients = Object.freeze({
     end: palette.blueLargeEnd,
     angle: 135,
   },
+  /** Dark mode button — sky blue → deep navy */
+  buttonDark: {
+    start: palette.skyBlue,
+    end: palette.blueMainEnd,
+    angle: 135,
+  },
   /** BG large — inversed */
   bgLargeInversed: {
     start: palette.blueLargeEnd,

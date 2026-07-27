@@ -3,17 +3,17 @@
         {
             "id": 16,
             "name": "Պարեկային ծառայողի կազմած ակտեր",
-            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1768915418288-Policeman.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=da1b6b8d482789e6b941c12786afd68c73d914de97c3a033da9fbd07043fdb69&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1768915418288-Policeman.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=3c7c8852260097f459555423283b4385a591d19dd3ac081719314cc1105f10a1&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
             "subCategories": [
                 {
                     "id": 33,
                     "name": "Կանգառի և կայանման կանոններ",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768921634760-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=cf2faa1bad151d402dff2f0178717b9158b09850c8d15e216ee3da5b672057c4&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768921634760-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=7309ea2020047afb3128d2443144c924f6def820686e5c425c8f24dd76cd925e&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 12,
                             "name": "(ՎԻՎՕ հոդ. 124, 26-րդ մաս) Հետիոտնային անցման վրա կայանելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921751851-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=1d04f2e01d08e9863e8f9aa3d71cad279d7671c51f9dbbe6ff033ffefb9ae4c7&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921751851-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=835f46835f8121de1c4b34b9041c857aa53f290ae18d7f7e5203c8a75cacc393&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -57,7 +57,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -169,7 +192,7 @@
                         {
                             "id": 14,
                             "name": "(ՎԻՎՕ հոդ. 124, 25-րդ մաս) Երթևեկելի մասի եզրին ոչ զուգահեռ կայանելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921741602-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=ebdb8462a01504f6194b244cc7d0b29f96ea8ed78d1e13c16c8e7eb838fac8e9&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921741602-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=441cd25b2db6e91bbe48729b144e0ecdc9b0823b842278b47675f8522ea707e3&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -213,7 +236,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -276,7 +322,7 @@
                         {
                             "id": 15,
                             "name": "(ՎԻՎՕ հոդ. 124, 23-րդ մաս) Կանգառի կամ կայանման կանոնները խախտելը, որի հետևանքով Տ/Մ-ը տարհանվել է պահպանվող հատուկ տարածք",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921718088-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=ec6062bab83c1e4e67a51df06405effe6ecfded045138533476da5dfbc0dc2e1&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921718088-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=37fcfaa31d62faed14049b6c24e708cfc6be315fdd7e08d284ce2d10d8c16d52&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -320,7 +366,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -383,7 +452,7 @@
                         {
                             "id": 16,
                             "name": "(ՎԻՎՕ հոդ. 124, 23-րդ մաս) Տ/Մ-ը կանգնեցնելը հաշմանդամների համար նախատեսված վայրում առանց համապատասխան ճանաչման նշանի",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921706292-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=cfd828e9f4846e4874585c28d7d6bd2beb706060342cc075b0c58d6305a0e5dd&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921706292-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=98cc0145338cff482cbde083b458327abb44b6f26d3ae00547d6bc043e3f20ed&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -427,7 +496,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -490,7 +582,7 @@
                         {
                             "id": 17,
                             "name": "(ՎԻՎՕ հոդ. 124, 22-րդ մաս) Տ/Մ կայանելը, եթե այլ վարորդներ ստիպված կանգ են առել կամ փոխել ուղղությունը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921692928-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=a58541483d5f9f821e91396577cd6db7b5baad35898cf22ec9e19c44d7c5472f&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921692928-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=f8d8c19b24695cd73a79764f5872d42165fe9e334359bc6020aba25ea2a200ca&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -534,7 +626,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -641,7 +756,7 @@
                         {
                             "id": 18,
                             "name": "(ՎԻՎՕ հոդ. 124, 21-րդ մաս) Կանգառի կամ կայանման կանոնները խախտելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921663144-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=4e06df7077c1e8e677e5e2f720bb368b414ec055550f2e1ee44b3968ed43cd5c&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921663144-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=b772dc82a5bcc4498f2e5eb2963e35f177aeaa15468e3e319e1efd3e87d7211a&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -685,7 +800,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -792,7 +930,7 @@
                         {
                             "id": 54,
                             "name": "(ՎԻՎՕ հոդ. 124, 25-րդ մաս) Ընդհանուր օգտագործման Տ/Մ-ի կանգառի կետի տարածքում կանգառ կատարելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775471723520-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=f614b73cf2e8a8cb177c0ba584d1fcd3f862bad23648d9b0d42faf41f1e114a1&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775471723520-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=20fa1253a662e8e812dea79b09edaf91bfc2b1bd9c16b590d4ac6b363d4dbe84&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -836,7 +974,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -899,7 +1060,7 @@
                         {
                             "id": 55,
                             "name": "(ՎԻՎՕ հոդ. 124, 27-րդ մաս) Մայթերին կայանելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775502213552-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=4d8ef73da86ba972ef353e3ea0089e4a7d985cab92b968773d01c5141c99916d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775502213552-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=d09ee7d3007f63f25ec34dcd4fb1f31d4eaa607271443e43be98a701e3fc67d2&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -943,7 +1104,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -1006,7 +1190,7 @@
                         {
                             "id": 56,
                             "name": "(ՎԻՎՕ հոդ. 124, 27-րդ մաս) Մայթերով երթևեկելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775502252208-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=f6371d5100b4305a02cd7b18692d0cb9fa8e0a3b2fa17ab4611136934655aa2d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775502252208-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=1fd7e0955b64bcd789fb69518f6e4b2731083cc506fab76adab7ff6341caec1f&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -1050,7 +1234,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -1115,12 +1322,12 @@
                 {
                     "id": 34,
                     "name": "Վարորդի պարտականություններ",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775501461664-driver.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=4f21c5c83444ea806776b3df4d4958adcbdf5d8e5b33f17abbd315cdeb2aec06&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775501461664-driver.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=d3d3fd54fdd14554628814bb8a611b95c757e1027e3a2e2334da0cd6f396eede&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 4,
                             "name": "Չամրակապված ուղևոր փոխադրելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921963924-seatbelt.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=070309f1f53236094f0780955f1d73ff06b8674112ca81356ba213f177a418ba&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921963924-seatbelt.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=e2b18cb69b4b65167d78ade913a395cd652e603a5406de80c0a9c725c3eb048f&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -1164,7 +1371,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -1265,7 +1495,7 @@
                         {
                             "id": 5,
                             "name": "(ՎԻՎՕ հոդ. 135.2, 1-ին մաս) Տրանսպորտային միջոցի վարորդի կողմից մեքենայի ընթացքի ժամանակ ծխախոտային արտադրատեսակ կամ դրա փոխարինիչ օգտագործել",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768922054674-no-smoking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=c767fffe1c73ab936a57b3fb781a76e190303233847abc0bfcac69402c2ab55d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768922054674-no-smoking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=32acf0e7a0163b0f4f9aff65502a8eb28a67da8b16cb312ff4e25d4611916a42&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -1309,7 +1539,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -1410,7 +1663,7 @@
                         {
                             "id": 35,
                             "name": "Չամրակապված Տ/Մ վարելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1769432129686-seatbelt.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=7c888b0fcdaeeb8a353aae821bf992bdbfe1bc8ad72d700c183a03d243c67907&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1769432129686-seatbelt.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=af4a8e86bfc33ee1f619f3e49305479c06bc5e6e28ffe6f204a68c981322e86d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [
                                 "ռեմեն",
                                 "chamrakapvac",
@@ -1459,7 +1712,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -1560,7 +1836,7 @@
                         {
                             "id": 36,
                             "name": "Հեռախոսակապից օգտվելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1769432114399-phone-call.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=fecba8e341763945686626cd109cd2ad66703a8ebd1b1eff688f1aad5a9d683e&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1769432114399-phone-call.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=e554b03314a51d09491a0a772909c49d92a68e24027aa61edbf072a6b45962ea&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [
                                 "ogtvel",
                                 "հեռախոս",
@@ -1609,7 +1885,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -1712,12 +2011,12 @@
                 {
                     "id": 35,
                     "name": "Արագության գերազանցում",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768920704452-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=8240741aea819d3f5055766a11a81dcbc9ee4b55fadba996454328e60416d11a&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768920704452-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=6f6537a4720e5a31c6d743c2ffe5479be7b6cf3a3fcba7835bd5d8f27293cc28&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 6,
                             "name": "1-10 կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921831679-speedometer%20%281%29.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=74c545865c102232c26f28313332dedf7e28f781ccc6eedb843efdb10f539f63&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921831679-speedometer%20%281%29.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=6c7fa9429aa2d219a94b229d7e72a0db2065f8770f93e8e3246f17f10634f4d0&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -1761,7 +2060,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -1856,7 +2178,7 @@
                         {
                             "id": 7,
                             "name": "11-30 կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921819124-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=47854f79506ca4167b26a3f97b8d4b3bcee6422b9c29dbdfbf74fa0e224049b6&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921819124-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=a945a2ff2d705cd0ca68127cb55470ed4a307f934b41326b88987c2331be7bce&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -1900,7 +2222,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -1995,7 +2340,7 @@
                         {
                             "id": 8,
                             "name": "31-50 կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921805126-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=b67b20ce941863c52bd127e462f11bc1a29bcfc784a34d37323841d226fac92b&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921805126-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=6c513836798474512bede3d4ce4b5e3ea0bad5273231fe84a78216c12958c24a&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -2039,7 +2384,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -2134,7 +2502,7 @@
                         {
                             "id": 9,
                             "name": "51-80 կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921784550-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=de1e9809e0cb939a005b6d61f1d3daf4ef671ab5e81d051a310296afce994402&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921784550-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=b302957b90f76348e45c671dbae34c2f174727540fff2447f58cd927f40dc46e&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -2178,7 +2546,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -2273,7 +2664,7 @@
                         {
                             "id": 10,
                             "name": "81+ կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921769048-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=2b5b05535ddf25214770d0e71fc58f19bb86b285beb8d0e0a240268ec6e5f117&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921769048-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=175308692ba03d98b3e11ee0e13cfae22c542074827ce67c8ede2b76a1de4165&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -2317,7 +2708,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -2414,12 +2828,12 @@
                 {
                     "id": 41,
                     "name": "Ճանապարհային նշաններ, գծանշումներ",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775501198144-union.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=7dc15a698eabba78869f00f09ffe0418598d8cce1d7a9665082af167deb2a1e1&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775501198144-union.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=10b2c43349f603a60d29ae7e746d52bb116d781cb9ead8b8e94b0bc14304fccb&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 44,
                             "name": "(ՎԻՎՕ հոդ․ 124, մաս 2) Հակադիր հոսքերը բաժանող գծանշումների պահանջները չկատարելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771248706493-road.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=94e826c0f3518460a668e92383db470663e2d96268782f850e9aa8e9ae447b63&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771248706493-road.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=54617757520927ff336be15fc5204904285343c7e31d6f48c44e91ef16d27fdc&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -2463,7 +2877,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -2526,7 +2963,7 @@
                         {
                             "id": 48,
                             "name": "(ՎԻՎՕ հոդ․ 124, մաս 9) Երթևեկությունն սկսելու կամ մանևր կատարելու կանոնները խախտելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771398135169-overtake.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=44436c1cbbd6684fdf3721ea06428aa1b6b1402a2f00bd88b0d26042651f89d3&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771398135169-overtake.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=08a59f046c7cf65c083d382d3e672c376f6436253494f7f69d143db6cbe17414&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -2570,7 +3007,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -2633,7 +3093,7 @@
                         {
                             "id": 49,
                             "name": "(ՎԻՎՕ հոդ․ 124, մաս 9) Հետընթաց վարման կանոնները խախտելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775502726447-letter-r.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=f1421a9b2728b16c6478eca604d6c9b6f6b09c4d3ff687a4c6b087e92990cde5&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775502726447-letter-r.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=dc6bf63bb9973090cdf94ad3fb3a1538ef9bb47951ab4e52c92bdb025f837690&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -2677,7 +3137,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -2740,7 +3223,7 @@
                         {
                             "id": 50,
                             "name": "Բաժանարար գոտին չնախատեսված վայրերում հատելը ձախ շրջադարձ կամ հետադարձ կատարելու եղանակով",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771411645267-no-turn-left.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=d48b8303f32a2a7aa590fedf8a2249ae3dbda2302b8f68fb48bb765a321ee9b9&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771411645267-no-turn-left.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=369df7201a4a838185fbf6fd0826d5b2496baab34d8afe7c559ef0801802494c&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -2784,7 +3267,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -2891,7 +3397,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -2998,7 +3527,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -3105,7 +3657,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -3170,12 +3745,12 @@
                 {
                     "id": 55,
                     "name": "Տ/Մ հաշվառման համարանիշ, տեխնիկական վիճակ",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1771236917488-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=7ffa7a58aedcb4ee70274540578d9d38569e158d1b20fea3d3829d84395065f7&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1771236917488-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=2b527fcd4e9e13d23b3c6919a375771600e322f8af6ad402462dabacfbd9097c&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 41,
                             "name": "(ՎԻՎՕ հոդ. 123.5, 1-ին մաս) Տ/Մ անընթեռնելի կամ ստանդարտին չհամապատասխանող հաշվառման համարանիշով վարելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771244786946-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=7adbda3bc0dd03a38b24950284260f2e8d95a5be414e0694bfeb862ae46370b3&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771244786946-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=228e36c82f277ccb4a2ab4ea0b8f94d9c4467e121fd837bbd9e5787c6148ebbd&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -3219,7 +3794,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -3282,7 +3880,7 @@
                         {
                             "id": 42,
                             "name": "(ՎԻՎՕ հոդ. 123.5, 1.1-րդ մաս) Տ/Մ անընթեռնելի կամ ստանդարտին չհամապատասխանող հաշվառման համարանիշով վարելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771244976011-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=ca0024c3c6a4a6637611b0aeff14560843a343eec265ce1dd2e6df6a5d447887&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771244976011-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=def9d3fe1469b63ecf5c64ca6a27305044418cf34ed98262ce7facf60c61f1e0&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -3326,7 +3924,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -3389,7 +4010,7 @@
                         {
                             "id": 43,
                             "name": "(ՎԻՎՕ հոդ. 123.5, 16-րդ մաս) Զույգ հաշվառման համարանիշեր ունեցող Տ/Մ-ը մեկ հաշվառման համարանիշով վարելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771245071267-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=44a0046104ccc73b29452a8ff91d9ca86adc0abd2fe10baa8c4049e553ab2be7&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771245071267-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=f157baee3efd8540a130c0f84e93a3755c257404686612799cd5658fba0f3886&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -3433,7 +4054,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -3496,7 +4140,7 @@
                         {
                             "id": 68,
                             "name": "(ՎԻՎՕ հոդ. 123.5, 2-րդ մաս) Տրանսպորտային միջոցի հաշվառման համարանիշը սահմանված տեղում չփակցնել",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775647638547-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=b7c79c79760cfe1ac8152aad5f307bb76ff4ea0a924ade7bcef333b3487027bc&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775647638547-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=df3135091ac916547c842cb4d8cccd737c284ea59ec2c0c9d36bf0f4c749e609&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -3540,7 +4184,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -3603,7 +4270,7 @@
                         {
                             "id": 71,
                             "name": "(ՎԻՎՕ հոդ. 123.5, 6-րդ մաս) ՃԵԿ-ով նախատեսված դեպքերում հաշվառման համարանիշի թվերի և տառերի կրկնօրինակում չունեցող տրանսպորտային միջոց վարելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775647895272-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=e8280a890648dbee614e30ef6130070757cad8addb7a2882455d4cbefd82d1bc&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775647895272-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=93b4c979c7be2bb791fc51782cf5a232cc3b69f8d24172661cf3b1a5baf2e5d4&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -3647,7 +4314,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -3754,7 +4444,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -3819,12 +4532,12 @@
                 {
                     "id": 66,
                     "name": "Լուսացույց, Տ/Մ տեղաշարժ",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775500635378-traffic-lights.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=3c3b2eeb99da55b83117fd32a77119b4993eebf12f851ed6e6c509617febdbf9&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775500635378-traffic-lights.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=bbe2f2e14cbd02512efb3360ffbe5f33eb8ffc4c09d85cd52f8b4ec250be64ee&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 47,
                             "name": "(ՎԻՎՕ հոդ․ 124, մաս 8) Վազանցի կանոնները խախտելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771397710368-no-overtaking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=91dfb73ba0b0516d5f0517064e1eb8d2bdf434735847c433e3ddd7fb1f6594a9&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771397710368-no-overtaking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=7e7e1d9dd023eaa38b48bd75239990935296f1d210a401c639c0b9857e848ed2&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -3929,7 +4642,7 @@
                         {
                             "id": 51,
                             "name": "(ՎԻՎՕ հոդ. 124.3, 1-ին մաս) Լուսացույցի արգելող ազդանշանին չենթարկվելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771399035061-traffic-lights.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=d550e6808732b45e8d59acd93fc8497f9bbd7bf4b66ee52ebc6ea8b9cc9ddb97&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771399035061-traffic-lights.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=2d4a094175115c9b0b18f2ccc90225b19a540ce34e42549a4bf5e93b6a589c1d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [
                                 "կարմիր",
                                 "luys",
@@ -3978,7 +4691,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -4085,7 +4821,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -4192,7 +4951,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -4299,7 +5081,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -4364,12 +5169,12 @@
                 {
                     "id": 67,
                     "name": "Հանրային տրանսպորտի գոտիներ, հետիոտներ",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775500513424-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=773119fac7e0538039ab3f56bc7dd17af02e9ecf3af2e377c5c5f9cdbffd0ba8&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775500513424-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=5bd5d894115027c495c50aae89e7d4eec71805189eb54a76c5927878fad778aa&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 46,
                             "name": "(ՎԻՎՕ հոդ․ 124, մաս 6) Հետիոտնային անցումների հատման կանոնները խախտելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771397622414-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=7c861563ac04ec4331538c12445e362d21f1298792d819d83805749757da1781&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771397622414-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=2007bc05142499fc6dfb86febe7dbc6ab4d755b83fc19ba29b67392afa3c965d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -4413,7 +5218,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -4476,7 +5304,7 @@
                         {
                             "id": 107,
                             "name": "(ՎԻՎՕ հոդ. 131, 1-ին մաս) Հետիոտնի կամ երթևեկության այլ մասնակցի կողմից լուսացույցի կամ կարգավորման ազդանշանին չենթարկվելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256311306-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=99a54b95c1f5125238b7bda69a22acfabfb9a77ebfe8bdd8594ff983aa006214&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256311306-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=ebe9d53a30e0b8ced6cd0e5617f8a9095f56519037a84b4c819ffb16556cb2c9&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [
                                 "պեշեխոդ",
                                 "կարմիր",
@@ -4525,7 +5353,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -4588,7 +5439,7 @@
                         {
                             "id": 108,
                             "name": "(ՎԻՎՕ հոդ. 131, 1-ին մաս) Հետիոտնի կամ երթևեկության այլ մասնակցի կողմից ճանապարհային նշանի կամ գծանշման պահանջը խախտելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256292514-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=9e626bbd05f9b43ea68a29c062cb149f1c5eb1e4eb478fce1719e5669143de06&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256292514-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=cc5677201653441f3d1abb5cade5b0e8a5c2bb5c8e78933f6af7a2ea0750a966&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -4632,7 +5483,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -4695,7 +5569,7 @@
                         {
                             "id": 109,
                             "name": "(ՎԻՎՕ հոդ. 131, 2-րդ մաս) Հետիոտնի կողմից ճանապարհով կամ մայթով շարժվելու կարգը խախտելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256319149-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=53a17120070a12e09090642d964052f25254b29c7d1c08a46cb24ce8e85ac2a1&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256319149-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=a254a73ecbf33db3290bdb148e509b3cd4fd560114b94cb591926e08b3d33b17&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -4739,7 +5613,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -4802,7 +5699,7 @@
                         {
                             "id": 110,
                             "name": "(ՎԻՎՕ հոդ. 131, 3-րդ մաս) Հետիոտնի կողմից ճանապարհի երթևեկելի մասը հատելու կարգը խախտելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256273220-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=0ff486cc0b6e6731ad3fa6ce2ad3da44d6cfae2398ed13b58f746e63326652f1&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256273220-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=6c8ad50513e0bbb47be54fdcd0b767fa9c12f33e28d5868e712558676d1abc05&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -4846,7 +5743,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -4953,7 +5873,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -5060,7 +6003,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -5167,7 +6133,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -5230,7 +6219,7 @@
                         {
                             "id": 116,
                             "name": "(ՎԻՎՕ հոդ. 131, 6-րդ մաս) Հետիոտնի, հեծանվորդի կամ երթևեկության այլ մասնակցի կողմից խախտում կատարել, որը ստեղծել է վթարային իրադրություն",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256334657-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=8c2d6f3cbf064cf4d7bf877e209154738acae41d9a8a5dd8bcda08f72905f123&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256334657-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=654231363b99f11bee79bc5a6a28298aa8eb788c583e3e686f77f1abf94a3169&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -5274,7 +6263,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -5373,7 +6385,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -5436,7 +6471,7 @@
                         {
                             "id": 117,
                             "name": "(ՎԻՎՕ հոդ. 131, 6.1-րդ մաս) Հետիոտնի կամ երթևեկության այլ մասնակցի կողմից խախտում կատարել, որի հետևանքով առողջությանը պատճառվել է թեթև վնաս",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256356936-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=d5c0957152ea916c942683b426f7706f80104b8b1d60024ccf5eea364101d533&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256356936-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=3764b15938ac198cecddea8208d2e9ad7be508860a1d8153fce3dbf467203f80&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -5480,7 +6515,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -5543,7 +6601,7 @@
                         {
                             "id": 140,
                             "name": "(ՎԻՎՕ հոդ. 135.1, 1-ին մաս) Հասարակական տրանսպորտում (օդային, ջրային, վերգետնյա էլեկտրական կամ երկաթուղային) ծխախոտային արտադրատեսակ կամ դրա փոխարինիչ օգտագործելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776274285750-no-smoking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=9c821f90e62124dc558594de5ececbd68d836ddcf6ee67104b3e7cdd4f59feaa&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776274285750-no-smoking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=e6776acd4781df4b089d4a6b80047fb6bbf8801d02927fd32aa6ff9d4e625720&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -5587,7 +6645,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -5650,7 +6731,7 @@
                         {
                             "id": 141,
                             "name": "(ՎԻՎՕ հոդ. 135.2, 2-րդ մաս) Ընդհանուր օգտագործման տրանսպորտային միջոցում կամ տաքսիում ծխախոտային արտադրատեսակ կամ դրա փոխարինիչ օգտագործելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776274294510-no-smoking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=efa61acb5b8ac223fc07b0430a56ca867c7c29289d42fdf2d8392489f275d7c8&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776274294510-no-smoking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=76ef91312a1c81312ba3097d39c345d44beab174f5b62867ef8920eeacf9c993&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -5694,7 +6775,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -5759,13 +6863,13 @@
                 {
                     "id": 70,
                     "name": "Վարորդական իրավունքից զրկում, կասեցում",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775500900638-drivers-license.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=b522a6e9d1ce40155dfdb666ab2cd28739e007c7c6e8228088fffc7f744defad&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775500900638-drivers-license.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=30224adc7d50025d6ddf8a09411565feb18ba0ab90a6b0587f7b63eb80a5a227&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": []
                 },
                 {
                     "id": 71,
                     "name": "Այլ իրավախախտումներ",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775649783637-bill.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=68cc8ac1dd869a5dc68deceb07bac1a2312f2b83eb5e89e8d45864637e3974b0&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775649783637-bill.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=8d493d0848a394caec5824c2b2f4c2aeef5050611df4cee4bc67cc1a9dcd5c94&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 86,
@@ -5814,7 +6918,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -5921,7 +7048,30 @@
                                             "phoneNumber": "010596180"
                                         },
                                         "lawyerEmail": null,
-                                        "solutionAttachments": [],
+                                        "solutionAttachments": [
+                                            {
+                                                "id": 126,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 13,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 13,
+                                                    "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            },
+                                            {
+                                                "id": 125,
+                                                "solutionId": 21,
+                                                "attachedDocumentId": 10,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 10,
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
+                                                }
+                                            }
+                                        ],
                                         "sendEmail": true,
                                         "print": true,
                                         "download": true,
@@ -5988,17 +7138,17 @@
         {
             "id": 17,
             "name": "Տեսախցիկներով հայտնաբերված ակտեր",
-            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1768914544369-Web%201920%20%C3%A2%C2%80%C2%93%202.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=ec117ab438b0ad0b873ff9b5123d2a641e98b7abcd76b4d197b1a6391ec319df&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1768914544369-Web%201920%20%C3%A2%C2%80%C2%93%202.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=22b44f1620d17b110a759162dc0c0673d6f62183a764ea76453adb60ec9a3e1d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
             "subCategories": [
                 {
                     "id": 38,
                     "name": "Արագաչափեր",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768922149869-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=10bee5be300508518787ee94078d63b51b38063fce8022713f9e5261b7b1c4a7&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768922149869-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=ced9bfbfb46a138909959387b5de281c5c6358e844c678adb9b807051d7745f4&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 38,
                             "name": "1-10 կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1769432083787-speedometer%20%281%29.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=aa4c6b572fd033b07addfb4096c9b32190b611f91493e13da23f5e9866def51e&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1769432083787-speedometer%20%281%29.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=3b9a8353dcd4d7a710be5f184e9b4f8a94d0395493d2f365e216d074278b7067&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -6079,7 +7229,7 @@
                         {
                             "id": 39,
                             "name": "11-30 կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1769432096986-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=0883e28624116b55cf54bcd3cbd32a78f953c90a5bd54ffe16b2e605b18663f1&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1769432096986-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=84da19c314d9c11cdbaf33bc14eed71ac9edaaae0dc63e5744c4e2f49d85a44d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -6160,7 +7310,7 @@
                         {
                             "id": 143,
                             "name": "31-50 կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776350594052-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=0751bd10d08ad6501107b88b3683d203a8f060a624e3ab379ffc6eac83e72112&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776350594052-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=78c6a76caf0695ad25b1118d859312d911cdc481741f5ba2d23c5c102332e21b&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -6241,7 +7391,7 @@
                         {
                             "id": 144,
                             "name": "51-80 կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776350621242-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=17511dda48360312bbee565b4efb8d4ad41eb0bcfc024d4b20a9cc38662fdc1d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776350621242-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=4001c84104f8fab7df42d8ceea3c388b9a801d9d7b4a7842aef9f6c99cc7328b&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -6322,7 +7472,7 @@
                         {
                             "id": 145,
                             "name": "81+ կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776350651694-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=ba11bae72e8340b63d72dc39aa81ab5329b12be7b92fc11d825460e54928da07&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776350651694-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=c2f0d6e48f954b5e63fe7601c8c0e14e8bf21f70e94fa2ca20f19d4e96fc3137&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -6331,8 +7481,8 @@
                                     "title": "Արագությունը գերազանցել 81+ Արագաչափ, վերադաս",
                                     "templateStatus": "active",
                                     "form": {
-                                        "id": 10,
-                                        "name": "ՆԳՆ վերադաս",
+                                        "id": 23,
+                                        "name": "ՆԳՆ վերադաս տեսախցիկներ",
                                         "variables": [
                                             {
                                                 "id": 9,
@@ -6347,6 +7497,13 @@
                                                 "description": "Որոշման ամսաթիվ",
                                                 "dataType": "date",
                                                 "sequence": 2
+                                            },
+                                            {
+                                                "id": 72,
+                                                "name": "2date30-60",
+                                                "description": "Որոշման ամսաթիվ",
+                                                "dataType": "additional_date",
+                                                "sequence": 3
                                             }
                                         ],
                                         "option_1": "",
@@ -6405,12 +7562,12 @@
                 {
                     "id": 39,
                     "name": "Փոփոխել ակտի հասցեատիրոջը",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768920432367-arrows.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=1ee7381e317562fc76876e850bf7abbac9d46bbe5f3ac2362e9a456fbbeb9d99&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768920432367-arrows.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=4c11f72a1e54fc0a4baea0441cd1767b2fd565ce34df964955688d809811e769&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 30,
                             "name": "Փոփոխել ակտի հասցեատիրոջը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921341058-arrows.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=e250e4823652bc2f9f7d3f3a7917b0bfd009d794354c2c61e5fa70154c5035b7&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921341058-arrows.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=1f822212eb7b62b2b5c7c86e48d64b4dc4f7f5ff3c5f5f03365a55978e60f4a1&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -6484,6 +7641,17 @@
                                         "lawyerEmail": null,
                                         "solutionAttachments": [
                                             {
+                                                "id": 114,
+                                                "solutionId": 24,
+                                                "attachedDocumentId": 9,
+                                                "uploadable": true,
+                                                "attachedDocument": {
+                                                    "id": 9,
+                                                    "name": "Տ/Մ վարած անձի վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": false
+                                                }
+                                            },
+                                            {
                                                 "id": 116,
                                                 "solutionId": 24,
                                                 "attachedDocumentId": 11,
@@ -6502,17 +7670,6 @@
                                                 "attachedDocument": {
                                                     "id": 13,
                                                     "name": "Անձը հաստատող փաստաթղթի լուսապատճենը",
-                                                    "isDefault": false
-                                                }
-                                            },
-                                            {
-                                                "id": 114,
-                                                "solutionId": 24,
-                                                "attachedDocumentId": 9,
-                                                "uploadable": true,
-                                                "attachedDocument": {
-                                                    "id": 9,
-                                                    "name": "Տ/Մ վարած անձի վարորդական վկայականը",
                                                     "isDefault": true
                                                 }
                                             },
@@ -6523,8 +7680,8 @@
                                                 "uploadable": true,
                                                 "attachedDocument": {
                                                     "id": 10,
-                                                    "name": "Վարորդական վկայականը",
-                                                    "isDefault": false
+                                                    "name": "Վարորդական վկայականի լուսապատճենը",
+                                                    "isDefault": true
                                                 }
                                             },
                                             {
@@ -6571,7 +7728,7 @@
                 {
                     "id": 40,
                     "name": "Խաչմերուկների տեսախցիկներ",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768920171939-intersection.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=3fecce02f791a8ed2dabe86ba6a2fcd9e2c6bb7f11c2e134d290527ef939a4fe&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768920171939-intersection.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=93ffa515108fc791bc33d2610ef556dedc62a5bd2d4824afb8b5130dc3d77b17&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": []
                 }
             ]
@@ -6579,17 +7736,17 @@
         {
             "id": 18,
             "name": "Երևանի քաղաքապետարանի ակտեր",
-            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1776449831421-yerevan.svg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=9bc5f1d3daf893558205d92bf0dad8d0abac80b42a318c49ac215ffa7c3fbe0c&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1776449831421-yerevan.svg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=dd55a97cac7efff7487809ed09e4b872959d4e8444f7286e547b1cff158f084a&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
             "subCategories": [
                 {
                     "id": 42,
                     "name": "Ավտոկայանատեղի",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1770057105247-Red%20line.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=2f7683568058753934bf9ebd9c72fe70c426756beb160281f2592237ca43598a&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1770057105247-Red%20line.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=7dadded906cbfef4cb7e41f8f64f6fb9505da5bd151bb0b20d759247bd83dfa6&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 40,
                             "name": "(ՎԻՎՕ հոդ. 124.7) Համայնքային վճարովի ավտոկայանատեղում կայանելու համար սահմանված վճարը չվճարելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1770052393488-Red%20line.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=5646314a52821d0fcf399a1a4d8c094a2e8ce1d841509600600b94fabb6fd302&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1770052393488-Red%20line.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=0f4f7218779c59677e096718527460d80a2d12908a8cd481862bcf163819b017&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [
                                 "gic",
                                 "կարմիր",
@@ -6623,6 +7780,13 @@
                                                 "description": "Որոշման ամսաթիվ",
                                                 "dataType": "date",
                                                 "sequence": 2
+                                            },
+                                            {
+                                                "id": 70,
+                                                "name": "60Day",
+                                                "description": "Որոշումը ստանալու օր 60",
+                                                "dataType": "60_day",
+                                                "sequence": 3
                                             }
                                         ],
                                         "option_1": "",
@@ -6701,7 +7865,7 @@
         {
             "id": 20,
             "name": "ՀՀ ՊԵԿ վարչական ակտեր",
-            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1769176251540-%C3%95%C2%8A%C3%94%C2%B5%C3%94%C2%BF.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260716%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260716T234504Z&X-Amz-Expires=3600&X-Amz-Signature=b54be796aed0a5499b10d4312916930ae97d4269cca2ad1e2d56357c839d651c&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1769176251540-%C3%95%C2%8A%C3%94%C2%B5%C3%94%C2%BF.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260727%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260727T225154Z&X-Amz-Expires=3600&X-Amz-Signature=f6a7d68752c521b5ef0ea32b27c210215fa7a0e9697b65e3f572198a5fb85f81&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
             "subCategories": [
                 {
                     "id": 53,
@@ -6768,6 +7932,20 @@
                                                 "description": "Որոշումը ստանալու օր",
                                                 "dataType": "date",
                                                 "sequence": 2
+                                            },
+                                            {
+                                                "id": 69,
+                                                "name": "30Day",
+                                                "description": "Որոշումը ստանալու օր 30",
+                                                "dataType": "30_day",
+                                                "sequence": 3
+                                            },
+                                            {
+                                                "id": 70,
+                                                "name": "60Day",
+                                                "description": "Որոշումը ստանալու օր 60",
+                                                "dataType": "60_day",
+                                                "sequence": 4
                                             }
                                         ],
                                         "option_1": "",
@@ -6841,5 +8019,4 @@
     "page": 1,
     "total": 4,
     "lastPage": 1
-    
 }

@@ -1,10 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AuthScreenLayout } from '../../components/layout';
-import { useAuthScreenStyles, useToast } from '../../hooks';
+import {
+  useAuthScreenStyles,
+  useAuthSession,
+  useThemedFocusStatusBar,
+  useThemedStyles,
+  useToast,
+} from '../../hooks';
 import MainHeader from '../../components/headers/MainHeader';
-import { useAuthSession } from '../../hooks';
-import { FONT_FAMILY, palette } from '../../theme';
+import { FONT_FAMILY } from '../../theme';
 import { Passcode } from '../authScreens/signInUP/components/Passcode';
 import { ContentTiltes } from '../../components/titleComponents/ContentTiltles';
 import { authApi, persistAuthResponse } from '../../api';
@@ -37,7 +42,9 @@ function getBiometricLabel(biometryType) {
 
 export function FaceIdScreen({ navigation }) {
   const styles = useAuthScreenStyles();
+  const localStyles = useThemedStyles(createStyles);
   const { showToast } = useToast();
+  useThemedFocusStatusBar();
   const { completeReauth } = useAuthSession();
   const [passcode, setPasscode] = useState([]);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -185,17 +192,15 @@ export function FaceIdScreen({ navigation }) {
   };
 
   return (
-    <AuthScreenLayout
-      style={[styles.screen, { backgroundColor: palette.mainWhite }]}
-    >
+    <AuthScreenLayout style={[styles.screen]}>
       <MainHeader />
-      <View style={registrationScreenStyles.content}>
-        <View style={registrationScreenStyles.formContainer}>
+      <View style={localStyles.content}>
+        <View style={localStyles.formContainer}>
           <ContentTiltes
             title="Մուտքագրեք PIN"
             subtitle="Մուտք լինելու համար խնդրում ենք մուտքագրել PIN-ը"
           />
-          <View style={registrationScreenStyles.passcodeContainer}>
+          <View style={localStyles.passcodeContainer}>
             <Passcode
               value={passcode}
               onChange={setPasscode}
@@ -206,15 +211,15 @@ export function FaceIdScreen({ navigation }) {
           </View>
         </View>
 
-        <View style={registrationScreenStyles.footer}>
-          <Text style={registrationScreenStyles.hintText}>
+        <View style={localStyles.footer}>
+          <Text style={localStyles.hintText}>
             {canUseBiometric ? `${biometricLabel} կամ PIN` : 'Մուտքագրեք PIN'}
           </Text>
           <Pressable
             onPress={() => navigation.navigate('PinVerification')}
             disabled={isAuthenticating}
           >
-            <Text style={registrationScreenStyles.privacyText}>
+            <Text style={localStyles.privacyText}>
               Վերականգնել PIN-կոդը
             </Text>
           </Pressable>
@@ -224,48 +229,45 @@ export function FaceIdScreen({ navigation }) {
   );
 }
 
-const registrationScreenStyles = StyleSheet.create({
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    marginBottom: 20,
-  },
-  container: {
-    flex: 1,
-    height: '100%',
-  },
-  formContainer: {
-    width: '100%',
-  },
-  footer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    width: '100%',
-    alignItems: 'center',
-  },
-  hintText: {
-    fontSize: 14,
-    lineHeight: 26,
-    fontFamily: FONT_FAMILY.regular,
-    color: palette.mainBlue,
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  privacyText: {
-    fontSize: 14,
-    lineHeight: 26,
-    fontFamily: FONT_FAMILY.regular,
-    color: palette.mainBlue,
-    marginTop: 4,
-    marginBottom: 20,
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-  },
-  passcodeContainer: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const createStyles = colors =>
+  StyleSheet.create({
+    content: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      marginBottom: 20,
+    },
+    formContainer: {
+      width: '100%',
+    },
+    footer: {
+      flex: 1,
+      justifyContent: 'flex-end',
+      width: '100%',
+      alignItems: 'center',
+    },
+    hintText: {
+      fontSize: 14,
+      lineHeight: 26,
+      fontFamily: FONT_FAMILY.regular,
+      color: colors.icons,
+      marginTop: 4,
+      textAlign: 'center',
+    },
+    privacyText: {
+      fontSize: 14,
+      lineHeight: 26,
+      fontFamily: FONT_FAMILY.regular,
+      color: colors.icons,
+      marginTop: 4,
+      marginBottom: 20,
+      textAlign: 'center',
+      textDecorationLine: 'underline',
+    },
+    passcodeContainer: {
+      width: '100%',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  });
