@@ -255,13 +255,13 @@ function MailLogin({ handleTabPress }) {
             label="Էլ.-փոստ"
             placeholder="example@docx.am"
             startIcon={<MailIconSvg width={19} height={15} fill={colors.icons} />}
-            // rules={{
-            //   required: 'Էլ.-փոստը պարտադիր է',
-            //   pattern: {
-            //     value: EMAIL_PATTERN,
-            //     message: 'Մուտքագրեք վավեր էլ.-փոստ',
-            //   },
-            // }}
+            rules={{
+              required: 'Էլ.-փոստը պարտադիր է',
+              pattern: {
+                value: EMAIL_PATTERN,
+                message: 'Մուտքագրեք վավեր էլ.-փոստ',
+              },
+            }}
           />
         </View>
         <View style={{ marginBottom: 0 }}>
@@ -272,10 +272,10 @@ function MailLogin({ handleTabPress }) {
             placeholder="********"
             startIcon={<LockIconSbg width={17} height={19} fill={colors.icons} />}
             secureTextEntry
-            // rules={{
-            //   required: 'Գաղտնաբառը պարտադիր է',
-            //   minLength: { value: 6, message: 'Առնվազն 6 նիշ' },
-            // }}
+            rules={{
+              required: 'Գաղտնաբառը պարտադիր է',
+              minLength: { value: 6, message: 'Առնվազն 6 նիշ' },
+            }}
           />
           <Pressable style={styles.forgotLink} hitSlop={8}>
             <Typography style={styles.forgotLinkText}>

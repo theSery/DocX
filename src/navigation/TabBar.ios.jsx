@@ -221,7 +221,7 @@ export function TabBar({ state, descriptors, navigation, insets }) {
     [colors.shadow, isDarkMode],
   );
   const activeColor = palette.mainWhite;
-  const inactiveColor = colors.mainBlue;
+  const inactiveColor = colors.icons;
   const bottomInset = Math.max((insets?.bottom ?? 0) - BOTTOM_OFFSET, 0);
 
   useEffect(() => {
