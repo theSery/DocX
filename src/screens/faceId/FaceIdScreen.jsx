@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { AuthScreenLayout } from '../../../components/layout';
-import { useAuthScreenStyles, useToast } from '../../../hooks';
-import MainHeader from '../../../components/headers/MainHeader';
-import { useAuthSession } from '../../../hooks';
-import { FONT_FAMILY, palette } from '../../../theme';
-import { Passcode } from '../../authScreens/signInUP/components/Passcode';
-import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
-import { authApi, persistAuthResponse } from '../../../api';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { AuthScreenLayout } from '../../components/layout';
+import { useAuthScreenStyles, useToast } from '../../hooks';
+import MainHeader from '../../components/headers/MainHeader';
+import { useAuthSession } from '../../hooks';
+import { FONT_FAMILY, palette } from '../../theme';
+import { Passcode } from '../authScreens/signInUP/components/Passcode';
+import { ContentTiltes } from '../../components/titleComponents/ContentTiltles';
+import { authApi, persistAuthResponse } from '../../api';
 import {
   getBiometryType,
   getStoredCredentials,
   getUserCredentialsWithBiometric,
   hasStoredCredentials,
   isBiometricSupported,
-} from '../../../utils/secureStorage';
+} from '../../utils/secureStorage';
 import * as Keychain from 'react-native-keychain';
 
 function isUserCancellation(error) {
@@ -41,7 +41,6 @@ export function FaceIdScreen({ navigation }) {
   const { completeReauth } = useAuthSession();
   const [passcode, setPasscode] = useState([]);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [isResettingPin, setIsResettingPin] = useState(false);
   const [canUseBiometric, setCanUseBiometric] = useState(false);
   const [biometricLabel, setBiometricLabel] = useState('Face ID / Touch ID');
   const isAuthenticatingRef = useRef(false);
@@ -185,49 +184,6 @@ export function FaceIdScreen({ navigation }) {
     }
   };
 
-  const handleResetPin = async () => {
-    if (isResettingPin || isAuthenticating) {
-      return;
-    }
-
-    setIsResettingPin(true);
-    try {
-      const credentials = await getStoredCredentials();
-      const email = credentials?.email;
-
-      if (!email) {
-        showToast({
-          title: 'Վերականգնումը ձախողվեց',
-          body: 'Էլ-փոստը չի գտնվել։',
-          type: 'error',
-        });
-        return;
-      }
-
-      await authApi.sendOtp({
-        email,
-        purpose: 'reset_pin',
-      });
-
-      showToast({
-        title: 'Մուտքագրեք Ձեր',
-        body: `${email} էլ-փոստին ուղարկված կոդը`,
-        type: 'success',
-      });
-
-      navigation.navigate('PinVerification');
-    } catch (error) {
-      console.log('[FaceId] Send reset PIN OTP failed:', error?.message ?? error);
-      showToast({
-        title: 'Վերականգնումը ձախողվեց',
-        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
-        type: 'error',
-      });
-    } finally {
-      setIsResettingPin(false);
-    }
-  };
-
   return (
     <AuthScreenLayout
       style={[styles.screen, { backgroundColor: palette.mainWhite }]}
@@ -251,20 +207,16 @@ export function FaceIdScreen({ navigation }) {
         </View>
 
         <View style={registrationScreenStyles.footer}>
-          {/* <Text style={registrationScreenStyles.hintText}>
+          <Text style={registrationScreenStyles.hintText}>
             {canUseBiometric ? `${biometricLabel} կամ PIN` : 'Մուտքագրեք PIN'}
-          </Text> */}
-          <Pressable onPress={handleResetPin} disabled={isResettingPin}>
-            {isResettingPin ? (
-              <ActivityIndicator
-                color={palette.mainBlue}
-                style={registrationScreenStyles.resetPinLoader}
-              />
-            ) : (
-              <Text style={registrationScreenStyles.privacyText}>
-                Վերականգնել PIN-կոդը
-              </Text>
-            )}
+          </Text>
+          <Pressable
+            onPress={() => navigation.navigate('PinVerification')}
+            disabled={isAuthenticating}
+          >
+            <Text style={registrationScreenStyles.privacyText}>
+              Վերականգնել PIN-կոդը
+            </Text>
           </Pressable>
         </View>
       </View>
@@ -311,43 +263,9 @@ const registrationScreenStyles = StyleSheet.create({
     textAlign: 'center',
     textDecorationLine: 'underline',
   },
-  resetPinLoader: {
-    marginTop: 4,
-    marginBottom: 20,
-  },
-  primaryButton: {
-    height: 45,
-    overflow: 'hidden',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-  },
-  primaryButtonText: {
-    fontFamily: FONT_FAMILY.regular,
-    color: palette.white,
-    letterSpacing: 1.2,
-  },
-  privacyTextBold: {
-    fontFamily: FONT_FAMILY.semiBold,
-    color: palette.mainBlue,
-    textDecorationLine: 'underline',
-  },
   passcodeContainer: {
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  lottieContainer: {
-    ...StyleSheet.absoluteFill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: palette.mainWhite,
-    zIndex: 1000,
-    opacity: 0.7,
-  },
-  lottieAnimation: {
-    width: 150,
-    height: 150,
   },
 });

@@ -104,6 +104,7 @@ export function PinCodeChangeScreen() {
         position: 'bottom',
       });
     } catch (error) {
+      console.log('PinCodeChangeScreen error', error.response);
       resetForm();
       showToast({
         title: 'PIN կոդի փոփոխումը ձախողվեց',

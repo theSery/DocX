@@ -226,7 +226,7 @@ function MailLogin({ handleTabPress }) {
 
       });
       await persistAuthResponse(response);
-      await saveUserCredentials({ email: values.email, password: values.password, pinCode: '1111' });
+      await saveUserCredentials({ email: values.email, password: values.password});
       const payload = response?.data?.data ?? response?.data;
       showToast({
         title: 'Մուտքը հաջողությամբ կատարվեց',

@@ -1,6 +1,9 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { FaceIdScreen } from '../../screens/main/home/FaceIdScreen';
-import { PinVerificationScreen, ResetPinScreen } from '../../screens/faceId';
+import {
+  FaceIdScreen,
+  PinVerificationScreen,
+  ResetPinScreen,
+} from '../../screens/faceId';
 import { animation } from '../constants';
 
 const Stack = createNativeStackNavigator();

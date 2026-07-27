@@ -41,8 +41,11 @@ export const authApi = {
     return axiosClient.put('/auth/password', { oldPassword, newPassword });
   },
 
+  changePin({ oldPin, newPin }) {
+    return axiosClient.put('/auth/pin', { oldPin, newPin });
+  },
+
   resetPin({ email, code, newPin }) {
-    console.log('resetPin', email, code, newPin);
     return axiosClient.put('/auth/reset-pin', {
       email,
       code,
