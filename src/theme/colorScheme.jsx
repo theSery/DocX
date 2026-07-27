@@ -52,6 +52,12 @@ const SETTLE = {
   treeRepaint: Platform.OS === 'android' ? 2 : 1,
 };
 
+// iOS paints overlay2's Circle in the same commit it mounts. If `transition`
+// is still 1 from a previous reveal, the circle appears at full radius first
+// (instant theme swap), then the animation runs. Zero the radius before mount
+// and give Skia a couple of frames to paint the clipped circle at r=0.
+const IOS_OVERLAY2_SETTLE_FRAMES = 3;
+
 const getSystemScheme = () =>
   Appearance.getColorScheme() === ColorScheme.DARK ? ColorScheme.DARK : ColorScheme.LIGHT;
 
@@ -129,6 +135,10 @@ export function useColorSchemeContext() {
 
         const r = Math.max(...corners.map(corner => dist(corner, { x, y })));
         circle.value = { x, y, r };
+        // iOS: zero before overlay2 mounts so the Circle never paints at full r.
+        if (Platform.OS === 'ios') {
+          transition.value = 0;
+        }
 
         // 1. Snapshot the current (old) theme
         const overlay1 = await makeImageFromView(ref);
@@ -154,19 +164,35 @@ export function useColorSchemeContext() {
         // 4. Let the new theme commit, then snapshot it for the reveal
         await waitFrames(SETTLE.treeRepaint);
         const overlay2 = await makeImageFromView(ref);
-        dispatch({
-          ...buildState({ colorScheme: nextScheme, active: true }),
-          overlay1,
-          overlay2,
-          statusBarStyle: transitionStatusBarStyle,
-        });
 
-        // Let overlay2 mount on the Canvas before the circle starts growing
-        await waitFrames(SETTLE.skiaPaint);
+        if (Platform.OS === 'ios') {
+          // Must zero before overlay2 mounts: iOS draws the Circle in the same
+          // frame it appears. Leaving transition at 1 shows the full new theme
+          // instantly, then the reveal animation starts afterward.
+          transition.value = 0;
+          dispatch({
+            ...buildState({ colorScheme: nextScheme, active: true }),
+            overlay1,
+            overlay2,
+            statusBarStyle: transitionStatusBarStyle,
+          });
+          await waitFrames(IOS_OVERLAY2_SETTLE_FRAMES);
+          transition.value = withTiming(1, { duration: TRANSITION_MS });
+        } else {
+          dispatch({
+            ...buildState({ colorScheme: nextScheme, active: true }),
+            overlay1,
+            overlay2,
+            statusBarStyle: transitionStatusBarStyle,
+          });
 
-        // 5. Circular reveal from the tap point
-        transition.value = 0;
-        transition.value = withTiming(1, { duration: TRANSITION_MS });
+          // Let overlay2 mount on the Canvas before the circle starts growing
+          await waitFrames(SETTLE.skiaPaint);
+
+          // 5. Circular reveal from the tap point
+          transition.value = 0;
+          transition.value = withTiming(1, { duration: TRANSITION_MS });
+        }
         await wait(TRANSITION_MS);
         dispatch(buildState({ colorScheme: nextScheme }));
         await AsyncStorage.setItem(STORAGE_KEYS.COLOR_SCHEME, nextScheme);
