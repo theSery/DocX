@@ -20,8 +20,8 @@ import { ENV } from '../../config/env';
 import LocationSvg from '../icons/LocationSvg';
 import { useEnsureInputVisible } from './formKeyboard';
 import {
-  ARMENIAN_ADDRESS_PATTERN,
   ARMENIAN_ADDRESS_RULES,
+  hasNonArmenianLetters,
 } from '../../utils/patterns';
 
 const INPUT_RADIUS = 16;
@@ -72,9 +72,165 @@ const ARMENIAN_SCRIPT_REGEX = /[\u0530-\u058F]/;
 const LATIN_SCRIPT_REGEX = /[A-Za-z]/;
 const UNIT_TOKEN_REGEX = /\d+[^\s,]*-(?:Շ|Բ|Տ)/g;
 const BUILDING_NUMBER_SEGMENT_REGEX = /^\d\S*$/u;
+const SIMPLE_INTEGER_REGEX = /^\d+$/;
+const POSTAL_CODE_SEGMENT_REGEX = /^\d{4,}$/;
 
 function getAddressComponent(components, type) {
   return components?.find((component) => component.types?.includes(type))?.long_name ?? '';
+}
+
+function isPostalCodeSegment(part) {
+  return POSTAL_CODE_SEGMENT_REGEX.test(String(part || '').trim());
+}
+
+function isCountrySegment(part) {
+  const trimmed = String(part || '').trim();
+  if (!trimmed) {
+    return false;
+  }
+
+  const lower = trimmed.toLowerCase();
+  return (
+    trimmed === 'Հայաստան' ||
+    lower === 'armenia' ||
+    lower === 'republic of armenia'
+  );
+}
+
+/**
+ * Drop trailing pure-numeric tokens after the city
+ * ("Երևան 0028", "Երևան, 28", "2-Տ Երևան 0028").
+ */
+function stripTrailingNumericTokens(text) {
+  let result = String(text || '').trim();
+  let next = result.replace(/(?:[\s,]+)\d+\s*$/g, '').trim();
+
+  while (next !== result) {
+    result = next;
+    next = result.replace(/(?:[\s,]+)\d+\s*$/g, '').trim();
+  }
+
+  return result;
+}
+
+function cleanCitySegment(cityPart) {
+  const tokens = String(cityPart || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  while (tokens.length && SIMPLE_INTEGER_REGEX.test(tokens[tokens.length - 1])) {
+    tokens.pop();
+  }
+
+  return tokens.join(' ').trim();
+}
+
+/**
+ * Pull a leading simple integer ("2 Կիևյան…") into buildingNumber.
+ * Leave complex tokens alone: "1/2 …", "2 line …".
+ */
+function extractLeadingBuildingNumber(street) {
+  const trimmed = String(street || '').trim();
+  if (!trimmed) {
+    return { buildingNumber: '', street: '' };
+  }
+
+  const tokens = trimmed.split(/\s+/);
+  if (tokens.length < 2) {
+    return { buildingNumber: '', street: trimmed };
+  }
+
+  const [first, second, ...rest] = tokens;
+  if (!SIMPLE_INTEGER_REGEX.test(first)) {
+    return { buildingNumber: '', street: trimmed };
+  }
+
+  // "2 line …" — number followed by a Latin word, keep intact.
+  if (LATIN_SCRIPT_REGEX.test(second)) {
+    return { buildingNumber: '', street: trimmed };
+  }
+
+  return {
+    buildingNumber: first,
+    street: [second, ...rest].join(' ').trim(),
+  };
+}
+
+/**
+ * Normalize a Google/Places address for the confirm modal:
+ * - drop postal codes (0028) and country (Հայաստան)
+ * - drop leftover numbers after the city name
+ * - keep street + city
+ * - move a simple leading building number into buildingNumber
+ */
+function normalizeSelectedAddress(address) {
+  const parts = String(address || '')
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .filter((part) => !isPostalCodeSegment(part) && !isCountrySegment(part));
+
+  if (!parts.length) {
+    return { address: '', buildingNumber: '' };
+  }
+
+  if (parts.length === 1) {
+    const extracted = extractLeadingBuildingNumber(
+      stripTrailingNumericTokens(parts[0]),
+    );
+    return {
+      address: extracted.street,
+      buildingNumber: extracted.buildingNumber,
+    };
+  }
+
+  // Drop trailing standalone numeric segments after the city ("…, Երևան, 0028").
+  while (parts.length > 1 && SIMPLE_INTEGER_REGEX.test(parts[parts.length - 1])) {
+    parts.pop();
+  }
+
+  if (!parts.length) {
+    return { address: '', buildingNumber: '' };
+  }
+
+  if (parts.length === 1) {
+    const extracted = extractLeadingBuildingNumber(
+      stripTrailingNumericTokens(parts[0]),
+    );
+    return {
+      address: extracted.street,
+      buildingNumber: extracted.buildingNumber,
+    };
+  }
+
+  const city = cleanCitySegment(parts[parts.length - 1]);
+  const streetSegments = parts.slice(0, -1);
+
+  let buildingFromSegment = '';
+  const remainingStreetSegments = [];
+
+  streetSegments.forEach((segment) => {
+    if (!buildingFromSegment && SIMPLE_INTEGER_REGEX.test(segment)) {
+      buildingFromSegment = segment;
+      return;
+    }
+    remainingStreetSegments.push(segment);
+  });
+
+  const streetJoined = remainingStreetSegments.join(', ');
+  const extracted = extractLeadingBuildingNumber(streetJoined);
+  const buildingNumber = buildingFromSegment || extracted.buildingNumber;
+  const street = buildingFromSegment ? streetJoined : extracted.street;
+
+  const normalizedAddress = stripTrailingNumericTokens(
+    street ? `${street}, ${city}` : city,
+  );
+
+  return {
+    address: normalizedAddress,
+    buildingNumber,
+  };
 }
 
 /**
@@ -108,48 +264,46 @@ function composeAddressWithUnits(baseAddress, { building, apartment, house }) {
   const trimmedApartment = String(apartment || '').trim();
   const trimmedHouse = String(house || '').trim();
   const { street, rest } = splitAddressParts(baseAddress);
-  const restText = rest.join(', ');
+  const restText = stripTrailingNumericTokens(
+    rest.map(cleanCitySegment).filter(Boolean).join(', '),
+  );
 
   if (!street) {
-    return String(baseAddress || '').trim();
+    return stripTrailingNumericTokens(String(baseAddress || '').trim());
   }
 
   let unitPart = '';
   if (trimmedHouse) {
     unitPart = `${trimmedHouse}-Տ`;
-  } else if (trimmedBuilding || trimmedApartment) {
-    const bits = [];
-    if (trimmedBuilding) {
-      bits.push(`${trimmedBuilding}-Շ`);
-    }
-    if (trimmedApartment) {
-      bits.push(`${trimmedApartment}-Բ`);
-    }
-    unitPart = bits.join(' ');
+  } else if (trimmedBuilding && trimmedApartment) {
+    // Inject markers only when both building and apartment are present.
+    unitPart = `${trimmedBuilding}-Շ ${trimmedApartment}-Բ`;
   }
 
   if (!unitPart) {
-    return String(baseAddress || '').trim();
+    return stripTrailingNumericTokens(String(baseAddress || '').trim());
   }
 
   // "Ավանեսովի նրբ, 5-Շ 12-Բ Երևան" / "Ավանեսովի նրբ, 10-Տ Երևան"
   if (restText) {
-    return `${street}, ${unitPart} ${restText}`;
+    return stripTrailingNumericTokens(`${street}, ${unitPart} ${restText}`);
   }
 
-  return `${street}, ${unitPart}`;
+  return stripTrailingNumericTokens(`${street}, ${unitPart}`);
 }
 
 function stripInjectedUnits(address) {
-  return String(address || '')
-    .replace(UNIT_TOKEN_REGEX, '')
-    .replace(/\s{2,}/g, ' ')
-    .replace(/,\s*,/g, ',')
-    .replace(/\s+,/g, ',')
-    .replace(/,\s+/g, ', ')
-    .replace(/^,\s*/, '')
-    .replace(/,\s*$/, '')
-    .trim();
+  return stripTrailingNumericTokens(
+    String(address || '')
+      .replace(UNIT_TOKEN_REGEX, '')
+      .replace(/\s{2,}/g, ' ')
+      .replace(/,\s*,/g, ',')
+      .replace(/\s+,/g, ',')
+      .replace(/,\s+/g, ', ')
+      .replace(/^,\s*/, '')
+      .replace(/,\s*$/, '')
+      .trim(),
+  );
 }
 
 function getArmenianAddressValidationError(address) {
@@ -159,12 +313,9 @@ function getArmenianAddressValidationError(address) {
     return ARMENIAN_ADDRESS_RULES.required;
   }
 
-  if (!ARMENIAN_ADDRESS_PATTERN.test(trimmed)) {
-    return ARMENIAN_ADDRESS_RULES.pattern.message;
-  }
-
-  // Require at least one Armenian letter so digit/punctuation-only input fails.
-  if (!ARMENIAN_SCRIPT_REGEX.test(trimmed)) {
+  // Block letters from other languages only. Numbers, unit markers
+  // (10-Շ, 22-Բ), slashes (1/2), and other symbols are allowed.
+  if (hasNonArmenianLetters(trimmed)) {
     return ARMENIAN_ADDRESS_RULES.pattern.message;
   }
 
@@ -597,6 +748,8 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
   const localizationRequestRef = useRef(0);
   const confirmDraftRef = useRef('');
   const baseAddressRef = useRef('');
+  const initialNormalizedAddressRef = useRef('');
+  const initialBuildingRef = useRef('');
   const unitFieldsRef = useRef({ building: '', apartment: '', house: '' });
   const { onInputFocus, onInputBlur } = useEnsureInputVisible(inputContainerRef);
 
@@ -640,6 +793,8 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
     setConfirmDraft('');
     confirmDraftRef.current = '';
     baseAddressRef.current = '';
+    initialNormalizedAddressRef.current = '';
+    initialBuildingRef.current = '';
     unitFieldsRef.current = { building: '', apartment: '', house: '' };
     setBuildingNumber('');
     setApartmentNumber('');
@@ -727,12 +882,20 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
 
   const openConfirmModal = useCallback(
     (address) => {
-      baseAddressRef.current = address;
-      unitFieldsRef.current = { building: '', apartment: '', house: '' };
-      setBuildingNumber('');
+      const normalized = normalizeSelectedAddress(address);
+
+      baseAddressRef.current = normalized.address;
+      initialNormalizedAddressRef.current = normalized.address;
+      initialBuildingRef.current = normalized.buildingNumber;
+      unitFieldsRef.current = {
+        building: normalized.buildingNumber,
+        apartment: '',
+        house: '',
+      };
+      setBuildingNumber(normalized.buildingNumber);
       setApartmentNumber('');
       setHouseNumber('');
-      applyComposedDraft(address, unitFieldsRef.current);
+      applyComposedDraft(normalized.address, unitFieldsRef.current);
       setConfirmVisible(true);
     },
     [applyComposedDraft],
@@ -741,6 +904,7 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
   const handlePress = useCallback(
     (data, details = null) => {
       const address = buildDetailedAddress(data, details);
+      const normalized = normalizeSelectedAddress(address);
 
       // The library auto-fills the input on press — restore the previous
       // value until the user confirms in the modal.
@@ -749,7 +913,7 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
 
       openConfirmModal(address);
 
-      if (!LATIN_SCRIPT_REGEX.test(address)) {
+      if (!LATIN_SCRIPT_REGEX.test(address) && !LATIN_SCRIPT_REGEX.test(normalized.address)) {
         return;
       }
 
@@ -765,7 +929,7 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
             !localized ||
             requestId !== localizationRequestRef.current ||
             // User already edited the base address in the modal.
-            baseAddressRef.current !== address;
+            baseAddressRef.current !== initialNormalizedAddressRef.current;
           if (isStale) {
             return;
           }
@@ -778,8 +942,28 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
               ? `${placeName}, ${localized}`
               : localized;
 
-          baseAddressRef.current = armenianAddress;
-          applyComposedDraft(armenianAddress, unitFieldsRef.current);
+          const normalizedLocalized = normalizeSelectedAddress(armenianAddress);
+          baseAddressRef.current = normalizedLocalized.address;
+          initialNormalizedAddressRef.current = normalizedLocalized.address;
+
+          const unitsUnchanged =
+            unitFieldsRef.current.building === initialBuildingRef.current &&
+            !unitFieldsRef.current.apartment &&
+            !unitFieldsRef.current.house;
+
+          if (unitsUnchanged) {
+            initialBuildingRef.current = normalizedLocalized.buildingNumber;
+            unitFieldsRef.current = {
+              building: normalizedLocalized.buildingNumber,
+              apartment: '',
+              house: '',
+            };
+            setBuildingNumber(normalizedLocalized.buildingNumber);
+            setApartmentNumber('');
+            setHouseNumber('');
+          }
+
+          applyComposedDraft(normalizedLocalized.address, unitFieldsRef.current);
         })
         .finally(() => {
           if (requestId === localizationRequestRef.current) {
