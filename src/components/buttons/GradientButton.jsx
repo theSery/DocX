@@ -20,7 +20,7 @@ export default function GradientButton({
 
   const staticColors = isLight
     ? gradientStops(gradients.lightSky)
-    : gradientStops(gradients.buttonDark);
+    : gradientStops(gradients.blueLarge);
   const colors = gradientColors ?? staticColors;
 
   return (
