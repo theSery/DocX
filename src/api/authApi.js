@@ -52,4 +52,12 @@ export const authApi = {
       newPin,
     });
   },
+
+  resetPassword({ email, code, newPassword }) {
+    return axiosClient.put('/auth/reset-password', {
+      email,
+      code,
+      newPassword,
+    });
+  },
 };

@@ -49,7 +49,7 @@ function CompletedEmailVerification({
   );
 }
 
-function SuccessEmailVerification({ styles, colors }) {
+function SuccessEmailVerification({ styles, colors, isResetPassword }) {
   return (
     <>
       <AnimatedView
@@ -85,7 +85,9 @@ function SuccessEmailVerification({ styles, colors }) {
             { color: colors.icons, textAlign: 'center', marginTop: 30 },
           ]}
         >
-          🎉 Էլ-փոստը հաջողությամբ հաստատված է
+          {isResetPassword
+            ? '🎉 Կոդը հաջողությամբ հաստատված է'
+            : '🎉 Էլ-փոստը հաջողությամբ հաստատված է'}
         </Typography>
       </View>
     </>
@@ -98,11 +100,13 @@ export function EmailVerificationScreen({ navigation, route }) {
   const { colors } = useTheme();
   const { showToast } = useToast();
   useThemedFocusStatusBar();
-  const { email, password } = route.params;
+  const { email, password, purpose = 'register' } = route.params ?? {};
+  const isResetPassword = purpose === 'reset_password';
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [verifiedCode, setVerifiedCode] = useState('');
 
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -111,14 +115,17 @@ export function EmailVerificationScreen({ navigation, route }) {
       const response = await authApi.verifyOtp({
         email,
         code,
-        purpose: 'register',
+        purpose,
       });
       console.log('Verify OTP response:', response.data);
       showToast({
         title: 'Հաստատումը հաջողությամբ կատարվեց',
-        body: 'Ձեր էլ-փոստը հաջողությամբ հաստատված է',
+        body: isResetPassword
+          ? 'Կոդը հաջողությամբ հաստատված է'
+          : 'Ձեր էլ-փոստը հաջողությամբ հաստատված է',
         type: 'success',
       });
+      setVerifiedCode(code);
       setIsSuccess(true);
     } catch (error) {
       console.log('Verify OTP error:', error);
@@ -133,6 +140,13 @@ export function EmailVerificationScreen({ navigation, route }) {
   };
 
   const handleNavigate = () => {
+    if (isResetPassword) {
+      navigation.navigate('ResetPassword', {
+        email,
+        code: verifiedCode || digits.join(''),
+      });
+      return;
+    }
     navigation.navigate('Registration', { email, password });
   };
 
@@ -143,6 +157,10 @@ export function EmailVerificationScreen({ navigation, route }) {
       return next;
     });
   };
+
+  const successButtonTitle = isResetPassword
+    ? 'Վերականգնել գաղտնաբառը'
+    : 'Գրանցվել';
 
   return (
     <AuthScreenLayout style={[styles.screen]}>
@@ -162,7 +180,11 @@ export function EmailVerificationScreen({ navigation, route }) {
               subtitle={`Մուտքագրեք Ձեր (${email}) էլ-փոստին ուղարկված կոդը`}
             />
             {isSuccess ? (
-              <SuccessEmailVerification styles={localStyles} colors={colors} />
+              <SuccessEmailVerification
+                styles={localStyles}
+                colors={colors}
+                isResetPassword={isResetPassword}
+              />
             ) : (
               <CompletedEmailVerification
                 digits={digits}
@@ -176,7 +198,7 @@ export function EmailVerificationScreen({ navigation, route }) {
 
           <View style={localStyles.buttonContainer}>
             <AuthButton
-              title={isSuccess ? 'Գրանցվել' : 'Հաստատել էլ-փոստը'}
+              title={isSuccess ? successButtonTitle : 'Հաստատել էլ-փոստը'}
               onPress={() => (isSuccess ? handleNavigate() : handleSubmit())}
               isLoading={isLoading}
             />
