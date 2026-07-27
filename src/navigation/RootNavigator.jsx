@@ -9,14 +9,13 @@ import { OnboardingScreen } from '../screens/authScreens';
 import GradientBackground from '../components/GradientBackground';
 import LogoIcon from '../components/icons/LogoIcon';
 import LottieAnimation from '../components/animation/LottieAnimation';
-import { FaceIdScreen } from '../screens/main/home/FaceIdScreen';
 import { useAppDispatch, useAppSelector } from '../store';
 import {
   fetchCategoryHierarchy,
   selectCategoriesStatus,
 } from '../store/slices/categoriesSlice';
 import { animation } from './constants';
-
+import { ResetPinNavigator } from './AuthStacks/ResetPinNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -76,11 +75,12 @@ export function RootNavigator() {
   return (
     <Stack.Navigator
       initialRouteName={resolveInitialRoute(hasCompletedOnboarding, startupRoute)}
+      // initialRouteName="FaceId"
       screenOptions={{ headerShown: false, animation }}>
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       <Stack.Screen name="Main" component={TabNavigator} />
       <Stack.Screen name="Auth" component={AuthNavigator} />
-      <Stack.Screen name="FaceId" component={FaceIdScreen} />
+      <Stack.Screen name="FaceId" component={ResetPinNavigator} />
     </Stack.Navigator>
   );
 }

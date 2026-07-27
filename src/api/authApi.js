@@ -10,6 +10,7 @@ export const authApi = {
   },
 
   verifyOtp({ email, code, purpose }) {
+    console.log('verifyOtp', email, code, purpose);
     return axiosClient.post('/auth/verify-otp', { email, code, purpose });
   },
 
@@ -38,5 +39,14 @@ export const authApi = {
 
   changePassword({ oldPassword, newPassword }) {
     return axiosClient.put('/auth/password', { oldPassword, newPassword });
+  },
+
+  resetPin({ email, code, newPin }) {
+    console.log('resetPin', email, code, newPin);
+    return axiosClient.put('/auth/reset-pin', {
+      email,
+      code,
+      newPin,
+    });
   },
 };

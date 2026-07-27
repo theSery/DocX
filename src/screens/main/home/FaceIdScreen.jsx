@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AuthScreenLayout } from '../../../components/layout';
 import { useAuthScreenStyles, useToast } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
@@ -35,12 +35,13 @@ function getBiometricLabel(biometryType) {
   }
 }
 
-export function FaceIdScreen() {
+export function FaceIdScreen({ navigation }) {
   const styles = useAuthScreenStyles();
   const { showToast } = useToast();
   const { completeReauth } = useAuthSession();
   const [passcode, setPasscode] = useState([]);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isResettingPin, setIsResettingPin] = useState(false);
   const [canUseBiometric, setCanUseBiometric] = useState(false);
   const [biometricLabel, setBiometricLabel] = useState('Face ID / Touch ID');
   const isAuthenticatingRef = useRef(false);
@@ -184,6 +185,49 @@ export function FaceIdScreen() {
     }
   };
 
+  const handleResetPin = async () => {
+    if (isResettingPin || isAuthenticating) {
+      return;
+    }
+
+    setIsResettingPin(true);
+    try {
+      const credentials = await getStoredCredentials();
+      const email = credentials?.email;
+
+      if (!email) {
+        showToast({
+          title: 'Վերականգնումը ձախողվեց',
+          body: 'Էլ-փոստը չի գտնվել։',
+          type: 'error',
+        });
+        return;
+      }
+
+      await authApi.sendOtp({
+        email,
+        purpose: 'reset_pin',
+      });
+
+      showToast({
+        title: 'Մուտքագրեք Ձեր',
+        body: `${email} էլ-փոստին ուղարկված կոդը`,
+        type: 'success',
+      });
+
+      navigation.navigate('PinVerification');
+    } catch (error) {
+      console.log('[FaceId] Send reset PIN OTP failed:', error?.message ?? error);
+      showToast({
+        title: 'Վերականգնումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    } finally {
+      setIsResettingPin(false);
+    }
+  };
+
   return (
     <AuthScreenLayout
       style={[styles.screen, { backgroundColor: palette.mainWhite }]}
@@ -206,10 +250,22 @@ export function FaceIdScreen() {
           </View>
         </View>
 
-        <View style={{ flex: 1, justifyContent: 'flex-end', width: '100%' }}>
-          <Text style={registrationScreenStyles.privacyText}>
+        <View style={registrationScreenStyles.footer}>
+          {/* <Text style={registrationScreenStyles.hintText}>
             {canUseBiometric ? `${biometricLabel} կամ PIN` : 'Մուտքագրեք PIN'}
-          </Text>
+          </Text> */}
+          <Pressable onPress={handleResetPin} disabled={isResettingPin}>
+            {isResettingPin ? (
+              <ActivityIndicator
+                color={palette.mainBlue}
+                style={registrationScreenStyles.resetPinLoader}
+              />
+            ) : (
+              <Text style={registrationScreenStyles.privacyText}>
+                Վերականգնել PIN-կոդը
+              </Text>
+            )}
+          </Pressable>
         </View>
       </View>
     </AuthScreenLayout>
@@ -228,9 +284,22 @@ const registrationScreenStyles = StyleSheet.create({
     flex: 1,
     height: '100%',
   },
-
   formContainer: {
     width: '100%',
+  },
+  footer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    width: '100%',
+    alignItems: 'center',
+  },
+  hintText: {
+    fontSize: 14,
+    lineHeight: 26,
+    fontFamily: FONT_FAMILY.regular,
+    color: palette.mainBlue,
+    marginTop: 4,
+    textAlign: 'center',
   },
   privacyText: {
     fontSize: 14,
@@ -241,6 +310,10 @@ const registrationScreenStyles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
     textDecorationLine: 'underline',
+  },
+  resetPinLoader: {
+    marginTop: 4,
+    marginBottom: 20,
   },
   primaryButton: {
     height: 45,
