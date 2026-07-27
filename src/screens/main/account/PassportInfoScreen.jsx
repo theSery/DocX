@@ -168,15 +168,20 @@ function mapPersonalDataToFormValues(data) {
   };
 }
 
-function mapFormValuesToPersonalData(values) {
-  return {
+function mapFormValuesToPersonalData(values, { includeNotificationAddress = true } = {}) {
+  const payload = {
     passportSeries: values.passportSeries,
     fromWhom: values.fromWhom,
     dateOfIssue: values.dateOfIssue instanceof Date ? values.dateOfIssue.toISOString() : null,
     publicServiceLicensePlate: values.publicServiceLicensePlate,
-    notificationAddress: values.notificationAddress,
     registrationAddress: values.registrationAddress,
   };
+
+  if (includeNotificationAddress) {
+    payload.notificationAddress = values.notificationAddress;
+  }
+
+  return payload;
 }
 
 function resolveFormValuesAfterUpdate(submittedValues, apiData) {
@@ -234,16 +239,18 @@ export function PassportInfoScreen() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      const payload = mapFormValuesToPersonalData({
-        ...data,
-        // When addresses match, persist the registration value for both fields.
-        notificationAddress: agreed
-          ? data.notificationAddress
-          : data.registrationAddress,
+      const payload = mapFormValuesToPersonalData(data, {
+        includeNotificationAddress: agreed,
       });
       const response = await dispatch(updatePersonalData(payload)).unwrap();
       const updatedFormValues = resolveFormValuesAfterUpdate(
-        { ...data, notificationAddress: payload.notificationAddress },
+        {
+          ...data,
+          // Keep the existing notification address when it was not part of the update.
+          notificationAddress: agreed
+            ? payload.notificationAddress
+            : (personalData?.notificationAddress ?? ''),
+        },
         response,
       );
       reset(updatedFormValues);
