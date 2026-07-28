@@ -144,12 +144,50 @@ const FIELD_CONFIGS = colors => ({
 
 const DATE_FIELDS = ['birthday', 'dateOfIssue'];
 
-function toFormValue(field, value) {
-  if (DATE_FIELDS.includes(field)) {
-    return value ? new Date(value) : null;
+function formatPlaceholderDate(value) {
+  if (!value) {
+    return '';
   }
 
-  return value ?? '';
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day} / ${month} / ${year}`;
+}
+
+function toEmptyFormValue(field) {
+  return DATE_FIELDS.includes(field) ? null : '';
+}
+
+function toFormInitialValue(field, personalData, missingFields) {
+  // Valid registration address is kept as the input value (not a placeholder).
+  if (
+    field === 'registrationAddress' &&
+    !missingFields.includes('registrationAddress')
+  ) {
+    return personalData?.registrationAddress ?? '';
+  }
+
+  return toEmptyFormValue(field);
+}
+
+function toPlaceholderValue(field, value, fallbackPlaceholder, { useAsValue = false } = {}) {
+  // When the existing value is already in the input, keep the static placeholder.
+  if (useAsValue) {
+    return fallbackPlaceholder;
+  }
+
+  if (DATE_FIELDS.includes(field)) {
+    return formatPlaceholderDate(value) || fallbackPlaceholder;
+  }
+
+  const trimmed = String(value ?? '').trim();
+  return trimmed || fallbackPlaceholder;
 }
 
 function toPayloadValue(field, value) {
@@ -164,7 +202,12 @@ function toPayloadValue(field, value) {
   return value ?? '';
 }
 
-function buildPayload(missingFields, formValues, personalData, { addressFieldsMissing = false } = {}) {
+function buildPayload(
+  missingFields,
+  formValues,
+  personalData,
+  { addressFieldsMissing = false, addressesDiffer = false } = {},
+) {
   const includeProfile = missingFields.some(field => PROFILE_STORE_FIELDS.includes(field));
   const includePassport = missingFields.some(field => PASSPORT_STORE_FIELDS.includes(field));
 
@@ -176,8 +219,19 @@ function buildPayload(missingFields, formValues, personalData, { addressFieldsMi
   return groups.reduce((payload, field) => {
     const useFormValue =
       missingFields.includes(field) ||
-      (addressFieldsMissing &&
-        (field === 'registrationAddress' || field === 'notificationAddress'));
+      (addressFieldsMissing && field === 'registrationAddress') ||
+      // Only submit notificationAddress from the form when that field is visible.
+      (addressFieldsMissing && addressesDiffer && field === 'notificationAddress');
+
+    // Keep existing notificationAddress when its form is hidden.
+    if (
+      field === 'notificationAddress' &&
+      addressFieldsMissing &&
+      !addressesDiffer
+    ) {
+      payload[field] = toPayloadValue(field, personalData?.[field]);
+      return payload;
+    }
 
     const rawValue = useFormValue ? formValues[field] : personalData?.[field];
 
@@ -199,12 +253,21 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   // Captured once on mount so fields don't disappear while the user is typing.
   const [missingFields] = useState(() => getIncompletePersonalDataFields(personalData));
   const [submitError, setSubmitError] = useState('');
-  const [addressesDiffer, setAddressesDiffer] = useState(false);
+  // Open residence address when it exists or fails validation.
+  const [addressesDiffer, setAddressesDiffer] = useState(() => {
+    const incomplete = getIncompletePersonalDataFields(personalData);
+    return (
+      incomplete.includes('notificationAddress') ||
+      Boolean(personalData?.notificationAddress?.trim())
+    );
+  });
+
+  const registrationAddressValid = !missingFields.includes('registrationAddress');
+  const notificationAddressMissing = missingFields.includes('notificationAddress');
 
   // Show the address block when either address is missing or not Armenian.
   const addressFieldsMissing =
-    missingFields.includes('registrationAddress') ||
-    missingFields.includes('notificationAddress');
+    missingFields.includes('registrationAddress') || notificationAddressMissing;
 
   const missingProfileFields = useMemo(
     () => PROFILE_STORE_FIELDS.filter(field => missingFields.includes(field)),
@@ -231,6 +294,35 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   // When set, the modal shows the phone code confirmation content instead of the form.
   const [confirmingPhoneNumber, setConfirmingPhoneNumber] = useState(null);
 
+  // Existing values are shown as placeholders so the user can type immediately,
+  // except a valid registrationAddress which is prefilled as the input value.
+  const fieldPlaceholders = useMemo(() => {
+    const fieldsToInit = new Set(missingFields);
+    if (addressFieldsMissing) {
+      fieldsToInit.add('registrationAddress');
+      fieldsToInit.add('notificationAddress');
+    }
+
+    return [...fieldsToInit].reduce((placeholders, field) => {
+      const useAsValue =
+        field === 'registrationAddress' && registrationAddressValid;
+
+      placeholders[field] = toPlaceholderValue(
+        field,
+        personalData?.[field],
+        fieldConfigs[field]?.placeholder,
+        { useAsValue },
+      );
+      return placeholders;
+    }, {});
+  }, [
+    addressFieldsMissing,
+    fieldConfigs,
+    missingFields,
+    personalData,
+    registrationAddressValid,
+  ]);
+
   const {
     control,
     handleSubmit,
@@ -248,7 +340,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
       }
 
       return [...fieldsToInit].reduce((values, field) => {
-        values[field] = toFormValue(field, personalData?.[field]);
+        values[field] = toFormInitialValue(field, personalData, missingFields);
         return values;
       }, {});
     })(),
@@ -286,7 +378,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   const handleAddressesDifferChange = checked => {
     setAddressesDiffer(checked);
     if (!checked) {
-      // Drop residence address validation entirely when addresses match.
+      // Hide residence address and drop its validation for submit.
       unregister('notificationAddress');
     }
   };
@@ -294,22 +386,12 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   const onSubmit = handleSubmit(async formValues => {
     setSubmitError('');
 
-    const resolvedValues = { ...formValues };
-
-    // Same address for both when the checkbox is unchecked.
-    if (addressFieldsMissing && !addressesDiffer) {
-      const registrationAddress =
-        formValues.registrationAddress ?? personalData?.registrationAddress ?? '';
-
-      resolvedValues.registrationAddress = registrationAddress;
-      resolvedValues.notificationAddress = registrationAddress;
-    }
-
     try {
       await dispatch(
         updatePersonalData(
-          buildPayload(missingFields, resolvedValues, personalData, {
+          buildPayload(missingFields, formValues, personalData, {
             addressFieldsMissing,
+            addressesDiffer,
           }),
         ),
       ).unwrap();
@@ -347,6 +429,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
 
   const renderField = field => {
     const config = fieldConfigs[field];
+    const placeholder = fieldPlaceholders[field] ?? config.placeholder;
 
     if (config.type === 'date') {
       return (
@@ -356,7 +439,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
           name={field}
           label={config.label}
           startIcon={config.startIcon}
-          placeholder={config.placeholder}
+          placeholder={placeholder}
           rules={config.rules}
         />
       );
@@ -380,7 +463,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
             name={field}
             label={config.label}
             startIcon={config.startIcon}
-            placeholder={config.placeholder}
+            placeholder={placeholder}
             rules={rules}
           />
           {field === 'registrationAddress' && addressFieldsMissing && (
@@ -402,7 +485,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
         name={field}
         label={config.label}
         startIcon={config.startIcon}
-        placeholder={config.placeholder}
+        placeholder={placeholder}
         placeholderTextColor={config.placeholderTextColor}
         keyboardType={config.keyboardType}
         rules={config.rules}
