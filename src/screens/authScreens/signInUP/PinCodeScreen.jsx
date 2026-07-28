@@ -80,6 +80,8 @@ export function PinCodeScreen({ navigation, route }) {
 
     if (code !== firstPin) {
       setPasscode([]);
+      setFirstPin('');
+      setStep('create');
       showToast({
         title: 'PIN կոդերը չեն համընկնում',
         body: 'Փորձեք կրկին։',
