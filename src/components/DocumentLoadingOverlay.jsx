@@ -1,5 +1,13 @@
+import { useEffect, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { BlurView } from '@sbaiahmed1/react-native-blur';
+import Animated, {
+  Easing,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { AnimatedView } from './animation';
 import LottieAnimation from './animation/LottieAnimation';
@@ -8,6 +16,9 @@ import { Typography } from './typography';
 import { useTheme } from '../hooks';
 import { FONT_FAMILY } from '../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../utils/dimensions';
+
+/** Keep in sync with DocumentCreateScreen reveal timing. */
+export const DOCUMENT_LOADING_OVERLAY_FADE_OUT_MS = 650;
 
 export const DOCUMENT_LOADING_QUOTES = [
   '«Յուրաքանչյուր նոր փաստաթուղթ՝ քո ապագայի քայլ է»',
@@ -71,10 +82,14 @@ export function getNextDocumentLoadingQuote() {
   return nextQuote;
 }
 
+const FADE_OUT_EASING = Easing.out(Easing.cubic);
+const FADE_IN_EASING = Easing.out(Easing.quad);
+
 /**
  * Full-screen loading overlay with native blur.
  * Rendered as an absolute backdrop (not RN Modal) so BlurView does not
  * snapshot a separate window and blank the screen underneath on dismiss.
+ * Fades out smoothly when `visible` becomes false instead of unmounting abruptly.
  */
 export function DocumentLoadingOverlay({
   visible,
@@ -82,13 +97,65 @@ export function DocumentLoadingOverlay({
 }) {
   const { isDarkMode } = useTheme();
   const blurType = isDarkMode ? 'dark' : 'light';
+  const [mounted, setMounted] = useState(visible);
+  const opacity = useSharedValue(visible ? 1 : 0);
+  const contentTranslateY = useSharedValue(0);
 
-  if (!visible) {
+  useEffect(() => {
+    if (visible) {
+      setMounted(true);
+      opacity.value = withTiming(1, {
+        duration: 420,
+        easing: FADE_IN_EASING,
+      });
+      contentTranslateY.value = withTiming(0, {
+        duration: 420,
+        easing: FADE_IN_EASING,
+      });
+      return undefined;
+    }
+
+    if (!mounted) {
+      return undefined;
+    }
+
+    contentTranslateY.value = withTiming(-16, {
+      duration: DOCUMENT_LOADING_OVERLAY_FADE_OUT_MS,
+      easing: FADE_OUT_EASING,
+    });
+    opacity.value = withTiming(
+      0,
+      {
+        duration: DOCUMENT_LOADING_OVERLAY_FADE_OUT_MS,
+        easing: FADE_OUT_EASING,
+      },
+      finished => {
+        if (finished) {
+          runOnJS(setMounted)(false);
+        }
+      },
+    );
+
+    return undefined;
+  }, [visible, mounted, opacity, contentTranslateY]);
+
+  const overlayStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  const contentStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: contentTranslateY.value }],
+  }));
+
+  if (!mounted) {
     return null;
   }
 
   return (
-    <View style={styles.fullScreenOverlay} pointerEvents="auto">
+    <Animated.View
+      style={[styles.fullScreenOverlay, overlayStyle]}
+      pointerEvents={visible ? 'auto' : 'none'}
+    >
       <BlurView
         style={StyleSheet.absoluteFill}
         blurType={blurType}
@@ -99,7 +166,7 @@ export function DocumentLoadingOverlay({
         })}
       />
       <View style={styles.overlayTint} />
-      <View style={styles.overlayContent}>
+      <Animated.View style={[styles.overlayContent, contentStyle]}>
         <AnimatedView animation="fadeInDown" duration={600} style={styles.logoContainer}>
           <LogoIcon width={72} height={72} />
         </AnimatedView>
@@ -111,28 +178,28 @@ export function DocumentLoadingOverlay({
             </Typography>
           </AnimatedView>
         ) : null}
-      </View>
-      <AnimatedView
-        animation="fadeIn"
-        delay={650}
-        duration={600}
-        style={styles.lottieContainer}
-      >
-        <LottieAnimation
-          source={require('../assets/lottie/Law.json')}
-          autoPlay
-          loop
-          style={styles.lottie}
-        />
-      </AnimatedView>
-    </View>
+      </Animated.View>
+      <Animated.View style={[styles.lottieContainer, contentStyle]}>
+        <AnimatedView
+          animation="fadeIn"
+          delay={650}
+          duration={600}
+        >
+          <LottieAnimation
+            source={require('../assets/lottie/Law.json')}
+            autoPlay
+            loop
+            style={styles.lottie}
+          />
+        </AnimatedView>
+      </Animated.View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   fullScreenOverlay: {
     ...StyleSheet.absoluteFill,
-    // zIndex: 1000,
     overflow: 'hidden',
   },
   overlayTint: {
@@ -161,6 +228,5 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     fontSize: 18,
     fontFamily: FONT_FAMILY.black,
-
   },
 });

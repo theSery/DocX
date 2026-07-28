@@ -23,9 +23,11 @@ import {
 } from '../../../documents';
 import { complaintsApi, personalDocumentsApi } from '../../../api';
 import {
+  DOCUMENT_LOADING_OVERLAY_FADE_OUT_MS,
   getNextDocumentLoadingQuote,
   DocumentLoadingOverlay,
 } from '../../../components/DocumentLoadingOverlay';
+import { AnimatedView } from '../../../components/animation';
 import { useAppSelector } from '../../../store';
 import { selectDocumentFill } from '../../../store/slices/documentFillSlice';
 import { selectPersonalData } from '../../../store/slices/personalDataSlice';
@@ -42,6 +44,10 @@ import SendSvg from '../../../components/icons/SendSvg';
 
 /** Fixed loading + document generation duration for this screen only. */
 const DOCUMENT_CREATE_LOADING_DURATION = 7000;
+/** Swap to the final document after the overlay has mostly faded away. */
+const DOCUMENT_REVEAL_SWAP_DELAY_MS = Math.round(
+  DOCUMENT_LOADING_OVERLAY_FADE_OUT_MS * 0.55,
+);
 
 export function DocumentCreateScreen({ route, navigation }) {
 
@@ -110,17 +116,24 @@ export function DocumentCreateScreen({ route, navigation }) {
 
   // Start the fixed 7s clock only after the typing WebView has loaded,
   // so generation + overlay always run the full duration together.
+  // Fade the overlay first, then swap to the final document mid-fade.
   useEffect(() => {
     if (!isTypingWebViewReady || hasTypingFinished) {
       return undefined;
     }
 
-    const timer = setTimeout(() => {
-      setHasTypingFinished(true);
+    const hideOverlayTimer = setTimeout(() => {
       setShowLoadingOverlay(false);
     }, DOCUMENT_CREATE_LOADING_DURATION);
 
-    return () => clearTimeout(timer);
+    const revealDocumentTimer = setTimeout(() => {
+      setHasTypingFinished(true);
+    }, DOCUMENT_CREATE_LOADING_DURATION + DOCUMENT_REVEAL_SWAP_DELAY_MS);
+
+    return () => {
+      clearTimeout(hideOverlayTimer);
+      clearTimeout(revealDocumentTimer);
+    };
   }, [isTypingWebViewReady, hasTypingFinished, typingSourceKey]);
 
   const previewWebViewSource = useMemo(
@@ -275,7 +288,7 @@ export function DocumentCreateScreen({ route, navigation }) {
   ]);
   console.log(signatureImageSrc, 'signatureImageSrc');
   const isActionDisabled =
-    showLoadingOverlay ||
+    !hasTypingFinished ||
     isDownloading ||
     isAddingSignature ||
     isSubmittingComplaint;
@@ -302,8 +315,13 @@ export function DocumentCreateScreen({ route, navigation }) {
             />
           </View>
         </View>
-        {!showLoadingOverlay ? (
-          <View style={styles.actionRow}>
+        {hasTypingFinished ? (
+          <AnimatedView
+            animation="fadeIn"
+            duration={480}
+            delay={80}
+            style={styles.actionRow}
+          >
             <Pressable
               onPress={handleAddSignature}
               disabled={isActionDisabled}
@@ -318,7 +336,7 @@ export function DocumentCreateScreen({ route, navigation }) {
             >
               <UploadSvg width={25} height={25} fill={colors.icons} />
             </Pressable>
-          </View>
+          </AnimatedView>
         ) : null}
         <View style={[styles.actionBar, { bottom: TAB_BAR_BOTTOM_OFFSET, flexDirection: 'column' }]}>
 
