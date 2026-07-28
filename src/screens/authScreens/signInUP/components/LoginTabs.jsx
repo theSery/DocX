@@ -19,7 +19,7 @@ import PhoneSvg from '../../../../components/icons/PhoneSvg';
 import bg from '../../../../assets/images/bg.webp';
 import { OtpInputRowCode } from './OtpInputRowCode';
 import { authApi, persistAuthResponse, smsApi } from '../../../../api';
-import { useAuthSession, useTheme, useThemedStyles, useToast } from '../../../../hooks';
+import { useAuthSession, useOtpInput, useTheme, useThemedStyles, useToast } from '../../../../hooks';
 import { saveUserCredentials } from '../../../../utils/secureStorage';
 const INPUT_RADIUS = 16;
 
@@ -68,38 +68,21 @@ function OutlineButton({ title, onPress, icon }) {
   );
 }
 
-function OtpInputRow({ digits, onChangeDigit, focusedIndex, onFocusIndex }) {
-  return (
-    <OtpInputRowCode
-      digits={digits}
-      onChangeDigit={onChangeDigit}
-      focusedIndex={focusedIndex}
-      onFocusIndex={onFocusIndex}
-    />
-  );
-}
-
 function PhoneOtpVerification({ phoneNumber, handleTabPress, onResendCode }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
-  const [digits, setDigits] = useState(['', '', '', '', '', '']);
-  const [focusedIndex, setFocusedIndex] = useState(0);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
+  const {
+    code: otpCode,
+    reset: resetOtp,
+    inputProps: otpInputProps,
+  } = useOtpInput();
   const { login } = useAuthSession();
   const { showToast } = useToast();
 
-  const handleChangeDigit = (index, value) => {
-    setDigits(prev => {
-      const next = [...prev];
-      next[index] = value;
-      return next;
-    });
-  };
-
   const handleVerifyCode = async () => {
-    const code = digits.join('');
-    if (code.length !== 6) {
+    if (otpCode.length !== 6) {
       showToast({
         title: 'Սխալ կոդ',
         body: 'Մուտքագրեք 6 նիշանոց կոդը',
@@ -110,7 +93,7 @@ function PhoneOtpVerification({ phoneNumber, handleTabPress, onResendCode }) {
 
     setIsVerifying(true);
     try {
-      const response = await smsApi.verifyCode({ phoneNumber, code });
+      const response = await smsApi.verifyCode({ phoneNumber, code: otpCode });
       console.log('Verify SMS code response:', response.data);
       await persistAuthResponse(response);
       await login();
@@ -130,8 +113,7 @@ function PhoneOtpVerification({ phoneNumber, handleTabPress, onResendCode }) {
     setIsResending(true);
     try {
       await onResendCode();
-      setDigits(['', '', '', '', '', '']);
-      setFocusedIndex(0);
+      resetOtp();
       showToast({
         title: 'Կոդը ուղարկված է',
         body: 'Նոր հաստատման կոդը ուղարկվել է ձեր հեռախոսահամարին',
@@ -154,12 +136,7 @@ function PhoneOtpVerification({ phoneNumber, handleTabPress, onResendCode }) {
       <>
         <Typography style={styles.otpSubtitle}>{phoneNumber}</Typography>
 
-        <OtpInputRow
-          digits={digits}
-          onChangeDigit={handleChangeDigit}
-          focusedIndex={focusedIndex}
-          onFocusIndex={setFocusedIndex}
-        />
+        <OtpInputRowCode {...otpInputProps} />
 
         <View style={styles.resendRow}>
           <Typography style={styles.resendHelper}>Չստացե՞լ եք կոդը</Typography>

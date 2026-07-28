@@ -10,6 +10,7 @@ import {
 import { AuthScreenLayout } from '../../components/layout';
 import {
   useAuthScreenStyles,
+  useOtpInput,
   useTheme,
   useThemedFocusStatusBar,
   useThemedStyles,
@@ -28,13 +29,7 @@ import { getStoredCredentials } from '../../utils/secureStorage';
 import { authApi } from '../../api';
 import { FONT_FAMILY, palette } from '../../theme';
 
-function CompletedPinVerification({
-  digits,
-  handleChangeDigit,
-  focusedIndex,
-  setFocusedIndex,
-  styles,
-}) {
+function CompletedPinVerification({ otpInputProps, styles }) {
   return (
     <>
       <AnimatedView animation="fadeIn" style={styles.emailCheckContainer}>
@@ -44,12 +39,7 @@ function CompletedPinVerification({
           resizeMode="cover"
         />
       </AnimatedView>
-      <OtpInputRowCode
-        digits={digits}
-        onChangeDigit={handleChangeDigit}
-        focusedIndex={focusedIndex}
-        onFocusIndex={setFocusedIndex}
-      />
+      <OtpInputRowCode {...otpInputProps} />
     </>
   );
 }
@@ -104,8 +94,7 @@ export function PinVerificationScreen({ navigation }) {
   const { showToast } = useToast();
   useThemedFocusStatusBar();
   const [email, setEmail] = useState('');
-  const [digits, setDigits] = useState(['', '', '', '', '', '']);
-  const [focusedIndex, setFocusedIndex] = useState(0);
+  const { code: otpCode, inputProps: otpInputProps } = useOtpInput();
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -189,8 +178,7 @@ export function PinVerificationScreen({ navigation }) {
       return;
     }
 
-    const code = digits.join('');
-    if (code.length !== 6) {
+    if (otpCode.length !== 6) {
       showToast({
         title: 'Հաստատումը ձախողվեց',
         body: 'Մուտքագրեք 6 նիշանոց կոդը։',
@@ -203,7 +191,7 @@ export function PinVerificationScreen({ navigation }) {
     try {
       // Validate OTP format only — do not call verifyOtp here.
       // reset-pin validates and consumes the OTP; verifyOtp would invalidate it first.
-      setVerifiedCode(code);
+      setVerifiedCode(otpCode);
       setIsSuccess(true);
       showToast({
         title: 'Հաստատումը հաջողությամբ կատարվեց',
@@ -226,14 +214,6 @@ export function PinVerificationScreen({ navigation }) {
     navigation.navigate('ResetPin', {
       email,
       code: verifiedCode,
-    });
-  };
-
-  const handleChangeDigit = (index, value) => {
-    setDigits(prev => {
-      const next = [...prev];
-      next[index] = value;
-      return next;
     });
   };
 
@@ -282,10 +262,7 @@ export function PinVerificationScreen({ navigation }) {
               <SuccessPinVerification styles={localStyles} colors={colors} />
             ) : (
               <CompletedPinVerification
-                digits={digits}
-                handleChangeDigit={handleChangeDigit}
-                focusedIndex={focusedIndex}
-                setFocusedIndex={setFocusedIndex}
+                otpInputProps={otpInputProps}
                 styles={localStyles}
               />
             )}

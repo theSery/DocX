@@ -1,10 +1,10 @@
-import { StyleSheet, TextInput, View } from 'react-native';
-import { useRef } from 'react';
+import { Platform, StyleSheet, TextInput, View } from 'react-native';
+import { useEffect, useRef } from 'react';
 
 import { FONT_FAMILY } from '../../../../theme';
 import { useTheme, useThemedStyles } from '../../../../hooks';
 
-const OTP_LENGTH = 6;
+const DEFAULT_OTP_LENGTH = 6;
 const OTP_BOX_SIZE = 48;
 
 export function OtpInputRowCode({
@@ -12,16 +12,34 @@ export function OtpInputRowCode({
   onChangeDigit,
   focusedIndex,
   onFocusIndex,
+  length = DEFAULT_OTP_LENGTH,
 }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const inputRefs = useRef([]);
+  const otpLength = digits?.length || length;
+
+  useEffect(() => {
+    if (focusedIndex == null) {
+      return;
+    }
+    inputRefs.current[focusedIndex]?.focus();
+  }, [focusedIndex]);
 
   const handleChange = (text, index) => {
-    const digit = text.replace(/\D/g, '').slice(-1);
+    const cleaned = text.replace(/\D/g, '');
+
+    if (cleaned.length > 1) {
+      onChangeDigit(index, cleaned);
+      const focusTo = Math.min(cleaned.length, otpLength) - 1;
+      onFocusIndex(Math.max(0, focusTo));
+      return;
+    }
+
+    const digit = cleaned.slice(-1);
     onChangeDigit(index, digit);
 
-    if (digit && index < OTP_LENGTH - 1) {
+    if (digit && index < otpLength - 1) {
       inputRefs.current[index + 1]?.focus();
       onFocusIndex(index + 1);
     }
@@ -58,11 +76,17 @@ export function OtpInputRowCode({
               onKeyPress={event => handleKeyPress(event, index)}
               onFocus={() => onFocusIndex(index)}
               keyboardType="number-pad"
-              maxLength={1}
+              // Allow full-code paste / iOS AutoFill into a single box.
+              maxLength={otpLength}
               selectTextOnFocus
               caretHidden={isEmpty && !isFocused}
               placeholder={isEmpty && !isFocused ? '—' : ''}
               placeholderTextColor={colors.textDisabled}
+              textContentType="oneTimeCode"
+              autoComplete={
+                Platform.OS === 'android' ? 'sms-otp' : 'one-time-code'
+              }
+              importantForAutofill="yes"
             />
           </View>
         );

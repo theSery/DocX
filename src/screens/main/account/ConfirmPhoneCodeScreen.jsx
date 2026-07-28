@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { AnimatedView, Typography } from '../../../components';
@@ -8,9 +7,10 @@ import { AuthScreenLayout } from '../../../components/layout';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import { OtpInputRowCode } from '../../authScreens/signInUP/components/OtpInputRowCode';
 import { smsApi } from '../../../api';
-import { useThemedStyles, useToast } from '../../../hooks';
+import { useOtpInput, useThemedStyles, useToast } from '../../../hooks';
 import { FONT_FAMILY, palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
+import { useState } from 'react';
 
 function formatPhoneForDisplay(phoneNumber) {
   const digits = phoneNumber?.replace(/\D/g, '') ?? '';
@@ -85,26 +85,20 @@ export function ConfirmPhoneCodeScreen() {
   const { showToast } = useToast();
   const phoneNumber = route.params?.phoneNumber ?? '';
 
-  const [digits, setDigits] = useState(['', '', '', '', '', '']);
-  const [focusedIndex, setFocusedIndex] = useState(0);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
+  const {
+    code: otpCode,
+    isComplete,
+    reset: resetOtp,
+    inputProps: otpInputProps,
+  } = useOtpInput();
 
   const displayPhone = formatPhoneForDisplay(phoneNumber);
-  const isCodeComplete = digits.join('').length === 6;
-  const isConfirmDisabled = isVerifying || !isCodeComplete;
-
-  const handleChangeDigit = (index, value) => {
-    setDigits(prev => {
-      const next = [...prev];
-      next[index] = value;
-      return next;
-    });
-  };
+  const isConfirmDisabled = isVerifying || !isComplete;
 
   const handleVerifyCode = async () => {
-    const code = digits.join('');
-    if (code.length !== 6) {
+    if (otpCode.length !== 6) {
       showToast({
         title: 'Սխալ կոդ',
         body: 'Մուտքագրեք 6 նիշանոց կոդը',
@@ -115,7 +109,7 @@ export function ConfirmPhoneCodeScreen() {
 
     setIsVerifying(true);
     try {
-      await smsApi.verifyCode({ phoneNumber, code });
+      await smsApi.verifyCode({ phoneNumber, code: otpCode });
       showToast({
         title: 'Հեռախոսահամարը հաստատված է',
         type: 'success',
@@ -136,8 +130,7 @@ export function ConfirmPhoneCodeScreen() {
     setIsResending(true);
     try {
       await smsApi.requestCode({ phoneNumber });
-      setDigits(['', '', '', '', '', '']);
-      setFocusedIndex(0);
+      resetOtp();
       showToast({
         title: 'Կոդը ուղարկված է',
         body: 'Նոր հաստատման կոդը ուղարկվել է ձեր հեռախոսահամարին',
@@ -172,12 +165,7 @@ export function ConfirmPhoneCodeScreen() {
               subtitle={`Մուտքագրեք Ձեր ${displayPhone} հեռախոսահամարին ուղարկված կոդը`}
             />
             <View style={styles.otpSection}>
-              <OtpInputRowCode
-                digits={digits}
-                onChangeDigit={handleChangeDigit}
-                focusedIndex={focusedIndex}
-                onFocusIndex={setFocusedIndex}
-              />
+              <OtpInputRowCode {...otpInputProps} />
             </View>
             <View style={styles.resendContainer}>
               <Typography style={styles.resendHelper}>Չե՞ք ստացել կոդը</Typography>

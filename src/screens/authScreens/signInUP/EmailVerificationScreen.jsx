@@ -7,6 +7,7 @@ import {
 import { AuthScreenLayout } from '../../../components/layout';
 import {
   useAuthScreenStyles,
+  useOtpInput,
   useTheme,
   useThemedFocusStatusBar,
   useThemedStyles,
@@ -23,13 +24,7 @@ import LottieAnimation from '../../../components/animation/LottieAnimation';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import { authApi } from '../../../api';
 
-function CompletedEmailVerification({
-  digits,
-  handleChangeDigit,
-  focusedIndex,
-  setFocusedIndex,
-  styles,
-}) {
+function CompletedEmailVerification({ otpInputProps, styles }) {
   return (
     <>
       <AnimatedView animation="fadeIn" style={styles.emailCheckContainer}>
@@ -39,12 +34,7 @@ function CompletedEmailVerification({
           resizeMode="cover"
         />
       </AnimatedView>
-      <OtpInputRowCode
-        digits={digits}
-        onChangeDigit={handleChangeDigit}
-        focusedIndex={focusedIndex}
-        onFocusIndex={setFocusedIndex}
-      />
+      <OtpInputRowCode {...otpInputProps} />
     </>
   );
 }
@@ -102,8 +92,7 @@ export function EmailVerificationScreen({ navigation, route }) {
   useThemedFocusStatusBar();
   const { email, password, purpose = 'register' } = route.params ?? {};
   const isResetPassword = purpose === 'reset_password';
-  const [digits, setDigits] = useState(['', '', '', '', '', '']);
-  const [focusedIndex, setFocusedIndex] = useState(0);
+  const { code: otpCode, inputProps: otpInputProps } = useOtpInput();
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [verifiedCode, setVerifiedCode] = useState('');
@@ -111,10 +100,9 @@ export function EmailVerificationScreen({ navigation, route }) {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      const code = digits.join('');
       const response = await authApi.verifyOtp({
         email,
-        code,
+        code: otpCode,
         purpose,
       });
       console.log('Verify OTP response:', response.data);
@@ -125,7 +113,7 @@ export function EmailVerificationScreen({ navigation, route }) {
           : 'Ձեր էլ-փոստը հաջողությամբ հաստատված է',
         type: 'success',
       });
-      setVerifiedCode(code);
+      setVerifiedCode(otpCode);
       setIsSuccess(true);
     } catch (error) {
       console.log('Verify OTP error:', error);
@@ -143,19 +131,11 @@ export function EmailVerificationScreen({ navigation, route }) {
     if (isResetPassword) {
       navigation.navigate('ResetPassword', {
         email,
-        code: verifiedCode || digits.join(''),
+        code: verifiedCode || otpCode,
       });
       return;
     }
     navigation.navigate('Registration', { email, password });
-  };
-
-  const handleChangeDigit = (index, value) => {
-    setDigits(prev => {
-      const next = [...prev];
-      next[index] = value;
-      return next;
-    });
   };
 
   const successButtonTitle = isResetPassword
@@ -187,10 +167,7 @@ export function EmailVerificationScreen({ navigation, route }) {
               />
             ) : (
               <CompletedEmailVerification
-                digits={digits}
-                handleChangeDigit={handleChangeDigit}
-                focusedIndex={focusedIndex}
-                setFocusedIndex={setFocusedIndex}
+                otpInputProps={otpInputProps}
                 styles={localStyles}
               />
             )}

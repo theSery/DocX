@@ -11,3 +11,8 @@ export { useFocusStatusBar, useThemedFocusStatusBar } from './useFocusStatusBar'
 export { useTheme } from './useTheme';
 export { useThemedStyles } from './useThemedStyles';
 export { useToast } from './useToast';
+export {
+  useOtpInput,
+  extractOtpCode,
+  DEFAULT_OTP_LENGTH,
+} from './useOtpInput';
