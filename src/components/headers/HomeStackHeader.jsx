@@ -8,7 +8,9 @@ import Animated, {
 import MainHeader from './MainHeader';
 import { useThemedStyles } from '../../hooks';
 import { SearchComponent } from '../titleComponents/SearchComponent';
+import { CachedImage } from '../image';
 import { Typography } from '../typography';
+import { FONT_FAMILY } from '../../theme';
 import { useHomeStackHeaderScroll } from '../../context/HomeStackHeaderScrollContext';
 import {
   getHomeStackHeaderCollapseProgress,
@@ -42,6 +44,47 @@ export {
 } from './stackHeaderConstants';
 
 
+const HeaderTitleBlock = ({ styles, title, subtitle, iconUrl }) => {
+  if (!title && !subtitle && !iconUrl) {
+    return <View style={{ height: 60 }} />;
+  }
+
+  if (iconUrl) {
+    return (
+      <View style={styles.titleWithIconRow}>
+        <CachedImage
+          source={{ uri: iconUrl }}
+          style={styles.categoryIcon}
+        />
+        {title ? (
+          <Typography
+            variant="h2"
+            style={styles.titleWithIcon}
+            numberOfLines={2}
+          >
+            {title}
+          </Typography>
+        ) : null}
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.titleContainer}>
+      {title ? (
+        <Typography variant="h2" style={styles.loginTitle} numberOfLines={2}>
+          {title}
+        </Typography>
+      ) : null}
+      {subtitle ? (
+        <Typography variant="h6" tone="secondary" style={{ letterSpacing: 0.4 }}>
+          {subtitle}
+        </Typography>
+      ) : null}
+    </View>
+  );
+};
+
 const StaticHomeStackHeader = ({
   styles,
   onPress,
@@ -49,6 +92,7 @@ const StaticHomeStackHeader = ({
   subtitle,
   showSearch,
   searchScope,
+  iconUrl,
 }) => (
   <View
     style={[
@@ -65,20 +109,12 @@ const StaticHomeStackHeader = ({
       <View style={styles.headerRow}>
         <MainHeader onPress={onPress} isHome={true}/>
       </View>
-      {title || subtitle ? (
-        <View style={styles.titleContainer}>
-          {title ? (
-            <Typography variant="h2" style={styles.loginTitle}>
-              {title}
-            </Typography>
-          ) : null}
-          {subtitle ? (
-            <Typography variant="h6" tone="secondary" style={{ letterSpacing: 0.4 }}>
-              {subtitle}
-            </Typography>
-          ) : null}
-        </View>
-      ): <View style={{ height: 60 }} />  }
+      <HeaderTitleBlock
+        styles={styles}
+        title={title}
+        subtitle={subtitle}
+        iconUrl={iconUrl}
+      />
     </View>
     {showSearch ? (
       <View style={styles.searchWrap}>
@@ -151,7 +187,11 @@ const CollapsibleHomeStackHeader = ({
         {(title || subtitle) && (
           <View style={styles.titleContainer}>
             {title ? (
-              <Typography variant="h2" style={[styles.loginTitle, {fontSize: 16, letterSpacing: 0, }]}>
+              <Typography
+                variant="h2"
+                style={[styles.loginTitle, { fontSize: 16, letterSpacing: 0 }]}
+                numberOfLines={2}
+              >
                 {title}
               </Typography>
             ) : null}
@@ -178,6 +218,7 @@ const HomeStackHeader = ({
   subtitle,
   showSearch = true,
   collapsible = true,
+  iconUrl,
   route,
 }) => {
   const styles = useThemedStyles(createStyles);
@@ -192,6 +233,7 @@ const HomeStackHeader = ({
         subtitle={subtitle}
         showSearch={showSearch}
         searchScope={searchScope}
+        iconUrl={iconUrl}
       />
     );
   }
@@ -240,6 +282,26 @@ const createStyles = colors =>
     },
     titleContainer: {
       marginTop: 10,
+    },
+    titleWithIconRow: {
+      marginTop: 10,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+    categoryIcon: {
+      width: 46,
+      height: 46,
+      borderRadius: 10,
+      overflow: 'hidden',
+      resizeMode: 'cover',
+    },
+    titleWithIcon: {
+      flex: 1,
+      fontSize: 16,
+      fontFamily: FONT_FAMILY.medium,
+      letterSpacing: 0,
+      lineHeight: 20,
     },
     loginTitle: {
       letterSpacing: 2,

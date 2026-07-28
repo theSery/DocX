@@ -1,20 +1,16 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import { SPACING } from './components/CategoriesList';
 import { StaggeredAnimatedView } from '../../../components/animation';
-import { CachedImage, useCachedImageSource } from '../../../components/image';
+import { CachedImage } from '../../../components/image';
 import { TAB_BAR_HEIGHT, TOP_HEADER_HEIGHT, WIDTH } from '../../../utils/dimensions';
-import { FONT_FAMILY } from '../../../theme';
 import { Typography } from '../../../components/typography/Typography';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
 import { useGlobalStyles, useHomeStackHeaderScrollHandler, useThemedStyles, useTheme } from '../../../hooks';
 
 const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
-
-
-
 
 export function CategoryScreen({ navigation, route }) {
   const { item } = route.params;
@@ -25,26 +21,13 @@ export function CategoryScreen({ navigation, route }) {
     useHomeStackHeaderScrollHandler();
   const insets = useSafeAreaInsets();
   const scrollBottomPadding = insets.bottom + TAB_BAR_HEIGHT + 24;
-  const categoryIconSource = useCachedImageSource(item.iconUrl);
 
   return (
     <View style={styles.screen}>
-      <Animated.Image
-        source={categoryIconSource}
-        entering={FadeIn.duration(400)}
-        style={styles.categoryItemImageIcon}
-      />
-      <Animated.Text
-        entering={FadeIn.duration(400)}
-        style={styles.categoryItemText}
-      >
-        {item.name}
-      </Animated.Text>
-
       <View style={styles.bg}>
         <Animated.ScrollView
           style={styles.scrollView}
-          contentContainerStyle={{ paddingBottom: scrollBottomPadding, }}
+          contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
           onScroll={onScroll}
           onLayout={onScrollViewLayout}
           onContentSizeChange={onContentSizeChange}
@@ -93,34 +76,6 @@ const createStyles = colors =>
     scrollView: {
       flex: 1,
     },
-    categoryItemText: {
-      fontSize: 16,
-      fontFamily: FONT_FAMILY.medium,
-      color: colors.text,
-      width: '60%',
-      left: 80,
-      // height: 25,
-      justifyContent: 'center',
-      alignItems: 'center',
-      // marginRight: 20,
-      marginTop: 20,
-      top: -120,
-      zIndex: 1000,
-      position: 'absolute',
-      right: 0,
-
-    },
-    categoryItemImageIcon: {
-      width: 46,
-      height: 46,
-      borderRadius: 10,
-      overflow: 'hidden',
-      resizeMode: 'cover',
-      position: 'absolute',
-      left: 20,
-      top: -105,
-      zIndex: 1000,
-    },
     bg: {
       position: 'absolute',
       left: 0,
@@ -132,7 +87,6 @@ const createStyles = colors =>
       overflow: 'hidden',
     },
     categoryItem: {
-      // height: 65,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -151,21 +105,6 @@ const createStyles = colors =>
       backgroundColor: colors.skyBlue,
       padding: 10,
       borderRadius: 16,
-    },
-    bgCategoryItem: {
-      height: 40,
-      resizeMode: 'contain',
-      borderRadius: 10,
-      backgroundColor: colors.background,
-      position: 'absolute',
-      width: '100%',
-      top: -110,
-      zIndex: 500,
-    },
-    headerBackground: {
-      ...StyleSheet.absoluteFill,
-      backgroundColor: colors.background,
-      height: TOP_HEADER_HEIGHT + 32,
     },
     subCategoryName: {
       letterSpacing: 0.4,

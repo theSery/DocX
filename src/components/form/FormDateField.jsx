@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Controller } from 'react-hook-form';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {
+  Keyboard,
   Modal,
   Platform,
   Pressable,
@@ -132,6 +133,7 @@ export function FormDateField({
         const isPlaceholder = !selectedDate;
 
         const openPicker = () => {
+          Keyboard.dismiss();
           const initialDate = clampDate(
             selectedDate ?? new Date(),
             minimumDate,

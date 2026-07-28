@@ -23,6 +23,7 @@ const nestedScreenOptionsWithHeader = (
     showSearch = true,
     collapsible = true,
     isMainHeader = false,
+    iconUrl,
   },
 ) => ({
   ...nestedScreenOptions,
@@ -30,6 +31,7 @@ const nestedScreenOptionsWithHeader = (
   headerSubtitle: subtitle,
   headerShowSearch: showSearch,
   headerCollapsible: collapsible,
+  headerIconUrl: iconUrl,
   headerShown: true,
   // Collapsible headers overlay the scene so height animation does not
   // resize the ScrollView (which caused scroll jitter / vibration).
@@ -45,6 +47,7 @@ const nestedScreenOptionsWithHeader = (
       subtitle={options.headerSubtitle}
       showSearch={options.headerShowSearch}
       collapsible={options.headerCollapsible}
+      iconUrl={options.headerIconUrl}
       route={route}
     />
   ),
@@ -74,12 +77,13 @@ export function HomeStackNavigator() {
           <Home.Screen
             name="Category"
             component={CategoryScreen}
-            options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
-              title: '',
-              subtitle: '',
-              // showSearch: true,
-              collapsible: false,
-            })}
+            options={({ route }) =>
+              nestedScreenOptionsWithHeader(nestedScreenOptions, {
+                title: route.params?.item?.name ?? '',
+                iconUrl: route.params?.item?.iconUrl,
+                collapsible: false,
+              })
+            }
           />
           <Home.Screen
             name="SubCategoryScreen"
