@@ -60,14 +60,14 @@ const createStyles = colors =>
       height: 8,
       borderRadius: 14,
       opacity: 0.4,
-      backgroundColor: colors.mainBlue,
+      backgroundColor: colors.icons,
     },
     circleActive: {
       opacity: 1,
-      backgroundColor: colors.mainBlue,
+      backgroundColor: colors.icons,
     },
     circleCompleted: {
       opacity: 1,
-      backgroundColor: colors.mainBlue,
+      backgroundColor: colors.icons,
     },
   });

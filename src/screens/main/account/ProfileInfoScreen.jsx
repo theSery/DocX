@@ -44,6 +44,7 @@ const CONTACT_INFO_FIELDS = [
     Icon: MailIconSvg,
     placeholder: 'example@docx.am',
     keyboardType: 'email-address',
+    editable: false,
     rules: {
       required: 'Էլ.-փոստը պարտադիր է',
       pattern: {
@@ -276,6 +277,7 @@ export function ProfileInfoScreen() {
               startIcon={<field.Icon fill={colors.icons} width={20} height={20} />}
               placeholder={field.placeholder}
               keyboardType={field.keyboardType}
+              editable={field.editable}
               rules={field.rules}
             />
           ))}

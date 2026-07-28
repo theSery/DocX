@@ -383,7 +383,7 @@ export function FillInDetailsScreen({ navigation, route }) {
           endIcon={
             !isLastStep ? <ArrowSvg width={14} height={14} fill={palette.white} /> : null
           }
-          style={[styles.footerButton, { bottom: TAB_BAR_BOTTOM_OFFSET }]}
+          style={[styles.footerButton, { bottom: TAB_BAR_BOTTOM_OFFSET + 20 }]}
         />
       </View>
     </>

@@ -116,6 +116,7 @@ export function FormField({
   keyboardType,
   autoCapitalize = 'none',
   labelVariant = 'h6',
+  editable = true,
 }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
@@ -185,6 +186,7 @@ export function FormField({
                 autoCorrect={false}
                 keyboardType={resolvedKeyboardType}
                 secureTextEntry={isMasked}
+                editable={editable}
               />
               {showDefaultEyeToggle ? (
                 <Pressable

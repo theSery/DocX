@@ -1492,7 +1492,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-document-picker (12.0.1):
+  - react-native-document-picker (12.0.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2729,7 +2729,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AsyncStorage: 163ab23f6aa37a58b7f2379d0b4ee7ac84d6655c
   FBLazyVector: 24e62c765683b8d89006a88a2c8f5cf019f0074d
-  hermes-engine: 123b75e0c03942d309583eb37a9c73c11f10d15a
+  hermes-engine: 2ed86adce19ee1a8966d78e3bf2d7e73f0d1839e
   HtmlToPdf: 32f1a9bc86f222c5e9288c06ffad44925be76393
   lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
   lottie-react-native: ee142214581f3bb68fbda7efcf07b835a189eeda
@@ -2741,7 +2741,7 @@ SPEC CHECKSUMS:
   React: e2dc35338068bbd299c66f043ae0d7f25de8499e
   React-callinvoker: 28b25d21b124c26cebaea713ba7d801b9351dc48
   React-Core: 02ed7d2ffb70437bdf2aba074a13078a7b0b9ff0
-  React-Core-prebuilt: 64ceb7962c00398ba078526822c8bd39204156c8
+  React-Core-prebuilt: 155a8a930cb7ab232bb89ac5fdf54ef0c7b30e9d
   React-CoreModules: b3a5a42dadcde3b5d47b325bd912eb2ced89e146
   React-cxxreact: fe8f88dda044e5905e99a00f41b7a874c3908716
   React-debug: 92944dc4d89f56d640e75498266cbde557a48189
@@ -2771,7 +2771,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: ab33a818d339f5a1da308893c11b487be66121a8
   React-mutationobservernativemodule: a42d1626651ccd7d0dc02a56e69d4ec77c248893
   react-native-cameraroll: 4d4fcff8a057235ce7a9f57d4566409207216a86
-  react-native-document-picker: 15cca2d1a6bfb6d0d3ff0283bd9b903e57cb028b
+  react-native-document-picker: c3a7536f3ee52525b4714c3720537f941d0cb094
   react-native-image-picker: 23540feacc79c63c60857f318fdfa8477c26e70a
   react-native-safe-area-context: fb5c8ee9f6dd62ef710611b3d370c501f42a4ac0
   react-native-skia: 1f3b44c50ee3b7637c0e66b4560a31983cdd7cef
@@ -2810,7 +2810,7 @@ SPEC CHECKSUMS:
   ReactCodegen: c8f81e6c6f762dcf442a6203a1fb58f7dafc8014
   ReactCommon: 7dfc3250793bf36cf221096ff59e1179e13eef7f
   ReactNativeBlur: b28d491a4950d5a8b30789a954c323271addf7ce
-  ReactNativeDependencies: 3f19c6698b0af6024b61669eceaa5b1b714d25aa
+  ReactNativeDependencies: 74cb6cf66e9e2c70585da937cc8fee28a75db704
   RNDateTimePicker: 7b2738f1e595f83c14580a11c476872755c5befc
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
   RNGestureHandler: 1a13430fe6d4ba08ee545f53a245a2b8eaa0042d

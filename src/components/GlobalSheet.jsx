@@ -45,6 +45,8 @@ let showSheetHandler = null;
  *   actions?: SheetAction[];
  *   menuItems?: MenuItem[];
  *   onDismiss?: () => void;
+ *   messageStyle?: import('react-native').TextStyle;
+ *   contentImageStyle?: import('react-native').ImageStyle;
  * }} GlobalSheetOptions
  */
 
@@ -128,13 +130,13 @@ function DefaultSheetContent({ sheet, styles, onActionPress }) {
       {sheet.content ? (
         <Image
           source={resolveImageSource(sheet.content)}
-          style={styles.contentImage}
+          style={[styles.contentImage, sheet.contentImageStyle]}
           resizeMode="contain"
         />
       ) : (
         <WarningSvg width={45} height={45} fill={palette.red} />
       )}
-      <Typography variant="h4" style={styles.message}>
+      <Typography variant="h4" style={[styles.message, sheet.messageStyle]}>
         {sheet.message}
       </Typography>
       {sheet.description ? (
@@ -373,7 +375,7 @@ const createStyles = colors =>
     },
     destructiveButton: {
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.mainBlue,
+      borderColor: colors.icons,
     },
     actionButton: {
       height: 45,
@@ -390,7 +392,7 @@ const createStyles = colors =>
     actionText: {
       fontSize: 16,
       fontFamily: FONT_FAMILY.regular,
-      color: colors.mainBlue,
+      color: colors.icons,
     },
     mutedText: {
       color: colors.textSecondary,

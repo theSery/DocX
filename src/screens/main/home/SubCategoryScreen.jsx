@@ -116,11 +116,14 @@ export function SubCategoryScreen({ route, navigation }) {
     });
   };
 
-  const onChooseTemplate = (template) => {
+  const onChooseTemplate = (template, category) => {
+    const categoryIconUrl = category.iconUrl || iconUrl;
     showGlobalSheet({
-      content: resolveImageSource(iconUrl) ?? { uri: iconUrl },
-      message: title,
+      content: resolveImageSource(categoryIconUrl) ?? { uri: categoryIconUrl },
+      message: category.name,
       description: template.name,
+      contentImageStyle: { width: 56, height: 56 },
+      messageStyle: { fontSize: 14, lineHeight: 20 },
       actions: [
         { label: template.relatedAction, onPress: () => navigateToFillInDetails(template) },
         { label: 'Փակել', destructive: true },
@@ -189,7 +192,7 @@ export function SubCategoryScreen({ route, navigation }) {
                       <ArrowSvg width={14} height={14} fill={palette.white} />
                     }
                     title={template.name}
-                    onPress={() => onChooseTemplate(template)}
+                    onPress={() => onChooseTemplate(template, category)}
                   />
                 ))
               ) : (
