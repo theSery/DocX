@@ -3,6 +3,9 @@ import { buildPdfHtmlDocument } from './buildPdfHtmlDocument';
 export const DEFAULT_TYPING_DURATION = 800;
 
 /**
+ * Types visible text evenly across the full duration (HTML tags do not
+ * eat the timeline). Used by document create loading.
+ *
  * @param {string} bodyHtml
  * @param {number} [durationMs]
  */
@@ -16,18 +19,57 @@ export function buildTypingAnimationHtml(bodyHtml, durationMs = DEFAULT_TYPING_D
         const fullHtml = ${serializedHtml};
         const duration = ${durationMs};
         const target = document.getElementById('typed-content');
-        const total = fullHtml.length;
+        target.innerHTML = fullHtml;
+
+        const textNodes = [];
+        const walker = document.createTreeWalker(
+          target,
+          NodeFilter.SHOW_TEXT,
+          null,
+        );
+        let current = walker.nextNode();
+        while (current) {
+          if (current.nodeValue && current.nodeValue.length) {
+            textNodes.push({ node: current, text: current.nodeValue });
+            current.nodeValue = '';
+          }
+          current = walker.nextNode();
+        }
+
+        const total = textNodes.reduce(function (sum, entry) {
+          return sum + entry.text.length;
+        }, 0);
         const start = performance.now();
         let cursorVisible = true;
+        let cursorEl = null;
 
-        function render(len, showCursor) {
-          const cursor = showCursor
-            ? '<span id="typing-cursor" style="display:inline-block;width:2px;height:1em;background:#2563eb;margin-left:1px;vertical-align:text-bottom;opacity:' +
-              (cursorVisible ? 1 : 0) +
-              ';"></span>'
-            : '';
-          target.innerHTML = fullHtml.slice(0, len) + cursor;
-          scrollToTypingPosition(false);
+        function placeCursor(afterNode) {
+          if (!cursorEl) {
+            cursorEl = document.createElement('span');
+            cursorEl.id = 'typing-cursor';
+            cursorEl.setAttribute(
+              'style',
+              'display:inline-block;width:2px;height:1em;background:#2563eb;margin-left:1px;vertical-align:text-bottom;',
+            );
+          }
+          if (cursorEl.parentNode) {
+            cursorEl.parentNode.removeChild(cursorEl);
+          }
+          if (!afterNode || !afterNode.parentNode) {
+            return;
+          }
+          if (afterNode.nextSibling) {
+            afterNode.parentNode.insertBefore(cursorEl, afterNode.nextSibling);
+          } else {
+            afterNode.parentNode.appendChild(cursorEl);
+          }
+          cursorEl.style.opacity = cursorVisible ? '1' : '0';
+        }
+
+        function removeCursor() {
+          if (cursorEl && cursorEl.parentNode) {
+            cursorEl.parentNode.removeChild(cursorEl);
+          }
         }
 
         function scrollToTypingPosition(animated) {
@@ -38,7 +80,7 @@ export function buildTypingAnimationHtml(bodyHtml, durationMs = DEFAULT_TYPING_D
             cursor.scrollIntoView({
               block: 'end',
               inline: 'nearest',
-              behavior,
+              behavior: behavior,
             });
             return;
           }
@@ -46,29 +88,56 @@ export function buildTypingAnimationHtml(bodyHtml, durationMs = DEFAULT_TYPING_D
           window.scrollTo({
             top: document.documentElement.scrollHeight,
             left: 0,
-            behavior,
+            behavior: behavior,
           });
         }
 
+        function reveal(charCount, showCursor) {
+          let remaining = charCount;
+          let lastFilled = null;
+
+          for (var i = 0; i < textNodes.length; i++) {
+            var entry = textNodes[i];
+            var take = Math.min(remaining, entry.text.length);
+            entry.node.nodeValue = entry.text.slice(0, take);
+            remaining -= take;
+            if (take > 0) {
+              lastFilled = entry.node;
+            }
+          }
+
+          if (showCursor) {
+            placeCursor(lastFilled);
+          } else {
+            removeCursor();
+          }
+
+          scrollToTypingPosition(false);
+        }
+
         function frame(now) {
-          const progress = Math.min((now - start) / duration, 1);
-          const len = Math.floor(progress * total);
-          render(len, progress < 1);
+          var progress = Math.min((now - start) / duration, 1);
+          var len = total === 0 ? 0 : Math.floor(progress * total);
+          reveal(len, progress < 1);
 
           if (progress < 1) {
             requestAnimationFrame(frame);
           } else {
+            reveal(total, false);
             scrollToTypingPosition(true);
           }
         }
 
         setInterval(function () {
           cursorVisible = !cursorVisible;
-          const cursor = document.getElementById('typing-cursor');
-          if (cursor) {
-            cursor.style.opacity = cursorVisible ? 1 : 0;
+          if (cursorEl && cursorEl.parentNode) {
+            cursorEl.style.opacity = cursorVisible ? '1' : '0';
           }
         }, 500);
+
+        if (total === 0) {
+          return;
+        }
 
         requestAnimationFrame(frame);
       })();

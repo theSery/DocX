@@ -15,7 +15,6 @@ import {
   buildFilledTemplateBodyHtml,
   buildPdfHtmlDocument,
   buildTypingAnimationHtml,
-  DEFAULT_TYPING_DURATION,
   fetchSignatureImageDataUri,
   generateComplaintSerialNumber,
   generateDocumentPdf,
@@ -23,12 +22,14 @@ import {
   prependSerialNumberToBodyHtml,
 } from '../../../documents';
 import { complaintsApi, personalDocumentsApi } from '../../../api';
-import { DocumentLoadingOverlay, Typography } from '../../../components';
+import {
+  getNextDocumentLoadingQuote,
+  DocumentLoadingOverlay,
+} from '../../../components/DocumentLoadingOverlay';
 import { useAppSelector } from '../../../store';
 import { selectDocumentFill } from '../../../store/slices/documentFillSlice';
 import { selectPersonalData } from '../../../store/slices/personalDataSlice';
 import {
-  useDocumentLoadingOverlay,
   useFileDownload,
   useTheme,
   useThemedStyles,
@@ -39,7 +40,8 @@ import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import MainHeader from '../../../components/headers/MainHeader';
 import SendSvg from '../../../components/icons/SendSvg';
 
-
+/** Fixed loading + document generation duration for this screen only. */
+const DOCUMENT_CREATE_LOADING_DURATION = 7000;
 
 export function DocumentCreateScreen({ route, navigation }) {
 
@@ -50,13 +52,13 @@ export function DocumentCreateScreen({ route, navigation }) {
   const personalData = useAppSelector(selectPersonalData);
   const documentFill = useAppSelector(selectDocumentFill);
   const { templateText = '', templateName = 'document', templateId, templateSolution } = route.params ?? {};
-  const [isWebViewLoading, setIsWebViewLoading] = useState(true);
   const [hasTypingFinished, setHasTypingFinished] = useState(false);
+  const [isTypingWebViewReady, setIsTypingWebViewReady] = useState(false);
   const [isAddingSignature, setIsAddingSignature] = useState(false);
   const [isSubmittingComplaint, setIsSubmittingComplaint] = useState(false);
   const [signatureImageSrc, setSignatureImageSrc] = useState(null);
-  const isContentLoading = !hasTypingFinished || isWebViewLoading;
-  const showLoadingOverlay = useDocumentLoadingOverlay(isContentLoading);
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(true);
+  const [loadingQuote, setLoadingQuote] = useState(getNextDocumentLoadingQuote);
 
   const userId = personalData?.id ?? personalData?.userId;
 
@@ -101,25 +103,34 @@ export function DocumentCreateScreen({ route, navigation }) {
 
   useEffect(() => {
     setHasTypingFinished(false);
+    setIsTypingWebViewReady(false);
+    setLoadingQuote(getNextDocumentLoadingQuote());
+    setShowLoadingOverlay(true);
+  }, [typingSourceKey]);
+
+  // Start the fixed 7s clock only after the typing WebView has loaded,
+  // so generation + overlay always run the full duration together.
+  useEffect(() => {
+    if (!isTypingWebViewReady || hasTypingFinished) {
+      return undefined;
+    }
 
     const timer = setTimeout(() => {
       setHasTypingFinished(true);
-    }, DEFAULT_TYPING_DURATION);
+      setShowLoadingOverlay(false);
+    }, DOCUMENT_CREATE_LOADING_DURATION);
 
     return () => clearTimeout(timer);
-  }, [typingSourceKey]);
-
-  useEffect(() => {
-    if (hasTypingFinished) {
-      setIsWebViewLoading(true);
-    }
-  }, [hasTypingFinished]);
+  }, [isTypingWebViewReady, hasTypingFinished, typingSourceKey]);
 
   const previewWebViewSource = useMemo(
     () => ({
       html: hasTypingFinished
         ? documentHtml
-        : buildTypingAnimationHtml(typingBodyHtml, DEFAULT_TYPING_DURATION),
+        : buildTypingAnimationHtml(
+            typingBodyHtml,
+            DOCUMENT_CREATE_LOADING_DURATION,
+          ),
       baseUrl: getPdfWebViewBaseUrl(),
     }),
     [hasTypingFinished, documentHtml, typingBodyHtml],
@@ -283,8 +294,11 @@ export function DocumentCreateScreen({ route, navigation }) {
               scalesPageToFit
               scrollEnabled
               showsVerticalScrollIndicator={false}
-              onLoadEnd={() => setIsWebViewLoading(false)}
-              onLoadStart={() => setIsWebViewLoading(true)}
+              onLoadEnd={() => {
+                if (!hasTypingFinished) {
+                  setIsTypingWebViewReady(true);
+                }
+              }}
             />
           </View>
         </View>
@@ -323,7 +337,10 @@ export function DocumentCreateScreen({ route, navigation }) {
 
       </View>
 
-      <DocumentLoadingOverlay visible={showLoadingOverlay} />
+      <DocumentLoadingOverlay
+        visible={showLoadingOverlay}
+        quote={loadingQuote}
+      />
     </View>
   );
 }
