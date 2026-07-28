@@ -96,7 +96,7 @@ export function PersonalDocumentViewScreen({ route, navigation }) {
           </View>
         </View>
 
-        {downloadUrl ? (
+        {downloadUrl && !showLoadingOverlay ? (
           <View style={styles.actionRow}>
             <Pressable
               accessibilityRole="button"

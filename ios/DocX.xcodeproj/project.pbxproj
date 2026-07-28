@@ -326,7 +326,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = am.docx.app;
+				PRODUCT_BUNDLE_IDENTIFIER = DOCX.AM;
 				PRODUCT_NAME = DocX;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -359,7 +359,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = am.docx.app;
+				PRODUCT_BUNDLE_IDENTIFIER = DOCX.AM;
 				PRODUCT_NAME = DocX;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;

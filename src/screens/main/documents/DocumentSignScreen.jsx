@@ -156,26 +156,19 @@ export function DocumentSignScreen({ route, navigation }) {
           </View>
         </View>
 
-        <View style={styles.actionRow}>
-          {/* <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Add signature"
-            onPress={handleAddSignature}
-            disabled={isActionDisabled}
-            style={styles.topButton}
-          >
-            <SignatureSvg width={25} height={25} fill={palette.mainBlue} />
-          </Pressable> */}
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Download PDF"
-            onPress={handleDownloadPdf}
-            disabled={isActionDisabled}
-            style={styles.topButton}
-          >
-            <UploadSvg width={25} height={25} fill={colors.icons} />
-          </Pressable>
-        </View>
+        {!showLoadingOverlay ? (
+          <View style={styles.actionRow}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Download PDF"
+              onPress={handleDownloadPdf}
+              disabled={isActionDisabled}
+              style={styles.topButton}
+            >
+              <UploadSvg width={25} height={25} fill={colors.icons} />
+            </Pressable>
+          </View>
+        ) : null}
       </View>
 
       <DocumentLoadingOverlay visible={showLoadingOverlay} />

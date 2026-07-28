@@ -42,10 +42,10 @@ export function SubCategoryScreen({ route, navigation }) {
   };
 
   const onChooseTemplate = (template) => {
-    if (!isAuthenticated) {
-      openAuth();
-      return;
-    }
+    // if (!isAuthenticated) {
+    //   openAuth();
+    //   return;
+    // }
 
     showGlobalSheet({
       content: { uri: iconUrl },

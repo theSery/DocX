@@ -56,7 +56,7 @@ export const complaintsApi = {
 
     formData.append('templateId', String(templateId));
     formData.append('documentName', documentName);
-    formData.append('serialNumber', serialNumber);
+    formData.append('serialNumber', `M-${serialNumber}`);
     formData.append('data', data);
 
     if (file?.uri) {
@@ -68,7 +68,7 @@ export const complaintsApi = {
         type: file.type ?? 'application/pdf',
       });
     }
-console.log('formData:', formData);
+
     return axiosClient.post('/complaints', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });

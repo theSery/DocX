@@ -292,24 +292,24 @@ export function DocumentCreateScreen({ route, navigation }) {
             />
           </View>
         </View>
-        <View style={styles.actionRow}>
-
-          <Pressable
-            onPress={handleAddSignature}
-            disabled={isActionDisabled}
-            style={styles.topButton}
-          >
-            <SignatureSvg width={25} height={25} fill={colors.icons} />
-          </Pressable>
-          <Pressable
-            onPress={handleDownloadPdf}
-            disabled={isActionDisabled}
-            style={styles.topButton}
-          >
-            <UploadSvg width={25} height={25} fill={colors.icons} />
-          </Pressable>
-
-        </View>
+        {!showLoadingOverlay ? (
+          <View style={styles.actionRow}>
+            <Pressable
+              onPress={handleAddSignature}
+              disabled={isActionDisabled}
+              style={styles.topButton}
+            >
+              <SignatureSvg width={25} height={25} fill={colors.icons} />
+            </Pressable>
+            <Pressable
+              onPress={handleDownloadPdf}
+              disabled={isActionDisabled}
+              style={styles.topButton}
+            >
+              <UploadSvg width={25} height={25} fill={colors.icons} />
+            </Pressable>
+          </View>
+        ) : null}
         <View style={[styles.actionBar, { bottom: TAB_BAR_BOTTOM_OFFSET, flexDirection: 'column' }]}>
 
           <AuthButton
