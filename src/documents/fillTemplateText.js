@@ -1,5 +1,6 @@
 import { escapeHtml } from './escapeHtml';
 import { formatDocumentDate, formatDocumentDateTime } from './formatDocumentDate';
+import { isDateDataType } from '../utils/variableDataTypes';
 
 const VARIABLE_SPAN_PATTERN =
   /<span\b[^>]*\bdata-label="([^"]+)"[^>]*>[\s\S]*?<\/span>/gi;
@@ -93,7 +94,7 @@ function mapDocumentFillToVariables(documentFill = {}) {
   const configuredVariables = Object.fromEntries(
     Object.entries(documentFill.variableValues ?? {}).map(([name, value]) => [
       name,
-      documentFill.variableDataTypes?.[name] === 'date'
+      isDateDataType(documentFill.variableDataTypes?.[name])
         ? formatDocumentDate(value)
         : value ?? '',
     ]),

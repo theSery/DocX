@@ -25,6 +25,17 @@ function formatDateDisplay(date) {
   return `${day} / ${month} / ${year}`;
 }
 
+function clampDate(date, minimumDate, maximumDate) {
+  let next = date;
+  if (minimumDate && next < minimumDate) {
+    next = minimumDate;
+  }
+  if (maximumDate && next > maximumDate) {
+    next = maximumDate;
+  }
+  return next;
+}
+
 const createStyles = colors =>
   StyleSheet.create({
     inputRow: {
@@ -121,7 +132,11 @@ export function FormDateField({
         const isPlaceholder = !selectedDate;
 
         const openPicker = () => {
-          const initialDate = selectedDate ?? new Date();
+          const initialDate = clampDate(
+            selectedDate ?? new Date(),
+            minimumDate,
+            maximumDate,
+          );
           if (Platform.OS === 'ios') {
             setIosDraftDate(initialDate);
             setShowIosPicker(true);
@@ -165,7 +180,11 @@ export function FormDateField({
 
             {Platform.OS === 'android' && showAndroidPicker ? (
               <DateTimePicker
-                value={selectedDate ?? new Date()}
+                value={clampDate(
+                  selectedDate ?? new Date(),
+                  minimumDate,
+                  maximumDate,
+                )}
                 mode="date"
                 display="spinner"
                 maximumDate={maximumDate}

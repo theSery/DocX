@@ -27,6 +27,7 @@ import {
   isPersonalDataCompleteForTemplate,
   isPassportDataCompleteForTemplate,
 } from '../../../utils/personalDataValidation';
+import { isDateDataType } from '../../../utils/variableDataTypes';
 
 function buildSteps(templateFactGroups = []) {
   const actStep = { key: 'act', label: 'Մանրամասներ' };
@@ -78,7 +79,7 @@ export function FillInDetailsScreen({ navigation, route }) {
   const defaultValues = useMemo(
     () =>
       templateVariables.reduce((acc, variable) => {
-        acc[variable.name] = variable.dataType === 'date' ? null : '';
+        acc[variable.name] = isDateDataType(variable.dataType) ? null : '';
         return acc;
       }, {}),
     [templateVariables],

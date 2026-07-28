@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { isDateDataType } from '../../utils/variableDataTypes';
 
 const initialState = {
   variableValues: {},
@@ -25,7 +26,7 @@ function toSerializableDate(value) {
 }
 
 function serializeVariableValue(value, dataType) {
-  if (dataType === 'date') {
+  if (isDateDataType(dataType)) {
     return toSerializableDate(value);
   }
 
