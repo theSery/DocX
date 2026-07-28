@@ -51,7 +51,7 @@ export function SubCategoryScreen({ route, navigation }) {
   const { onScroll, onScrollViewLayout, onContentSizeChange } =
     useHomeStackHeaderScrollHandler(canCollapse);
 
-  const { scrollY, smoothScrollY, collapseScrollEnd, collapseEnabled } =
+  const { scrollY, collapseScrollEnd, collapseEnabled } =
     useHomeStackHeaderScroll();
   const scrollRef = useAnimatedRef();
   const insets = useSafeAreaInsets();
@@ -60,13 +60,16 @@ export function SubCategoryScreen({ route, navigation }) {
 
   const categoryIconStyle = useAnimatedStyle(() => {
     const progress = getHomeStackHeaderCollapseProgress(
-      smoothScrollY.value,
+      scrollY.value,
       collapseScrollEnd.value,
       collapseEnabled.value,
     );
     const headerHeight = getHomeStackHeaderHeight(progress, true);
     return {
-      top: headerHeight - 105,
+      // Transform tracks scroll on the UI thread without layout jumps from `top`.
+      transform: [
+        { translateY: headerHeight - HOME_STACK_HEADER_EXPANDED_HEIGHT },
+      ],
       opacity: interpolate(
         progress,
         [0, 0.4, 0.8, 1],
@@ -78,13 +81,15 @@ export function SubCategoryScreen({ route, navigation }) {
 
   const categoryTextStyle = useAnimatedStyle(() => {
     const progress = getHomeStackHeaderCollapseProgress(
-      smoothScrollY.value,
+      scrollY.value,
       collapseScrollEnd.value,
       collapseEnabled.value,
     );
     const headerHeight = getHomeStackHeaderHeight(progress, true);
     return {
-      top: headerHeight - 120,
+      transform: [
+        { translateY: headerHeight - HOME_STACK_HEADER_EXPANDED_HEIGHT },
+      ],
       opacity: interpolate(
         progress,
         [0, 0.4, 0.8, 1],

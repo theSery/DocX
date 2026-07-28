@@ -174,10 +174,10 @@ const createStyles = colors =>
       width: '20%',
     },
     subCategoryTextWrap: {
-      width: '50%',
+      width: '60%',
     },
     subCategoryArrowWrap: {
-      width: '30%',
+      width: '20%',
       alignItems: 'flex-end',
     },
   });

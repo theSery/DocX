@@ -1,5 +1,5 @@
 export const HOME_STACK_HEADER_EXPANDED_HEIGHT = 180;
-export const HOME_STACK_HEADER_COLLAPSED_HEIGHT = 46;
+export const HOME_STACK_HEADER_COLLAPSED_HEIGHT = 56;
 export const ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT = 250;
 export const ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT = 130;
 
@@ -21,7 +21,7 @@ export const HOME_STACK_HEADER_COLLAPSE_SCROLL_END =
 export const HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT =
   HOME_STACK_HEADER_EXPANDED_HEIGHT - HOME_STACK_HEADER_COLLAPSED_HEIGHT;
 
-/** Smooth follow for collapse visuals (header is transparent — safe to ease). */
+/** Kept for callers that previously tuned follow duration; collapse is 1:1 now. */
 export const HOME_STACK_HEADER_COLLAPSE_ANIMATION = {
-  duration: 220,
+  duration: 0,
 };

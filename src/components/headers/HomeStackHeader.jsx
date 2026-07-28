@@ -96,12 +96,15 @@ const CollapsibleHomeStackHeader = ({
   showSearch,
   searchScope,
 }) => {
-  const { smoothScrollY, collapseScrollEnd, collapseEnabled } =
+  const { scrollY, collapseScrollEnd, collapseEnabled } =
     useHomeStackHeaderScroll();
 
+  // Height tracks scroll 1:1. Title exits via opacity + translateY (compositor).
+  // Search is bottom-anchored so it rides the height change without sibling
+  // layout thrash — that was the source of stepped jumps on slow scrolls.
   const animatedContainerStyle = useAnimatedStyle(() => {
     const progress = getHomeStackHeaderCollapseProgress(
-      smoothScrollY.value,
+      scrollY.value,
       collapseScrollEnd.value,
       collapseEnabled.value,
     );
@@ -110,23 +113,17 @@ const CollapsibleHomeStackHeader = ({
     };
   });
 
-  const animatedCollapsibleStyle = useAnimatedStyle(() => {
+  const animatedTitleStyle = useAnimatedStyle(() => {
     const progress = getHomeStackHeaderCollapseProgress(
-      smoothScrollY.value,
+      scrollY.value,
       collapseScrollEnd.value,
       collapseEnabled.value,
     );
     return {
-      height: interpolate(
-        progress,
-        [0, 1],
-        [HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT, 0],
-        Extrapolation.CLAMP,
-      ),
       opacity: interpolate(
         progress,
-        [0, 0.35, 0.75, 1],
-        [1, 0.85, 0.25, 0],
+        [0, 0.35, 0.6],
+        [1, 0.45, 0],
         Extrapolation.CLAMP,
       ),
       transform: [
@@ -134,7 +131,7 @@ const CollapsibleHomeStackHeader = ({
           translateY: interpolate(
             progress,
             [0, 1],
-            [0, -10],
+            [0, -HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT * 0.35],
             Extrapolation.CLAMP,
           ),
         },
@@ -144,7 +141,10 @@ const CollapsibleHomeStackHeader = ({
 
   return (
     <Animated.View style={[styles.container, animatedContainerStyle]}>
-      <Animated.View style={[styles.collapsible, animatedCollapsibleStyle]}>
+      <Animated.View
+        pointerEvents="box-none"
+        style={[styles.titleLayer, animatedTitleStyle]}
+      >
         <View style={styles.headerRow}>
           <MainHeader onPress={onPress} isHome={true}/>
         </View>
@@ -164,7 +164,7 @@ const CollapsibleHomeStackHeader = ({
         )}
       </Animated.View>
       {showSearch ? (
-        <View style={[styles.searchWrap, styles.searchWrapCollapsed]}>
+        <View style={[styles.searchWrap, styles.searchWrapCollapsed, styles.searchLayer]}>
           <SearchComponent {...searchScope} />
         </View>
       ) : null}
@@ -223,8 +223,17 @@ const createStyles = colors =>
       // Keep visible so SearchComponent dropdown is not clipped.
       overflow: 'visible',
     },
-    collapsible: {
-      overflow: 'hidden',
+    titleLayer: {
+      position: 'absolute',
+      top: 0,
+      left: 16,
+      right: 16,
+    },
+    searchLayer: {
+      position: 'absolute',
+      left: 16,
+      right: 16,
+      bottom: 0,
     },
     headerRow: {
       paddingTop: 10,
@@ -244,8 +253,8 @@ const createStyles = colors =>
       overflow: 'visible',
     },
     searchWrapCollapsed: {
-      paddingTop: 0,
-      paddingBottom: 0,
+      paddingTop: 8,
+      paddingBottom: 4,
       marginTop: 0,
     },
   });
