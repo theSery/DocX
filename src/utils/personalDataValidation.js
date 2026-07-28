@@ -47,8 +47,8 @@ export function isPassportDataCompleteForTemplate(data) {
     isNonEmptyString(data.fromWhom) &&
     Boolean(data.dateOfIssue) &&
     isNonEmptyString(data.publicServiceLicensePlate) &&
-    isValidArmenianAddress(data.notificationAddress) &&
-    isValidArmenianAddress(data.registrationAddress)
+    isValidArmenianAddress(data.registrationAddress) &&
+    isValidArmenianAddress(data.notificationAddress)
   );
 }
 
@@ -62,8 +62,9 @@ export const PERSONAL_DATA_FIELD_VALIDATORS = {
   fromWhom: isNonEmptyString,
   dateOfIssue: value => Boolean(value),
   publicServiceLicensePlate: isNonEmptyString,
-  notificationAddress: isValidArmenianAddress,
+  // Non-Armenian or empty addresses are treated as incomplete so fields are shown.
   registrationAddress: isValidArmenianAddress,
+  notificationAddress: isValidArmenianAddress,
 };
 
 export function getIncompletePersonalDataFields(data) {

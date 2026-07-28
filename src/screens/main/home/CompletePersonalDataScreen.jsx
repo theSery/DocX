@@ -43,8 +43,8 @@ const PASSPORT_STORE_FIELDS = [
   'fromWhom',
   'dateOfIssue',
   'publicServiceLicensePlate',
-  'notificationAddress',
   'registrationAddress',
+  'notificationAddress',
 ];
 
 const FIELD_CONFIGS = colors => ({
@@ -126,14 +126,14 @@ const FIELD_CONFIGS = colors => ({
       required: 'ՀԾՀ-ն պարտադիր է',
     },
   },
-  notificationAddress: {
+  registrationAddress: {
     type: 'address',
     label: 'Հաշվառման հասցե *',
     startIcon: <AddressSvg width={18} height={18} fill={colors.icons} />,
     placeholder: 'Մարզ, Քաղաք, Հասցե, 0000',
     rules: ARMENIAN_ADDRESS_RULES,
   },
-  registrationAddress: {
+  notificationAddress: {
     type: 'address',
     label: 'Բնակության հասցե *',
     startIcon: <AddressSvg width={18} height={18} fill={colors.icons} />,
@@ -164,7 +164,7 @@ function toPayloadValue(field, value) {
   return value ?? '';
 }
 
-function buildPayload(missingFields, formValues, personalData) {
+function buildPayload(missingFields, formValues, personalData, { addressFieldsMissing = false } = {}) {
   const includeProfile = missingFields.some(field => PROFILE_STORE_FIELDS.includes(field));
   const includePassport = missingFields.some(field => PASSPORT_STORE_FIELDS.includes(field));
 
@@ -174,9 +174,12 @@ function buildPayload(missingFields, formValues, personalData) {
   ];
 
   return groups.reduce((payload, field) => {
-    const rawValue = missingFields.includes(field)
-      ? formValues[field]
-      : personalData?.[field];
+    const useFormValue =
+      missingFields.includes(field) ||
+      (addressFieldsMissing &&
+        (field === 'registrationAddress' || field === 'notificationAddress'));
+
+    const rawValue = useFormValue ? formValues[field] : personalData?.[field];
 
     payload[field] = toPayloadValue(field, rawValue);
     return payload;
@@ -198,24 +201,30 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   const [submitError, setSubmitError] = useState('');
   const [addressesDiffer, setAddressesDiffer] = useState(false);
 
-  const registrationAddressMissing = missingFields.includes('registrationAddress');
+  // Show the address block when either address is missing or not Armenian.
+  const addressFieldsMissing =
+    missingFields.includes('registrationAddress') ||
+    missingFields.includes('notificationAddress');
 
   const missingProfileFields = useMemo(
     () => PROFILE_STORE_FIELDS.filter(field => missingFields.includes(field)),
     [missingFields],
   );
   const missingPassportFields = useMemo(
-    () => PASSPORT_STORE_FIELDS.filter(field => missingFields.includes(field)),
-    [missingFields],
-  );
-
-  // registrationAddress is only filled manually when the addresses differ.
-  const visiblePassportFields = useMemo(
     () =>
-      missingPassportFields.filter(
-        field => field !== 'registrationAddress' || addressesDiffer,
-      ),
-    [missingPassportFields, addressesDiffer],
+      PASSPORT_STORE_FIELDS.filter(field => {
+        if (field === 'notificationAddress') {
+          // Residence address is only edited/validated when addresses differ.
+          return addressFieldsMissing && addressesDiffer;
+        }
+
+        if (field === 'registrationAddress') {
+          return addressFieldsMissing;
+        }
+
+        return missingFields.includes(field);
+      }),
+    [missingFields, addressFieldsMissing, addressesDiffer],
   );
 
   const [isSendingCode, setIsSendingCode] = useState(false);
@@ -230,10 +239,19 @@ export function CompletePersonalDataScreen({ navigation, route }) {
     unregister,
     formState: { isSubmitting },
   } = useForm({
-    defaultValues: missingFields.reduce((values, field) => {
-      values[field] = toFormValue(field, personalData?.[field]);
-      return values;
-    }, {}),
+    defaultValues: (() => {
+      const fieldsToInit = new Set(missingFields);
+      // Both address fields can become editable while the address block is shown.
+      if (addressFieldsMissing) {
+        fieldsToInit.add('registrationAddress');
+        fieldsToInit.add('notificationAddress');
+      }
+
+      return [...fieldsToInit].reduce((values, field) => {
+        values[field] = toFormValue(field, personalData?.[field]);
+        return values;
+      }, {});
+    })(),
     mode: 'onChange',
     reValidateMode: 'onChange',
   });
@@ -268,8 +286,8 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   const handleAddressesDifferChange = checked => {
     setAddressesDiffer(checked);
     if (!checked) {
-      // Drop the hidden field's value and rules so they can't block submit.
-      unregister('registrationAddress');
+      // Drop residence address validation entirely when addresses match.
+      unregister('notificationAddress');
     }
   };
 
@@ -279,15 +297,21 @@ export function CompletePersonalDataScreen({ navigation, route }) {
     const resolvedValues = { ...formValues };
 
     // Same address for both when the checkbox is unchecked.
-    if (registrationAddressMissing && !addressesDiffer) {
-      resolvedValues.registrationAddress = missingFields.includes('notificationAddress')
-        ? formValues.notificationAddress
-        : personalData?.notificationAddress ?? '';
+    if (addressFieldsMissing && !addressesDiffer) {
+      const registrationAddress =
+        formValues.registrationAddress ?? personalData?.registrationAddress ?? '';
+
+      resolvedValues.registrationAddress = registrationAddress;
+      resolvedValues.notificationAddress = registrationAddress;
     }
 
     try {
       await dispatch(
-        updatePersonalData(buildPayload(missingFields, resolvedValues, personalData)),
+        updatePersonalData(
+          buildPayload(missingFields, resolvedValues, personalData, {
+            addressFieldsMissing,
+          }),
+        ),
       ).unwrap();
 
       // Refresh canonical personal data so DocumentCreate and account screens
@@ -339,10 +363,17 @@ export function CompletePersonalDataScreen({ navigation, route }) {
     }
 
     if (config.type === 'address') {
+      // notificationAddress is only registered/validated while addressesDiffer.
+      const rules =
+        field === 'notificationAddress' && !addressesDiffer ? undefined : config.rules;
+
       return (
         <View
           key={field}
-          style={{ overflow: 'visible', zIndex: field === 'registrationAddress' ? 2 : 1 }}
+          style={{
+            overflow: 'visible',
+            zIndex: field === 'notificationAddress' ? 2 : 1,
+          }}
         >
           <FormAddressField
             control={control}
@@ -350,9 +381,9 @@ export function CompletePersonalDataScreen({ navigation, route }) {
             label={config.label}
             startIcon={config.startIcon}
             placeholder={config.placeholder}
-            rules={config.rules}
+            rules={rules}
           />
-          {field === 'notificationAddress' && registrationAddressMissing && (
+          {field === 'registrationAddress' && addressFieldsMissing && (
             <CheckBox
               style={{ marginTop: 20 }}
               checked={addressesDiffer}
@@ -459,24 +490,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
                 Անձնագրային տվյալներ
               </Typography>
               <View style={styles.formFieldContainer}>
-                {visiblePassportFields
-                  .filter(
-                    field =>
-                      field !== 'registrationAddress' ||
-                      missingFields.includes('notificationAddress'),
-                  )
-                  .map(renderField)}
-                {registrationAddressMissing &&
-                  !missingFields.includes('notificationAddress') && (
-                    <>
-                      <CheckBox
-                        checked={addressesDiffer}
-                        onChange={handleAddressesDifferChange}
-                        label="Հաշվառման և բնակության հասցեն տարբերվում են"
-                      />
-                      {addressesDiffer && renderField('registrationAddress')}
-                    </>
-                  )}
+                {missingPassportFields.map(renderField)}
               </View>
             </>
           )}
