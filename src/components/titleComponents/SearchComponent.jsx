@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Keyboard, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -201,12 +201,14 @@ export function SearchComponent({ categoryId, subCategoryId } = {}) {
     lastSelectedRef.current = result.label;
     setSearch(result.label);
     closeDropdown();
+    Keyboard.dismiss();
     navigation.navigate('SubCategoryScreen', {
       item: result.subCategory.legalIssues,
       title: result.category.name,
       subtitle: result.subCategory.name,
       iconUrl: result.category.iconUrl,
       initialOpenKey: result.legalIssue?.id ?? result.id,
+      openRequestId: Date.now(),
       categoryId: result.category.id,
       subCategoryId: result.subCategory.id,
     });

@@ -40,7 +40,15 @@ const COLLAPSE_ITEM_THRESHOLD = 8;
 
 
 export function SubCategoryScreen({ route, navigation }) {
-  const { item, title, subtitle, iconUrl, initialOpenKey } = route.params;
+  const {
+    item,
+    title,
+    subtitle,
+    iconUrl,
+    initialOpenKey,
+    openRequestId,
+    subCategoryId,
+  } = route.params;
   const styles = useThemedStyles(createStyles);
   const canCollapse =
     (Array.isArray(item) ? item.length : 0) > COLLAPSE_ITEM_THRESHOLD;
@@ -147,11 +155,13 @@ export function SubCategoryScreen({ route, navigation }) {
           showsVerticalScrollIndicator={false}
         >
           <Accordion
-            key={initialOpenKey ?? 'default'}
+            key={subCategoryId ?? 'subcategory'}
             items={item}
             initialOpenKey={initialOpenKey ?? null}
+            openRequestId={openRequestId ?? null}
             scrollRef={scrollRef}
             scrollOffset={scrollY}
+            scrollIntoViewOffset={HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT}
             staggeredEnter
             renderHeader={category => (
               <>
