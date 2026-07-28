@@ -196,7 +196,7 @@ export function usePersonalDocumentCard({ document, onDeleted, onUploaded }) {
         document.id,
       );
       console.log('[PersonalDocumentCard] delete response:', response);
-      onDeleted?.(document.id);
+      onDeleted?.(document.id, { isDefault: document.isDefault });
       showToast({
         title: 'Փաստաթուղթը հաջողությամբ ջնջվեց',
         type: 'success',
@@ -209,7 +209,7 @@ export function usePersonalDocumentCard({ document, onDeleted, onUploaded }) {
         type: 'error',
       });
     }
-  }, [document.id, onDeleted, showToast]);
+  }, [document.id, document.isDefault, onDeleted, showToast]);
 
   const showDeleteConfirmation = useCallback(() => {
     showGlobalSheet({
