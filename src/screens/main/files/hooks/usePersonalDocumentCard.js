@@ -10,14 +10,14 @@ import { launchImageLibrary } from 'react-native-image-picker';
 
 import { personalDocumentsApi } from '../../../../api';
 import { showGlobalSheet } from '../../../../components/GlobalSheet';
-import { downloadAndShareRemotePdf } from '../../../../documents';
-import { useToast } from '../../../../hooks';
+import { useFileDownload, useToast } from '../../../../hooks';
 import { runAfterSheetDismiss } from '../../../../utils/runAfterSheetDismiss';
 import { getUploadPreviewContent } from '../utils/personalDocumentFilePicker';
 
 export function usePersonalDocumentCard({ document, onDeleted, onUploaded }) {
   const navigation = useNavigation();
   const { showToast } = useToast();
+  const { downloadRemoteFile } = useFileDownload();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const hasDocument = Boolean(document.documentUrl);
@@ -25,25 +25,18 @@ export function usePersonalDocumentCard({ document, onDeleted, onUploaded }) {
   const statusLabel = hasDocument ? 'Կցված' : 'Բացակայում է';
   const statusColorKey = hasDocument ? 'success' : 'error';
 
-  const handleDownload = useCallback(async () => {
-    if (!document.downloadUrl) {
-      return;
-    }
-
-    try {
-      await downloadAndShareRemotePdf({
-        url: document.downloadUrl,
-        fileName: document.title,
-      });
-    } catch (error) {
-      console.error('[PersonalDocumentCard] download failed:', error);
-      showToast({
-        title: 'Ներբեռնումը ձախողվեց',
-        body: error?.message ?? 'Անհայտ սխալ, փորձեք կրկին',
-        type: 'error',
-      });
-    }
-  }, [document.downloadUrl, document.title, showToast]);
+  const handleDownload = useCallback(() => {
+    return downloadRemoteFile({
+      url: document.downloadUrl,
+      previewUrl: document.documentUrl,
+      fileName: document.title,
+    });
+  }, [
+    document.documentUrl,
+    document.downloadUrl,
+    document.title,
+    downloadRemoteFile,
+  ]);
 
   const performUpload = useCallback(
     async pickedFile => {
@@ -196,7 +189,7 @@ export function usePersonalDocumentCard({ document, onDeleted, onUploaded }) {
         document.id,
       );
       console.log('[PersonalDocumentCard] delete response:', response);
-      onDeleted?.(document.id);
+      onDeleted?.(document.id, { isDefault: document.isDefault });
       showToast({
         title: 'Փաստաթուղթը հաջողությամբ ջնջվեց',
         type: 'success',
@@ -209,7 +202,7 @@ export function usePersonalDocumentCard({ document, onDeleted, onUploaded }) {
         type: 'error',
       });
     }
-  }, [document.id, onDeleted, showToast]);
+  }, [document.id, document.isDefault, onDeleted, showToast]);
 
   const showDeleteConfirmation = useCallback(() => {
     showGlobalSheet({

@@ -16,14 +16,14 @@ const CameraSvg = ({ width, height , fill}) => (
   >
     <Polygon
       fill="none"
-      stroke="#000000"
+      stroke={fill}
       strokeWidth={2}
       strokeMiterlimit={10}
       points="21.5,9 20,7 12,7 10.5,9 4,9 4,25 28,25  28,9 "
     />
     <Circle
       fill="none"
-      stroke="#000000"
+      stroke={fill}
       strokeWidth={2}
       strokeMiterlimit={10}
       cx={16}

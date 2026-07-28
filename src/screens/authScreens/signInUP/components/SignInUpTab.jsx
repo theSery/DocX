@@ -81,6 +81,7 @@ function RegistrationForm() {
       navigation.navigate('EmailVerification', {
         email: values.email,
         password: values.password,
+        purpose: 'register',
       });
       showToast({
         title: 'Մուտքագրեք Ձեր ',

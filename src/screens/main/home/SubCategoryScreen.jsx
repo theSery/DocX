@@ -1,37 +1,104 @@
-import { Image, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeIn, useAnimatedRef } from 'react-native-reanimated';
+import Animated, {
+  Extrapolation,
+  FadeIn,
+  interpolate,
+  useAnimatedRef,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 
 import { SPACING } from './components/CategoriesList';
 import { Accordion } from '../../../components/accordion';
-import { TOP_HEADER_HEIGHT, WIDTH } from '../../../utils/dimensions';
+import { CachedImage, useCachedImageSource } from '../../../components/image';
+import {
+  getHomeStackHeaderCollapseProgress,
+  getHomeStackHeaderHeight,
+} from '../../../components/headers/homeStackHeaderAnimation';
+import {
+  HOME_STACK_HEADER_COLLAPSED_HEIGHT,
+  HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
+  HOME_STACK_HEADER_EXPANDED_HEIGHT,
+} from '../../../components/headers/stackHeaderConstants';
+import { TAB_BAR_HEIGHT, TOP_HEADER_HEIGHT, WIDTH } from '../../../utils/dimensions';
 import { FONT_FAMILY, palette } from '../../../theme';
 import { Typography } from '../../../components/typography/Typography';
 import AuthButton from '../../../components/buttons/AuthButton';
-import { useHomeStackHeaderScrollHandler, useThemedStyles, useAuthSession } from '../../../hooks';
+import { useHomeStackHeaderScrollHandler, useThemedStyles } from '../../../hooks';
 import { useHomeStackHeaderScroll } from '../../../context/HomeStackHeaderScrollContext';
 import { useEffect } from 'react';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
+import { resolveImageSource } from '../../../utils/imageCache';
 
-const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
+const LIST_PANEL_GAP = TOP_HEADER_HEIGHT * 0.1018;
+// List sits under the collapsed header; expanded space is scroll padding so
+// content rises into view as the header height shrinks (no opaque gap).
+const LIST_PANEL_TOP = HOME_STACK_HEADER_COLLAPSED_HEIGHT + LIST_PANEL_GAP;
+const COLLAPSE_ITEM_THRESHOLD = 8;
 
 
 
 export function SubCategoryScreen({ route, navigation }) {
   const { item, title, subtitle, iconUrl, initialOpenKey } = route.params;
   const styles = useThemedStyles(createStyles);
+  const canCollapse =
+    (Array.isArray(item) ? item.length : 0) > COLLAPSE_ITEM_THRESHOLD;
+
   useEffect(() => {
     navigation.setOptions({ title, subtitle });
   }, [title, subtitle, navigation]);
   const { onScroll, onScrollViewLayout, onContentSizeChange } =
-    useHomeStackHeaderScrollHandler();
+    useHomeStackHeaderScrollHandler(canCollapse);
 
-  const { scrollY } = useHomeStackHeaderScroll();
+  const { scrollY, collapseScrollEnd, collapseEnabled } =
+    useHomeStackHeaderScroll();
   const scrollRef = useAnimatedRef();
   const insets = useSafeAreaInsets();
-  const scrollBottomPadding = insets.bottom + 24;
-  const { isAuthenticated, openAuth } = useAuthSession();
+  const scrollBottomPadding = insets.bottom + TAB_BAR_HEIGHT + 24;
+  const headerIconSource = useCachedImageSource(iconUrl);
+
+  const categoryIconStyle = useAnimatedStyle(() => {
+    const progress = getHomeStackHeaderCollapseProgress(
+      scrollY.value,
+      collapseScrollEnd.value,
+      collapseEnabled.value,
+    );
+    const headerHeight = getHomeStackHeaderHeight(progress, true);
+    return {
+      // Transform tracks scroll on the UI thread without layout jumps from `top`.
+      transform: [
+        { translateY: headerHeight - HOME_STACK_HEADER_EXPANDED_HEIGHT },
+      ],
+      opacity: interpolate(
+        progress,
+        [0, 0.4, 0.8, 1],
+        [1, 0.7, 0.2, 0],
+        Extrapolation.CLAMP,
+      ),
+    };
+  });
+
+  const categoryTextStyle = useAnimatedStyle(() => {
+    const progress = getHomeStackHeaderCollapseProgress(
+      scrollY.value,
+      collapseScrollEnd.value,
+      collapseEnabled.value,
+    );
+    const headerHeight = getHomeStackHeaderHeight(progress, true);
+    return {
+      transform: [
+        { translateY: headerHeight - HOME_STACK_HEADER_EXPANDED_HEIGHT },
+      ],
+      opacity: interpolate(
+        progress,
+        [0, 0.4, 0.8, 1],
+        [1, 0.7, 0.2, 0],
+        Extrapolation.CLAMP,
+      ),
+    };
+  });
+
   const navigateToFillInDetails = (template) => {
 
     navigation.navigate('FillInDetails', {
@@ -42,13 +109,8 @@ export function SubCategoryScreen({ route, navigation }) {
   };
 
   const onChooseTemplate = (template) => {
-    if (!isAuthenticated) {
-      openAuth();
-      return;
-    }
-
     showGlobalSheet({
-      content: { uri: iconUrl },
+      content: resolveImageSource(iconUrl) ?? { uri: iconUrl },
       message: title,
       description: template.name,
       actions: [
@@ -59,22 +121,25 @@ export function SubCategoryScreen({ route, navigation }) {
   };
   return (
     <View style={styles.screen}>
-      <Animated.Image
-        source={{ uri: item.iconUrl }}
-        entering={FadeIn.duration(400)}
-        style={styles.categoryItemImageIcon}
-      />
-      <Animated.Text
-        entering={FadeIn.duration(400)}
-        style={styles.categoryItemText}
-      >
-        {item.name}
-      </Animated.Text>
+      <Animated.View entering={FadeIn.duration(400)}>
+        <Animated.Image
+          source={headerIconSource}
+          style={[styles.categoryItemImageIcon, categoryIconStyle]}
+        />
+      </Animated.View>
+      <Animated.View entering={FadeIn.duration(400)}>
+        <Animated.Text style={[styles.categoryItemText, categoryTextStyle]}>
+          {item.name}
+        </Animated.Text>
+      </Animated.View>
       <View style={styles.bg}>
         <Animated.ScrollView
           ref={scrollRef}
           style={styles.scrollView}
-          contentContainerStyle={{ paddingBottom: scrollBottomPadding }}
+          contentContainerStyle={{
+            paddingTop: HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
+            paddingBottom: scrollBottomPadding,
+          }}
           onScroll={onScroll}
           onLayout={onScrollViewLayout}
           onContentSizeChange={onContentSizeChange}
@@ -91,7 +156,7 @@ export function SubCategoryScreen({ route, navigation }) {
             renderHeader={category => (
               <>
                 <View style={styles.subCategoryIconWrap}>
-                  <Image
+                  <CachedImage
                     source={{ uri: category.iconUrl || iconUrl }}
                     style={styles.subCategoryIcon}
                   />
@@ -145,16 +210,13 @@ const createStyles = colors =>
       color: colors.text,
       width: '60%',
       left: 80,
-      // height: 25,
       justifyContent: 'center',
       alignItems: 'center',
-      // marginRight: 20,
       marginTop: 20,
-      top: -120,
+      top: HOME_STACK_HEADER_EXPANDED_HEIGHT - 120,
       zIndex: 1000,
       position: 'absolute',
       right: 0,
-
     },
     categoryItemImageIcon: {
       width: 46,
@@ -164,7 +226,7 @@ const createStyles = colors =>
       resizeMode: 'cover',
       position: 'absolute',
       left: 20,
-      top: -105,
+      top: HOME_STACK_HEADER_EXPANDED_HEIGHT - 105,
       zIndex: 1000,
     },
     bg: {

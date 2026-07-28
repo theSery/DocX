@@ -7,6 +7,7 @@ import {
 import { AuthScreenLayout } from '../../../components/layout';
 import {
   useAuthScreenStyles,
+  useOtpInput,
   useTheme,
   useThemedFocusStatusBar,
   useThemedStyles,
@@ -23,13 +24,7 @@ import LottieAnimation from '../../../components/animation/LottieAnimation';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import { authApi } from '../../../api';
 
-function CompletedEmailVerification({
-  digits,
-  handleChangeDigit,
-  focusedIndex,
-  setFocusedIndex,
-  styles,
-}) {
+function CompletedEmailVerification({ otpInputProps, styles }) {
   return (
     <>
       <AnimatedView animation="fadeIn" style={styles.emailCheckContainer}>
@@ -39,17 +34,12 @@ function CompletedEmailVerification({
           resizeMode="cover"
         />
       </AnimatedView>
-      <OtpInputRowCode
-        digits={digits}
-        onChangeDigit={handleChangeDigit}
-        focusedIndex={focusedIndex}
-        onFocusIndex={setFocusedIndex}
-      />
+      <OtpInputRowCode {...otpInputProps} />
     </>
   );
 }
 
-function SuccessEmailVerification({ styles, colors }) {
+function SuccessEmailVerification({ styles, colors, isResetPassword }) {
   return (
     <>
       <AnimatedView
@@ -85,7 +75,9 @@ function SuccessEmailVerification({ styles, colors }) {
             { color: colors.icons, textAlign: 'center', marginTop: 30 },
           ]}
         >
-          🎉 Էլ-փոստը հաջողությամբ հաստատված է
+          {isResetPassword
+            ? '🎉 Կոդը հաջողությամբ հաստատված է'
+            : '🎉 Էլ-փոստը հաջողությամբ հաստատված է'}
         </Typography>
       </View>
     </>
@@ -98,27 +90,30 @@ export function EmailVerificationScreen({ navigation, route }) {
   const { colors } = useTheme();
   const { showToast } = useToast();
   useThemedFocusStatusBar();
-  const { email, password } = route.params;
-  const [digits, setDigits] = useState(['', '', '', '', '', '']);
-  const [focusedIndex, setFocusedIndex] = useState(0);
+  const { email, password, purpose = 'register' } = route.params ?? {};
+  const isResetPassword = purpose === 'reset_password';
+  const { code: otpCode, inputProps: otpInputProps } = useOtpInput();
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [verifiedCode, setVerifiedCode] = useState('');
 
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      const code = digits.join('');
       const response = await authApi.verifyOtp({
         email,
-        code,
-        purpose: 'register',
+        code: otpCode,
+        purpose,
       });
       console.log('Verify OTP response:', response.data);
       showToast({
         title: 'Հաստատումը հաջողությամբ կատարվեց',
-        body: 'Ձեր էլ-փոստը հաջողությամբ հաստատված է',
+        body: isResetPassword
+          ? 'Կոդը հաջողությամբ հաստատված է'
+          : 'Ձեր էլ-փոստը հաջողությամբ հաստատված է',
         type: 'success',
       });
+      setVerifiedCode(otpCode);
       setIsSuccess(true);
     } catch (error) {
       console.log('Verify OTP error:', error);
@@ -133,16 +128,19 @@ export function EmailVerificationScreen({ navigation, route }) {
   };
 
   const handleNavigate = () => {
+    if (isResetPassword) {
+      navigation.navigate('ResetPassword', {
+        email,
+        code: verifiedCode || otpCode,
+      });
+      return;
+    }
     navigation.navigate('Registration', { email, password });
   };
 
-  const handleChangeDigit = (index, value) => {
-    setDigits(prev => {
-      const next = [...prev];
-      next[index] = value;
-      return next;
-    });
-  };
+  const successButtonTitle = isResetPassword
+    ? 'Վերականգնել գաղտնաբառը'
+    : 'Գրանցվել';
 
   return (
     <AuthScreenLayout style={[styles.screen]}>
@@ -162,13 +160,14 @@ export function EmailVerificationScreen({ navigation, route }) {
               subtitle={`Մուտքագրեք Ձեր (${email}) էլ-փոստին ուղարկված կոդը`}
             />
             {isSuccess ? (
-              <SuccessEmailVerification styles={localStyles} colors={colors} />
+              <SuccessEmailVerification
+                styles={localStyles}
+                colors={colors}
+                isResetPassword={isResetPassword}
+              />
             ) : (
               <CompletedEmailVerification
-                digits={digits}
-                handleChangeDigit={handleChangeDigit}
-                focusedIndex={focusedIndex}
-                setFocusedIndex={setFocusedIndex}
+                otpInputProps={otpInputProps}
                 styles={localStyles}
               />
             )}
@@ -176,7 +175,7 @@ export function EmailVerificationScreen({ navigation, route }) {
 
           <View style={localStyles.buttonContainer}>
             <AuthButton
-              title={isSuccess ? 'Գրանցվել' : 'Հաստատել էլ-փոստը'}
+              title={isSuccess ? successButtonTitle : 'Հաստատել էլ-փոստը'}
               onPress={() => (isSuccess ? handleNavigate() : handleSubmit())}
               isLoading={isLoading}
             />

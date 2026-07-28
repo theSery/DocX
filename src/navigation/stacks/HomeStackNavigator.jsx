@@ -11,7 +11,6 @@ import HomeStackHeader from '../../components/headers/HomeStackHeader';
 import { CategoryScreen } from '../../screens/main/home/CategoryScreen';
 import { HomeStackHeaderScrollProvider } from '../../context/HomeStackHeaderScrollContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { TabBarBlurBackground } from '../TabBarBlurBackground';
 import { animation } from '../constants';
 
 const Home = createNativeStackNavigator();
@@ -24,6 +23,7 @@ const nestedScreenOptionsWithHeader = (
     showSearch = true,
     collapsible = true,
     isMainHeader = false,
+    iconUrl,
   },
 ) => ({
   ...nestedScreenOptions,
@@ -31,7 +31,14 @@ const nestedScreenOptionsWithHeader = (
   headerSubtitle: subtitle,
   headerShowSearch: showSearch,
   headerCollapsible: collapsible,
+  headerIconUrl: iconUrl,
   headerShown: true,
+  // Collapsible headers overlay the scene so height animation does not
+  // resize the ScrollView (which caused scroll jitter / vibration).
+  headerTransparent: collapsible,
+  ...(collapsible
+    ? { headerStyle: { backgroundColor: 'transparent' } }
+    : null),
   isMainHeader,
   header: ({ navigation, route, options }) => (
     <HomeStackHeader
@@ -40,6 +47,7 @@ const nestedScreenOptionsWithHeader = (
       subtitle={options.headerSubtitle}
       showSearch={options.headerShowSearch}
       collapsible={options.headerCollapsible}
+      iconUrl={options.headerIconUrl}
       route={route}
     />
   ),
@@ -51,7 +59,6 @@ export function HomeStackNavigator() {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-     {/* <TabBarBlurBackground />  */}
       <HomeStackHeaderScrollProvider>
         <Home.Navigator
           initialRouteName="HomeMain"
@@ -70,12 +77,13 @@ export function HomeStackNavigator() {
           <Home.Screen
             name="Category"
             component={CategoryScreen}
-            options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
-              title: '',
-              subtitle: '',
-              // showSearch: true,
-              collapsible: false,
-            })}
+            options={({ route }) =>
+              nestedScreenOptionsWithHeader(nestedScreenOptions, {
+                title: route.params?.item?.name ?? '',
+                iconUrl: route.params?.item?.iconUrl,
+                collapsible: false,
+              })
+            }
           />
           <Home.Screen
             name="SubCategoryScreen"

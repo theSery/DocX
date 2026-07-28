@@ -13,11 +13,11 @@ export const TOP_HEADER_HEIGHT = Platform.select({
   default: HEIGHT * 0.3,
 });
 
-export const TAB_BAR_HEIGHT = 64;
+export const TAB_BAR_HEIGHT = 60;
 export const AUTH_BUTTON_HEIGHT = 45;
 
 export const PADDING_B = Platform.select({
-  ios: 14,
+  ios: 4,
   android: 24,
 });
 

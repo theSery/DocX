@@ -15,43 +15,56 @@ import {
   buildFilledTemplateBodyHtml,
   buildPdfHtmlDocument,
   buildTypingAnimationHtml,
-  DEFAULT_TYPING_DURATION,
   fetchSignatureImageDataUri,
-  generateAndShareDocumentPdf,
   generateComplaintSerialNumber,
   generateDocumentPdf,
   getPdfWebViewBaseUrl,
   prependSerialNumberToBodyHtml,
 } from '../../../documents';
 import { complaintsApi, personalDocumentsApi } from '../../../api';
-import { DocumentLoadingOverlay, Typography } from '../../../components';
+import {
+  DOCUMENT_LOADING_OVERLAY_FADE_OUT_MS,
+  getNextDocumentLoadingQuote,
+  DocumentLoadingOverlay,
+} from '../../../components/DocumentLoadingOverlay';
+import { AnimatedView } from '../../../components/animation';
 import { useAppSelector } from '../../../store';
 import { selectDocumentFill } from '../../../store/slices/documentFillSlice';
 import { selectPersonalData } from '../../../store/slices/personalDataSlice';
-import { useDocumentLoadingOverlay, useTheme, useThemedStyles, useToast } from '../../../hooks';
+import {
+  useFileDownload,
+  useTheme,
+  useThemedStyles,
+  useToast,
+} from '../../../hooks';
 import { palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import MainHeader from '../../../components/headers/MainHeader';
 import SendSvg from '../../../components/icons/SendSvg';
 
-
+/** Fixed loading + document generation duration for this screen only. */
+const DOCUMENT_CREATE_LOADING_DURATION = 7000;
+/** Swap to the final document after the overlay has mostly faded away. */
+const DOCUMENT_REVEAL_SWAP_DELAY_MS = Math.round(
+  DOCUMENT_LOADING_OVERLAY_FADE_OUT_MS * 0.55,
+);
 
 export function DocumentCreateScreen({ route, navigation }) {
 
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { showToast } = useToast();
+  const { isDownloading, shareGeneratedPdf } = useFileDownload();
   const personalData = useAppSelector(selectPersonalData);
   const documentFill = useAppSelector(selectDocumentFill);
   const { templateText = '', templateName = 'document', templateId, templateSolution } = route.params ?? {};
-  const [isWebViewLoading, setIsWebViewLoading] = useState(true);
   const [hasTypingFinished, setHasTypingFinished] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [isTypingWebViewReady, setIsTypingWebViewReady] = useState(false);
   const [isAddingSignature, setIsAddingSignature] = useState(false);
   const [isSubmittingComplaint, setIsSubmittingComplaint] = useState(false);
   const [signatureImageSrc, setSignatureImageSrc] = useState(null);
-  const isContentLoading = !hasTypingFinished || isWebViewLoading;
-  const showLoadingOverlay = useDocumentLoadingOverlay(isContentLoading);
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(true);
+  const [loadingQuote, setLoadingQuote] = useState(getNextDocumentLoadingQuote);
 
   const userId = personalData?.id ?? personalData?.userId;
 
@@ -96,45 +109,52 @@ export function DocumentCreateScreen({ route, navigation }) {
 
   useEffect(() => {
     setHasTypingFinished(false);
-
-    const timer = setTimeout(() => {
-      setHasTypingFinished(true);
-    }, DEFAULT_TYPING_DURATION);
-
-    return () => clearTimeout(timer);
+    setIsTypingWebViewReady(false);
+    setLoadingQuote(getNextDocumentLoadingQuote());
+    setShowLoadingOverlay(true);
   }, [typingSourceKey]);
 
+  // Start the fixed 7s clock only after the typing WebView has loaded,
+  // so generation + overlay always run the full duration together.
+  // Fade the overlay first, then swap to the final document mid-fade.
   useEffect(() => {
-    if (hasTypingFinished) {
-      setIsWebViewLoading(true);
+    if (!isTypingWebViewReady || hasTypingFinished) {
+      return undefined;
     }
-  }, [hasTypingFinished]);
+
+    const hideOverlayTimer = setTimeout(() => {
+      setShowLoadingOverlay(false);
+    }, DOCUMENT_CREATE_LOADING_DURATION);
+
+    const revealDocumentTimer = setTimeout(() => {
+      setHasTypingFinished(true);
+    }, DOCUMENT_CREATE_LOADING_DURATION + DOCUMENT_REVEAL_SWAP_DELAY_MS);
+
+    return () => {
+      clearTimeout(hideOverlayTimer);
+      clearTimeout(revealDocumentTimer);
+    };
+  }, [isTypingWebViewReady, hasTypingFinished, typingSourceKey]);
 
   const previewWebViewSource = useMemo(
     () => ({
       html: hasTypingFinished
         ? documentHtml
-        : buildTypingAnimationHtml(typingBodyHtml, DEFAULT_TYPING_DURATION),
+        : buildTypingAnimationHtml(
+            typingBodyHtml,
+            DOCUMENT_CREATE_LOADING_DURATION,
+          ),
       baseUrl: getPdfWebViewBaseUrl(),
     }),
     [hasTypingFinished, documentHtml, typingBodyHtml],
   );
 
-  const handleDownloadPdf = useCallback(async () => {
-    setIsDownloading(true);
-    try {
-      await generateAndShareDocumentPdf({
-        documentHtml,
-        fileName: `docx_${templateName.replace(/\s+/g, '_')}_${Date.now()}`,
-      });
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unable to generate the PDF.';
-      Alert.alert('PDF error', message);
-    } finally {
-      setIsDownloading(false);
-    }
-  }, [documentHtml, templateName]);
+  const handleDownloadPdf = useCallback(() => {
+    return shareGeneratedPdf({
+      documentHtml,
+      fileName: `docx_${templateName.replace(/\s+/g, '_')}_${Date.now()}`,
+    });
+  }, [documentHtml, shareGeneratedPdf, templateName]);
 
   const handleAddSignature = useCallback(async () => {
     setIsAddingSignature(true);
@@ -268,7 +288,7 @@ export function DocumentCreateScreen({ route, navigation }) {
   ]);
   console.log(signatureImageSrc, 'signatureImageSrc');
   const isActionDisabled =
-    showLoadingOverlay ||
+    !hasTypingFinished ||
     isDownloading ||
     isAddingSignature ||
     isSubmittingComplaint;
@@ -287,29 +307,37 @@ export function DocumentCreateScreen({ route, navigation }) {
               scalesPageToFit
               scrollEnabled
               showsVerticalScrollIndicator={false}
-              onLoadEnd={() => setIsWebViewLoading(false)}
-              onLoadStart={() => setIsWebViewLoading(true)}
+              onLoadEnd={() => {
+                if (!hasTypingFinished) {
+                  setIsTypingWebViewReady(true);
+                }
+              }}
             />
           </View>
         </View>
-        <View style={styles.actionRow}>
-
-          <Pressable
-            onPress={handleAddSignature}
-            disabled={isActionDisabled}
-            style={styles.topButton}
+        {hasTypingFinished ? (
+          <AnimatedView
+            animation="fadeIn"
+            duration={480}
+            delay={80}
+            style={styles.actionRow}
           >
-            <SignatureSvg width={25} height={25} fill={colors.icons} />
-          </Pressable>
-          <Pressable
-            onPress={handleDownloadPdf}
-            disabled={isActionDisabled}
-            style={styles.topButton}
-          >
-            <UploadSvg width={25} height={25} fill={colors.icons} />
-          </Pressable>
-
-        </View>
+            <Pressable
+              onPress={handleAddSignature}
+              disabled={isActionDisabled}
+              style={styles.topButton}
+            >
+              <SignatureSvg width={25} height={25} fill={colors.icons} />
+            </Pressable>
+            <Pressable
+              onPress={handleDownloadPdf}
+              disabled={isActionDisabled}
+              style={styles.topButton}
+            >
+              <UploadSvg width={25} height={25} fill={colors.icons} />
+            </Pressable>
+          </AnimatedView>
+        ) : null}
         <View style={[styles.actionBar, { bottom: TAB_BAR_BOTTOM_OFFSET, flexDirection: 'column' }]}>
 
           <AuthButton
@@ -327,7 +355,10 @@ export function DocumentCreateScreen({ route, navigation }) {
 
       </View>
 
-      <DocumentLoadingOverlay visible={showLoadingOverlay} />
+      <DocumentLoadingOverlay
+        visible={showLoadingOverlay}
+        quote={loadingQuote}
+      />
     </View>
   );
 }

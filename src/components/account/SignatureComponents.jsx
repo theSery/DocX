@@ -6,7 +6,6 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import RNFS from 'react-native-fs';
 import {
   Canvas,
@@ -182,11 +181,7 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveS
     setPickedImageUri(null);
     setIsProcessing(true);
     try {
-      const result = await extractHandwritingToTransparentPng(asset.uri, {
-        brightnessThreshold: 0.87,
-        contrast: 1.16,
-        saturationGuard: 0.16,
-      });
+      const result = await extractHandwritingToTransparentPng(asset.uri);
       setPickedImageUri(`file://${result.outputPath}`);
       setIsImageVisible(true);
     } catch (error) {
@@ -203,6 +198,9 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveS
       {
         mediaType: 'photo',
         selectionLimit: 1,
+        quality: 1,
+        // Convert HEIC/HEIF (and similar) to a JPEG/PNG Skia can decode.
+        assetRepresentationMode: 'compatible',
       },
       onPickerResponse,
     );

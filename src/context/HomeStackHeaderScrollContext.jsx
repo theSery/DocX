@@ -7,9 +7,19 @@ const HomeStackHeaderScrollContext = createContext(null);
 export function HomeStackHeaderScrollProvider({ children }) {
   const scrollY = useSharedValue(0);
   const collapseScrollEnd = useSharedValue(HOME_STACK_HEADER_COLLAPSE_SCROLL_END);
+  /** 1 when collapse is allowed (e.g. subcategory item count > threshold). */
+  const collapseEnabled = useSharedValue(0);
+
+  // Drive visuals 1:1 from scroll. Lagged withTiming caused stepped jumps
+  // during slow scrolls as each tick restarted the timing animation.
   const value = useMemo(
-    () => ({ scrollY, collapseScrollEnd }),
-    [scrollY, collapseScrollEnd],
+    () => ({
+      scrollY,
+      smoothScrollY: scrollY,
+      collapseScrollEnd,
+      collapseEnabled,
+    }),
+    [scrollY, collapseScrollEnd, collapseEnabled],
   );
 
   return (

@@ -97,7 +97,7 @@ export function PersonalDocumentCard({
             ]
           : [
               {
-                label: 'Վերբեռնել',
+                label: 'Կցել',
                 icon: (
                   <UploadSvg width={20} height={20} fill={iconColor} />
                 ),
@@ -178,7 +178,7 @@ export function PersonalDocumentCard({
             ) : (
               <View style={styles.actionButtonIcon}>
                 <Typography variant="h6" style={styles.actionButtonText}>
-                  Վերբեռնել
+                Կցել ֆայլ
                 </Typography>
                 <UploadSvg width={16} height={16} fill={colors.icons} />
               </View>

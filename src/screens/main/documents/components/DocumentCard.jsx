@@ -13,9 +13,8 @@ import SignatureSvg from '../../../../components/icons/SignatureSvg';
 import StarOutlineSvg from '../../../../components/icons/StarOutlineSvg';
 import TrashSvg from '../../../../components/icons/TrashSvg';
 import { complaintsApi } from '../../../../api';
-import { downloadAndShareRemotePdf } from '../../../../documents';
 import { FONT_FAMILY } from '../../../../theme';
-import { useThemedStyles, useTheme, useToast } from '../../../../hooks';
+import { useFileDownload, useThemedStyles, useTheme, useToast } from '../../../../hooks';
 import {
   addRecommendedDocument,
   removeRecommendedDocument,
@@ -38,6 +37,7 @@ export function DocumentCard({
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { showToast } = useToast();
+  const { downloadRemoteFile } = useFileDownload();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const status = STATUS_CONFIG[document.status] ?? STATUS_CONFIG.draft;
   const canSend = document.status === 'signed';
@@ -91,20 +91,12 @@ export function DocumentCard({
     });
   }, [document.id, navigation]);
 
-  const handleDownload = useCallback(async () => {
-    try {
-      await downloadAndShareRemotePdf({
-        url: document.downloadUrl,
-        fileName: document.title,
-      });
-    } catch (error) {
-      showToast({
-        title: 'Ներբեռնումը ձախողվեց',
-        body: error?.message ?? 'Անհայտ սխալ, փորձեք կրկին',
-        type: 'error',
-      });
-    }
-  }, [document.downloadUrl, document.title, showToast]);
+  const handleDownload = useCallback(() => {
+    return downloadRemoteFile({
+      url: document.downloadUrl,
+      fileName: document.title,
+    });
+  }, [document.downloadUrl, document.title, downloadRemoteFile]);
 
   const showDeleteConfirmation = useCallback(() => {
     showGlobalSheet({

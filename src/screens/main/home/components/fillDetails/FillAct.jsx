@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useWatch } from 'react-hook-form';
 import { FormDateField, FormField } from '../../../../../components';
@@ -7,6 +7,11 @@ import ActNumberSvg from '../../../../../components/icons/ActNumberSvg';
 import UserSvg from '../../../../../components/icons/UserSvg';
 import { useTheme } from '../../../../../hooks';
 import { ARMENIAN_NAME_RULES } from '../../../../../utils/patterns';
+import {
+  addDays,
+  getDayOffset,
+  isDateDataType,
+} from '../../../../../utils/variableDataTypes';
 import { useAppDispatch } from '../../../../../store';
 import { syncVariableValues } from '../../../../../store/slices/documentFillSlice';
 
@@ -17,8 +22,37 @@ function startOfDay(date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-function buildRules(variable) {
+function buildRules(variable, { actDateField, receiveDateField } = {}) {
   const requiredMessage = `${variable.description} դաշտը պարտադիր է`;
+  const dayOffset = getDayOffset(variable.dataType);
+
+  if (dayOffset != null) {
+    return {
+      required: requiredMessage,
+      validate: {
+        isDate: value => value instanceof Date || requiredMessage,
+        notInFuture: value => {
+          if (!(value instanceof Date)) {
+            return true;
+          }
+          return (
+            startOfDay(value) <= startOfDay(new Date()) ||
+            `${variable.description} դաշտը չի կարող լինել այսօրվանից ուշ`
+          );
+        },
+        notBeforeLookback: value => {
+          if (!(value instanceof Date)) {
+            return true;
+          }
+          const minimumDate = addDays(new Date(), -dayOffset);
+          return (
+            startOfDay(value) >= startOfDay(minimumDate) ||
+            `${variable.description} դաշտը չի կարող վաղ լինել վերջին ${dayOffset} օրից`
+          );
+        },
+      },
+    };
+  }
 
   if (variable.dataType === 'date') {
     return {
@@ -35,10 +69,10 @@ function buildRules(variable) {
           );
         },
         notBeforeActDate: (value, formValues) => {
-          if (variable.name !== ACT_RECEIVE_DATE_FIELD) {
+          if (!receiveDateField || variable.name !== receiveDateField) {
             return true;
           }
-          const actDate = formValues?.[ACT_DATE_FIELD];
+          const actDate = actDateField ? formValues?.[actDateField] : null;
           if (!(value instanceof Date) || !(actDate instanceof Date)) {
             return true;
           }
@@ -49,8 +83,10 @@ function buildRules(variable) {
         },
       },
       // Re-validate the receive date when the act date changes
-      ...(variable.name === ACT_DATE_FIELD
-        ? { deps: [ACT_RECEIVE_DATE_FIELD] }
+      ...(actDateField &&
+      receiveDateField &&
+      variable.name === actDateField
+        ? { deps: [receiveDateField] }
         : {}),
     };
   }
@@ -88,10 +124,24 @@ function getFieldConfig(variable, iconColor) {
   };
 }
 
+function resolveLinkedDateFields(variables = []) {
+  const names = new Set(variables.map(variable => variable?.name).filter(Boolean));
+  const actDateField = names.has(ACT_DATE_FIELD) ? ACT_DATE_FIELD : null;
+  const receiveDateField = names.has(ACT_RECEIVE_DATE_FIELD)
+    ? ACT_RECEIVE_DATE_FIELD
+    : null;
+
+  return { actDateField, receiveDateField };
+}
+
 export function FillAct({ control, variables = [] }) {
   const dispatch = useAppDispatch();
   const { colors } = useTheme();
   const variableValues = useWatch({ control });
+  const linkedDateFields = useMemo(
+    () => resolveLinkedDateFields(variables),
+    [variables],
+  );
 
   useEffect(() => {
     dispatch(syncVariableValues({ variables, values: variableValues }));
@@ -100,7 +150,14 @@ export function FillAct({ control, variables = [] }) {
   return (
     <View style={styles.container}>
       {variables.map(variable => {
-        if (variable.dataType === 'date') {
+        if (isDateDataType(variable.dataType)) {
+          const dayOffset = getDayOffset(variable.dataType);
+          const today = new Date();
+          const minimumDate =
+            dayOffset != null ? addDays(today, -dayOffset) : undefined;
+          const maximumDate =
+            variable.dataType === 'date' || dayOffset != null ? today : undefined;
+
           return (
             <FormDateField
               key={variable.id ?? variable.name}
@@ -108,8 +165,9 @@ export function FillAct({ control, variables = [] }) {
               name={variable.name}
               label={`${variable.description} *`}
               startIcon={<CalendarSvg width={20} height={20} fill={colors.icons} />}
-              rules={buildRules(variable)}
-              maximumDate={new Date()}
+              rules={buildRules(variable, linkedDateFields)}
+              minimumDate={minimumDate}
+              maximumDate={maximumDate}
             />
           );
         }
@@ -125,7 +183,7 @@ export function FillAct({ control, variables = [] }) {
             placeholder={variable.description}
             keyboardType={keyboardType}
             startIcon={startIcon}
-            rules={buildRules(variable)}
+            rules={buildRules(variable, linkedDateFields)}
           />
         );
       })}

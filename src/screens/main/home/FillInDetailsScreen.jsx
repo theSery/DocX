@@ -6,7 +6,7 @@ import AuthButton from '../../../components/buttons/AuthButton';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
 import { AnimatedView } from '../../../components/animation/AnimatedView';
 import { StepIndicator } from '../../../components/stepIndicator';
-import { useThemedStyles } from '../../../hooks';
+import { useAuthSession, useThemedStyles } from '../../../hooks';
 import { FillAct, FillDates } from './components/fillDetails';
 import MainHeader from '../../../components/headers/MainHeader';
 import { FormFlatList, Typography } from '../../../components';
@@ -27,6 +27,7 @@ import {
   isPersonalDataCompleteForTemplate,
   isPassportDataCompleteForTemplate,
 } from '../../../utils/personalDataValidation';
+import { isDateDataType } from '../../../utils/variableDataTypes';
 
 function buildSteps(templateFactGroups = []) {
   const actStep = { key: 'act', label: 'Մանրամասներ' };
@@ -57,6 +58,7 @@ function hasAnyFactSelection(templateFactGroups, selectedFacts, radioFacts) {
 export function FillInDetailsScreen({ navigation, route }) {
   const styles = useThemedStyles(createStyles);
   const dispatch = useAppDispatch();
+  const { isAuthenticated, openAuth } = useAuthSession();
   const { templateId = 73, templateForm, templateSolution } = route.params ?? {};
   const [currentStep, setCurrentStep] = useState(0);
   const [templateFactGroups, setTemplateFactGroups] = useState([]);
@@ -77,7 +79,7 @@ export function FillInDetailsScreen({ navigation, route }) {
   const defaultValues = useMemo(
     () =>
       templateVariables.reduce((acc, variable) => {
-        acc[variable.name] = variable.dataType === 'date' ? null : '';
+        acc[variable.name] = isDateDataType(variable.dataType) ? null : '';
         return acc;
       }, {}),
     [templateVariables],
@@ -156,6 +158,11 @@ export function FillInDetailsScreen({ navigation, route }) {
     }
 
     if (isLastStep) {
+      if (!isAuthenticated) {
+        openAuth();
+        return;
+      }
+
       if (!hasAnyFactSelection(templateFactGroups, selectedFacts, radioFacts)) {
         setStepError('Ընտրեք առնվազն մեկ տարբերակ');
         return;
@@ -203,6 +210,8 @@ export function FillInDetailsScreen({ navigation, route }) {
     setStepError('');
     setCurrentStep(prev => prev + 1);
   }, [
+    isAuthenticated,
+    openAuth,
     currentStep,
     isLastStep,
     handleSubmit,

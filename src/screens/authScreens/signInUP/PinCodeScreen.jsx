@@ -9,11 +9,12 @@ import {
   useToast,
 } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
-import AuthButton from '../../../components/buttons/AuthButton';
 import { saveUserCredentials } from '../../../utils/secureStorage';
 import { Passcode } from './components/Passcode';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import { authApi, persistAuthResponse } from '../../../api';
+
+const PIN_LENGTH = 4;
 
 export function PinCodeScreen({ navigation, route }) {
   const { name, surname, patronymic, email, password } = route.params;
@@ -23,11 +24,12 @@ export function PinCodeScreen({ navigation, route }) {
   useThemedFocusStatusBar();
   const { login } = useAuthSession();
   const [passcode, setPasscode] = useState([]);
+  const [firstPin, setFirstPin] = useState('');
+  const [step, setStep] = useState('create');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleComplete = async () => {
-    const pinCode = passcode.join('');
-    if (!pinCode) return;
+  const handleRegister = async pinCode => {
+    if (!pinCode || pinCode.length !== PIN_LENGTH || isLoading) return;
 
     setIsLoading(true);
     try {
@@ -53,6 +55,9 @@ export function PinCodeScreen({ navigation, route }) {
       await login();
     } catch (error) {
       console.log('Register personal error:', error);
+      setPasscode([]);
+      setFirstPin('');
+      setStep('create');
       showToast({
         title: 'Գրանցումը ձախողվեց',
         body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
@@ -63,13 +68,41 @@ export function PinCodeScreen({ navigation, route }) {
     }
   };
 
+  const handlePasscodeComplete = code => {
+    if (isLoading) return;
+
+    if (step === 'create') {
+      setFirstPin(code);
+      setPasscode([]);
+      setStep('confirm');
+      return;
+    }
+
+    if (code !== firstPin) {
+      setPasscode([]);
+      setFirstPin('');
+      setStep('create');
+      showToast({
+        title: 'PIN կոդերը չեն համընկնում',
+        body: 'Փորձեք կրկին։',
+        type: 'error',
+      });
+      return;
+    }
+
+    handleRegister(code);
+  };
+
+  const title =
+    step === 'confirm' ? 'Կրկնեք ձեր PIN կոդը' : 'Սահմանել PIN կոդը';
+
   return (
     <AuthScreenLayout style={[styles.screen]}>
       <MainHeader onPress={() => navigation.goBack()} isHome={true} />
       <View style={localStyles.content}>
         <View style={localStyles.formContainer}>
           <ContentTiltes
-            title={'Սահմանել PIN կոդը'}
+            title={title}
             subtitle={'Մուտք լինելու համար խնդրում ենք մուտքագրել PIN-ը'}
           />
           <View style={localStyles.passcodeContainer}>
@@ -77,17 +110,9 @@ export function PinCodeScreen({ navigation, route }) {
               hasBiometric={false}
               value={passcode}
               onChange={setPasscode}
-              onComplete={code => console.log('PIN entered:', code)}
+              onComplete={handlePasscodeComplete}
             />
           </View>
-        </View>
-
-        <View style={{ flex: 1, justifyContent: 'flex-end', width: '100%' }}>
-          <AuthButton
-            title="Սահմանել PIN կոդը"
-            onPress={handleComplete}
-            isLoading={isLoading}
-          />
         </View>
       </View>
     </AuthScreenLayout>

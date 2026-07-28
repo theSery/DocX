@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
+import { useGlobalStyles, useThemedStyles, useTheme, useToast } from '../../../hooks';
 import {
   AnimatedView,
   CheckBox,
@@ -21,6 +21,7 @@ import PasporFromSvg from '../../../components/icons/PasporFromSvg';
 import AddressSvg from '../../../components/icons/AddressSvg';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
+  fetchPersonalData,
   selectPersonalData,
   selectPersonalDataStatus,
   updatePersonalData,
@@ -37,7 +38,7 @@ const CONTACT_INFO_FIELDS = [
   {
     name: 'passportSeries',
     label: 'Սերիա *',
-    startIcon: <PasportSvg width={19} height={15} fill={palette.gray} />,
+    Icon: PasportSvg,
     placeholder: 'AM000000',
     rules: {
       required: 'Անձնագրի սերիան պարտադիր է',
@@ -46,7 +47,7 @@ const CONTACT_INFO_FIELDS = [
   {
     name: 'fromWhom',
     label: 'Ում կողմից է տրված *',
-    startIcon: <PasporFromSvg width={18} height={16} fill={palette.gray} />,
+    Icon: PasporFromSvg,
     placeholder: '001',
     keyboardType: 'numeric',
     rules: {
@@ -56,14 +57,14 @@ const CONTACT_INFO_FIELDS = [
   {
     name: 'dateOfIssue',
     label: 'Երբ է տրվել *',
-    startIcon: <CalendarSvg width={24} height={24} fill={palette.gray} />,
+    Icon: CalendarSvg,
     placeholder: 'ՕՕ / ԱԱ / ՏՏՏՏ',
     rules: DATE_OF_ISSUE_RULES,
   },
   {
     name: 'publicServiceLicensePlate',
     label: 'ՀԾՀ *',
-    startIcon: <CodeSvg width={16} height={13} fill={palette.gray} />,
+    Icon: CodeSvg,
     placeholder: '0123456789',
     rules: {
       required: 'ՀԾՀ-ն պարտադիր է',
@@ -73,7 +74,7 @@ const CONTACT_INFO_FIELDS = [
     name: 'registrationAddress',
     label: 'Հաշվառման հասցե *',
     type: 'address',
-    startIcon: <AddressSvg width={18} height={18} fill={palette.gray} />,
+    Icon: AddressSvg,
     placeholder: 'Մարզ, Քաղաք, Հասցե, 0000',
     rules: ARMENIAN_ADDRESS_RULES,
   },
@@ -81,7 +82,7 @@ const CONTACT_INFO_FIELDS = [
     name: 'notificationAddress',
     label: 'Բնակության հասցե*',
     type: 'address',
-    startIcon: <AddressSvg width={18} height={18} fill={palette.gray} />,
+    Icon: AddressSvg,
     placeholder: 'Մարզ, Քաղաք, Հասցե, 0000',
     rules: ARMENIAN_ADDRESS_RULES,
   },
@@ -92,7 +93,7 @@ const createStyles = (colors) =>
     screen: {
       flex: 1,
       paddingHorizontal: 16,
-      marginBottom: TAB_BAR_BOTTOM_OFFSET,
+      // marginBottom: TAB_BAR_BOTTOM_OFFSET,
     },
     contentContainer: {
       paddingBottom: 32,
@@ -168,15 +169,20 @@ function mapPersonalDataToFormValues(data) {
   };
 }
 
-function mapFormValuesToPersonalData(values) {
-  return {
+function mapFormValuesToPersonalData(values, { includeNotificationAddress = true } = {}) {
+  const payload = {
     passportSeries: values.passportSeries,
     fromWhom: values.fromWhom,
     dateOfIssue: values.dateOfIssue instanceof Date ? values.dateOfIssue.toISOString() : null,
     publicServiceLicensePlate: values.publicServiceLicensePlate,
-    notificationAddress: values.notificationAddress,
     registrationAddress: values.registrationAddress,
   };
+
+  if (includeNotificationAddress) {
+    payload.notificationAddress = values.notificationAddress;
+  }
+
+  return payload;
 }
 
 function resolveFormValuesAfterUpdate(submittedValues, apiData) {
@@ -194,6 +200,7 @@ export function PassportInfoScreen() {
   const globalStyles = useGlobalStyles();
   const [agreed, setAgreed] = useState(false);
   const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const { showToast } = useToast();
   const dispatch = useAppDispatch();
   const personalData = useAppSelector(selectPersonalData);
@@ -233,16 +240,25 @@ export function PassportInfoScreen() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      const payload = mapFormValuesToPersonalData({
-        ...data,
-        // When addresses match, persist the registration value for both fields.
-        notificationAddress: agreed
-          ? data.notificationAddress
-          : data.registrationAddress,
+      const payload = mapFormValuesToPersonalData(data, {
+        includeNotificationAddress: agreed,
       });
       const response = await dispatch(updatePersonalData(payload)).unwrap();
+
+      try {
+        await dispatch(fetchPersonalData()).unwrap();
+      } catch (refreshError) {
+        console.log(refreshError, 'personal data refresh error');
+      }
+
       const updatedFormValues = resolveFormValuesAfterUpdate(
-        { ...data, notificationAddress: payload.notificationAddress },
+        {
+          ...data,
+          // Keep the existing notification address when it was not part of the update.
+          notificationAddress: agreed
+            ? payload.notificationAddress
+            : (personalData?.notificationAddress ?? ''),
+        },
         response,
       );
       reset(updatedFormValues);
@@ -277,6 +293,10 @@ export function PassportInfoScreen() {
               return null;
             }
 
+            const startIcon = (
+              <field.Icon fill={colors.icons} width={20} height={20} />
+            );
+
             if (field.name === 'dateOfIssue') {
               return (
                 <FormDateField
@@ -284,7 +304,7 @@ export function PassportInfoScreen() {
                   control={control}
                   name={field.name}
                   label={field.label}
-                  startIcon={field.startIcon}
+                  startIcon={startIcon}
                   placeholder={field.placeholder}
                   rules={field.rules}
                 />
@@ -298,7 +318,7 @@ export function PassportInfoScreen() {
                     control={control}
                     name={field.name}
                     label={field.label}
-                    startIcon={field.startIcon}
+                    startIcon={startIcon}
                     placeholder={field.placeholder}
                     rules={field.rules}
                   />
@@ -314,7 +334,13 @@ export function PassportInfoScreen() {
                         control={control}
                         name={NOTIFICATION_ADDRESS_FIELD.name}
                         label={NOTIFICATION_ADDRESS_FIELD.label}
-                        startIcon={NOTIFICATION_ADDRESS_FIELD.startIcon}
+                        startIcon={
+                          <NOTIFICATION_ADDRESS_FIELD.Icon
+                            fill={colors.icons}
+                            width={20}
+                            height={20}
+                          />
+                        }
                         placeholder={NOTIFICATION_ADDRESS_FIELD.placeholder}
                         rules={NOTIFICATION_ADDRESS_FIELD.rules}
                       />
@@ -330,7 +356,7 @@ export function PassportInfoScreen() {
                   control={control}
                   name={field.name}
                   label={field.label}
-                  startIcon={field.startIcon}
+                  startIcon={startIcon}
                   placeholder={field.placeholder}
                   keyboardType={field.keyboardType}
                   rules={field.rules}
@@ -345,6 +371,7 @@ export function PassportInfoScreen() {
         title={'Պահպանել'}
         onPress={onSubmit}
         isLoading={isLoading}
+        style={{ marginBottom: TAB_BAR_BOTTOM_OFFSET }}
       />
     </FormScrollView>
   );

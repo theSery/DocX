@@ -2,7 +2,6 @@ import { useCallback, useMemo } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { useAuthSession } from '../hooks';
-import { AndroidTabBar } from './AndroidTabBar';
 import {
   AccountStackNavigator,
   DocumentsStackNavigator,
@@ -10,6 +9,7 @@ import {
   HomeStackNavigator,
 } from './stacks';
 import { PUBLIC_TAB_ROUTE_NAMES } from './tabConstants';
+import { TabBar } from './TabBar';
 
 export { PUBLIC_TAB_ROUTE_NAMES };
 
@@ -35,7 +35,7 @@ export function TabNavigator() {
     [guardProtectedTab],
   );
 
-  const renderTabBar = useCallback(props => <AndroidTabBar {...props} />, []);
+  const renderTabBar = useCallback(props => <TabBar {...props} />, []);
 
   return (
     <Tab.Navigator

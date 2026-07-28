@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
+import { useGlobalStyles, useThemedStyles, useTheme, useToast } from '../../../hooks';
 import {
   AnimatedView,
   FormDateField,
@@ -23,6 +23,7 @@ import CalendarSvg from '../../../components/icons/CalendarSvg';
 import AuthButton from '../../../components/buttons/AuthButton';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
+  fetchPersonalData,
   selectPersonalData,
   selectPersonalDataStatus,
   updatePersonalData,
@@ -40,7 +41,7 @@ const CONTACT_INFO_FIELDS = [
   {
     name: 'email',
     label: 'Էլ.-փոստ *',
-    startIcon: <MailIconSvg width={19} height={15} />,
+    Icon: MailIconSvg,
     placeholder: 'example@docx.am',
     keyboardType: 'email-address',
     rules: {
@@ -54,7 +55,7 @@ const CONTACT_INFO_FIELDS = [
   {
     name: 'name',
     label: 'Անուն *',
-    startIcon: <UserSvg width={24} height={24} fill={palette.gray} />,
+    Icon: UserSvg,
     placeholder: 'Ձեր Անունը',
     keyboardType: 'default',
     rules: ARMENIAN_NAME_RULES,
@@ -62,7 +63,7 @@ const CONTACT_INFO_FIELDS = [
   {
     name: 'lastName',
     label: 'Ազգանուն *',
-    startIcon: <UserSvg width={24} height={24} fill={palette.gray} />,
+    Icon: UserSvg,
     placeholder: 'Ձեր Ազգանունը',
     keyboardType: 'default',
     rules: ARMENIAN_NAME_RULES,
@@ -70,7 +71,7 @@ const CONTACT_INFO_FIELDS = [
   {
     name: 'middleName',
     label: 'Հայրանուն *',
-    startIcon: <UserSvg width={24} height={24} fill={palette.gray} />,
+    Icon: UserSvg,
     placeholder: 'Ձեր Հայրանուն',
     keyboardType: 'default',
     rules: ARMENIAN_NAME_RULES,
@@ -82,7 +83,7 @@ const createStyles = colors =>
     screen: {
       flex: 1,
       paddingHorizontal: 16,
-      marginBottom: TAB_BAR_BOTTOM_OFFSET,
+      
     },
     contentContainer: {
       paddingBottom: 32,
@@ -172,6 +173,7 @@ function resolveFormValuesAfterUpdate(submittedValues, apiData) {
 export function ProfileInfoScreen() {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const navigation = useNavigation();
   const { showToast } = useToast();
   const dispatch = useAppDispatch();
@@ -232,6 +234,13 @@ export function ProfileInfoScreen() {
       const response = await dispatch(
         updatePersonalData(mapFormValuesToPersonalData(data)),
       ).unwrap();
+
+      try {
+        await dispatch(fetchPersonalData()).unwrap();
+      } catch (refreshError) {
+        console.log(refreshError, 'personal data refresh error');
+      }
+
       const updatedFormValues = resolveFormValuesAfterUpdate(data, response);
       reset(updatedFormValues);
       showToast({
@@ -264,7 +273,7 @@ export function ProfileInfoScreen() {
               control={control}
               name={field.name}
               label={field.label}
-              startIcon={field.startIcon}
+              startIcon={<field.Icon fill={colors.icons} width={20} height={20} />}
               placeholder={field.placeholder}
               keyboardType={field.keyboardType}
               rules={field.rules}
@@ -276,7 +285,7 @@ export function ProfileInfoScreen() {
             label="Ծննդյան ամսաթիվ *"
             rules={BIRTH_DATE_RULES}
             startIcon={
-              <CalendarSvg width={20} height={20} fill={palette.mainBlue} />
+              <CalendarSvg width={20} height={20} fill={colors.icons} />
             }
           />
           <FormField
@@ -287,7 +296,7 @@ export function ProfileInfoScreen() {
             placeholder="+374 91 123 456"
             placeholderTextColor={palette.lightGray}
             startIcon={
-              <PhoneSvg width={20} height={20} fill={palette.mainBlue} />
+              <PhoneSvg width={20} height={20} fill={colors.icons} />
             }
             rules={{
               required: 'Հեռախոսահամարը պարտադիր է',
@@ -320,6 +329,7 @@ export function ProfileInfoScreen() {
         title={'Պահպանել'}
         onPress={onSubmit}
         isLoading={isLoading}
+        style={{ marginBottom: TAB_BAR_BOTTOM_OFFSET }}
       />
     </FormScrollView>
   );

@@ -11,11 +11,13 @@ import SignatureSvg from '../../../components/icons/SignatureSvg';
 import UploadSvg from '../../../components/icons/UploadSvg';
 import { DocumentLoadingOverlay, Typography } from '../../../components';
 import { complaintsApi } from '../../../api';
+import { fetchSignatureImageDataUri } from '../../../documents';
 import {
-  downloadAndShareRemotePdf,
-  fetchSignatureImageDataUri,
-} from '../../../documents';
-import { useDocumentLoadingOverlay, useTheme, useThemedStyles } from '../../../hooks';
+  useDocumentLoadingOverlay,
+  useFileDownload,
+  useTheme,
+  useThemedStyles,
+} from '../../../hooks';
 import { palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import MainHeader from '../../../components/headers/MainHeader';
@@ -41,8 +43,8 @@ export function DocumentSignScreen({ route, navigation }) {
   const [complaint, setComplaint] = useState(null);
   const [isFetchingComplaint, setIsFetchingComplaint] = useState(true);
   const [isWebViewLoading, setIsWebViewLoading] = useState(true);
-  const [isDownloading, setIsDownloading] = useState(false);
   const [isAddingSignature, setIsAddingSignature] = useState(false);
+  const { isDownloading, downloadRemoteFile } = useFileDownload();
 
   useEffect(() => {
     if (!id) {
@@ -93,21 +95,13 @@ export function DocumentSignScreen({ route, navigation }) {
     isFetchingComplaint || (Boolean(previewWebViewSource) && isWebViewLoading);
   const showLoadingOverlay = useDocumentLoadingOverlay(isContentLoading);
 
-  const handleDownloadPdf = useCallback(async () => {
-    setIsDownloading(true);
-    try {
-      await downloadAndShareRemotePdf({
-        url: downloadUrl || fileUrl,
-        fileName: title,
-      });
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unable to download the PDF.';
-      Alert.alert('PDF error', message);
-    } finally {
-      setIsDownloading(false);
-    }
-  }, [downloadUrl, fileUrl, title]);
+  const handleDownloadPdf = useCallback(() => {
+    return downloadRemoteFile({
+      url: downloadUrl || fileUrl,
+      previewUrl: fileUrl,
+      fileName: title,
+    });
+  }, [downloadRemoteFile, downloadUrl, fileUrl, title]);
 
   const handleAddSignature = useCallback(async () => {
     setIsAddingSignature(true);
@@ -156,26 +150,19 @@ export function DocumentSignScreen({ route, navigation }) {
           </View>
         </View>
 
-        <View style={styles.actionRow}>
-          {/* <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Add signature"
-            onPress={handleAddSignature}
-            disabled={isActionDisabled}
-            style={styles.topButton}
-          >
-            <SignatureSvg width={25} height={25} fill={palette.mainBlue} />
-          </Pressable> */}
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Download PDF"
-            onPress={handleDownloadPdf}
-            disabled={isActionDisabled}
-            style={styles.topButton}
-          >
-            <UploadSvg width={25} height={25} fill={colors.icons} />
-          </Pressable>
-        </View>
+        {!showLoadingOverlay ? (
+          <View style={styles.actionRow}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Download PDF"
+              onPress={handleDownloadPdf}
+              disabled={isActionDisabled}
+              style={styles.topButton}
+            >
+              <UploadSvg width={25} height={25} fill={colors.icons} />
+            </Pressable>
+          </View>
+        ) : null}
       </View>
 
       <DocumentLoadingOverlay visible={showLoadingOverlay} />

@@ -3,7 +3,7 @@
  * Prefer semantic keys from `getPalette()` / `useTheme().colors` in components.
  */
 export const palette = Object.freeze({
-  black: '#11111D',
+  black: '#0f0f0f',
   white: '#F4F6FB',
   /** Brighter elevated surface (light mode) */
   pureWhite: '#FAFBFF',
@@ -27,6 +27,9 @@ export const palette = Object.freeze({
   /** Account stack header — sampled from design reference */
   accountStackStart: '#194AB4',
   accountStackEnd: '#031C57',
+  /** Dark mode blue gradients — deep navy around #000B26 */
+  accountStackDarkStart: '#01174D',
+  accountStackDarkEnd: '#000B26',
   mainWhite: '#FFFFFF',
   /** Subtle card/list border (light mode) */
   borderLight: '#D9DFED',
@@ -55,6 +58,12 @@ export const gradients = Object.freeze({
     end: palette.blueLargeEnd,
     angle: 135,
   },
+  /** Dark mode button — sky blue → deep navy */
+  buttonDark: {
+    start: palette.skyBlue,
+    end: palette.blueMainEnd,
+    angle: 135,
+  },
   /** BG large — inversed */
   bgLargeInversed: {
     start: palette.blueLargeEnd,
@@ -65,6 +74,12 @@ export const gradients = Object.freeze({
   accountStack: {
     start: palette.accountStackStart,
     end: palette.accountStackEnd,
+    angle: 135,
+  },
+  /** Dark mode blue gradient — deep navy around #000B26 */
+  accountStackDark: {
+    start: palette.accountStackDarkStart,
+    end: palette.accountStackDarkEnd,
     angle: 135,
   },
 });

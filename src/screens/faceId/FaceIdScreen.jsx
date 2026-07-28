@@ -1,20 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { AuthScreenLayout } from '../../../components/layout';
-import { useAuthScreenStyles, useToast } from '../../../hooks';
-import MainHeader from '../../../components/headers/MainHeader';
-import { useAuthSession } from '../../../hooks';
-import { FONT_FAMILY, palette } from '../../../theme';
-import { Passcode } from '../../authScreens/signInUP/components/Passcode';
-import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
-import { authApi, persistAuthResponse } from '../../../api';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { AuthScreenLayout } from '../../components/layout';
+import {
+  useAuthScreenStyles,
+  useAuthSession,
+  useThemedFocusStatusBar,
+  useThemedStyles,
+  useToast,
+} from '../../hooks';
+import MainHeader from '../../components/headers/MainHeader';
+import { FONT_FAMILY } from '../../theme';
+import { Passcode } from '../authScreens/signInUP/components/Passcode';
+import { ContentTiltes } from '../../components/titleComponents/ContentTiltles';
+import { authApi, persistAuthResponse } from '../../api';
 import {
   getBiometryType,
   getStoredCredentials,
   getUserCredentialsWithBiometric,
   hasStoredCredentials,
   isBiometricSupported,
-} from '../../../utils/secureStorage';
+} from '../../utils/secureStorage';
 import * as Keychain from 'react-native-keychain';
 
 function isUserCancellation(error) {
@@ -35,10 +40,14 @@ function getBiometricLabel(biometryType) {
   }
 }
 
-export function FaceIdScreen() {
+export function FaceIdScreen({ navigation, route }) {
   const styles = useAuthScreenStyles();
+  const localStyles = useThemedStyles(createStyles);
   const { showToast } = useToast();
+  useThemedFocusStatusBar();
   const { completeReauth } = useAuthSession();
+  const nextScreen = route.params?.nextScreen;
+  const isUnlockOnly = Boolean(nextScreen);
   const [passcode, setPasscode] = useState([]);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [canUseBiometric, setCanUseBiometric] = useState(false);
@@ -46,8 +55,12 @@ export function FaceIdScreen() {
   const isAuthenticatingRef = useRef(false);
 
   const completeAuthentication = useCallback(async () => {
+    if (isUnlockOnly) {
+      navigation.replace(nextScreen);
+      return;
+    }
     await completeReauth();
-  }, [completeReauth]);
+  }, [completeReauth, isUnlockOnly, navigation, nextScreen]);
 
   const loginWithCredentials = useCallback(
     async ({ email, password }) => {
@@ -69,6 +82,19 @@ export function FaceIdScreen() {
     [completeAuthentication, showToast],
   );
 
+  const finishVerifiedAuth = useCallback(
+    async credentials => {
+      if (isUnlockOnly) {
+        console.log('[FaceId] Unlock-only auth success — opening:', nextScreen);
+        await completeAuthentication();
+        return;
+      }
+
+      await loginWithCredentials(credentials);
+    },
+    [completeAuthentication, isUnlockOnly, loginWithCredentials, nextScreen],
+  );
+
   const performBiometricLogin = useCallback(async () => {
     if (isAuthenticatingRef.current) {
       console.log('[FaceId] Biometric auth already in progress, skipping');
@@ -88,7 +114,7 @@ export function FaceIdScreen() {
       }
 
       console.log('[FaceId] Biometric success — credentials retrieved for:', credentials.email);
-      await loginWithCredentials(credentials);
+      await finishVerifiedAuth(credentials);
       console.log('[FaceId] Biometric flow completed successfully');
     } catch (error) {
       console.log('[FaceId] Biometric failed:', error?.message ?? error);
@@ -106,7 +132,7 @@ export function FaceIdScreen() {
       isAuthenticatingRef.current = false;
       setIsAuthenticating(false);
     }
-  }, [loginWithCredentials, showToast]);
+  }, [finishVerifiedAuth, showToast]);
 
   useEffect(() => {
     let isMounted = true;
@@ -170,7 +196,7 @@ export function FaceIdScreen() {
       }
 
       console.log('[FaceId] PIN verification successful');
-      await loginWithCredentials(credentials);
+      await finishVerifiedAuth(credentials);
     } catch (error) {
       console.log('[FaceId] PIN verification failed:', error?.message ?? error);
       setPasscode([]);
@@ -185,17 +211,17 @@ export function FaceIdScreen() {
   };
 
   return (
-    <AuthScreenLayout
-      style={[styles.screen, { backgroundColor: palette.mainWhite }]}
-    >
-      <MainHeader />
-      <View style={registrationScreenStyles.content}>
-        <View style={registrationScreenStyles.formContainer}>
+    <AuthScreenLayout style={[styles.screen]}>
+      <MainHeader
+        onPress={isUnlockOnly ? () => navigation.goBack() : undefined}
+      />
+      <View style={localStyles.content}>
+        <View style={localStyles.formContainer}>
           <ContentTiltes
             title="Մուտքագրեք PIN"
             subtitle="Մուտք լինելու համար խնդրում ենք մուտքագրել PIN-ը"
           />
-          <View style={registrationScreenStyles.passcodeContainer}>
+          <View style={localStyles.passcodeContainer}>
             <Passcode
               value={passcode}
               onChange={setPasscode}
@@ -206,75 +232,65 @@ export function FaceIdScreen() {
           </View>
         </View>
 
-        <View style={{ flex: 1, justifyContent: 'flex-end', width: '100%' }}>
-          <Text style={registrationScreenStyles.privacyText}>
-            {canUseBiometric ? `${biometricLabel} կամ PIN` : 'Մուտքագրեք PIN'}
-          </Text>
-        </View>
+        {!isUnlockOnly && (
+          <View style={localStyles.footer}>
+            <Text style={localStyles.hintText}>
+              {canUseBiometric ? `${biometricLabel} կամ PIN` : 'Մուտքագրեք PIN'}
+            </Text>
+            <Pressable
+              onPress={() => navigation.navigate('PinVerification')}
+              disabled={isAuthenticating}
+            >
+              <Text style={localStyles.privacyText}>
+                Վերականգնել PIN-կոդը
+              </Text>
+            </Pressable>
+          </View>
+        )}
       </View>
     </AuthScreenLayout>
   );
 }
 
-const registrationScreenStyles = StyleSheet.create({
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    marginBottom: 20,
-  },
-  container: {
-    flex: 1,
-    height: '100%',
-  },
-
-  formContainer: {
-    width: '100%',
-  },
-  privacyText: {
-    fontSize: 14,
-    lineHeight: 26,
-    fontFamily: FONT_FAMILY.regular,
-    color: palette.mainBlue,
-    marginTop: 4,
-    marginBottom: 20,
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-  },
-  primaryButton: {
-    height: 45,
-    overflow: 'hidden',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
-  },
-  primaryButtonText: {
-    fontFamily: FONT_FAMILY.regular,
-    color: palette.white,
-    letterSpacing: 1.2,
-  },
-  privacyTextBold: {
-    fontFamily: FONT_FAMILY.semiBold,
-    color: palette.mainBlue,
-    textDecorationLine: 'underline',
-  },
-  passcodeContainer: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  lottieContainer: {
-    ...StyleSheet.absoluteFill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: palette.mainWhite,
-    zIndex: 1000,
-    opacity: 0.7,
-  },
-  lottieAnimation: {
-    width: 150,
-    height: 150,
-  },
-});
+const createStyles = colors =>
+  StyleSheet.create({
+    content: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      marginBottom: 20,
+    },
+    formContainer: {
+      width: '100%',
+    },
+    footer: {
+      flex: 1,
+      justifyContent: 'flex-end',
+      width: '100%',
+      alignItems: 'center',
+    },
+    hintText: {
+      fontSize: 14,
+      lineHeight: 26,
+      fontFamily: FONT_FAMILY.regular,
+      color: colors.icons,
+      marginTop: 4,
+      textAlign: 'center',
+    },
+    privacyText: {
+      fontSize: 14,
+      lineHeight: 26,
+      fontFamily: FONT_FAMILY.regular,
+      color: colors.icons,
+      marginTop: 4,
+      marginBottom: 20,
+      textAlign: 'center',
+      textDecorationLine: 'underline',
+    },
+    passcodeContainer: {
+      width: '100%',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  });

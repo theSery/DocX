@@ -13,5 +13,10 @@ export {
   generateAndShareDocumentPdf,
   generateDocumentPdf,
 } from './generateDocumentPdf';
-export { downloadAndShareRemotePdf } from './downloadRemotePdf';
+export {
+  downloadAndShareRemoteFile,
+  downloadAndShareRemotePdf,
+  isShareCancelled,
+  resolveRemoteFileMeta,
+} from './downloadRemotePdf';
 export { getPdfWebViewBaseUrl, buildPdfHtmlDocument } from './buildPdfHtmlDocument';

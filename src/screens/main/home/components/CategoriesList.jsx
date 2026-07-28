@@ -2,6 +2,7 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { HEIGHT } from '../../../../utils/dimensions';
 import ArrowSvg from '../../../../components/icons/ArrowSvg';
+import { CachedImage } from '../../../../components/image';
 import { StaggeredAnimatedView } from '../../../../components/animation';
 import { FONT_FAMILY } from '../../../../theme';
 import {
@@ -46,7 +47,7 @@ export function CategoriesList({
             >
               <View style={styles.categoryItemHeaderRow}>
                 <View style={styles.categoryItemImageContainer}>
-                <Image
+                <CachedImage
                   source={{ uri: item.iconUrl }}
                   style={styles.categoryItemImageIcon}
                 />

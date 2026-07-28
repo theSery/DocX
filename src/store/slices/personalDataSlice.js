@@ -93,7 +93,22 @@ const personalDataSlice = createSlice({
         state.error = null;
       })
       .addCase(updatePersonalData.fulfilled, (state, action) => {
-        state.data = { ...state.data, ...action.payload };
+        // Merge submitted payload first so UI/document generation see the
+        // latest values even when the API response is partial/empty.
+        const submittedPayload =
+          action.meta.arg && typeof action.meta.arg === 'object'
+            ? action.meta.arg
+            : {};
+        const apiData =
+          action.payload && typeof action.payload === 'object'
+            ? action.payload
+            : {};
+
+        state.data = {
+          ...(state.data ?? {}),
+          ...submittedPayload,
+          ...apiData,
+        };
         state.status = 'succeeded';
         state.error = null;
       })

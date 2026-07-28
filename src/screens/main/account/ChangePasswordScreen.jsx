@@ -4,12 +4,11 @@ import { AnimatedView, FormField, FormScrollView } from '../../../components';
 import AuthButton from '../../../components/buttons/AuthButton';
 import LockIconSbg from '../../../components/icons/LockIconSbg';
 import { authApi } from '../../../api';
-import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
-import { palette } from '../../../theme';
+import { useGlobalStyles, useThemedStyles, useTheme, useToast } from '../../../hooks';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import { PASSWORD_STRENGTH_RULE } from '../../../utils/patterns';
 
-const createStyles = () =>
+const createStyles = (colors) =>
   StyleSheet.create({
     screen: {
       flex: 1,
@@ -33,13 +32,14 @@ const createStyles = () =>
     },
     footer: {
       paddingTop: 12,
-      backgroundColor: palette.backgroundWhite,
+      backgroundColor: colors.background,
     },
   });
 
 export function ChangePasswordScreen() {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
   const { showToast } = useToast();
 
   const {
@@ -91,7 +91,7 @@ export function ChangePasswordScreen() {
               name="currentPassword"
               label="Գաղտնաբառ *"
               placeholder="********"
-              startIcon={<LockIconSbg width={17} height={19} />}
+              startIcon={<LockIconSbg fill={colors.icons} width={20} height={20} />}
               secureTextEntry
               rules={{
                 required: 'Գաղտնաբառը պարտադիր է',
@@ -102,7 +102,7 @@ export function ChangePasswordScreen() {
               name="newPassword"
               label="Նոր գաղտնաբառ *"
               placeholder="********"
-              startIcon={<LockIconSbg width={17} height={19} />}
+              startIcon={<LockIconSbg fill={colors.icons} width={20} height={20} />}
               secureTextEntry
               rules={{
                 required: 'Նոր գաղտնաբառը պարտադիր է',
@@ -114,7 +114,7 @@ export function ChangePasswordScreen() {
               name="confirmPassword"
               label="Կրկնել գաղտնաբառը *"
               placeholder="********"
-              startIcon={<LockIconSbg width={17} height={19} />}
+              startIcon={<LockIconSbg fill={colors.icons} width={20} height={20} />}
               secureTextEntry
               rules={{
                 required: 'Կրկնեք գաղտնաբառը',

@@ -30,6 +30,7 @@ const ACCOUNT_MENU = [
     id: 2,
     label: 'Անձնագրային տվյալներ',
     screen: 'PassportInfo',
+    requiresFaceId: true,
     Icon: PasportSvg,
   },
   {
@@ -173,7 +174,11 @@ export function AccountScreen({ navigation }) {
     });
   };
 
-  const navigateToScreen = (screen) => {
+  const navigateToScreen = (screen, { requiresFaceId } = {}) => {
+    if (requiresFaceId) {
+      navigation.navigate('FaceIdUnlock', { nextScreen: screen });
+      return;
+    }
     navigation.navigate(screen);
   };
 
@@ -208,7 +213,11 @@ export function AccountScreen({ navigation }) {
               <Pressable
                 key={item.screen}
                 style={[styles.menuItem, item.id === 3 && styles.menuItemLast]}
-                onPress={() => navigateToScreen(item.screen)}
+                onPress={() =>
+                  navigateToScreen(item.screen, {
+                    requiresFaceId: item.requiresFaceId,
+                  })
+                }
               >
                 <View style={styles.menuItemRow}>
                   <item.Icon fill={colors.icons} width={20} height={20} />

@@ -99,10 +99,21 @@ export function FilesMainScreen() {
     fetchFiles(1);
   }, [fetchFiles]);
 
-  const handleFileDeleted = useCallback(deletedId => {
-    setFiles(currentFiles => currentFiles.filter(file => file.id !== deletedId));
-    setTotal(currentTotal => Math.max(0, currentTotal - 1));
-  }, []);
+  const handleFileDeleted = useCallback(
+    (deletedId, { isDefault = false } = {}) => {
+      // Default slots are reset by the API (not permanently removed), so refetch.
+      if (isDefault) {
+        fetchFiles(1);
+        return;
+      }
+
+      setFiles(currentFiles =>
+        currentFiles.filter(file => file.id !== deletedId),
+      );
+      setTotal(currentTotal => Math.max(0, currentTotal - 1));
+    },
+    [fetchFiles],
+  );
 
   const handleFileUploaded = useCallback(() => {
     fetchFiles(1);
