@@ -374,7 +374,7 @@ export function SearchComponent({ categoryId, subCategoryId } = {}) {
             })}
           </ScrollView>
         ) : null}
-        {showNoResults ? (
+        {showNoResults && (!searchResults || searchResults.length === 0) ? (
           <View style={[styles.row, styles.noResultsRow]}>
             <SadIcon width={20} height={20} fill={colors.textSecondary} />
             <Typography

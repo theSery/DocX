@@ -21,7 +21,7 @@ export function resolveSearchState({ bucket, flattenedLegalIssues, query }) {
 
   return {
     matches,
-    showNoResults: true,
+    showNoResults: matches.length === 0,
     isDropdownOpen: true,
   };
 }
