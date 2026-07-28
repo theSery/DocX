@@ -10,6 +10,7 @@ import {
   SignatureScreen,
   WalletScreen,
 } from '../../screens/main/account';
+import { FaceIdScreen } from '../../screens/faceId';
 import { useAuthSession, useFocusStatusBar, useStackScreenOptions } from '../../hooks';
 import AccountStackHeader from '../../components/headers/accountStackHeader/AccountStackHeader';
 import { animation } from '../constants';
@@ -69,6 +70,11 @@ export function AccountStackNavigator() {
       <Account.Screen
         name="ConfirmPhoneCode"
         component={ConfirmPhoneCodeScreen}
+        options={{ headerShown: false }}
+      />
+      <Account.Screen
+        name="FaceIdUnlock"
+        component={FaceIdScreen}
         options={{ headerShown: false }}
       />
       <Account.Screen

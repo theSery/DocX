@@ -40,12 +40,14 @@ function getBiometricLabel(biometryType) {
   }
 }
 
-export function FaceIdScreen({ navigation }) {
+export function FaceIdScreen({ navigation, route }) {
   const styles = useAuthScreenStyles();
   const localStyles = useThemedStyles(createStyles);
   const { showToast } = useToast();
   useThemedFocusStatusBar();
   const { completeReauth } = useAuthSession();
+  const nextScreen = route.params?.nextScreen;
+  const isUnlockOnly = Boolean(nextScreen);
   const [passcode, setPasscode] = useState([]);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [canUseBiometric, setCanUseBiometric] = useState(false);
@@ -53,8 +55,12 @@ export function FaceIdScreen({ navigation }) {
   const isAuthenticatingRef = useRef(false);
 
   const completeAuthentication = useCallback(async () => {
+    if (isUnlockOnly) {
+      navigation.replace(nextScreen);
+      return;
+    }
     await completeReauth();
-  }, [completeReauth]);
+  }, [completeReauth, isUnlockOnly, navigation, nextScreen]);
 
   const loginWithCredentials = useCallback(
     async ({ email, password }) => {
@@ -76,6 +82,19 @@ export function FaceIdScreen({ navigation }) {
     [completeAuthentication, showToast],
   );
 
+  const finishVerifiedAuth = useCallback(
+    async credentials => {
+      if (isUnlockOnly) {
+        console.log('[FaceId] Unlock-only auth success — opening:', nextScreen);
+        await completeAuthentication();
+        return;
+      }
+
+      await loginWithCredentials(credentials);
+    },
+    [completeAuthentication, isUnlockOnly, loginWithCredentials, nextScreen],
+  );
+
   const performBiometricLogin = useCallback(async () => {
     if (isAuthenticatingRef.current) {
       console.log('[FaceId] Biometric auth already in progress, skipping');
@@ -95,7 +114,7 @@ export function FaceIdScreen({ navigation }) {
       }
 
       console.log('[FaceId] Biometric success — credentials retrieved for:', credentials.email);
-      await loginWithCredentials(credentials);
+      await finishVerifiedAuth(credentials);
       console.log('[FaceId] Biometric flow completed successfully');
     } catch (error) {
       console.log('[FaceId] Biometric failed:', error?.message ?? error);
@@ -113,7 +132,7 @@ export function FaceIdScreen({ navigation }) {
       isAuthenticatingRef.current = false;
       setIsAuthenticating(false);
     }
-  }, [loginWithCredentials, showToast]);
+  }, [finishVerifiedAuth, showToast]);
 
   useEffect(() => {
     let isMounted = true;
@@ -177,7 +196,7 @@ export function FaceIdScreen({ navigation }) {
       }
 
       console.log('[FaceId] PIN verification successful');
-      await loginWithCredentials(credentials);
+      await finishVerifiedAuth(credentials);
     } catch (error) {
       console.log('[FaceId] PIN verification failed:', error?.message ?? error);
       setPasscode([]);
@@ -193,7 +212,9 @@ export function FaceIdScreen({ navigation }) {
 
   return (
     <AuthScreenLayout style={[styles.screen]}>
-      <MainHeader />
+      <MainHeader
+        onPress={isUnlockOnly ? () => navigation.goBack() : undefined}
+      />
       <View style={localStyles.content}>
         <View style={localStyles.formContainer}>
           <ContentTiltes
@@ -211,19 +232,21 @@ export function FaceIdScreen({ navigation }) {
           </View>
         </View>
 
-        <View style={localStyles.footer}>
-          <Text style={localStyles.hintText}>
-            {canUseBiometric ? `${biometricLabel} կամ PIN` : 'Մուտքագրեք PIN'}
-          </Text>
-          <Pressable
-            onPress={() => navigation.navigate('PinVerification')}
-            disabled={isAuthenticating}
-          >
-            <Text style={localStyles.privacyText}>
-              Վերականգնել PIN-կոդը
+        {!isUnlockOnly && (
+          <View style={localStyles.footer}>
+            <Text style={localStyles.hintText}>
+              {canUseBiometric ? `${biometricLabel} կամ PIN` : 'Մուտքագրեք PIN'}
             </Text>
-          </Pressable>
-        </View>
+            <Pressable
+              onPress={() => navigation.navigate('PinVerification')}
+              disabled={isAuthenticating}
+            >
+              <Text style={localStyles.privacyText}>
+                Վերականգնել PIN-կոդը
+              </Text>
+            </Pressable>
+          </View>
+        )}
       </View>
     </AuthScreenLayout>
   );
