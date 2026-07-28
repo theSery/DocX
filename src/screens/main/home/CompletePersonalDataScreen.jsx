@@ -32,6 +32,7 @@ import { smsApi } from '../../../api';
 import { ConfirmPhoneCodeContent } from './components/ConfirmPhoneCodeContent';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
+  fetchPersonalData,
   selectPersonalData,
   updatePersonalData,
 } from '../../../store/slices/personalDataSlice';
@@ -288,6 +289,15 @@ export function CompletePersonalDataScreen({ navigation, route }) {
       await dispatch(
         updatePersonalData(buildPayload(missingFields, resolvedValues, personalData)),
       ).unwrap();
+
+      // Refresh canonical personal data so DocumentCreate and account screens
+      // all read the same latest Redux state.
+      try {
+        await dispatch(fetchPersonalData()).unwrap();
+      } catch (refreshError) {
+        console.log(refreshError, 'personal data refresh error');
+      }
+
       showToast({
         title: 'Տվյալները հաջողությամբ պահպանվեցին',
         type: 'success',

@@ -1,6 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  Alert,
   Platform,
   Pressable,
   StyleSheet,
@@ -11,8 +10,12 @@ import { WebView } from 'react-native-webview';
 import { DocumentLoadingOverlay, Typography } from '../../../components';
 import MainHeader from '../../../components/headers/MainHeader';
 import UploadSvg from '../../../components/icons/UploadSvg';
-import { downloadAndShareRemotePdf } from '../../../documents';
-import { useDocumentLoadingOverlay, useTheme, useThemedStyles } from '../../../hooks';
+import {
+  useDocumentLoadingOverlay,
+  useFileDownload,
+  useTheme,
+  useThemedStyles,
+} from '../../../hooks';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 
 function buildFilePreviewSource(fileUrl) {
@@ -36,7 +39,7 @@ export function PersonalDocumentViewScreen({ route, navigation }) {
   const { colors } = useTheme();
   const { title, documentUrl, downloadUrl } = route.params ?? {};
   const [isWebViewLoading, setIsWebViewLoading] = useState(true);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const { isDownloading, downloadRemoteFile } = useFileDownload();
 
   const previewWebViewSource = useMemo(
     () => buildFilePreviewSource(documentUrl),
@@ -47,25 +50,12 @@ export function PersonalDocumentViewScreen({ route, navigation }) {
     Boolean(previewWebViewSource) && isWebViewLoading,
   );
 
-  const handleDownload = useCallback(async () => {
-    if (!downloadUrl) {
-      return;
-    }
-
-    setIsDownloading(true);
-    try {
-      await downloadAndShareRemotePdf({
-        url: downloadUrl,
-        fileName: title ?? 'document',
-      });
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unable to download the file.';
-      Alert.alert('Ներբեռնման սխալ', message);
-    } finally {
-      setIsDownloading(false);
-    }
-  }, [downloadUrl, title]);
+  const handleDownload = () =>
+    downloadRemoteFile({
+      url: downloadUrl,
+      previewUrl: documentUrl,
+      fileName: title ?? 'document',
+    });
 
   const isActionDisabled = showLoadingOverlay || isDownloading || !downloadUrl;
 

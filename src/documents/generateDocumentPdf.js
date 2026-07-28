@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import { generatePDF } from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
 import { getPdfGenerationDefaults } from './buildPdfHtmlDocument';
+import { isShareCancelled } from './downloadRemotePdf';
 
 /**
  * @param {{
@@ -51,12 +52,18 @@ export async function generateAndShareDocumentPdf({ documentHtml, fileName }) {
       ? `file://${result.filePath}`
       : result.filePath;
 
-  await Share.open({
-    url: shareUrl,
-    type: 'application/pdf',
-    failOnCancel: false,
-    showAppsToView: true,
-  });
+  try {
+    await Share.open({
+      url: shareUrl,
+      type: 'application/pdf',
+      failOnCancel: false,
+      showAppsToView: true,
+    });
+  } catch (error) {
+    if (!isShareCancelled(error)) {
+      throw error;
+    }
+  }
 
   return result;
 }

@@ -17,7 +17,6 @@ import {
   buildTypingAnimationHtml,
   DEFAULT_TYPING_DURATION,
   fetchSignatureImageDataUri,
-  generateAndShareDocumentPdf,
   generateComplaintSerialNumber,
   generateDocumentPdf,
   getPdfWebViewBaseUrl,
@@ -28,7 +27,13 @@ import { DocumentLoadingOverlay, Typography } from '../../../components';
 import { useAppSelector } from '../../../store';
 import { selectDocumentFill } from '../../../store/slices/documentFillSlice';
 import { selectPersonalData } from '../../../store/slices/personalDataSlice';
-import { useDocumentLoadingOverlay, useTheme, useThemedStyles, useToast } from '../../../hooks';
+import {
+  useDocumentLoadingOverlay,
+  useFileDownload,
+  useTheme,
+  useThemedStyles,
+  useToast,
+} from '../../../hooks';
 import { palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import MainHeader from '../../../components/headers/MainHeader';
@@ -41,12 +46,12 @@ export function DocumentCreateScreen({ route, navigation }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { showToast } = useToast();
+  const { isDownloading, shareGeneratedPdf } = useFileDownload();
   const personalData = useAppSelector(selectPersonalData);
   const documentFill = useAppSelector(selectDocumentFill);
   const { templateText = '', templateName = 'document', templateId, templateSolution } = route.params ?? {};
   const [isWebViewLoading, setIsWebViewLoading] = useState(true);
   const [hasTypingFinished, setHasTypingFinished] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
   const [isAddingSignature, setIsAddingSignature] = useState(false);
   const [isSubmittingComplaint, setIsSubmittingComplaint] = useState(false);
   const [signatureImageSrc, setSignatureImageSrc] = useState(null);
@@ -120,21 +125,12 @@ export function DocumentCreateScreen({ route, navigation }) {
     [hasTypingFinished, documentHtml, typingBodyHtml],
   );
 
-  const handleDownloadPdf = useCallback(async () => {
-    setIsDownloading(true);
-    try {
-      await generateAndShareDocumentPdf({
-        documentHtml,
-        fileName: `docx_${templateName.replace(/\s+/g, '_')}_${Date.now()}`,
-      });
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unable to generate the PDF.';
-      Alert.alert('PDF error', message);
-    } finally {
-      setIsDownloading(false);
-    }
-  }, [documentHtml, templateName]);
+  const handleDownloadPdf = useCallback(() => {
+    return shareGeneratedPdf({
+      documentHtml,
+      fileName: `docx_${templateName.replace(/\s+/g, '_')}_${Date.now()}`,
+    });
+  }, [documentHtml, shareGeneratedPdf, templateName]);
 
   const handleAddSignature = useCallback(async () => {
     setIsAddingSignature(true);

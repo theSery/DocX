@@ -23,6 +23,7 @@ import CalendarSvg from '../../../components/icons/CalendarSvg';
 import AuthButton from '../../../components/buttons/AuthButton';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
+  fetchPersonalData,
   selectPersonalData,
   selectPersonalDataStatus,
   updatePersonalData,
@@ -233,6 +234,13 @@ export function ProfileInfoScreen() {
       const response = await dispatch(
         updatePersonalData(mapFormValuesToPersonalData(data)),
       ).unwrap();
+
+      try {
+        await dispatch(fetchPersonalData()).unwrap();
+      } catch (refreshError) {
+        console.log(refreshError, 'personal data refresh error');
+      }
+
       const updatedFormValues = resolveFormValuesAfterUpdate(data, response);
       reset(updatedFormValues);
       showToast({

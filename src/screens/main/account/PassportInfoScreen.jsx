@@ -21,6 +21,7 @@ import PasporFromSvg from '../../../components/icons/PasporFromSvg';
 import AddressSvg from '../../../components/icons/AddressSvg';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
+  fetchPersonalData,
   selectPersonalData,
   selectPersonalDataStatus,
   updatePersonalData,
@@ -243,6 +244,13 @@ export function PassportInfoScreen() {
         includeNotificationAddress: agreed,
       });
       const response = await dispatch(updatePersonalData(payload)).unwrap();
+
+      try {
+        await dispatch(fetchPersonalData()).unwrap();
+      } catch (refreshError) {
+        console.log(refreshError, 'personal data refresh error');
+      }
+
       const updatedFormValues = resolveFormValuesAfterUpdate(
         {
           ...data,
