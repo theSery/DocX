@@ -59,7 +59,7 @@ export function FillInDetailsScreen({ navigation, route }) {
   const styles = useThemedStyles(createStyles);
   const dispatch = useAppDispatch();
   const { isAuthenticated, openAuth } = useAuthSession();
-  const { templateId = 73, templateForm, templateSolution } = route.params ?? {};
+  const { templateId, templateForm, templateSolution } = route.params ?? {};
   const [currentStep, setCurrentStep] = useState(0);
   const [templateFactGroups, setTemplateFactGroups] = useState([]);
   const [templateText, setTemplateText] = useState('');

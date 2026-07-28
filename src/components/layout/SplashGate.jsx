@@ -33,10 +33,10 @@ async function resolveStartupRoute(wasSignedIn) {
         isPhoneVerified: Boolean(data?.isPhoneVerified),
       }),
     );
-    // const {data: templates} = await userApi.getTemplates();
+    const {data: templates} = await userApi.getTemplates();
     const { data: variables } = await userApi.getVariables();
     console.log('data', data);
-    // console.log('templates', templates);
+    console.log('templates', templates);
     console.log('variables', variables);
     return 'main';
   } catch (error) {
