@@ -137,15 +137,21 @@ const createStyles = (colors) =>
       overflow: 'visible',
       zIndex: 1,
     },
+    addressBlockFocused: {
+      zIndex: 9999,
+      elevation: 9999,
+    },
     addressCheckbox: {
       marginTop: 20,
     },
     secondaryAddressField: {
       marginTop: 20,
       overflow: 'visible',
-      // Keep the lower address field above the primary one so its upward
-      // suggestions overlay registrationAddress instead of sitting under it.
-      zIndex: 2,
+      zIndex: 1,
+    },
+    secondaryAddressFieldFocused: {
+      zIndex: 9999,
+      elevation: 9999,
     },
   });
 
@@ -199,6 +205,7 @@ const NOTIFICATION_ADDRESS_FIELD = CONTACT_INFO_FIELDS.find(
 export function PassportInfoScreen() {
   const globalStyles = useGlobalStyles();
   const [agreed, setAgreed] = useState(false);
+  const [focusedAddressField, setFocusedAddressField] = useState(null);
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { showToast } = useToast();
@@ -313,7 +320,15 @@ export function PassportInfoScreen() {
 
             if (field.type === 'address') {
               return (
-                <View key={field.name} style={styles.addressBlock}>
+                <View
+                  key={field.name}
+                  style={[
+                    styles.addressBlock,
+                    (focusedAddressField === field.name ||
+                      focusedAddressField === NOTIFICATION_ADDRESS_FIELD.name) &&
+                      styles.addressBlockFocused,
+                  ]}
+                >
                   <FormAddressField
                     control={control}
                     name={field.name}
@@ -321,6 +336,9 @@ export function PassportInfoScreen() {
                     startIcon={startIcon}
                     placeholder={field.placeholder}
                     rules={field.rules}
+                    onFocusChange={(focused) => {
+                      setFocusedAddressField(focused ? field.name : null);
+                    }}
                   />
                   <CheckBox
                     style={styles.addressCheckbox}
@@ -329,7 +347,13 @@ export function PassportInfoScreen() {
                     label="Հաշվառման և բնակության հասցեն տարբերվում են"
                   />
                   {agreed ? (
-                    <View style={styles.secondaryAddressField}>
+                    <View
+                      style={[
+                        styles.secondaryAddressField,
+                        focusedAddressField === NOTIFICATION_ADDRESS_FIELD.name &&
+                          styles.secondaryAddressFieldFocused,
+                      ]}
+                    >
                       <FormAddressField
                         control={control}
                         name={NOTIFICATION_ADDRESS_FIELD.name}
@@ -343,6 +367,11 @@ export function PassportInfoScreen() {
                         }
                         placeholder={NOTIFICATION_ADDRESS_FIELD.placeholder}
                         rules={NOTIFICATION_ADDRESS_FIELD.rules}
+                        onFocusChange={(focused) => {
+                          setFocusedAddressField(
+                            focused ? NOTIFICATION_ADDRESS_FIELD.name : null,
+                          );
+                        }}
                       />
                     </View>
                   ) : null}

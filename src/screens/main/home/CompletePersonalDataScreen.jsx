@@ -293,6 +293,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   const [isSendingCode, setIsSendingCode] = useState(false);
   // When set, the modal shows the phone code confirmation content instead of the form.
   const [confirmingPhoneNumber, setConfirmingPhoneNumber] = useState(null);
+  const [focusedAddressField, setFocusedAddressField] = useState(null);
 
   // Existing values are shown as placeholders so the user can type immediately,
   // except a valid registrationAddress which is prefilled as the input value.
@@ -455,7 +456,8 @@ export function CompletePersonalDataScreen({ navigation, route }) {
           key={field}
           style={{
             overflow: 'visible',
-            zIndex: field === 'notificationAddress' ? 2 : 1,
+            zIndex: focusedAddressField === field ? 9999 : 1,
+            elevation: focusedAddressField === field ? 9999 : 1,
           }}
         >
           <FormAddressField
@@ -465,6 +467,9 @@ export function CompletePersonalDataScreen({ navigation, route }) {
             startIcon={config.startIcon}
             placeholder={placeholder}
             rules={rules}
+            onFocusChange={(focused) => {
+              setFocusedAddressField(focused ? field : null);
+            }}
           />
           {field === 'registrationAddress' && addressFieldsMissing && (
             <CheckBox
