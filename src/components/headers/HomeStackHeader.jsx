@@ -1,12 +1,9 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
-  Easing,
   Extrapolation,
   interpolate,
   useAnimatedStyle,
-  useDerivedValue,
-  withTiming,
 } from 'react-native-reanimated';
 import MainHeader from './MainHeader';
 import { useThemedStyles } from '../../hooks';
@@ -14,14 +11,15 @@ import { SearchComponent } from '../titleComponents/SearchComponent';
 import { Typography } from '../typography';
 import { useHomeStackHeaderScroll } from '../../context/HomeStackHeaderScrollContext';
 import {
-  HOME_STACK_HEADER_COLLAPSE_ANIMATION,
+  getHomeStackHeaderCollapseProgress,
+  getHomeStackHeaderHeight,
+} from './homeStackHeaderAnimation';
+import {
   HOME_STACK_HEADER_COLLAPSE_DISTANCE,
   HOME_STACK_HEADER_COLLAPSED_HEIGHT,
   HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
   HOME_STACK_HEADER_EXPANDED_HEIGHT,
 } from './stackHeaderConstants';
-
-const collapseEasing = Easing.out(Easing.cubic);
 
 // Constrain search to the category/subcategory the user navigated into.
 const resolveSearchScope = route => {
@@ -60,7 +58,7 @@ const StaticHomeStackHeader = ({
           ? HOME_STACK_HEADER_EXPANDED_HEIGHT
           : HOME_STACK_HEADER_EXPANDED_HEIGHT +
             HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
-      }, 
+      },
     ]}
   >
     <View style={styles.collapsible}>
@@ -98,61 +96,54 @@ const CollapsibleHomeStackHeader = ({
   showSearch,
   searchScope,
 }) => {
-  const { scrollY } = useHomeStackHeaderScroll();
+  const { smoothScrollY, collapseScrollEnd, collapseEnabled } =
+    useHomeStackHeaderScroll();
 
-  const smoothScrollY = useDerivedValue(() =>
-    withTiming(scrollY.value, {
-      ...HOME_STACK_HEADER_COLLAPSE_ANIMATION,
-      easing: collapseEasing,
-    }),
-  );
-
-  const animatedContainerStyle = useAnimatedStyle(() => ({
-    height: interpolate(
+  const animatedContainerStyle = useAnimatedStyle(() => {
+    const progress = getHomeStackHeaderCollapseProgress(
       smoothScrollY.value,
-      [0, HOME_STACK_HEADER_COLLAPSE_DISTANCE],
-      [
-        showSearch
-          ? HOME_STACK_HEADER_EXPANDED_HEIGHT
-          : HOME_STACK_HEADER_EXPANDED_HEIGHT - HOME_STACK_HEADER_COLLAPSED_HEIGHT,
-        showSearch ? HOME_STACK_HEADER_COLLAPSED_HEIGHT : 0,
+      collapseScrollEnd.value,
+      collapseEnabled.value,
+    );
+    return {
+      height: getHomeStackHeaderHeight(progress, showSearch),
+    };
+  });
+
+  const animatedCollapsibleStyle = useAnimatedStyle(() => {
+    const progress = getHomeStackHeaderCollapseProgress(
+      smoothScrollY.value,
+      collapseScrollEnd.value,
+      collapseEnabled.value,
+    );
+    return {
+      height: interpolate(
+        progress,
+        [0, 1],
+        [HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT, 0],
+        Extrapolation.CLAMP,
+      ),
+      opacity: interpolate(
+        progress,
+        [0, 0.35, 0.75, 1],
+        [1, 0.85, 0.25, 0],
+        Extrapolation.CLAMP,
+      ),
+      transform: [
+        {
+          translateY: interpolate(
+            progress,
+            [0, 1],
+            [0, -10],
+            Extrapolation.CLAMP,
+          ),
+        },
       ],
-      Extrapolation.CLAMP,
-    ),
-  }));
-
-  const animatedCollapsibleStyle = useAnimatedStyle(() => ({
-    height: interpolate(
-      smoothScrollY.value,
-      [0, HOME_STACK_HEADER_COLLAPSE_DISTANCE],
-      [HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT, 0],
-      Extrapolation.CLAMP,
-    ),
-    opacity: interpolate(
-      smoothScrollY.value,
-      [0, HOME_STACK_HEADER_COLLAPSE_DISTANCE],
-      [1, 0],
-      Extrapolation.CLAMP,
-    ),
-    transform: [
-      {
-        translateY: interpolate(
-          smoothScrollY.value,
-          [0, HOME_STACK_HEADER_COLLAPSE_DISTANCE],
-          [0, -12],
-          Extrapolation.CLAMP,
-        ),
-      },
-    ],
-  }));
+    };
+  });
 
   return (
-    <Animated.View style={[styles.container, animatedContainerStyle, {
-      height: showSearch
-        ? HOME_STACK_HEADER_EXPANDED_HEIGHT
-        : HOME_STACK_HEADER_EXPANDED_HEIGHT -
-          HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
-    }, ]}>
+    <Animated.View style={[styles.container, animatedContainerStyle]}>
       <Animated.View style={[styles.collapsible, animatedCollapsibleStyle]}>
         <View style={styles.headerRow}>
           <MainHeader onPress={onPress} isHome={true}/>
@@ -161,7 +152,7 @@ const CollapsibleHomeStackHeader = ({
           <View style={styles.titleContainer}>
             {title ? (
               <Typography variant="h2" style={[styles.loginTitle, {fontSize: 16, letterSpacing: 0, }]}>
-                {title} 
+                {title}
               </Typography>
             ) : null}
             {subtitle ? (
@@ -173,7 +164,7 @@ const CollapsibleHomeStackHeader = ({
         )}
       </Animated.View>
       {showSearch ? (
-        <View style={[styles.searchWrap, { paddingTop: 0, paddingBottom: 0, marginTop: 0}]}>
+        <View style={[styles.searchWrap, styles.searchWrapCollapsed]}>
           <SearchComponent {...searchScope} />
         </View>
       ) : null}
@@ -229,6 +220,7 @@ const createStyles = colors =>
       paddingHorizontal: 16,
       zIndex: HEADER_Z_INDEX,
       elevation: HEADER_Z_INDEX,
+      // Keep visible so SearchComponent dropdown is not clipped.
       overflow: 'visible',
     },
     collapsible: {
@@ -251,5 +243,9 @@ const createStyles = colors =>
       elevation: HEADER_Z_INDEX + 1,
       overflow: 'visible',
     },
-
+    searchWrapCollapsed: {
+      paddingTop: 0,
+      paddingBottom: 0,
+      marginTop: 0,
+    },
   });

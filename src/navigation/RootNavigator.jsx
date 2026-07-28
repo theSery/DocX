@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StatusBar } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../contexts';
@@ -12,8 +12,10 @@ import LottieAnimation from '../components/animation/LottieAnimation';
 import { useAppDispatch, useAppSelector } from '../store';
 import {
   fetchCategoryHierarchy,
+  selectCategories,
   selectCategoriesStatus,
 } from '../store/slices/categoriesSlice';
+import { prefetchCategoryIcons } from '../utils/imageCache';
 import { animation } from './constants';
 import { ResetPinNavigator } from './AuthStacks/ResetPinNavigator';
 
@@ -36,7 +38,9 @@ export function RootNavigator() {
   const { isSplashDone, startupRoute } = useSplash();
 
   const dispatch = useAppDispatch();
+  const categories = useAppSelector(selectCategories);
   const categoriesStatus = useAppSelector(selectCategoriesStatus);
+  const [criticalIconsReady, setCriticalIconsReady] = useState(false);
 
   useEffect(() => {
     if (categoriesStatus === 'idle') {
@@ -44,7 +48,37 @@ export function RootNavigator() {
     }
   }, [dispatch, categoriesStatus]);
 
-  const isBootstrapping = categoriesStatus !== 'succeeded';
+  useEffect(() => {
+    if (categoriesStatus === 'failed') {
+      setCriticalIconsReady(true);
+      return undefined;
+    }
+
+    if (categoriesStatus !== 'succeeded') {
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        await prefetchCategoryIcons(categories);
+      } finally {
+        if (!cancelled) {
+          setCriticalIconsReady(true);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [categoriesStatus, categories]);
+
+  const isBootstrapping =
+    categoriesStatus === 'idle' ||
+    categoriesStatus === 'loading' ||
+    (categoriesStatus === 'succeeded' && !criticalIconsReady);
 
   useEffect(() => {
     if (!isSplashDone || !isReady || isBootstrapping) {

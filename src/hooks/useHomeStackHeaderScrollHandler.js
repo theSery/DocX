@@ -9,24 +9,59 @@ import {
   HOME_STACK_HEADER_COLLAPSE_START,
 } from '../components/headers/stackHeaderConstants';
 
+/**
+ * @param {boolean} enabled When false, header stays expanded (e.g. ≤8 subcategory items).
+ */
 export function useHomeStackHeaderScrollHandler(enabled = true) {
-  const { scrollY, collapseScrollEnd } = useHomeStackHeaderScroll();
+  const { scrollY, collapseScrollEnd, collapseEnabled } =
+    useHomeStackHeaderScroll();
   const viewportHeight = useSharedValue(0);
+  const contentHeightSV = useSharedValue(0);
+
+  const updateCollapseRange = useCallback(() => {
+    if (!enabled) {
+      return;
+    }
+
+    const viewport = viewportHeight.value;
+    const contentHeight = contentHeightSV.value;
+    if (viewport <= 0 || contentHeight <= 0) {
+      return;
+    }
+
+    const overflow = Math.max(0, contentHeight - viewport);
+    collapseScrollEnd.value =
+      HOME_STACK_HEADER_COLLAPSE_START +
+      HOME_STACK_HEADER_COLLAPSE_DISTANCE +
+      Math.min(overflow * 0.45, HOME_STACK_HEADER_COLLAPSE_DISTANCE_EXTRA);
+  }, [
+    collapseScrollEnd,
+    contentHeightSV,
+    enabled,
+    viewportHeight,
+  ]);
 
   useFocusEffect(
     useCallback(() => {
-      if (!enabled) {
-        return;
-      }
       scrollY.value = 0;
       collapseScrollEnd.value = HOME_STACK_HEADER_COLLAPSE_SCROLL_END;
+      collapseEnabled.value = enabled ? 1 : 0;
       viewportHeight.value = 0;
-    }, [scrollY, collapseScrollEnd, viewportHeight, enabled]),
+      contentHeightSV.value = 0;
+    }, [
+      scrollY,
+      collapseScrollEnd,
+      collapseEnabled,
+      viewportHeight,
+      contentHeightSV,
+      enabled,
+    ]),
   );
 
   const onScroll = useAnimatedScrollHandler({
     onScroll: event => {
-      scrollY.value = Math.max(0, event.contentOffset.y);
+      const y = Math.max(0, event.contentOffset.y);
+      scrollY.value = collapseEnabled.value > 0.5 ? y : 0;
     },
   });
 
@@ -36,8 +71,9 @@ export function useHomeStackHeaderScrollHandler(enabled = true) {
         return;
       }
       viewportHeight.value = event.nativeEvent.layout.height;
+      updateCollapseRange();
     },
-    [enabled, viewportHeight],
+    [enabled, updateCollapseRange, viewportHeight],
   );
 
   const onContentSizeChange = useCallback(
@@ -45,26 +81,10 @@ export function useHomeStackHeaderScrollHandler(enabled = true) {
       if (!enabled) {
         return;
       }
-
-      const viewport = viewportHeight.value;
-      if (viewport <= 0) {
-        return;
-      }
-
-      const overflow = contentHeight - viewport;
-      if (overflow > 32) {
-        collapseScrollEnd.value =
-          HOME_STACK_HEADER_COLLAPSE_START +
-          HOME_STACK_HEADER_COLLAPSE_DISTANCE +
-          Math.min(
-            overflow * 0.45,
-            HOME_STACK_HEADER_COLLAPSE_DISTANCE_EXTRA,
-          );
-      } else {
-        collapseScrollEnd.value = HOME_STACK_HEADER_COLLAPSE_SCROLL_END;
-      }
+      contentHeightSV.value = contentHeight;
+      updateCollapseRange();
     },
-    [collapseScrollEnd, enabled, viewportHeight],
+    [contentHeightSV, enabled, updateCollapseRange],
   );
 
   if (!enabled) {

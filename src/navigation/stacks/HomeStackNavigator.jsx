@@ -31,6 +31,12 @@ const nestedScreenOptionsWithHeader = (
   headerShowSearch: showSearch,
   headerCollapsible: collapsible,
   headerShown: true,
+  // Collapsible headers overlay the scene so height animation does not
+  // resize the ScrollView (which caused scroll jitter / vibration).
+  headerTransparent: collapsible,
+  ...(collapsible
+    ? { headerStyle: { backgroundColor: 'transparent' } }
+    : null),
   isMainHeader,
   header: ({ navigation, route, options }) => (
     <HomeStackHeader

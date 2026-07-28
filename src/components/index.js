@@ -20,6 +20,7 @@ export {
   FormFlatList,
   FormScrollView,
 } from './form';
+export { CachedImage, useCachedImageSource } from './image';
 export { AuthScreenLayout, SplashGate } from './layout';
 export { ColorSchemeToggle } from './theme';
 export { Typography } from './typography';

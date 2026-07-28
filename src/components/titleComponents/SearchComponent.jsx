@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Image, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -9,6 +9,7 @@ import Animated, {
 import { BlurView } from '@sbaiahmed1/react-native-blur';
 import { useNavigation } from '@react-navigation/native';
 import { Typography } from '../typography';
+import { CachedImage } from '../image';
 import { useTheme, useThemedStyles } from '../../hooks';
 import { SearchField } from '../form/SearchField';
 import SearchIcon from '../icons/SearchIcon';
@@ -335,7 +336,7 @@ export function SearchComponent({ categoryId, subCategoryId } = {}) {
                       ]}
                     >
                       {group.iconUrl ? (
-                        <Image source={{ uri: group.iconUrl }} style={styles.titleIcon} />
+                        <CachedImage source={{ uri: group.iconUrl }} style={styles.titleIcon} />
                       ) : null}
                       <Typography variant="h5" numberOfLines={1} style={styles.groupHeaderText}>
                         {group.name}
@@ -358,7 +359,7 @@ export function SearchComponent({ categoryId, subCategoryId } = {}) {
                           style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
                         >
                           {result.subCategory.iconUrl ? (
-                            <Image
+                            <CachedImage
                               source={{ uri: result.subCategory.iconUrl }}
                               style={styles.rowIcon}
                             />

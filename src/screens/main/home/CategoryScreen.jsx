@@ -1,9 +1,10 @@
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { SPACING } from './components/CategoriesList';
 import { StaggeredAnimatedView } from '../../../components/animation';
+import { CachedImage, useCachedImageSource } from '../../../components/image';
 import { TAB_BAR_HEIGHT, TOP_HEADER_HEIGHT, WIDTH } from '../../../utils/dimensions';
 import { FONT_FAMILY } from '../../../theme';
 import { Typography } from '../../../components/typography/Typography';
@@ -24,11 +25,12 @@ export function CategoryScreen({ navigation, route }) {
     useHomeStackHeaderScrollHandler();
   const insets = useSafeAreaInsets();
   const scrollBottomPadding = insets.bottom + TAB_BAR_HEIGHT + 24;
+  const categoryIconSource = useCachedImageSource(item.iconUrl);
 
   return (
     <View style={styles.screen}>
       <Animated.Image
-        source={{ uri: item.iconUrl }}
+        source={categoryIconSource}
         entering={FadeIn.duration(400)}
         style={styles.categoryItemImageIcon}
       />
@@ -60,7 +62,7 @@ export function CategoryScreen({ navigation, route }) {
                 onPress={() => navigation.navigate('SubCategoryScreen', { item: category.legalIssues, title: item.name, subtitle: category.name, iconUrl: item.iconUrl, categoryId: item.id, subCategoryId: category.id })}
               >
                 <View style={styles.subCategoryIconWrap}>
-                  <Image
+                  <CachedImage
                     source={{ uri: category.iconUrl || item.iconUrl }}
                     style={styles.subCategoryIcon}
                   />
