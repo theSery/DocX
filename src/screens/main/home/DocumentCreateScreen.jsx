@@ -322,13 +322,7 @@ export function DocumentCreateScreen({ route, navigation }) {
             delay={80}
             style={styles.actionRow}
           >
-            <Pressable
-              onPress={handleAddSignature}
-              disabled={isActionDisabled}
-              style={styles.topButton}
-            >
-              <SignatureSvg width={25} height={25} fill={colors.icons} />
-            </Pressable>
+
             <Pressable
               onPress={handleDownloadPdf}
               disabled={isActionDisabled}
@@ -341,12 +335,24 @@ export function DocumentCreateScreen({ route, navigation }) {
         <View style={[styles.actionBar, { bottom: TAB_BAR_BOTTOM_OFFSET, flexDirection: 'column' }]}>
 
           <AuthButton
-            title={templateSolution?.name ?? 'Ուղարկել'}
-            onPress={handleSubmitComplaint}
-            isLoading={isSubmittingComplaint}
-            disabled={isActionDisabled || !signatureImageSrc}
+            title={
+              signatureImageSrc
+                ? (`Ուղարկել ${templateSolution?.addressee?.name}` ?? 'Ուղարկել')
+                : 'Ստորագրություն'
+            }
+            onPress={
+              signatureImageSrc ? handleSubmitComplaint : handleAddSignature
+            }
+            isLoading={
+              signatureImageSrc ? isSubmittingComplaint : isAddingSignature
+            }
+            disabled={isActionDisabled}
             endIcon={
-              <SendSvg width={20} height={20} fill={palette.white} />
+              signatureImageSrc ? (
+                <SendSvg width={20} height={20} fill={palette.white} />
+              ) : (
+                <SignatureSvg width={25} height={25} fill={palette.white} />
+              )
             }
             style={styles.rowButton}
           />
