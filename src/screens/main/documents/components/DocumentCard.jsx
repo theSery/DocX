@@ -12,13 +12,10 @@ import SendSvg from '../../../../components/icons/SendSvg';
 import SignatureSvg from '../../../../components/icons/SignatureSvg';
 import StarOutlineSvg from '../../../../components/icons/StarOutlineSvg';
 import TrashSvg from '../../../../components/icons/TrashSvg';
-import { complaintsApi } from '../../../../api';
+import { complaintsApi, favoriteTemplatesApi } from '../../../../api';
 import { FONT_FAMILY } from '../../../../theme';
 import { useFileDownload, useThemedStyles, useTheme, useToast } from '../../../../hooks';
-import {
-  addRecommendedDocument,
-  removeRecommendedDocument,
-} from '../../../../utils/recommendedDocumentsStorage';
+import { removeRecommendedDocument } from '../../../../utils/recommendedDocumentsStorage';
 import EyeIconSvg from '../../../../components/icons/EyeIconSvg';
 
 const STATUS_CONFIG = {
@@ -65,15 +62,31 @@ export function DocumentCard({
 
   const handleToggleRecommended = useCallback(async () => {
     try {
-      const nextRecommendedIds = isRecommended
-        ? await removeRecommendedDocument(document.id)
-        : await addRecommendedDocument(document.id);
+      if (isRecommended) {
+        const nextRecommendedIds = await removeRecommendedDocument(document.id);
+        onRecommendedChange?.(nextRecommendedIds);
+        showToast({
+          title: 'Հեռացվեց նախընտրելիից',
+          type: 'success',
+        });
+        return;
+      }
+
+      const addResponse = await favoriteTemplatesApi.addFavoriteTemplate(document.id);
+      console.log('favorite-templates POST response', addResponse.data);
+
+      const idsResponse = await favoriteTemplatesApi.getFavoriteTemplateIds();
+      console.log('favorite-templates/ids GET response', idsResponse.data);
+
+      const nextRecommendedIds = Array.isArray(idsResponse.data)
+        ? idsResponse.data.map(String)
+        : Array.isArray(idsResponse.data?.ids)
+          ? idsResponse.data.ids.map(String)
+          : [];
 
       onRecommendedChange?.(nextRecommendedIds);
       showToast({
-        title: isRecommended
-          ? 'Հեռացվեց նախընտրելիից'
-          : 'Նշվեց որպես նախընտրելի',
+        title: 'Նշվեց որպես նախընտրելի',
         type: 'success',
       });
     } catch (error) {
@@ -164,55 +177,59 @@ export function DocumentCard({
       index={index}
       style={[styles.cardShadow, isMenuOpen && styles.cardShadowSelected]}
     >
-      <View style={[styles.card, isMenuOpen && styles.cardSelected]}>
-      <View style={styles.headerRow}>
-        <Typography variant="h6" tone="secondary" style={styles.date}>
-          {document.sendDate}
-        </Typography>
-        <View style={styles.headerActions}>
-          {isRecommended ? (
-            <View style={styles.recommendedIcon}>
-              <StarOutlineSvg width={18} height={17} fill={colors.icons} />
+      <TouchableOpacity
+        activeOpacity={0.85}
+        style={[styles.card, isMenuOpen && styles.cardSelected]}
+        onPress={handleMenuPress}
+      >
+        <View style={styles.headerRow}>
+          <Typography variant="h6" tone="secondary" style={styles.date}>
+            {document.sendDate}
+          </Typography>
+          <View style={styles.headerActions}>
+            {isRecommended ? (
+              <View style={styles.recommendedIcon}>
+                <StarOutlineSvg width={18} height={17} fill={colors.icons} />
+              </View>
+            ) : null}
+            <View style={[styles.statusBadge, { backgroundColor: colors[status.colorKey] }]}>
+              <Typography variant="h6" tone="onDark" style={styles.statusText}>
+                {status.label}
+              </Typography>
             </View>
-          ) : null}
-          <View style={[styles.statusBadge, { backgroundColor: colors[status.colorKey] }]}>
-            <Typography variant="h6" tone="onDark" style={styles.statusText}>
-              {status.label}
+          </View>
+        </View>
+
+        <View style={styles.titleRow}>
+          <Typography variant="h4" style={styles.title} numberOfLines={2}>
+            {document.title}
+          </Typography>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={[styles.menuButton, isMenuOpen && styles.menuButtonActive]}
+            onPress={handleMenuPress}
+          >
+            <DotsVerticalSvg fill={colors.icons} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.footerRow}>
+          <View style={styles.organizationBadge}>
+            <MailIconSvg width={14} height={11} fill={colors.buttonTextOnPrimary} />
+            <Typography variant="h6" tone="onDark" style={styles.organizationText} numberOfLines={1}>
+              {document.organization}
             </Typography>
           </View>
+
+          {document.hasAttachment ? (
+            <View style={styles.attachIcon}>
+              <AttachSvg fill={colors.icons} />
+            </View>
+          ) : (
+            <View style={styles.attachPlaceholder} />
+          )}
         </View>
-      </View>
-
-      <View style={styles.titleRow}>
-        <Typography variant="h4" style={styles.title} numberOfLines={2}>
-          {document.title}
-        </Typography>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          style={[styles.menuButton, isMenuOpen && styles.menuButtonActive]}
-          onPress={handleMenuPress}
-        >
-          <DotsVerticalSvg fill={colors.icons} />
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.footerRow}>
-        <View style={styles.organizationBadge}>
-          <MailIconSvg width={14} height={11} fill={colors.buttonTextOnPrimary} />
-          <Typography variant="h6" tone="onDark" style={styles.organizationText} numberOfLines={1}>
-            {document.organization}
-          </Typography>
-        </View>
-
-        {document.hasAttachment ? (
-          <View style={styles.attachIcon}>
-            <AttachSvg fill={colors.icons} />
-          </View>
-        ) : (
-          <View style={styles.attachPlaceholder} />
-        )}
-      </View>
-      </View>
+      </TouchableOpacity>
     </StaggeredAnimatedView>
   );
 }

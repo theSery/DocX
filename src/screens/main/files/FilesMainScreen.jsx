@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
+  SectionList,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -17,7 +17,7 @@ import { PersonalDocumentCard } from './components/PersonalDocumentCard';
 import { TAB_BAR_HEIGHT } from '../../../utils/dimensions';
 import { mapPersonalDocumentToFile } from './utils/mapPersonalDocumentToFile';
 
-const PAGE_LIMIT = 10;
+const PAGE_LIMIT = 100;
 
 export function FilesMainScreen() {
   const styles = useThemedStyles(createStyles);
@@ -80,6 +80,41 @@ export function FilesMainScreen() {
   useEffect(() => {
     fetchFiles(1);
   }, [fetchFiles]);
+
+  const sections = useMemo(() => {
+    const defaultFiles = [];
+    const additionalFiles = [];
+
+    for (const file of files) {
+      if (file.isDefault) {
+        defaultFiles.push(file);
+      } else {
+        additionalFiles.push(file);
+      }
+    }
+
+    const nextSections = [];
+
+    if (defaultFiles.length > 0) {
+      nextSections.push({
+        key: 'default',
+        title: 'Հիմնական ֆայլեր',
+        data: defaultFiles,
+        indexOffset: 0,
+      });
+    }
+
+    if (additionalFiles.length > 0) {
+      nextSections.push({
+        key: 'additional',
+        title: 'Լրացուցիչ ֆայլեր',
+        data: additionalFiles,
+        indexOffset: defaultFiles.length,
+      });
+    }
+
+    return nextSections;
+  }, [files]);
 
   const handleSearchChange = useCallback(term => {
     setSearchTerm(current => (current === term ? current : term));
@@ -166,6 +201,33 @@ export function FilesMainScreen() {
     styles.stateText,
   ]);
 
+  const renderSectionHeader = useCallback(
+    ({ section }) => (
+      <Typography
+        variant="h4"
+        style={[
+          styles.sectionTitle,
+          section.key === 'additional' && styles.additionalSectionTitle,
+        ]}
+      >
+        {section.title}
+      </Typography>
+    ),
+    [styles.additionalSectionTitle, styles.sectionTitle],
+  );
+
+  const renderItem = useCallback(
+    ({ item, index, section }) => (
+      <PersonalDocumentCard
+        document={item}
+        index={section.indexOffset + index}
+        onDeleted={handleFileDeleted}
+        onUploaded={handleFileUploaded}
+      />
+    ),
+    [handleFileDeleted, handleFileUploaded],
+  );
+
   return (
     <View style={styles.screen}>
       <View style={styles.header}>
@@ -175,27 +237,22 @@ export function FilesMainScreen() {
           onFileUploaded={handleFileUploaded}
         />
       </View>
-      <FlatList
+      <SectionList
         style={styles.list}
-        data={files}
+        sections={sections}
         keyExtractor={item => item.id}
         ListEmptyComponent={renderEmptyComponent}
+        renderSectionHeader={renderSectionHeader}
+        stickySectionHeadersEnabled={false}
         contentContainerStyle={[
           styles.listContent,
-          files.length === 0 && styles.listContentEmpty,
+          sections.length === 0 && styles.listContentEmpty,
           { paddingBottom: insets.bottom + TAB_BAR_HEIGHT + 24 },
         ]}
         showsVerticalScrollIndicator={false}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.3}
-        renderItem={({ item, index }) => (
-          <PersonalDocumentCard
-            document={item}
-            index={index}
-            onDeleted={handleFileDeleted}
-            onUploaded={handleFileUploaded}
-          />
-        )}
+        renderItem={renderItem}
       />
     </View>
   );
@@ -220,6 +277,14 @@ const createStyles = colors =>
     },
     listContentEmpty: {
       flexGrow: 1,
+    },
+    sectionTitle: {
+      letterSpacing: 0.4,
+      paddingTop:8,
+      paddingBottom: 18,
+    },
+    additionalSectionTitle: {
+      paddingTop: 20,
     },
     centeredState: {
       flex: 1,

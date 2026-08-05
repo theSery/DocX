@@ -123,7 +123,11 @@ export function PersonalDocumentCard({
       index={index}
       style={[styles.cardShadow, isMenuOpen && styles.cardShadowSelected]}
     >
-      <View style={[styles.card, isMenuOpen && styles.cardSelected]}>
+      <TouchableOpacity
+        activeOpacity={0.85}
+        style={[styles.card, isMenuOpen && styles.cardSelected]}
+        onPress={handleMenuPress}
+      >
         <View style={styles.headerRow}>
           <View
             style={[
@@ -185,7 +189,7 @@ export function PersonalDocumentCard({
             )}
           </TouchableOpacity>
         </View>
-      </View>
+      </TouchableOpacity>
     </StaggeredAnimatedView>
   );
 }

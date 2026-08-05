@@ -7,7 +7,6 @@ import {
   View,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
-import SignatureSvg from '../../../components/icons/SignatureSvg';
 import UploadSvg from '../../../components/icons/UploadSvg';
 import { DocumentLoadingOverlay, Typography } from '../../../components';
 import { complaintsApi } from '../../../api';
@@ -18,7 +17,6 @@ import {
   useTheme,
   useThemedStyles,
 } from '../../../hooks';
-import { palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import MainHeader from '../../../components/headers/MainHeader';
 
