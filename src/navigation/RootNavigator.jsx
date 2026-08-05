@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StatusBar } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../contexts';
@@ -29,6 +29,13 @@ import { ResetPinNavigator } from './AuthStacks/ResetPinNavigator';
 
 const Stack = createNativeStackNavigator();
 
+const CATEGORIES_PAGE = { page: 1, limit: 10 };
+const SESSION_PAGE = { page: 1, limit: 100 };
+
+function isRequestSettled(status) {
+  return status === 'succeeded' || status === 'failed';
+}
+
 function resolveInitialRoute(hasCompletedOnboarding, startupRoute) {
   if (!hasCompletedOnboarding) {
     return 'Onboarding';
@@ -41,8 +48,28 @@ function resolveInitialRoute(hasCompletedOnboarding, startupRoute) {
   return 'Main';
 }
 
+function BootstrapLoadingScreen() {
+  return (
+    <GradientBackground isLight={false}>
+      <LottieAnimation
+        source={require('../assets/lottie/Law.json')}
+        autoPlay
+        loop
+        style={{
+          width: 150,
+          height: 150,
+          position: 'absolute',
+          bottom: 30,
+          left: 30,
+        }}
+      />
+      <LogoIcon width={140} height={140} />
+    </GradientBackground>
+  );
+}
+
 export function RootNavigator() {
-  const { isReady, hasCompletedOnboarding } = useAuth();
+  const { isReady, hasCompletedOnboarding, isSign } = useAuth();
   const { isSplashDone, startupRoute } = useSplash();
 
   const dispatch = useAppDispatch();
@@ -50,25 +77,29 @@ export function RootNavigator() {
   const categoriesStatus = useAppSelector(selectCategoriesStatus);
   const personalDocumentsStatus = useAppSelector(selectPersonalDocumentsStatus);
   const complaintsStatus = useAppSelector(selectComplaintsStatus);
+
   const [criticalIconsReady, setCriticalIconsReady] = useState(false);
+  const hasPassedBootstrapRef = useRef(false);
 
   useEffect(() => {
     if (categoriesStatus === 'idle') {
-      dispatch(fetchCategoryHierarchy({ page: 1, limit: 10 }));
+      dispatch(fetchCategoryHierarchy(CATEGORIES_PAGE));
     }
   }, [dispatch, categoriesStatus]);
 
   useEffect(() => {
-    if (personalDocumentsStatus === 'idle') {
-      dispatch(fetchPersonalDocuments({ page: 1, limit: 100 }));
+    if (!isSign) {
+      return;
     }
-  }, [dispatch, personalDocumentsStatus]);
 
-  useEffect(() => {
-    if (complaintsStatus === 'idle') {
-      dispatch(fetchComplaints({ page: 1, limit: 100 }));
+    if (personalDocumentsStatus === 'idle') {
+      dispatch(fetchPersonalDocuments(SESSION_PAGE));
     }
-  }, [dispatch, complaintsStatus]);
+
+    if (complaintsStatus === 'idle') {
+      dispatch(fetchComplaints(SESSION_PAGE));
+    }
+  }, [dispatch, isSign, personalDocumentsStatus, complaintsStatus]);
 
   useEffect(() => {
     if (categoriesStatus === 'failed') {
@@ -97,35 +128,38 @@ export function RootNavigator() {
     };
   }, [categoriesStatus, categories]);
 
-  const isBootstrapping =
+  const isCategoriesBootstrapping =
     categoriesStatus === 'idle' ||
     categoriesStatus === 'loading' ||
     (categoriesStatus === 'succeeded' && !criticalIconsReady);
 
+  const isSessionDataBootstrapping =
+    isSign &&
+    (!isRequestSettled(personalDocumentsStatus) ||
+      !isRequestSettled(complaintsStatus));
+
+  // Session data only blocks the initial cold-start gate so a later login
+  // does not remount the stack behind the bootstrap screen.
+  const isBootstrapping =
+    isCategoriesBootstrapping ||
+    (!hasPassedBootstrapRef.current && isSessionDataBootstrapping);
+
+  const isAppLoading = !isSplashDone || !isReady || isBootstrapping;
+
   useEffect(() => {
-    if (!isSplashDone || !isReady || isBootstrapping) {
+    if (!isAppLoading) {
+      hasPassedBootstrapRef.current = true;
+    }
+  }, [isAppLoading]);
+
+  useEffect(() => {
+    if (isAppLoading) {
       StatusBar.setBarStyle('light-content', true);
     }
-  }, [isSplashDone, isReady, isBootstrapping]);
+  }, [isAppLoading]);
 
-  if (!isSplashDone || !isReady || isBootstrapping) {
-    return (
-      <GradientBackground isLight={false}>
-        <LottieAnimation
-          source={require('../assets/lottie/Law.json')}
-          autoPlay
-          loop
-          style={{
-            width: 150,
-            height: 150,
-            position: 'absolute',
-            bottom: 30,
-            left: 30,
-          }}
-        />
-        <LogoIcon width={140} height={140} />
-      </GradientBackground>
-    );
+  if (isAppLoading) {
+    return <BootstrapLoadingScreen />;
   }
 
   return (
