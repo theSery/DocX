@@ -29,7 +29,7 @@ export function FillDates({
     : rawSelected != null
       ? [rawSelected]
       : [];
-  const facts = factGroup?.factGroupFacts ?? [];
+  const facts = factGroup?.facts ?? [];
   const radioFactGroups = factGroup?.radioFactGroups ?? [];
 
   const handleShowFactDescription = fact => {
@@ -48,7 +48,7 @@ export function FillDates({
   return (
     <View style={styles.container}>
       <View style={styles.grid}>
-        {facts.map(({ fact }) => {
+        {facts.map(fact => {
           const isSelected = selectedFactIds.includes(fact.id);
           const showInfoBadge = hasFactInfo(fact);
 

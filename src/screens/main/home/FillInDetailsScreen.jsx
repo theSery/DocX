@@ -28,6 +28,7 @@ import {
   isPassportDataCompleteForTemplate,
 } from '../../../utils/personalDataValidation';
 import { isDateDataType } from '../../../utils/variableDataTypes';
+import { normalizeTemplateFactGroups } from '../../../utils/templateFactGroups';
 
 function buildSteps(templateFactGroups = []) {
   const actStep = { key: 'act', label: 'Մանրամասներ' };
@@ -59,11 +60,19 @@ export function FillInDetailsScreen({ navigation, route }) {
   const styles = useThemedStyles(createStyles);
   const dispatch = useAppDispatch();
   const { isAuthenticated, openAuth } = useAuthSession();
-  const { templateId, templateForm, templateSolution } = route.params ?? {};
+  const {
+    templateId,
+    templateForm,
+    templateSolution,
+    templateFactGroups: routeFactGroups,
+    templateName: routeTemplateName,
+  } = route.params ?? {};
   const [currentStep, setCurrentStep] = useState(0);
-  const [templateFactGroups, setTemplateFactGroups] = useState([]);
+  const [templateFactGroups, setTemplateFactGroups] = useState(() =>
+    normalizeTemplateFactGroups(routeFactGroups),
+  );
   const [templateText, setTemplateText] = useState('');
-  const [templateName, setTemplateName] = useState('');
+  const [templateName, setTemplateName] = useState(routeTemplateName ?? '');
   const [selectedFacts, setSelectedFacts] = useState({});
   const [radioFacts, setRadioFacts] = useState({});
   const [stepError, setStepError] = useState('');
@@ -113,18 +122,29 @@ export function FillInDetailsScreen({ navigation, route }) {
     templatesApi
       .getTemplateById(templateId, { signal: controller.signal })
       .then(response => {
-        setTemplateFactGroups(response.data.templateFactGroups ?? []);
+        const factGroups = normalizeTemplateFactGroups(
+          response.data.templateFactGroups,
+        );
+
+        if (factGroups.length > 0) {
+          setTemplateFactGroups(factGroups);
+        }
+
         setTemplateText(response.data.templateText ?? '');
-        setTemplateName(response.data.name ?? response.data.title ?? '');
+        setTemplateName(
+          response.data.name ?? response.data.title ?? routeTemplateName ?? '',
+        );
       })
       .catch(error => {
+        // The endpoint requires a token; anonymous users keep the fact groups
+        // that came from the public category hierarchy.
         if (error.type !== 'cancel') {
           console.log('template error:', error);
         }
       });
 
     return () => controller.abort();
-  }, [templateId]);
+  }, [templateId, routeTemplateName, isAuthenticated]);
   useEffect(() => {
     if (templateFactGroups.length === 0) {
       return;
@@ -295,11 +315,9 @@ export function FillInDetailsScreen({ navigation, route }) {
       };
     }
 
-    const factGroup = currentFactGroup?.factGroup;
-
     return {
-      title: factGroup?.name ?? '',
-      subtitle: factGroup?.description ?? '',
+      title: currentFactGroup?.name ?? '',
+      subtitle: currentFactGroup?.description ?? '',
     };
   }, [currentStep, currentFactGroup]);
 
@@ -313,7 +331,7 @@ export function FillInDetailsScreen({ navigation, route }) {
     if (currentFactGroup) {
       return (
         <FillDates
-          factGroup={currentFactGroup.factGroup}
+          factGroup={currentFactGroup}
           setRadioFacts={setRadioFacts}
           factsCheck={radioFacts}
           selectedFacts={selectedFacts}

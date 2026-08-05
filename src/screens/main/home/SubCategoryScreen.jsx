@@ -113,6 +113,8 @@ export function SubCategoryScreen({ route, navigation }) {
       templateId: template.id,
       templateForm: template.form,
       templateSolution: template.solution,
+      templateFactGroups: template.factGroups,
+      templateName: template.name,
     });
   };
 

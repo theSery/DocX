@@ -37,8 +37,7 @@ function collectSelectedFacts(templateFactGroups, selectedFacts, radioFacts) {
   const facts = [];
 
   templateFactGroups.forEach(group => {
-    const factGroup = group.factGroup;
-    const groupId = factGroup?.id;
+    const groupId = group?.id;
 
     const rawSelected = selectedFacts?.[groupId];
     const selectedIds = Array.isArray(rawSelected)
@@ -47,13 +46,13 @@ function collectSelectedFacts(templateFactGroups, selectedFacts, radioFacts) {
         ? [rawSelected]
         : [];
 
-    factGroup?.factGroupFacts?.forEach(({ fact }) => {
+    group?.facts?.forEach(fact => {
       if (selectedIds.includes(fact.id)) {
         facts.push(fact);
       }
     });
 
-    factGroup?.radioFactGroups?.forEach((radioGroup, radioIndex) => {
+    group?.radioFactGroups?.forEach((radioGroup, radioIndex) => {
       const groupKey = radioGroup.id ?? radioIndex;
       const selectedId = radioFacts?.[groupKey];
 
