@@ -15,6 +15,14 @@ import {
   selectCategories,
   selectCategoriesStatus,
 } from '../store/slices/categoriesSlice';
+import {
+  fetchComplaints,
+  selectComplaintsStatus,
+} from '../store/slices/complaintsSlice';
+import {
+  fetchPersonalDocuments,
+  selectPersonalDocumentsStatus,
+} from '../store/slices/personalDocumentsSlice';
 import { prefetchCategoryIcons } from '../utils/imageCache';
 import { animation } from './constants';
 import { ResetPinNavigator } from './AuthStacks/ResetPinNavigator';
@@ -40,6 +48,8 @@ export function RootNavigator() {
   const dispatch = useAppDispatch();
   const categories = useAppSelector(selectCategories);
   const categoriesStatus = useAppSelector(selectCategoriesStatus);
+  const personalDocumentsStatus = useAppSelector(selectPersonalDocumentsStatus);
+  const complaintsStatus = useAppSelector(selectComplaintsStatus);
   const [criticalIconsReady, setCriticalIconsReady] = useState(false);
 
   useEffect(() => {
@@ -47,6 +57,18 @@ export function RootNavigator() {
       dispatch(fetchCategoryHierarchy({ page: 1, limit: 10 }));
     }
   }, [dispatch, categoriesStatus]);
+
+  useEffect(() => {
+    if (personalDocumentsStatus === 'idle') {
+      dispatch(fetchPersonalDocuments({ page: 1, limit: 100 }));
+    }
+  }, [dispatch, personalDocumentsStatus]);
+
+  useEffect(() => {
+    if (complaintsStatus === 'idle') {
+      dispatch(fetchComplaints({ page: 1, limit: 100 }));
+    }
+  }, [dispatch, complaintsStatus]);
 
   useEffect(() => {
     if (categoriesStatus === 'failed') {
