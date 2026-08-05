@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { templatesApi } from '../../../api';
@@ -68,6 +68,8 @@ export function FillInDetailsScreen({ navigation, route }) {
     templateName: routeTemplateName,
   } = route.params ?? {};
   const [currentStep, setCurrentStep] = useState(0);
+  const [stepDirection, setStepDirection] = useState(1);
+  const pendingStepRef = useRef(null);
   const [templateFactGroups, setTemplateFactGroups] = useState(() =>
     normalizeTemplateFactGroups(routeFactGroups),
   );
@@ -163,16 +165,48 @@ export function FillInDetailsScreen({ navigation, route }) {
     setStepError('');
   }, [currentStep, selectedFacts, radioFacts]);
 
+  // Apply step change after direction so the outgoing view gets the correct exit animation.
+  useLayoutEffect(() => {
+    if (pendingStepRef.current == null) {
+      return;
+    }
+
+    const nextStep = pendingStepRef.current;
+    pendingStepRef.current = null;
+    setCurrentStep(nextStep);
+  }, [stepDirection]);
+
   const steps = useMemo(() => buildSteps(templateFactGroups), [templateFactGroups]);
   const totalSteps = steps.length;
   const isLastStep = currentStep >= totalSteps - 1;
   const currentFactGroup = currentStep > 0 ? templateFactGroups[currentStep - 1] : null;
+  const isGoingForward = stepDirection >= 0;
+
+  const goToStep = useCallback(
+    (nextStep, direction) => {
+      if (nextStep === currentStep) {
+        return;
+      }
+
+      setStepError('');
+      pendingStepRef.current = nextStep;
+
+      if (direction === stepDirection) {
+        // Direction unchanged — layout effect on stepDirection won't re-run; apply immediately.
+        pendingStepRef.current = null;
+        setCurrentStep(nextStep);
+        return;
+      }
+
+      setStepDirection(direction);
+    },
+    [currentStep, stepDirection],
+  );
 
   const handleNext = useCallback(async () => {
     if (currentStep === 0) {
       handleSubmit(() => {
-        setStepError('');
-        setCurrentStep(prev => prev + 1);
+        goToStep(currentStep + 1, 1);
       })();
       return;
     }
@@ -227,9 +261,9 @@ export function FillInDetailsScreen({ navigation, route }) {
       return;
     }
 
-    setStepError('');
-    setCurrentStep(prev => prev + 1);
+    goToStep(currentStep + 1, 1);
   }, [
+    goToStep,
     isAuthenticated,
     openAuth,
     currentStep,
@@ -253,35 +287,34 @@ export function FillInDetailsScreen({ navigation, route }) {
         return;
       }
 
+      const direction = stepIndex < currentStep ? -1 : 1;
+
       if (stepIndex < currentStep) {
-        setStepError('');
-        setCurrentStep(stepIndex);
+        goToStep(stepIndex, direction);
         return;
       }
 
       // Moving forward from the first step requires the form to be valid.
       if (currentStep === 0) {
         handleSubmit(() => {
-          setStepError('');
-          setCurrentStep(stepIndex);
+          goToStep(stepIndex, direction);
         })();
         return;
       }
 
-      setStepError('');
-      setCurrentStep(stepIndex);
+      goToStep(stepIndex, direction);
     },
-    [currentStep, handleSubmit],
+    [currentStep, goToStep, handleSubmit],
   );
 
   const handleBack = useCallback(() => {
     if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1);
+      goToStep(currentStep - 1, -1);
       return;
     }
 
     navigation.goBack();
-  }, [currentStep, navigation]);
+  }, [currentStep, goToStep, navigation]);
 
   const handleSelectFact = useCallback((fact, groupId) => {
     if (!groupId) {
@@ -376,7 +409,7 @@ export function FillInDetailsScreen({ navigation, route }) {
         <FormFlatList
           style={styles.list}
           data={listData}
-          extraData={[currentStep, radioFacts, selectedFacts]}
+          extraData={[currentStep, stepDirection, radioFacts, selectedFacts]}
           keyExtractor={item => item.key}
           ListHeaderComponent={ListHeaderComponent}
           showsVerticalScrollIndicator={false}
@@ -386,8 +419,8 @@ export function FillInDetailsScreen({ navigation, route }) {
           renderItem={() => (
             <AnimatedView
               key={currentStep}
-              entering="SlideInRight"
-              exiting="SlideOutLeft"
+              entering={isGoingForward ? 'SlideInRight' : 'SlideInLeft'}
+              exiting={isGoingForward ? 'SlideOutLeft' : 'SlideOutRight'}
               animationConfig={{ duration: 350 }}
             >
               <View style={styles.stepContent}>{renderStepContent()}</View>
