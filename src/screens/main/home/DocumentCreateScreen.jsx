@@ -27,10 +27,14 @@ import {
   DocumentLoadingOverlay,
 } from '../../../components/DocumentLoadingOverlay';
 import { AnimatedView } from '../../../components/animation';
-import { useAppSelector } from '../../../store';
+import { useAppDispatch, useAppSelector } from '../../../store';
 import { selectDocumentFill } from '../../../store/slices/documentFillSlice';
 import { selectPersonalData } from '../../../store/slices/personalDataSlice';
-import { selectPersonalDocuments } from '../../../store/slices/personalDocumentsSlice';
+import {
+  fetchPersonalDocuments,
+  removePersonalDocument,
+  selectPersonalDocuments,
+} from '../../../store/slices/personalDocumentsSlice';
 import {
   useFileDownload,
   useTheme,
@@ -56,6 +60,7 @@ export function DocumentCreateScreen({ route, navigation }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { showToast } = useToast();
+  const dispatch = useAppDispatch();
   const { isDownloading, shareGeneratedPdf } = useFileDownload();
   const personalData = useAppSelector(selectPersonalData);
   const documentFill = useAppSelector(selectDocumentFill);
@@ -73,23 +78,215 @@ export function DocumentCreateScreen({ route, navigation }) {
   const [uploadedAttachmentIds, setUploadedAttachmentIds] = useState(
     () => new Set(),
   );
+  /** Local display overrides from My Files (never written to personalDocuments). */
+  const [attachmentFileOverrides, setAttachmentFileOverrides] = useState(
+    () => ({}),
+  );
+  /** Slots the user cleared; ignore store matches until a new file is chosen. */
+  const [clearedAttachmentIds, setClearedAttachmentIds] = useState(
+    () => new Set(),
+  );
 
-  const handleAttachmentUploaded = useCallback(attachedDocumentId => {
+  const markAttachmentFilled = useCallback(attachedDocumentId => {
     if (attachedDocumentId == null) {
       return;
     }
 
+    const key = String(attachedDocumentId);
     setUploadedAttachmentIds(prev => {
       const next = new Set(prev);
-      next.add(String(attachedDocumentId));
+      next.add(key);
       return next;
     });
+    setClearedAttachmentIds(prev => {
+      if (!prev.has(key)) {
+        return prev;
+      }
+      const next = new Set(prev);
+      next.delete(key);
+      return next;
+    });
+  }, []);
+
+  const handleAttachmentUploaded = useCallback(
+    attachedDocumentId => {
+      if (attachedDocumentId == null) {
+        return;
+      }
+
+      const key = String(attachedDocumentId);
+      // Gallery/Files upload syncs via personalDocuments refresh — drop local override.
+      setAttachmentFileOverrides(prev => {
+        if (!(key in prev)) {
+          return prev;
+        }
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+      markAttachmentFilled(attachedDocumentId);
+    },
+    [markAttachmentFilled],
+  );
+
+  /**
+   * Link an existing My Files document to a solution slot for display only.
+   * Does not upload, duplicate, or mutate personalDocuments.
+   */
+  const handlePickFromMyFiles = useCallback(
+    (row, personalDocument) => {
+      const attachedDocumentId = row?.attachedDocumentId;
+      const fileUrl =
+        personalDocument?.documentUrl || personalDocument?.downloadUrl;
+      const sourceId = personalDocument?.fileId ?? personalDocument?.id;
+
+      if (attachedDocumentId == null || !fileUrl) {
+        showToast({
+          title: 'Ֆայլի հղում չի գտնվել',
+          type: 'error',
+        });
+        return;
+      }
+
+      const current = row?.personalDocument;
+      const currentId = current?.fileId ?? current?.id;
+      const currentUrl = current?.documentUrl || current?.downloadUrl;
+      const isDuplicate =
+        (sourceId != null &&
+          currentId != null &&
+          String(sourceId) === String(currentId)) ||
+        (fileUrl && currentUrl && String(fileUrl) === String(currentUrl));
+
+      if (isDuplicate) {
+        return;
+      }
+
+      const key = String(attachedDocumentId);
+
+      setAttachmentFileOverrides(prev => ({
+        ...prev,
+        [key]: {
+          id: personalDocument.id,
+          fileId: sourceId,
+          documentUrl: personalDocument.documentUrl ?? null,
+          downloadUrl: personalDocument.downloadUrl ?? null,
+          isUploaded: true,
+          selectionSource: 'myFiles',
+          // Keep the solution attachment title on the row; do not adopt this name.
+          documentName: row.name,
+        },
+      }));
+
+      markAttachmentFilled(attachedDocumentId);
+    },
+    [markAttachmentFilled, showToast],
+  );
+
+  const deleteReplacedPersonalDocument = useCallback(
+    async personalDocumentId => {
+      if (personalDocumentId == null) {
+        return;
+      }
+
+      try {
+        await personalDocumentsApi.deletePersonalDocument(personalDocumentId);
+        dispatch(removePersonalDocument(personalDocumentId));
+      } catch (error) {
+        console.error(
+          '[DocumentCreate] failed to delete replaced personal document',
+          error,
+        );
+      }
+    },
+    [dispatch],
+  );
+
+  const handleRemoveAttachment = useCallback(
+    async row => {
+      const attachedDocumentId = row?.attachedDocumentId;
+      if (attachedDocumentId == null) {
+        return;
+      }
+
+      // Remove only for non-default attachments.
+      if (row?.isDefault) {
+        return;
+      }
+
+      const key = String(attachedDocumentId);
+      const doc = row?.personalDocument;
+      const shouldDeleteFromStore =
+        row?.selectionSource !== 'myFiles' && doc?.id != null;
+
+      if (shouldDeleteFromStore) {
+        await deleteReplacedPersonalDocument(doc.id);
+        // Keep store list in sync after delete.
+        dispatch(fetchPersonalDocuments({ page: 1, limit: 100 }));
+      }
+
+      setAttachmentFileOverrides(prev => {
+        if (!(key in prev)) {
+          return prev;
+        }
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+
+      setUploadedAttachmentIds(prev => {
+        if (!prev.has(key)) {
+          return prev;
+        }
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+
+      setClearedAttachmentIds(prev => {
+        const next = new Set(prev);
+        next.add(key);
+        return next;
+      });
+    },
+    [deleteReplacedPersonalDocument, dispatch],
+  );
+
+  const resolveReplacePersonalDocumentId = useCallback(row => {
+    if (row?.isDefault || row?.selectionSource === 'myFiles') {
+      return null;
+    }
+
+    if (!row?.isUploaded) {
+      return null;
+    }
+
+    return row?.personalDocument?.id ?? null;
   }, []);
 
   const { pickFromGallery, pickFromFiles, isUploading } =
     useSolutionAttachmentUpload({
       onUploaded: handleAttachmentUploaded,
     });
+
+  const handlePickFromGallery = useCallback(
+    row => {
+      pickFromGallery({
+        ...row,
+        replacePersonalDocumentId: resolveReplacePersonalDocumentId(row),
+      });
+    },
+    [pickFromGallery, resolveReplacePersonalDocumentId],
+  );
+
+  const handlePickFromFiles = useCallback(
+    row => {
+      pickFromFiles({
+        ...row,
+        replacePersonalDocumentId: resolveReplacePersonalDocumentId(row),
+      });
+    },
+    [pickFromFiles, resolveReplacePersonalDocumentId],
+  );
 
   const userId = personalData?.id ?? personalData?.userId;
 
@@ -102,12 +299,16 @@ export function DocumentCreateScreen({ route, navigation }) {
     return solutionAttachments.map((attachment, index) => {
       const attachedDocumentId =
         attachment?.attachedDocumentId ?? attachment?.attachedDocument?.id;
+      const key = String(attachedDocumentId);
       const name =
         attachment?.attachedDocument?.name ??
         attachment?.name ??
         `Կցորդ ${index + 1}`;
 
-      const personalDocument =
+      const wasCleared = clearedAttachmentIds.has(key);
+      const override = attachmentFileOverrides[key] ?? null;
+
+      const storeDocumentForSlot =
         personalDocuments.find(
           item =>
             String(item.attachedDocumentId) === String(attachedDocumentId),
@@ -115,20 +316,35 @@ export function DocumentCreateScreen({ route, navigation }) {
         personalDocuments.find(item => item.documentName === name) ??
         null;
 
+      // Slot defaultness comes from the personal-document slot, not My Files picks.
+      const isDefault = Boolean(storeDocumentForSlot?.isDefault);
+      const storeDocument = wasCleared ? null : storeDocumentForSlot;
+      const personalDocument = override ?? storeDocument;
+
       const isUploaded =
-        Boolean(personalDocument?.isUploaded) ||
-        Boolean(personalDocument?.documentUrl) ||
-        uploadedAttachmentIds.has(String(attachedDocumentId));
+        !wasCleared &&
+        (Boolean(personalDocument?.isUploaded) ||
+          Boolean(personalDocument?.documentUrl) ||
+          uploadedAttachmentIds.has(key));
 
       return {
         key: String(attachment?.id ?? attachedDocumentId ?? index),
         attachedDocumentId,
         name,
         isUploaded,
+        isDefault,
+        canRemove: isUploaded && !isDefault,
         personalDocument,
+        selectionSource: override?.selectionSource ?? null,
       };
     });
-  }, [personalDocuments, solutionAttachments, uploadedAttachmentIds]);
+  }, [
+    attachmentFileOverrides,
+    clearedAttachmentIds,
+    personalDocuments,
+    solutionAttachments,
+    uploadedAttachmentIds,
+  ]);
 
   const serialNumber = useMemo(
     () => generateComplaintSerialNumber(userId),
@@ -243,15 +459,15 @@ export function DocumentCreateScreen({ route, navigation }) {
       const attachedDocuments = (templateSolution?.solutionAttachments ?? [])
         .map(attachment => attachment?.attachedDocumentId ?? attachment?.attachedDocument?.id)
         .filter(id => id != null);
-
+//lawyer, addressee, email"
       try {
         const response = await complaintsApi.sendComplaint(complaintId, {
-          recipientType: 'lawyer',
+          recipientType: 'email',
           recipientEmail: templateSolution?.addressee?.email ?? '',
           addresseeEmail: personalData?.email ?? '',
           attachedDocuments,
         });
-
+console.log(response, 'response');
       } catch (error) {
         console.log(
           `[testSendComplaint] POST /complaints/${complaintId}/send error`,
@@ -440,8 +656,10 @@ export function DocumentCreateScreen({ route, navigation }) {
         visible={isAttachmentsSheetVisible}
         attachments={attachmentRows}
         onClose={() => setIsAttachmentsSheetVisible(false)}
-        onPickFromGallery={pickFromGallery}
-        onPickFromFiles={pickFromFiles}
+        onPickFromGallery={handlePickFromGallery}
+        onPickFromFiles={handlePickFromFiles}
+        onPickFromMyFiles={handlePickFromMyFiles}
+        onRemoveAttachment={handleRemoveAttachment}
         onConfirm={submitComplaint}
         isConfirming={isSubmittingComplaint}
         isUploading={isUploading}

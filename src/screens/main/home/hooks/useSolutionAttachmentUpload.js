@@ -10,14 +10,19 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { filesApi, personalDocumentsApi } from '../../../../api';
 import { useToast } from '../../../../hooks';
 import { useAppDispatch } from '../../../../store';
-import { fetchPersonalDocuments } from '../../../../store/slices/personalDocumentsSlice';
+import {
+  fetchPersonalDocuments,
+  removePersonalDocument,
+} from '../../../../store/slices/personalDocumentsSlice';
 
 function toUploadTarget(row) {
   return {
     documentName: row.name,
     attachedDocumentId: row.attachedDocumentId,
-    // Only default personal-document slots accept POST /personal-documents.
-    usePersonalDocumentSlot: Boolean(row.personalDocument?.isDefault),
+    // Default personal-document slots accept POST /personal-documents.
+    usePersonalDocumentSlot: Boolean(row.isDefault),
+    // When replacing a non-default upload, delete this id after the new file succeeds.
+    replacePersonalDocumentId: row.replacePersonalDocumentId ?? null,
   };
 }
 
@@ -114,6 +119,24 @@ export function useSolutionAttachmentUpload({ onUploaded } = {}) {
           throw new Error('Ֆայլի ID չի գտնվել վերբեռնումից հետո');
         }
 
+        // Replace flow: drop the previous non-default personal document so the
+        // store keeps a single version for this attachment slot.
+        const replaceId = attachment.replacePersonalDocumentId;
+        if (
+          replaceId != null &&
+          String(replaceId) !== String(fileId)
+        ) {
+          try {
+            await personalDocumentsApi.deletePersonalDocument(replaceId);
+            dispatch(removePersonalDocument(replaceId));
+          } catch (deleteError) {
+            console.error(
+              '[SolutionAttachmentUpload] failed to delete replaced document',
+              deleteError,
+            );
+          }
+        }
+
         showToast({
           title: 'Փաստաթուղթը հաջողությամբ վերբեռնվեց',
           type: 'success',
@@ -135,7 +158,13 @@ export function useSolutionAttachmentUpload({ onUploaded } = {}) {
         setIsUploading(false);
       }
     },
-    [onUploaded, refreshPersonalDocuments, resolveFileIdAfterRefresh, showToast],
+    [
+      dispatch,
+      onUploaded,
+      refreshPersonalDocuments,
+      resolveFileIdAfterRefresh,
+      showToast,
+    ],
   );
 
   const handlePickedFile = useCallback(

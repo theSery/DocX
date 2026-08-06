@@ -21,7 +21,7 @@ import LottieAnimation from './animation/LottieAnimation';
 import LogoIcon from './icons/LogoIcon';
 import { Typography } from './typography';
 import { useTheme } from '../hooks';
-import { FONT_FAMILY } from '../theme';
+import { colors, FONT_FAMILY } from '../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../utils/dimensions';
 
 /** Keep in sync with DocumentCreateScreen reveal timing. */
@@ -242,12 +242,12 @@ function DocumentLoadingOverlayView({
       <View style={styles.overlayTint} />
       <Animated.View style={[styles.overlayContent, contentStyle]}>
         <AnimatedView animation="fadeInDown" duration={600} style={styles.logoContainer}>
-          <LogoIcon width={72} height={72} />
+          <LogoIcon width={72} height={72} fill={colors.mainBlue}/>
         </AnimatedView>
 
         {quote ? (
           <AnimatedView animation="fadeIn" delay={350} duration={600}>
-            <Typography variant="h4" tone="onDark" style={styles.quote}>
+            <Typography variant="h4" tone="onDark" style={[styles.quote, { color: colors.mainBlue }]}>
               {quote}
             </Typography>
           </AnimatedView>
@@ -299,8 +299,8 @@ const styles = StyleSheet.create({
     marginBottom: TAB_BAR_BOTTOM_OFFSET,
   },
   lottie: {
-    width: 160,
-    height: 100,
+    width: 190,
+    height: 130,
   },
   quote: {
     textAlign: 'center',

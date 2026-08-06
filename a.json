@@ -1,0 +1,104 @@
+{
+    "id": 75,
+    "name": "ՀԴՄ և դրամական հաշվարկների խախտումներ",
+    "iconUrl": null,
+    "legalIssues": [
+        {
+            "id": 160,
+            "name": "(ՀՕ, հոդվ․ 416) ՀԴՄ չկիրառելու կամ կանոնները խախտելու համար տուգանքներ",
+            "iconUrl": null,
+            "tags": [
+                "hdm"
+            ],
+            "templates": [
+                {
+                    "id": 122,
+                    "name": "Դիմել փաստաբանի",
+                    "title": "ՀԴՄ չտրամադրել - դիմել փաստաբանի",
+                    "templateStatus": "active",
+                    "form": {
+                        "id": 21,
+                        "name": "ՊԵԿ ակտեր - վերադաս",
+                        "variables": [
+                            {
+                                "id": 10,
+                                "name": "Act_date",
+                                "description": "Որոշման ամսաթիվ",
+                                "dataType": "date",
+                                "sequence": 1
+                            },
+                            {
+                                "id": 12,
+                                "name": "Act_resive_day",
+                                "description": "Որոշումը ստանալու օր",
+                                "dataType": "60_day",
+                                "sequence": 2
+                            },
+                            {
+                                "id": 69,
+                                "name": "30Day",
+                                "description": "Որոշումը ստանալու օր 30",
+                                "dataType": "30_day",
+                                "sequence": 3
+                            },
+                            {
+                                "id": 70,
+                                "name": "60Day",
+                                "description": "Որոշումը ստանալու օր 60",
+                                "dataType": "60_day",
+                                "sequence": 4
+                            }
+                        ],
+                        "option_1": "",
+                        "option_2": "",
+                        "option_3": "",
+                        "option_4": ""
+                    },
+                    "solution": {
+                        "id": 36,
+                        "name": "Դիմել Դոկիքս ՍՊԸ-ին",
+                        "addressee": {
+                            "id": 31,
+                            "name": "ԴՈԿԻՔՍ ՍՊԸ",
+                            "email": "legalsupport@docx.am",
+                            "address": "Տիգրան Պետրոսյան 32/8, ք․ Երևան",
+                            "addresseeType": "state_bodies",
+                            "phoneNumber": "091855551"
+                        },
+                        "lawyerEmail": null,
+                        "solutionAttachments": [],
+                        "sendEmail": true,
+                        "print": true,
+                        "download": true,
+                        "sign": true,
+                        "sendToAddressee": true,
+                        "authorizeLawyer": false
+                    },
+                    "factGroups": [
+                        {
+                            "id": 9,
+                            "name": "Վարչական ակտին ներկայացվող պահանջների խախտումներ",
+                            "sequence": 1,
+                            "facts": [
+                                {
+                                    "id": 28,
+                                    "name": "Վարչական ակտում նշված է սխալ ամսաթիվ և/կամ վայր",
+                                    "description": "Վարչական ակտում կամ արձանագրությունում նշված է սխալ ամսաթիվ, ժամ կամ վայր",
+                                    "sequence": 1
+                                },
+                                {
+                                    "id": 31,
+                                    "name": "Որոշման մեջ բացակայում է այն կայացնող պաշտոնատար անձի ստորագրությունը",
+                                    "description": "",
+                                    "sequence": 2
+                                }
+                            ],
+                            "radioFactGroups": []
+                        }
+                    ],
+                    "relatedAction": "Դիմել փաստաբանի"
+                }
+            ]
+        }
+    ]
+}

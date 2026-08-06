@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Image,
   Modal,
@@ -17,9 +17,16 @@ import AttachSvg from '../../../../components/icons/AttachSvg';
 import CameraSvg from '../../../../components/icons/CameraSvg';
 import CloseSvg from '../../../../components/icons/CloseSvg';
 import EyeIconSvg from '../../../../components/icons/EyeIconSvg';
+import FilesSvg from '../../../../components/icons/FilesSvg';
+import TrashSvg from '../../../../components/icons/TrashSvg';
 import WarningSvg from '../../../../components/icons/WarningSvg';
 import { useTheme, useThemedStyles } from '../../../../hooks';
+import { useAppSelector } from '../../../../store';
+import { selectPersonalDocuments } from '../../../../store/slices/personalDocumentsSlice';
 import { FONT_FAMILY, palette } from '../../../../theme';
+
+/** Fallback if WebView/Image never fires load end (common on reopen / cache). */
+const PREVIEW_LOAD_TIMEOUT_MS = 8000;
 
 /**
  * @typedef {{
@@ -27,7 +34,10 @@ import { FONT_FAMILY, palette } from '../../../../theme';
  *   attachedDocumentId: number | string;
  *   name: string;
  *   isUploaded: boolean;
+ *   isDefault?: boolean;
+ *   canRemove?: boolean;
  *   personalDocument: object | null;
+ *   selectionSource?: string | null;
  * }} SolutionAttachmentRow
  */
 
@@ -86,6 +96,8 @@ function FileLoadingOverlay({ visible, label }) {
  *   onClose: () => void;
  *   onPickFromGallery: (row: SolutionAttachmentRow) => void;
  *   onPickFromFiles: (row: SolutionAttachmentRow) => void;
+ *   onPickFromMyFiles?: (row: SolutionAttachmentRow, personalDocument: object) => void;
+ *   onRemoveAttachment?: (row: SolutionAttachmentRow) => void;
  *   onConfirm: () => void;
  *   isConfirming?: boolean;
  *   isUploading?: boolean;
@@ -97,6 +109,8 @@ export function SolutionAttachmentsSheet({
   onClose,
   onPickFromGallery,
   onPickFromFiles,
+  onPickFromMyFiles,
+  onRemoveAttachment,
   onConfirm,
   isConfirming = false,
   isUploading = false,
@@ -104,9 +118,19 @@ export function SolutionAttachmentsSheet({
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const iconColor = colors.icons;
+  const personalDocuments = useAppSelector(selectPersonalDocuments);
   const allUploaded = attachments.every(item => item.isUploaded);
   const [previewItem, setPreviewItem] = useState(null);
-  const [isPreviewLoading, setIsPreviewLoading] = useState(true);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const [myFilesOpenKey, setMyFilesOpenKey] = useState(null);
+
+  const myFiles = useMemo(
+    () =>
+      (personalDocuments ?? []).filter(
+        doc => !doc?.isDefault && Boolean(doc?.documentUrl || doc?.downloadUrl),
+      ),
+    [personalDocuments],
+  );
 
   const previewUrl = previewItem?.personalDocument?.documentUrl ?? null;
   const previewSource = useMemo(
@@ -114,26 +138,58 @@ export function SolutionAttachmentsSheet({
     [previewUrl],
   );
   const previewIsImage = isImageUrl(previewUrl);
-  const showFileLoader = Boolean(previewItem)
-    ? Boolean(previewSource) && isPreviewLoading
-    : isUploading;
-  const loaderLabel = previewItem ? 'Ֆայլը բեռնվում է...' : 'Ֆայլը վերբեռնվում է...';
+
+  // Only while the sheet is open and something is actually loading.
+  const showFileLoader =
+    visible &&
+    (previewItem
+      ? Boolean(previewSource) && isPreviewLoading
+      : isUploading);
+  const loaderLabel = previewItem
+    ? 'Ֆայլը բեռնվում է...'
+    : 'Ֆայլը վերբեռնվում է...';
+
+  const resetSheetState = useCallback(() => {
+    setPreviewItem(null);
+    setIsPreviewLoading(false);
+    setMyFilesOpenKey(null);
+  }, []);
+
+  // Parent may set visible=false without going through handleClose (e.g. after
+  // submit). Always clear preview/loader so reopen never shows a stuck overlay.
+  useEffect(() => {
+    if (!visible) {
+      resetSheetState();
+    }
+  }, [visible, resetSheetState]);
+
+  // WebView/Image can skip onLoadEnd on reopen — clear loader as a fallback.
+  useEffect(() => {
+    if (!visible || !previewItem || !previewSource || !isPreviewLoading) {
+      return undefined;
+    }
+
+    const timer = setTimeout(() => {
+      setIsPreviewLoading(false);
+    }, PREVIEW_LOAD_TIMEOUT_MS);
+
+    return () => clearTimeout(timer);
+  }, [visible, previewItem, previewSource, isPreviewLoading]);
 
   const handleClose = useCallback(() => {
-    setPreviewItem(null);
-    setIsPreviewLoading(true);
+    resetSheetState();
     onClose?.();
-  }, [onClose]);
+  }, [onClose, resetSheetState]);
 
   const handleViewPress = useCallback(item => {
-    setIsPreviewLoading(true);
+    const nextUrl = item?.personalDocument?.documentUrl ?? null;
+    setIsPreviewLoading(Boolean(nextUrl));
     setPreviewItem(item);
   }, []);
 
   const handleClosePreview = useCallback(() => {
-    setPreviewItem(null);
-    setIsPreviewLoading(true);
-  }, []);
+    resetSheetState();
+  }, [resetSheetState]);
 
   const handleRequestClose = useCallback(() => {
     if (previewItem) {
@@ -142,6 +198,183 @@ export function SolutionAttachmentsSheet({
     }
     handleClose();
   }, [handleClose, handleClosePreview, previewItem]);
+
+  const handleToggleMyFiles = useCallback(itemKey => {
+    setMyFilesOpenKey(prev => (prev === itemKey ? null : itemKey));
+  }, []);
+
+  const handleSelectMyFile = useCallback(
+    (row, personalDocument) => {
+      const nextId = personalDocument?.fileId ?? personalDocument?.id;
+      const nextUrl =
+        personalDocument?.documentUrl || personalDocument?.downloadUrl;
+      const current = row?.personalDocument;
+      const currentId = current?.fileId ?? current?.id;
+      const currentUrl = current?.documentUrl || current?.downloadUrl;
+      const isDuplicate =
+        (nextId != null &&
+          currentId != null &&
+          String(nextId) === String(currentId)) ||
+        (nextUrl && currentUrl && String(nextUrl) === String(currentUrl));
+
+      if (isDuplicate) {
+        setMyFilesOpenKey(null);
+        return;
+      }
+
+      onPickFromMyFiles?.(row, personalDocument);
+      setMyFilesOpenKey(null);
+    },
+    [onPickFromMyFiles],
+  );
+
+  const handleRemovePress = useCallback(
+    item => {
+      if (!item?.canRemove) {
+        return;
+      }
+      onRemoveAttachment?.(item);
+      setMyFilesOpenKey(null);
+      if (previewItem?.key === item.key) {
+        setPreviewItem(null);
+        setIsPreviewLoading(false);
+      }
+    },
+    [onRemoveAttachment, previewItem?.key],
+  );
+
+  const renderSourcePicker = useCallback(
+    item => {
+      const isMyFilesOpen = myFilesOpenKey === item.key;
+
+      return (
+        <View style={styles.sourceSection}>
+          {isMyFilesOpen ? (
+            <View style={styles.myFilesSection}>
+              <Typography
+                variant="h6"
+                tone="secondary"
+                style={styles.myFilesTitle}
+              >
+                Իմ ֆայլեր
+              </Typography>
+              {myFiles.length > 0 ? (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.myFilesList}
+                >
+                  {myFiles.map(doc => {
+                    const docTitle =
+                      doc.documentName || doc.title || 'Փաստաթուղթ';
+                    return (
+                      <Pressable
+                        key={String(doc.id)}
+                        accessibilityRole="button"
+                        accessibilityLabel={docTitle}
+                        disabled={isUploading}
+                        onPress={() => handleSelectMyFile(item, doc)}
+                        style={({ pressed }) => [
+                          styles.myFileCard,
+                          pressed && styles.sourceButtonPressed,
+                          isUploading && styles.sourceButtonDisabled,
+                        ]}
+                      >
+                        <View style={styles.myFileCardIcon}>
+                          <AttachSvg width={18} height={18} fill={iconColor} />
+                        </View>
+                        <Typography
+                          variant="h6"
+                          style={styles.myFileCardTitle}
+                          numberOfLines={2}
+                        >
+                          {docTitle}
+                        </Typography>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              ) : (
+                <Typography
+                  variant="h6"
+                  tone="secondary"
+                  style={styles.myFilesEmpty}
+                >
+                  Հասանելի ֆայլեր չկան
+                </Typography>
+              )}
+            </View>
+          ) : null}
+
+          <View style={styles.sourceRow}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Գալերեա"
+              disabled={isUploading}
+              onPress={() => onPickFromGallery?.(item)}
+              style={({ pressed }) => [
+                styles.sourceButton,
+                pressed && styles.sourceButtonPressed,
+                isUploading && styles.sourceButtonDisabled,
+              ]}
+            >
+              <CameraSvg width={18} height={18} fill={iconColor} />
+              <Typography variant="h6" style={styles.sourceButtonText}>
+                Գալերեա
+              </Typography>
+            </Pressable>
+
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Ֆայլեր"
+              disabled={isUploading}
+              onPress={() => onPickFromFiles?.(item)}
+              style={({ pressed }) => [
+                styles.sourceButton,
+                pressed && styles.sourceButtonPressed,
+                isUploading && styles.sourceButtonDisabled,
+              ]}
+            >
+              <AttachSvg width={18} height={18} fill={iconColor} />
+              <Typography variant="h6" style={styles.sourceButtonText}>
+                Ֆայլեր
+              </Typography>
+            </Pressable>
+          </View>
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Իմ Ֆայլերից"
+            disabled={isUploading}
+            onPress={() => handleToggleMyFiles(item.key)}
+            style={({ pressed }) => [
+              styles.sourceButton,
+              styles.myFilesButton,
+              isMyFilesOpen && styles.myFilesButtonActive,
+              pressed && styles.sourceButtonPressed,
+              isUploading && styles.sourceButtonDisabled,
+            ]}
+          >
+            <FilesSvg width={18} height={18} fill={iconColor} />
+            <Typography variant="h6" style={styles.sourceButtonText}>
+              Իմ Ֆայլերից
+            </Typography>
+          </Pressable>
+        </View>
+      );
+    },
+    [
+      handleSelectMyFile,
+      handleToggleMyFiles,
+      iconColor,
+      isUploading,
+      myFiles,
+      myFilesOpenKey,
+      onPickFromFiles,
+      onPickFromGallery,
+      styles,
+    ],
+  );
 
   const renderAttachmentHeader = useCallback(
     (item, { isOpen }) => (
@@ -187,72 +420,63 @@ export function SolutionAttachmentsSheet({
     item => {
       if (item.isUploaded) {
         return (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Դիտել ֆայլը"
-            onPress={() => handleViewPress(item)}
-            style={({ pressed }) => [
-              styles.sourceButton,
-              pressed && styles.sourceButtonPressed,
-            ]}
-          >
-            <EyeIconSvg
-              width={18}
-              height={18}
-              fill={iconColor}
-              visible
-            />
-            <Typography variant="h6" style={styles.sourceButtonText}>
-              Դիտել ֆայլը
-            </Typography>
-          </Pressable>
+          <View style={styles.sourceSection}>
+            <View style={styles.sourceRow}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Դիտել ֆայլը"
+                onPress={() => handleViewPress(item)}
+                style={({ pressed }) => [
+                  styles.sourceButton,
+                  pressed && styles.sourceButtonPressed,
+                ]}
+              >
+                <EyeIconSvg
+                  width={18}
+                  height={18}
+                  fill={iconColor}
+                  visible
+                />
+                <Typography variant="h6" style={styles.sourceButtonText}>
+                  Դիտել ֆայլը
+                </Typography>
+              </Pressable>
+
+              {item.canRemove ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Հեռացնել ֆայլը"
+                  disabled={isUploading}
+                  onPress={() => handleRemovePress(item)}
+                  style={({ pressed }) => [
+                    styles.sourceButton,
+                    styles.removeButton,
+                    pressed && styles.sourceButtonPressed,
+                    isUploading && styles.sourceButtonDisabled,
+                  ]}
+                >
+                  <TrashSvg width={18} height={18} fill={colors.error} />
+                  <Typography variant="h6" style={styles.removeButtonText}>
+                    Հեռացնել
+                  </Typography>
+                </Pressable>
+              ) : null}
+            </View>
+
+            {/* {renderSourcePicker(item)} */}
+          </View>
         );
       }
 
-      return (
-        <View style={styles.sourceRow}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Գալերեա"
-            disabled={isUploading}
-            onPress={() => onPickFromGallery?.(item)}
-            style={({ pressed }) => [
-              styles.sourceButton,
-              pressed && styles.sourceButtonPressed,
-              isUploading && styles.sourceButtonDisabled,
-            ]}
-          >
-            <CameraSvg width={18} height={18} fill={iconColor} />
-            <Typography variant="h6" style={styles.sourceButtonText}>
-              Գալերեա
-            </Typography>
-          </Pressable>
-
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Ֆայլեր"
-            disabled={isUploading}
-            onPress={() => onPickFromFiles?.(item)}
-            style={({ pressed }) => [
-              styles.sourceButton,
-              pressed && styles.sourceButtonPressed,
-              isUploading && styles.sourceButtonDisabled,
-            ]}
-          >
-            <AttachSvg width={18} height={18} fill={iconColor} />
-            <Typography variant="h6" style={styles.sourceButtonText}>
-              Ֆայլեր
-            </Typography>
-          </Pressable>
-        </View>
-      );
+      return renderSourcePicker(item);
     },
     [
+      colors.error,
+      handleRemovePress,
       handleViewPress,
       iconColor,
       isUploading,
-      onPickFromFiles,
-      onPickFromGallery,
+      renderSourcePicker,
       styles,
     ],
   );
@@ -288,6 +512,7 @@ export function SolutionAttachmentsSheet({
                 {previewSource ? (
                   previewIsImage ? (
                     <Image
+                      key={`preview-image-${previewUrl}`}
                       source={previewSource}
                       style={styles.previewImage}
                       resizeMode="contain"
@@ -297,6 +522,7 @@ export function SolutionAttachmentsSheet({
                     />
                   ) : (
                     <WebView
+                      key={`preview-webview-${previewUrl}`}
                       originWhitelist={['*']}
                       source={previewSource}
                       style={styles.previewWebview}
@@ -305,6 +531,7 @@ export function SolutionAttachmentsSheet({
                       showsVerticalScrollIndicator={false}
                       onLoadStart={() => setIsPreviewLoading(true)}
                       onLoadEnd={() => setIsPreviewLoading(false)}
+                      onError={() => setIsPreviewLoading(false)}
                     />
                   )
                 ) : (
@@ -409,11 +636,11 @@ const createStyles = colors =>
       paddingHorizontal: 6,
     },
     card: {
-      width: '90%',
+      width: '95%',
       height: '80%',
       backgroundColor: colors.surface,
       borderRadius: 24,
-      paddingHorizontal: 20,
+      paddingHorizontal: 10,
       paddingTop: 20,
       paddingBottom: 20,
       shadowColor: colors.shadow,
@@ -513,6 +740,63 @@ const createStyles = colors =>
       flexDirection: 'row',
       gap: 10,
     },
+    sourceSection: {
+      gap: 10,
+    },
+    myFilesSection: {
+      gap: 8,
+      marginBottom: 2,
+    },
+    myFilesTitle: {
+      paddingHorizontal: 2,
+    },
+    myFilesList: {
+      paddingVertical: 2,
+      paddingRight: 8,
+      gap: 10,
+    },
+    myFilesEmpty: {
+      paddingVertical: 8,
+      paddingHorizontal: 4,
+    },
+    myFileCard: {
+      width: 148,
+      minHeight: 88,
+      borderRadius: 14,
+      backgroundColor: colors.pureWhite,
+      borderWidth: 1.5,
+      borderColor: colors.borderSubtle,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.12,
+      shadowRadius: 6,
+      elevation: 4,
+      paddingHorizontal: 12,
+      paddingVertical: 12,
+      gap: 10,
+    },
+    myFileCardIcon: {
+      width: 32,
+      height: 32,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.surface,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.borderSubtle,
+    },
+    myFileCardTitle: {
+      fontFamily: FONT_FAMILY.regular,
+      color: colors.icons,
+      lineHeight: 18,
+    },
+    myFilesButton: {
+      flex: 0,
+    },
+    myFilesButtonActive: {
+      borderColor: colors.iconAccent,
+      backgroundColor: colors.buttonTextOnPrimary,
+    },
     sourceButton: {
       flex: 1,
       flexDirection: 'row',
@@ -535,6 +819,13 @@ const createStyles = colors =>
     sourceButtonText: {
       fontFamily: FONT_FAMILY.regular,
       color: colors.icons,
+    },
+    removeButton: {
+      borderColor: colors.dangerBorder,
+    },
+    removeButtonText: {
+      fontFamily: FONT_FAMILY.regular,
+      color: colors.error,
     },
     confirmButton: {
       marginTop: 16,
