@@ -28,6 +28,7 @@ const ACTION_TEXT_EDGE_THRESHOLD = 15;
  *   label: string;
  *   onPress?: () => void;
  *   destructive?: boolean;
+ *   icon?: import('react').ReactNode;
  *   labelStyle?: import('react-native').TextStyle;
  * }} SheetAction
  */
@@ -200,10 +201,22 @@ function SheetActions({ actions, styles, onActionPress }) {
         >
           {!action.destructive ? (
             <GradientButton height={45} isLight={false}>
-              <AdaptiveActionLabel
-                label={action.label}
-                style={[styles.actionTextGradient, action.labelStyle]}
-              />
+              {action.icon ? (
+                <View style={styles.actionButtonInner}>
+                  {action.icon}
+                  <Typography
+                    numberOfLines={1}
+                    style={[styles.actionTextGradient, styles.actionTextWithIcon, action.labelStyle]}
+                  >
+                    {action.label}
+                  </Typography>
+                </View>
+              ) : (
+                <AdaptiveActionLabel
+                  label={action.label}
+                  style={[styles.actionTextGradient, action.labelStyle]}
+                />
+              )}
             </GradientButton>
           ) : (
             <Typography style={[styles.actionText, action.labelStyle]}>
@@ -520,6 +533,20 @@ const createStyles = colors =>
       color: palette.white,
       width: '100%',
       textAlign: 'center',
+    },
+    actionButtonInner: {
+      width: '100%',
+      height: '100%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      paddingHorizontal: 12,
+    },
+    actionTextWithIcon: {
+      width: undefined,
+      flexShrink: 1,
+      textAlign: 'left',
     },
     menuContainer: {
       paddingBottom: 8,

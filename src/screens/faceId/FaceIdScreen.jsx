@@ -57,7 +57,6 @@ export function FaceIdScreen({ navigation, route }) {
   const isUnlockOnly = Boolean(nextScreen);
   const [passcode, setPasscode] = useState([]);
   const [isPinVerifying, setIsPinVerifying] = useState(false);
-  const [canUseBiometric, setCanUseBiometric] = useState(false);
   const [biometricLabel, setBiometricLabel] = useState('Face ID / Touch ID');
 
   // Face ID and PIN run in parallel. First successful method wins.
@@ -273,13 +272,13 @@ export function FaceIdScreen({ navigation, route }) {
           return;
         }
 
-        const shouldUseBiometric = biometryAvailable && credentialsStored;
-        setCanUseBiometric(shouldUseBiometric);
+        const shouldAutoStartBiometric = biometryAvailable && credentialsStored;
         setBiometricLabel(getBiometricLabel(biometryType));
-        console.log('[FaceId] Prepare — shouldUseBiometric:', shouldUseBiometric);
+        console.log('[FaceId] Prepare — shouldAutoStartBiometric:', shouldAutoStartBiometric);
 
-        // Start Face ID immediately. PIN entry stays available in parallel.
-        if (shouldUseBiometric) {
+        // Auto-start Face ID only when biometric permission/hardware is available.
+        // FaceIdIcon visibility is independent of permission (handled in Passcode).
+        if (shouldAutoStartBiometric) {
           await performBiometricLoginRef.current?.();
         }
       } catch (error) {
@@ -411,8 +410,8 @@ export function FaceIdScreen({ navigation, route }) {
               value={passcode}
               onChange={handlePasscodeChange}
               onComplete={handlePinComplete}
-              onBiometric={canUseBiometric ? performBiometricLogin : undefined}
-              hasBiometric={canUseBiometric}
+              onBiometric={performBiometricLogin}
+              hasBiometric
             />
           </View>
         </View>
@@ -420,7 +419,7 @@ export function FaceIdScreen({ navigation, route }) {
         {!isUnlockOnly && (
           <View style={localStyles.footer}>
             <Text style={localStyles.hintText}>
-              {canUseBiometric ? `${biometricLabel} կամ PIN` : 'Մուտքագրեք PIN'}
+              {`${biometricLabel} կամ PIN`}
             </Text>
             <Pressable
               onPress={async () => {

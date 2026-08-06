@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
@@ -6,6 +6,7 @@ import { FONT_FAMILY } from '../../../../theme';
 import { Typography } from '../../../../components';
 import DeleteSvg from '../../../../components/icons/DeleteSvg';
 import { useTheme, useThemedStyles } from '../../../../hooks';
+import { runBiometricOrPromptSettings } from '../../../../utils/biometricAuth';
 
 const PASSCODE_LENGTH = 4;
 
@@ -106,6 +107,7 @@ export function Passcode({
 }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  const [isCheckingBiometric, setIsCheckingBiometric] = useState(false);
   const passcode = useMemo(
     () => (Array.isArray(value) ? value : []),
     [value],
@@ -133,13 +135,25 @@ export function Passcode({
     onChange?.(next);
   }, [passcode, onChange]);
 
-  const handleBiometric = useCallback(() => {
-    if (onBiometric) {
-      onBiometric();
+  const handleBiometric = useCallback(async () => {
+    if (!hasBiometric || isCheckingBiometric) {
       return;
     }
-    console.log('Handle biometrics');
-  }, [onBiometric]);
+
+    setIsCheckingBiometric(true);
+    try {
+      // Centralized Face ID permission gate for every FaceIdIcon press.
+      await runBiometricOrPromptSettings(async () => {
+        if (onBiometric) {
+          await onBiometric();
+          return;
+        }
+        console.log('Handle biometrics');
+      });
+    } finally {
+      setIsCheckingBiometric(false);
+    }
+  }, [hasBiometric, isCheckingBiometric, onBiometric]);
 
   const renderKey = key => {
     if (key.type === 'digit') {
@@ -157,6 +171,8 @@ export function Passcode({
       );
     }
     if (key.type === 'biometric') {
+      // Icon visibility is controlled only by hasBiometric (screen flow),
+      // never by whether Face ID permission is currently granted.
       return (
         <KeypadButton
           key="biometric"
@@ -164,7 +180,7 @@ export function Passcode({
           accessibilityLabel="Biometric authentication"
           styles={styles}
         >
-          {hasBiometric && <FaceIdIcon color={colors.icons} />}
+          {hasBiometric ? <FaceIdIcon color={colors.icons} /> : null}
         </KeypadButton>
       );
     }

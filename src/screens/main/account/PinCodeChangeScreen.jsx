@@ -8,8 +8,6 @@ import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
 import {
   getStoredPinCode,
   getUserCredentialsWithBiometric,
-  hasStoredCredentials,
-  isBiometricSupported,
   saveStoredPinCode,
 } from '../../../utils/secureStorage';
 import { Passcode } from '../../authScreens/signInUP/components/Passcode';
@@ -67,7 +65,6 @@ export function PinCodeChangeScreen() {
   const [oldPin, setOldPin] = useState('');
   const [passcode, setPasscode] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [canUseBiometric, setCanUseBiometric] = useState(false);
 
   const isLoadingRef = useRef(false);
   const isBiometricInProgressRef = useRef(false);
@@ -81,7 +78,9 @@ export function PinCodeChangeScreen() {
   oldPinRef.current = oldPin;
 
   const stepContent = STEP_CONTENT[step];
-  const showBiometric = canUseBiometric && (step === 'old' || step === 'confirm');
+  // Face ID icon is shown on old/confirm steps regardless of permission status.
+  // Permission is checked only when the icon is pressed (inside Passcode).
+  const showBiometric = step === 'old' || step === 'confirm';
 
   const clearFillAnimation = useCallback(() => {
     fillTimeoutsRef.current.forEach(clearTimeout);
@@ -129,27 +128,7 @@ export function PinCodeChangeScreen() {
   );
 
   useEffect(() => {
-    let isMounted = true;
-
-    async function prepareBiometric() {
-      try {
-        const [biometryAvailable, credentialsStored] = await Promise.all([
-          isBiometricSupported(),
-          hasStoredCredentials(),
-        ]);
-
-        if (isMounted) {
-          setCanUseBiometric(biometryAvailable && credentialsStored);
-        }
-      } catch (error) {
-        console.log('PinCodeChangeScreen biometric prepare error', error);
-      }
-    }
-
-    prepareBiometric();
-
     return () => {
-      isMounted = false;
       clearFillAnimation();
     };
   }, [clearFillAnimation]);
