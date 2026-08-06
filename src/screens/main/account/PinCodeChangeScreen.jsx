@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AnimatedView } from '../../../components';
@@ -7,11 +7,16 @@ import { authApi } from '../../../api';
 import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
 import {
   getStoredPinCode,
+  getUserCredentialsWithBiometric,
+  hasStoredCredentials,
+  isBiometricSupported,
   saveStoredPinCode,
 } from '../../../utils/secureStorage';
 import { Passcode } from '../../authScreens/signInUP/components/Passcode';
 
 const PIN_LENGTH = 4;
+const PIN_FILL_STEP_MS = 90;
+const PIN_FILL_HOLD_MS = 220;
 
 const STEP_CONTENT = {
   old: {
@@ -24,6 +29,11 @@ const STEP_CONTENT = {
     subtitle: 'Փոխարինեք ներկայիս PIN կոդը',
   },
 };
+
+function isUserCancellation(error) {
+  const message = error?.message?.toLowerCase() ?? '';
+  return message.includes('cancel') || message.includes('user denied');
+}
 
 const createStyles = () =>
   StyleSheet.create({
@@ -57,19 +67,103 @@ export function PinCodeChangeScreen() {
   const [oldPin, setOldPin] = useState('');
   const [passcode, setPasscode] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [canUseBiometric, setCanUseBiometric] = useState(false);
+
   const isLoadingRef = useRef(false);
+  const isBiometricInProgressRef = useRef(false);
+  const isFillingPasscodeRef = useRef(false);
+  const fillTimeoutsRef = useRef([]);
+  const fillResolversRef = useRef([]);
+  const stepRef = useRef(step);
+  const oldPinRef = useRef(oldPin);
+
+  stepRef.current = step;
+  oldPinRef.current = oldPin;
 
   const stepContent = STEP_CONTENT[step];
+  const showBiometric = canUseBiometric && (step === 'old' || step === 'confirm');
+
+  const clearFillAnimation = useCallback(() => {
+    fillTimeoutsRef.current.forEach(clearTimeout);
+    fillTimeoutsRef.current = [];
+    fillResolversRef.current.forEach(resolve => resolve());
+    fillResolversRef.current = [];
+    isFillingPasscodeRef.current = false;
+  }, []);
+
+  const sleep = useCallback(ms => {
+    return new Promise(resolve => {
+      fillResolversRef.current.push(resolve);
+      const timeoutId = setTimeout(() => {
+        fillResolversRef.current = fillResolversRef.current.filter(
+          pending => pending !== resolve,
+        );
+        resolve();
+      }, ms);
+      fillTimeoutsRef.current.push(timeoutId);
+    });
+  }, []);
+
+  const animatePasscodeFill = useCallback(
+    async pin => {
+      const digits = String(pin).split('').slice(0, PIN_LENGTH);
+      if (digits.length === 0) {
+        return;
+      }
+
+      clearFillAnimation();
+      isFillingPasscodeRef.current = true;
+      setPasscode([]);
+
+      try {
+        for (let index = 0; index < digits.length; index += 1) {
+          await sleep(PIN_FILL_STEP_MS);
+          setPasscode(digits.slice(0, index + 1));
+        }
+        await sleep(PIN_FILL_HOLD_MS);
+      } finally {
+        isFillingPasscodeRef.current = false;
+      }
+    },
+    [clearFillAnimation, sleep],
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function prepareBiometric() {
+      try {
+        const [biometryAvailable, credentialsStored] = await Promise.all([
+          isBiometricSupported(),
+          hasStoredCredentials(),
+        ]);
+
+        if (isMounted) {
+          setCanUseBiometric(biometryAvailable && credentialsStored);
+        }
+      } catch (error) {
+        console.log('PinCodeChangeScreen biometric prepare error', error);
+      }
+    }
+
+    prepareBiometric();
+
+    return () => {
+      isMounted = false;
+      clearFillAnimation();
+    };
+  }, [clearFillAnimation]);
 
   const clearPasscode = useCallback(() => {
     setPasscode([]);
   }, []);
 
   const resetFlow = useCallback(() => {
+    clearFillAnimation();
     setStep('old');
     setOldPin('');
     setPasscode([]);
-  }, []);
+  }, [clearFillAnimation]);
 
   /** Verify current PIN against the stored value once (first step only). */
   const validateCurrentPin = useCallback(async pinCode => {
@@ -121,11 +215,11 @@ export function PinCodeChangeScreen() {
 
   const handleConfirmPinComplete = useCallback(
     pinCode => {
-      if (isLoadingRef.current || pinCode.length !== PIN_LENGTH || !oldPin) {
+      if (isLoadingRef.current || pinCode.length !== PIN_LENGTH || !oldPinRef.current) {
         return;
       }
 
-      if (pinCode !== oldPin) {
+      if (pinCode !== oldPinRef.current) {
         clearPasscode();
         showToast({
           title: 'PIN կոդերը չեն համընկնում',
@@ -139,12 +233,12 @@ export function PinCodeChangeScreen() {
       setPasscode([]);
       setStep('new');
     },
-    [clearPasscode, oldPin, showToast],
+    [clearPasscode, showToast],
   );
 
   const handleNewPinComplete = useCallback(
     async pinCode => {
-      if (isLoadingRef.current || pinCode.length !== PIN_LENGTH || !oldPin) {
+      if (isLoadingRef.current || pinCode.length !== PIN_LENGTH || !oldPinRef.current) {
         return;
       }
 
@@ -152,7 +246,10 @@ export function PinCodeChangeScreen() {
       setIsLoading(true);
 
       try {
-        await authApi.changePin({ oldPin, newPin: pinCode });
+        await authApi.changePin({
+          oldPin: oldPinRef.current,
+          newPin: pinCode,
+        });
         await saveStoredPinCode(pinCode);
 
         showToast({
@@ -183,38 +280,109 @@ export function PinCodeChangeScreen() {
         setIsLoading(false);
       }
     },
-    [navigation, oldPin, resetFlow, showToast],
+    [navigation, resetFlow, showToast],
   );
 
   const handlePasscodeComplete = useCallback(
     pinCode => {
-      if (step === 'old') {
+      if (isFillingPasscodeRef.current) {
+        return;
+      }
+
+      const currentStep = stepRef.current;
+      if (currentStep === 'old') {
         handleOldPinComplete(pinCode);
         return;
       }
-      if (step === 'confirm') {
+      if (currentStep === 'confirm') {
         handleConfirmPinComplete(pinCode);
         return;
       }
       handleNewPinComplete(pinCode);
     },
-    [
-      handleConfirmPinComplete,
-      handleNewPinComplete,
-      handleOldPinComplete,
-      step,
-    ],
+    [handleConfirmPinComplete, handleNewPinComplete, handleOldPinComplete],
   );
 
   const handlePasscodeChange = useCallback(
     next => {
-      if (isLoadingRef.current || isLoading) {
+      if (
+        isLoadingRef.current ||
+        isLoading ||
+        isFillingPasscodeRef.current ||
+        isBiometricInProgressRef.current
+      ) {
         return;
       }
       setPasscode(next);
     },
     [isLoading],
   );
+
+  const handleBiometricPress = useCallback(async () => {
+    const currentStep = stepRef.current;
+    if (currentStep !== 'old' && currentStep !== 'confirm') {
+      return;
+    }
+
+    if (
+      isLoadingRef.current ||
+      isBiometricInProgressRef.current ||
+      isFillingPasscodeRef.current
+    ) {
+      return;
+    }
+
+    isBiometricInProgressRef.current = true;
+    setIsLoading(true);
+
+    try {
+      const credentials = await getUserCredentialsWithBiometric();
+      if (!credentials) {
+        return;
+      }
+
+      const storedPin =
+        (await getStoredPinCode()) ?? credentials?.pinCode ?? null;
+
+      if (!storedPin || storedPin.length !== PIN_LENGTH) {
+        showToast({
+          title: 'PIN կոդը չի գտնվել',
+          body: 'Խնդրում ենք մուտքագրել PIN կոդը ձեռքով։',
+          type: 'error',
+          position: 'bottom',
+        });
+        return;
+      }
+
+      await animatePasscodeFill(storedPin);
+
+      if (currentStep === 'old') {
+        await handleOldPinComplete(storedPin);
+      } else {
+        handleConfirmPinComplete(storedPin);
+      }
+    } catch (error) {
+      console.log('PinCodeChangeScreen biometric error', error);
+      if (!isUserCancellation(error)) {
+        showToast({
+          title: 'Նույնականացումը ձախողվեց',
+          body: error?.message || 'Փորձեք կրկին։',
+          type: 'error',
+          position: 'bottom',
+        });
+      }
+      clearPasscode();
+    } finally {
+      isBiometricInProgressRef.current = false;
+      setIsLoading(false);
+    }
+  }, [
+    animatePasscodeFill,
+    clearPasscode,
+    handleConfirmPinComplete,
+    handleOldPinComplete,
+    showToast,
+  ]);
 
   return (
     <View style={[globalStyles.screen, styles.screen]}>
@@ -231,10 +399,11 @@ export function PinCodeChangeScreen() {
           />
           <View style={styles.passcodeContainer}>
             <Passcode
-              hasBiometric={false}
+              hasBiometric={showBiometric}
               value={passcode}
               onChange={handlePasscodeChange}
               onComplete={handlePasscodeComplete}
+              onBiometric={showBiometric ? handleBiometricPress : undefined}
             />
           </View>
         </AnimatedView>
