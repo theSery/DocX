@@ -1,9 +1,13 @@
 import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from 'react-native-keychain';
+
+import { STORAGE_KEYS } from './storageKeys';
 
 const KEYCHAIN_SERVICE = 'com.docx.userCredentials';
 const PIN_SERVICE = 'com.docx.userPin';
 const BIOMETRIC_GATE_SERVICE = 'com.docx.biometricGate';
+const EMAIL_SERVICE = 'com.docx.userEmail';
 
 const AUTH_PROMPT = {
   title: 'Նույնականացում',
@@ -67,6 +71,65 @@ export async function hasStoredCredentials() {
   return Keychain.hasGenericPassword({ service: KEYCHAIN_SERVICE });
 }
 
+/**
+ * Persist email outside biometric-protected credential storage.
+ * Used by recovery screens that must never trigger Face ID.
+ */
+export async function saveStoredEmail(email) {
+  if (!email) {
+    await Promise.all([
+      AsyncStorage.removeItem(STORAGE_KEYS.USER_EMAIL),
+      Keychain.resetGenericPassword({ service: EMAIL_SERVICE }),
+    ]);
+    return;
+  }
+
+  const normalized = String(email).trim();
+  await AsyncStorage.setItem(STORAGE_KEYS.USER_EMAIL, normalized);
+  await Keychain.setGenericPassword('email', normalized, buildSetOptions(EMAIL_SERVICE));
+}
+
+/**
+ * Read email without Face ID / biometric prompts.
+ * Never reads the biometric-protected credentials blob directly when it may
+ * still use legacy biometric ACL (no biometric gate present).
+ */
+export async function getStoredEmail() {
+  const cached = await AsyncStorage.getItem(STORAGE_KEYS.USER_EMAIL);
+  if (cached) {
+    return cached;
+  }
+
+  const emailItem = await Keychain.getGenericPassword({
+    service: EMAIL_SERVICE,
+  });
+  if (emailItem?.password) {
+    await AsyncStorage.setItem(STORAGE_KEYS.USER_EMAIL, emailItem.password);
+    return emailItem.password;
+  }
+
+  // New credential model: biometric gate exists ⇒ main credentials are not
+  // Face ID protected, so username (email) can be read safely.
+  const gateExists = await Keychain.hasGenericPassword({
+    service: BIOMETRIC_GATE_SERVICE,
+  });
+  if (!gateExists) {
+    return null;
+  }
+
+  try {
+    const credentials = await getStoredCredentials();
+    if (credentials?.email) {
+      await saveStoredEmail(credentials.email);
+      return credentials.email;
+    }
+  } catch (error) {
+    console.log('getStoredEmail credentials fallback failed:', error);
+  }
+
+  return null;
+}
+
 export async function saveStoredPinCode(pinCode) {
   if (pinCode == null || pinCode === '') {
     await Keychain.resetGenericPassword({ service: PIN_SERVICE });
@@ -114,6 +177,7 @@ export async function saveUserCredentials({ email, password, pinCode }) {
     throw new Error('Failed to save credentials to keychain');
   }
 
+  await saveStoredEmail(email);
   await saveBiometricGate();
 
   if (pinCode != null && pinCode !== '') {
@@ -175,5 +239,7 @@ export async function clearUserCredentials() {
     Keychain.resetGenericPassword({ service: KEYCHAIN_SERVICE }),
     Keychain.resetGenericPassword({ service: PIN_SERVICE }),
     Keychain.resetGenericPassword({ service: BIOMETRIC_GATE_SERVICE }),
+    Keychain.resetGenericPassword({ service: EMAIL_SERVICE }),
+    AsyncStorage.removeItem(STORAGE_KEYS.USER_EMAIL),
   ]);
 }

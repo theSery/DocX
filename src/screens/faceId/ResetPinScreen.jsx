@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { AuthScreenLayout } from '../../components/layout';
 import {
@@ -9,7 +9,6 @@ import {
   useToast,
 } from '../../hooks';
 import MainHeader from '../../components/headers/MainHeader';
-import AuthButton from '../../components/buttons/AuthButton';
 import {
   getStoredCredentials,
   saveUserCredentials,
@@ -17,6 +16,8 @@ import {
 import { Passcode } from '../authScreens/signInUP/components/Passcode';
 import { ContentTiltes } from '../../components/titleComponents/ContentTiltles';
 import { authApi, persistAuthResponse } from '../../api';
+
+const PIN_LENGTH = 4;
 
 export function ResetPinScreen({ navigation, route }) {
   const { email, code } = route.params;
@@ -27,58 +28,77 @@ export function ResetPinScreen({ navigation, route }) {
   const { completeReauth } = useAuthSession();
   const [passcode, setPasscode] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const isLoadingRef = useRef(false);
 
-  const handleComplete = async () => {
-    const newPin = passcode.join('');
-    if (!newPin || newPin.length !== 4) return;
-
-    setIsLoading(true);
-    try {
-      await authApi.resetPin({
-        email: String(email),
-        code: String(code),
-        newPin: String(newPin),
-      });
-
-      const credentials = await getStoredCredentials();
-      const password = credentials?.password;
-
-      if (!password) {
-        showToast({
-          title: 'PIN-ը թարմացվեց',
-          body: 'Խնդրում ենք մուտք գործել նորից։',
-          type: 'success',
-        });
+  const handleComplete = useCallback(
+    async pinCode => {
+      const newPin = typeof pinCode === 'string' ? pinCode : passcode.join('');
+      if (!newPin || newPin.length !== PIN_LENGTH || isLoadingRef.current) {
         return;
       }
 
-      const response = await authApi.login({ email, password });
-      await persistAuthResponse(response);
-      await saveUserCredentials({
-        email,
-        password,
-        pinCode: newPin,
-      });
+      isLoadingRef.current = true;
+      setIsLoading(true);
 
-      showToast({
-        title: 'PIN-ը հաջողությամբ թարմացվեց',
-        body: 'Դուք հաջողությամբ մուտք եք գործել։',
-        type: 'success',
-      });
+      try {
+        await authApi.resetPin({
+          email: String(email),
+          code: String(code),
+          newPin: String(newPin),
+        });
 
-      await completeReauth();
-    } catch (error) {
-      console.log('Reset PIN error:', error);
-      setPasscode([]);
-      showToast({
-        title: 'PIN-ի թարմացումը ձախողվեց',
-        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
-        type: 'error',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        const credentials = await getStoredCredentials();
+        const password = credentials?.password;
+
+        if (!password) {
+          showToast({
+            title: 'PIN-ը թարմացվեց',
+            body: 'Խնդրում ենք մուտք գործել նորից։',
+            type: 'success',
+          });
+          return;
+        }
+
+        const response = await authApi.login({ email, password });
+        await persistAuthResponse(response);
+        await saveUserCredentials({
+          email,
+          password,
+          pinCode: newPin,
+        });
+
+        showToast({
+          title: 'PIN-ը հաջողությամբ թարմացվեց',
+          body: 'Դուք հաջողությամբ մուտք եք գործել։',
+          type: 'success',
+        });
+
+        await completeReauth();
+      } catch (error) {
+        console.log('Reset PIN error:', error);
+        setPasscode([]);
+        showToast({
+          title: 'PIN-ի թարմացումը ձախողվեց',
+          body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+          type: 'error',
+        });
+      } finally {
+        isLoadingRef.current = false;
+        setIsLoading(false);
+      }
+    },
+    [code, completeReauth, email, passcode, showToast],
+  );
+
+  const handlePasscodeChange = useCallback(
+    next => {
+      if (isLoadingRef.current || isLoading) {
+        return;
+      }
+      setPasscode(next);
+    },
+    [isLoading],
+  );
 
   return (
     <AuthScreenLayout style={[styles.screen]}>
@@ -93,18 +113,10 @@ export function ResetPinScreen({ navigation, route }) {
             <Passcode
               hasBiometric={false}
               value={passcode}
-              onChange={setPasscode}
-              onComplete={codeValue => console.log('PIN entered:', codeValue)}
+              onChange={handlePasscodeChange}
+              onComplete={handleComplete}
             />
           </View>
-        </View>
-
-        <View style={{ flex: 1, justifyContent: 'flex-end', width: '100%' }}>
-          <AuthButton
-            title="Սահմանել PIN կոդը"
-            onPress={handleComplete}
-            isLoading={isLoading}
-          />
         </View>
       </View>
     </AuthScreenLayout>

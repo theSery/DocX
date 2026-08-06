@@ -6,4 +6,5 @@ export const STORAGE_KEYS = {
   PIN_CODE: '@docx/pin_code',
   APP_INSTALLED: '@docx/app_installed',
   RECOMMENDED_DOCUMENTS: '@docx/recommended_documents',
+  USER_EMAIL: '@docx/user_email',
 };

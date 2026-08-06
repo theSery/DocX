@@ -16,10 +16,12 @@ import { authApi, persistAuthResponse } from '../../api';
 import {
   getBiometryType,
   getStoredCredentials,
+  getStoredEmail,
   getStoredPinCode,
   getUserCredentialsWithBiometric,
   hasStoredCredentials,
   isBiometricSupported,
+  saveStoredEmail,
 } from '../../utils/secureStorage';
 import * as Keychain from 'react-native-keychain';
 
@@ -209,6 +211,9 @@ export function FaceIdScreen({ navigation, route }) {
       }
 
       console.log('[FaceId] Biometric success — credentials retrieved for:', credentials.email);
+      if (credentials.email) {
+        await saveStoredEmail(credentials.email);
+      }
 
       const storedPin =
         (await getStoredPinCode()) ?? credentials?.pinCode ?? null;
@@ -362,6 +367,8 @@ export function FaceIdScreen({ navigation, route }) {
         return;
       }
 
+      await saveStoredEmail(credentials.email);
+
       if (hasCompletedAuthRef.current) {
         console.log('[FaceId] Auth already completed via Face ID, ignoring PIN result');
         return;
@@ -416,7 +423,12 @@ export function FaceIdScreen({ navigation, route }) {
               {canUseBiometric ? `${biometricLabel} կամ PIN` : 'Մուտքագրեք PIN'}
             </Text>
             <Pressable
-              onPress={() => navigation.navigate('PinVerification')}
+              onPress={async () => {
+                const storedEmail = await getStoredEmail();
+                navigation.navigate('PinVerification', {
+                  email: storedEmail || undefined,
+                });
+              }}
               disabled={isPinVerifying}
             >
               <Text style={localStyles.privacyText}>
