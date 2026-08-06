@@ -41,19 +41,6 @@ export function resetToFaceId() {
   }
 }
 
-export function navigateToPinVerification() {
-  if (navigationRef.isReady()) {
-    // Open FaceId stack directly on PinVerification — never mount FaceIdHome
-    // (biometric runs only on FaceIdHome).
-    navigationRef.navigate('FaceId', {
-      state: {
-        index: 0,
-        routes: [{ name: 'PinVerification' }],
-      },
-    });
-  }
-}
-
 export function navigateToAuth() {
   if (navigationRef.isReady()) {
     navigationRef.navigate('Auth');

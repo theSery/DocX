@@ -387,7 +387,7 @@ export function FillInDetailsScreen({ navigation, route }) {
           <Typography
             variant="h2"
             style={styles.headerTitle}
-            numberOfLines={2}
+            numberOfLines={1}
           >
             {headerContent.title}
           </Typography>
@@ -468,14 +468,12 @@ const createStyles = colors =>
       paddingBottom: TAB_BAR_BOTTOM_OFFSET + AUTH_BUTTON_HEIGHT + 30,
     },
     headerTitle: {
-      fontSize: 18,
-      lineHeight: 24,
-      marginBottom: 10,
-      marginTop: 20,
+      fontSize: 16,
     },
     headerSubtitle: {
       fontSize: 14,
-      marginBottom: 20,
+ 
+    
     },
     footerButton: {
       position: 'absolute',
@@ -486,8 +484,8 @@ const createStyles = colors =>
       gap: 16,
     },
     headerTextBlock: {
-      marginTop: 20,
-      marginBottom: 20,
-      height: 100,
-    },
+      height: 80,
+justifyContent: 'flex-start',  
+alignItems: 'flex-start',  
+  },
   });

@@ -184,6 +184,10 @@ export function DocumentsScreen({ route }) {
     setRecommendedIds(nextRecommendedIds);
   }, []);
 
+  const handleDocumentSent = useCallback(() => {
+    fetchComplaintsPage(1);
+  }, [fetchComplaintsPage]);
+
   const renderEmptyComponent = useCallback(() => {
     if (isLoading) {
       return (
@@ -268,6 +272,7 @@ export function DocumentsScreen({ route }) {
             index={index}
             onDeleted={handleDocumentDeleted}
             onRecommendedChange={handleRecommendedChange}
+            onSent={handleDocumentSent}
           />
         )}
       />

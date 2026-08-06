@@ -17,6 +17,7 @@ import { FONT_FAMILY } from '../../../../theme';
 import { useFileDownload, useThemedStyles, useTheme, useToast } from '../../../../hooks';
 import { removeRecommendedDocument } from '../../../../utils/recommendedDocumentsStorage';
 import EyeIconSvg from '../../../../components/icons/EyeIconSvg';
+import { SendEmailSheet } from './SendEmailSheet';
 
 const STATUS_CONFIG = {
   draft: { label: 'Սևագիր', colorKey: 'error' },
@@ -29,6 +30,7 @@ export function DocumentCard({
   index = 0,
   onDeleted,
   onRecommendedChange,
+  onSent,
 }) {
   const navigation = useNavigation();
   const styles = useThemedStyles(createStyles);
@@ -36,6 +38,7 @@ export function DocumentCard({
   const { showToast } = useToast();
   const { downloadRemoteFile } = useFileDownload();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSendEmailOpen, setIsSendEmailOpen] = useState(false);
   const status = STATUS_CONFIG[document.status] ?? STATUS_CONFIG.draft;
   const canSend = document.status === 'signed';
   const isRecommended = Boolean(document.recommended);
@@ -122,6 +125,14 @@ export function DocumentCard({
     });
   }, [document.organization, document.sendDate, document.title, handleDelete]);
 
+  const handleOpenSendEmail = useCallback(() => {
+    setIsSendEmailOpen(true);
+  }, []);
+
+  const handleCloseSendEmail = useCallback(() => {
+    setIsSendEmailOpen(false);
+  }, []);
+
   const handleMenuPress = useCallback(() => {
     setIsMenuOpen(true);
 
@@ -152,11 +163,12 @@ export function DocumentCard({
           onPress: handleToggleRecommended,
         },
         {
-          label: `Ուղարկել ՀՀ ${document.organization}`,
+          label: `Ուղարկել էլ. հասցեի`,
           icon: (
-            <SendSvg width={20} height={20} fill={canSend ? iconColor : disabledIconColor} />
+            <SendSvg width={20} height={20} fill={iconColor} />
           ),
-          disabled: !canSend,
+          // disabled: !canSend,
+          onPress: handleOpenSendEmail,
         },
       ],
     });
@@ -164,6 +176,7 @@ export function DocumentCard({
     canSend,
     document.organization,
     handleDownload,
+    handleOpenSendEmail,
     handleSign,
     handleToggleRecommended,
     iconColor,
@@ -177,6 +190,15 @@ export function DocumentCard({
       index={index}
       style={[styles.cardShadow, isMenuOpen && styles.cardShadowSelected]}
     >
+      {isSendEmailOpen ? (
+        <SendEmailSheet
+          visible={isSendEmailOpen}
+          documentId={document.id}
+          documentTitle={document.title}
+          onClose={handleCloseSendEmail}
+          onSent={onSent}
+        />
+      ) : null}
       <TouchableOpacity
         activeOpacity={0.85}
         style={[styles.card, isMenuOpen && styles.cardSelected]}
