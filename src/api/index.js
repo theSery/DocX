@@ -6,9 +6,11 @@ export { complaintsApi } from './complaintsApi';
 export { filesApi } from './filesApi';
 export { personalDataApi } from './personalDataApi';
 export { personalDocumentsApi } from './personalDocumentsApi';
+export { privacyPolicyApi } from './privacyPolicyApi';
 export { signatureApi } from './signatureApi';
 export { smsApi } from './smsApi';
 export { templatesApi } from './templatesApi';
+export { termsOfUseApi } from './termsOfUseApi';
 export { userApi } from './userApi';
 export {
   clearAccessToken,
