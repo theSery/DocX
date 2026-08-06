@@ -43,6 +43,7 @@ export const complaintsApi = {
   },
 
   sendComplaint(id, { recipientType, recipientEmail, addresseeEmail, attachedDocuments }) {
+    console.log('sendComplaint', attachedDocuments);
     return axiosClient.post(`/complaints/${id}/send`, {
       recipientType,
       recipientEmail,

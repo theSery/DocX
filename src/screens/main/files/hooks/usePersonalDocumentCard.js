@@ -79,7 +79,7 @@ export function usePersonalDocumentCard({ document, onDeleted, onUploaded }) {
     pickedFile => {
       showGlobalSheet({
         message: document.title,
-        description: pickedFile.name,
+        // description: pickedFile.name,
         content: getUploadPreviewContent(pickedFile),
         actions: [
           { label: 'Վերբեռնել', onPress: () => performUpload(pickedFile) },

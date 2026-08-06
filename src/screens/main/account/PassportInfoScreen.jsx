@@ -291,7 +291,7 @@ export function PassportInfoScreen() {
     >
       <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
         <Typography variant="h4" style={styles.screenTitle}>
-          Անձը հաստատող փաստաթուղթ` Անձնագիր. Նույն. քարտ
+          Անձը հաստատող փաստաթուղթ` Անձնագիր / Նույն. քարտ
         </Typography>
         <View style={styles.formFieldContainer}>
           {CONTACT_INFO_FIELDS.map((field) => {

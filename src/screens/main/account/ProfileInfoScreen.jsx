@@ -24,6 +24,7 @@ import AuthButton from '../../../components/buttons/AuthButton';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   fetchPersonalData,
+  selectIsPhoneVerified,
   selectPersonalData,
   selectPersonalDataStatus,
   updatePersonalData,
@@ -180,6 +181,7 @@ export function ProfileInfoScreen() {
   const dispatch = useAppDispatch();
   const personalData = useAppSelector(selectPersonalData);
   const personalDataStatus = useAppSelector(selectPersonalDataStatus);
+  const isPhoneVerified = useAppSelector(selectIsPhoneVerified);
   const [isSendingCode, setIsSendingCode] = useState(false);
 
   const {
@@ -309,29 +311,33 @@ export function ProfileInfoScreen() {
             }}
           />
         </View>
-        <Typography variant="h5" style={styles.phoneText}>
-          ⓘ Խնդրում ենք հաստատել հեռախոսահամարը
-        </Typography>
+        {!isPhoneVerified ? (
+          <Typography variant="h5" style={styles.phoneText}>
+            ⓘ Խնդրում ենք հաստատել հեռախոսահամարը
+          </Typography>
+        ) : null}
       </AnimatedView>
-      <Pressable
-        // onPress={handleSendCode}
-        onPress={() => navigation.navigate('ConfirmPhoneCode', { phoneNumber: getValues('phone') })}
-        disabled={isSubmitting || isSendingCode}
-        style={({ pressed }) => [
-          styles.primaryButton,
-          (pressed || isSubmitting || isSendingCode) && styles.buttonPressed,
-        ]}
-      >
-        <Typography variant="h5" style={styles.primaryButtonText}>
-          {isSendingCode ? 'Ուղարկվում է...' : 'Ուղարկել կոդը'}
-        </Typography>
-      </Pressable>
+      {!isPhoneVerified ? (
+        <Pressable
+          // onPress={handleSendCode}
+          onPress={() => navigation.navigate('ConfirmPhoneCode', { phoneNumber: getValues('phone') })}
+          disabled={isSubmitting || isSendingCode}
+          style={({ pressed }) => [
+            styles.primaryButton,
+            (pressed || isSubmitting || isSendingCode) && styles.buttonPressed,
+          ]}
+        >
+          <Typography variant="h5" style={styles.primaryButtonText}>
+            {isSendingCode ? 'Ուղարկվում է...' : 'Ուղարկել կոդը'}
+          </Typography>
+        </Pressable>
+      ) : null}
       <AuthButton
         disabled={isSubmitting}
         title={'Պահպանել'}
         onPress={onSubmit}
         isLoading={isLoading}
-        style={{ marginBottom: TAB_BAR_BOTTOM_OFFSET }}
+        style={{ marginBottom: TAB_BAR_BOTTOM_OFFSET, marginTop: 30 }}
       />
     </FormScrollView>
   );

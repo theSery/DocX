@@ -3,7 +3,6 @@ import {
   Alert,
   Pressable,
   StyleSheet,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import AuthButton from '../../../components/buttons/AuthButton';
@@ -31,6 +30,7 @@ import { AnimatedView } from '../../../components/animation';
 import { useAppSelector } from '../../../store';
 import { selectDocumentFill } from '../../../store/slices/documentFillSlice';
 import { selectPersonalData } from '../../../store/slices/personalDataSlice';
+import { selectPersonalDocuments } from '../../../store/slices/personalDocumentsSlice';
 import {
   useFileDownload,
   useTheme,
@@ -41,6 +41,8 @@ import { palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import MainHeader from '../../../components/headers/MainHeader';
 import SendSvg from '../../../components/icons/SendSvg';
+import { SolutionAttachmentsSheet } from './components/SolutionAttachmentsSheet';
+import { useSolutionAttachmentUpload } from './hooks/useSolutionAttachmentUpload';
 
 /** Fixed loading + document generation duration for this screen only. */
 const DOCUMENT_CREATE_LOADING_DURATION = 7000;
@@ -57,6 +59,7 @@ export function DocumentCreateScreen({ route, navigation }) {
   const { isDownloading, shareGeneratedPdf } = useFileDownload();
   const personalData = useAppSelector(selectPersonalData);
   const documentFill = useAppSelector(selectDocumentFill);
+  const personalDocuments = useAppSelector(selectPersonalDocuments);
   const { templateText = '', templateName = 'document', templateId, templateSolution } = route.params ?? {};
   const [hasTypingFinished, setHasTypingFinished] = useState(false);
   const [isTypingWebViewReady, setIsTypingWebViewReady] = useState(false);
@@ -65,8 +68,66 @@ export function DocumentCreateScreen({ route, navigation }) {
   const [signatureImageSrc, setSignatureImageSrc] = useState(null);
   const [showLoadingOverlay, setShowLoadingOverlay] = useState(true);
   const [loadingQuote, setLoadingQuote] = useState(getNextDocumentLoadingQuote);
+  const [isAttachmentsSheetVisible, setIsAttachmentsSheetVisible] =
+    useState(false);
+  const [uploadedAttachmentIds, setUploadedAttachmentIds] = useState(
+    () => new Set(),
+  );
+
+  const handleAttachmentUploaded = useCallback(attachedDocumentId => {
+    if (attachedDocumentId == null) {
+      return;
+    }
+
+    setUploadedAttachmentIds(prev => {
+      const next = new Set(prev);
+      next.add(String(attachedDocumentId));
+      return next;
+    });
+  }, []);
+
+  const { pickFromGallery, pickFromFiles } = useSolutionAttachmentUpload({
+    onUploaded: handleAttachmentUploaded,
+  });
 
   const userId = personalData?.id ?? personalData?.userId;
+
+  const solutionAttachments = useMemo(
+    () => templateSolution?.solutionAttachments ?? [],
+    [templateSolution?.solutionAttachments],
+  );
+
+  const attachmentRows = useMemo(() => {
+    return solutionAttachments.map((attachment, index) => {
+      const attachedDocumentId =
+        attachment?.attachedDocumentId ?? attachment?.attachedDocument?.id;
+      const name =
+        attachment?.attachedDocument?.name ??
+        attachment?.name ??
+        `Կցորդ ${index + 1}`;
+
+      const personalDocument =
+        personalDocuments.find(
+          item =>
+            String(item.attachedDocumentId) === String(attachedDocumentId),
+        ) ??
+        personalDocuments.find(item => item.documentName === name) ??
+        null;
+
+      const isUploaded =
+        Boolean(personalDocument?.isUploaded) ||
+        Boolean(personalDocument?.documentUrl) ||
+        uploadedAttachmentIds.has(String(attachedDocumentId));
+
+      return {
+        key: String(attachment?.id ?? attachedDocumentId ?? index),
+        attachedDocumentId,
+        name,
+        isUploaded,
+        personalDocument,
+      };
+    });
+  }, [personalDocuments, solutionAttachments, uploadedAttachmentIds]);
 
   const serialNumber = useMemo(
     () => generateComplaintSerialNumber(userId),
@@ -169,7 +230,7 @@ export function DocumentCreateScreen({ route, navigation }) {
       setIsAddingSignature(false);
     }
   }, []);
-
+console.log(templateSolution, 'ppppppp')
   // Test helper for POST /api/complaints/{id}/send
   const testSendComplaint = useCallback(
     async complaintId => {
@@ -184,15 +245,12 @@ export function DocumentCreateScreen({ route, navigation }) {
 
       try {
         const response = await complaintsApi.sendComplaint(complaintId, {
-          recipientType: 'email',
+          recipientType: 'lawyer',
           recipientEmail: templateSolution?.addressee?.email ?? '',
           addresseeEmail: personalData?.email ?? '',
           attachedDocuments,
         });
-        console.log(
-          `[testSendComplaint] POST /complaints/${complaintId}/send`,
-          response.data,
-        );
+
       } catch (error) {
         console.log(
           `[testSendComplaint] POST /complaints/${complaintId}/send error`,
@@ -203,7 +261,7 @@ export function DocumentCreateScreen({ route, navigation }) {
     [personalData?.email, templateSolution],
   );
 
-  const handleSubmitComplaint = useCallback(async () => {
+  const submitComplaint = useCallback(async () => {
     if (!templateId) {
       showToast({
         title: 'Սխալ',
@@ -252,6 +310,8 @@ export function DocumentCreateScreen({ route, navigation }) {
         console.log(refreshError, 'personal documents refresh error');
       }
 
+      setIsAttachmentsSheetVisible(false);
+
       navigation.reset({
         index: 0,
         routes: [{ name: 'HomeMain' }],
@@ -286,7 +346,37 @@ export function DocumentCreateScreen({ route, navigation }) {
     showToast,
     testSendComplaint,
   ]);
-  console.log(signatureImageSrc, 'signatureImageSrc');
+
+  const handleSubmitComplaint = useCallback(() => {
+    if (solutionAttachments.length > 0) {
+      setIsAttachmentsSheetVisible(true);
+      return;
+    }
+
+    return submitComplaint();
+  }, [solutionAttachments.length, submitComplaint]);
+
+  const handleAttachmentView = useCallback(
+    row => {
+      const document = row.personalDocument;
+      if (!document) {
+        return;
+      }
+
+      setIsAttachmentsSheetVisible(false);
+      navigation.navigate('Files', {
+        screen: 'PersonalDocumentView',
+        params: {
+          id: document.id,
+          title: document.documentName ?? row.name,
+          documentUrl: document.documentUrl,
+          downloadUrl: document.downloadUrl,
+        },
+      });
+    },
+    [navigation],
+  );
+
   const isActionDisabled =
     !hasTypingFinished ||
     isDownloading ||
@@ -364,6 +454,17 @@ export function DocumentCreateScreen({ route, navigation }) {
       <DocumentLoadingOverlay
         visible={showLoadingOverlay}
         quote={loadingQuote}
+      />
+
+      <SolutionAttachmentsSheet
+        visible={isAttachmentsSheetVisible}
+        attachments={attachmentRows}
+        onClose={() => setIsAttachmentsSheetVisible(false)}
+        onPickFromGallery={pickFromGallery}
+        onPickFromFiles={pickFromFiles}
+        onView={handleAttachmentView}
+        onConfirm={submitComplaint}
+        isConfirming={isSubmittingComplaint}
       />
     </View>
   );

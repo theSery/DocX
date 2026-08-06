@@ -1,0 +1,19 @@
+1. PUT /api/personal-data
+    * Please make it possible to send notificationAddress as an empty string ("") to clear the current value, or provide another supported way to disable/remove notificationAddress.
+2. POST /api/complaints/{id}/send
+
+{
+  "recipientType": "email",
+  "recipientEmail": "string",
+  "addresseeEmail": "string",
+  "attachedDocuments": [
+    1,
+    2,
+    3
+  ]
+}
+
+    I have a few questions about this endpoint:
+    * What values are supported for recipientType? Is there a list of allowed values (enum)?
+    * What IDs should be passed in attachedDocuments? Which endpoint returns these document IDs?
+    * Could you provide an example of a valid request for this endpoint?
