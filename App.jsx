@@ -8,7 +8,10 @@ import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as ReduxProvider } from 'react-redux';
-import { SplashGate } from './src/components';
+import {
+  DocumentLoadingOverlayProvider,
+  SplashGate,
+} from './src/components';
 import { AppToast } from './src/components/toast/AppToast';
 import { GlobalSheetProvider } from './src/components/GlobalSheet';
 import { AuthProvider } from './src/contexts';
@@ -48,8 +51,10 @@ function App() {
             <AuthProvider>
               <SplashGate>
                 <GlobalSheetProvider>
-                  <AppNavigation />
-                  <AppToast />
+                  <DocumentLoadingOverlayProvider>
+                    <AppNavigation />
+                    <AppToast />
+                  </DocumentLoadingOverlayProvider>
                 </GlobalSheetProvider>
               </SplashGate>
             </AuthProvider>

@@ -86,9 +86,10 @@ export function DocumentCreateScreen({ route, navigation }) {
     });
   }, []);
 
-  const { pickFromGallery, pickFromFiles } = useSolutionAttachmentUpload({
-    onUploaded: handleAttachmentUploaded,
-  });
+  const { pickFromGallery, pickFromFiles, isUploading } =
+    useSolutionAttachmentUpload({
+      onUploaded: handleAttachmentUploaded,
+    });
 
   const userId = personalData?.id ?? personalData?.userId;
 
@@ -230,7 +231,7 @@ export function DocumentCreateScreen({ route, navigation }) {
       setIsAddingSignature(false);
     }
   }, []);
-console.log(templateSolution, 'ppppppp')
+
   // Test helper for POST /api/complaints/{id}/send
   const testSendComplaint = useCallback(
     async complaintId => {
@@ -356,27 +357,6 @@ console.log(templateSolution, 'ppppppp')
     return submitComplaint();
   }, [solutionAttachments.length, submitComplaint]);
 
-  const handleAttachmentView = useCallback(
-    row => {
-      const document = row.personalDocument;
-      if (!document) {
-        return;
-      }
-
-      setIsAttachmentsSheetVisible(false);
-      navigation.navigate('Files', {
-        screen: 'PersonalDocumentView',
-        params: {
-          id: document.id,
-          title: document.documentName ?? row.name,
-          documentUrl: document.documentUrl,
-          downloadUrl: document.downloadUrl,
-        },
-      });
-    },
-    [navigation],
-  );
-
   const isActionDisabled =
     !hasTypingFinished ||
     isDownloading ||
@@ -462,9 +442,9 @@ console.log(templateSolution, 'ppppppp')
         onClose={() => setIsAttachmentsSheetVisible(false)}
         onPickFromGallery={pickFromGallery}
         onPickFromFiles={pickFromFiles}
-        onView={handleAttachmentView}
         onConfirm={submitComplaint}
         isConfirming={isSubmittingComplaint}
+        isUploading={isUploading}
       />
     </View>
   );

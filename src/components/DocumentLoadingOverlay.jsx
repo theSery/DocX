@@ -1,4 +1,11 @@
-import { useEffect, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { BlurView } from '@sbaiahmed1/react-native-blur';
 import Animated, {
@@ -85,13 +92,80 @@ export function getNextDocumentLoadingQuote() {
 const FADE_OUT_EASING = Easing.out(Easing.cubic);
 const FADE_IN_EASING = Easing.out(Easing.quad);
 
+const DocumentLoadingOverlayContext = createContext(null);
+
+/**
+ * Hosts the loading overlay at the app root so it covers navigation chrome
+ * (header, floating tab bar) while staying in the same window as BlurView.
+ */
+export function DocumentLoadingOverlayProvider({ children }) {
+  const [overlayState, setOverlayState] = useState({
+    visible: false,
+    quote: undefined,
+  });
+
+  const sync = useCallback((visible, quote) => {
+    setOverlayState({
+      visible: Boolean(visible),
+      quote,
+    });
+  }, []);
+
+  const value = useMemo(() => ({ sync }), [sync]);
+
+  return (
+    <DocumentLoadingOverlayContext.Provider value={value}>
+      <View style={styles.host} pointerEvents="box-none" collapsable={false}>
+        {children}
+        <DocumentLoadingOverlayView
+          visible={overlayState.visible}
+          quote={overlayState.quote}
+        />
+      </View>
+    </DocumentLoadingOverlayContext.Provider>
+  );
+}
+
 /**
  * Full-screen loading overlay with native blur.
- * Rendered as an absolute backdrop (not RN Modal) so BlurView does not
- * snapshot a separate window and blank the screen underneath on dismiss.
- * Fades out smoothly when `visible` becomes false instead of unmounting abruptly.
+ * When wrapped by DocumentLoadingOverlayProvider, the visual layer is rendered
+ * at the app root (above header + tab bar). Avoid RN Modal — BlurView in a
+ * separate window blanks the screen underneath on dismiss.
  */
 export function DocumentLoadingOverlay({
+  visible,
+  quote,
+}) {
+  const overlayHost = useContext(DocumentLoadingOverlayContext);
+
+  useEffect(() => {
+    if (!overlayHost) {
+      return undefined;
+    }
+
+    overlayHost.sync(visible, quote);
+    return undefined;
+  }, [overlayHost, visible, quote]);
+
+  // Clear only on unmount so quote updates do not flash the overlay off.
+  useEffect(() => {
+    if (!overlayHost) {
+      return undefined;
+    }
+
+    return () => {
+      overlayHost.sync(false, undefined);
+    };
+  }, [overlayHost]);
+
+  if (overlayHost) {
+    return null;
+  }
+
+  return <DocumentLoadingOverlayView visible={visible} quote={quote} />;
+}
+
+function DocumentLoadingOverlayView({
   visible,
   quote,
 }) {
@@ -198,8 +272,13 @@ export function DocumentLoadingOverlay({
 }
 
 const styles = StyleSheet.create({
+  host: {
+    flex: 1,
+  },
   fullScreenOverlay: {
     ...StyleSheet.absoluteFill,
+    zIndex: 10000,
+    elevation: 10000,
     overflow: 'hidden',
   },
   overlayTint: {

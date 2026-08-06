@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   errorCodes,
   isErrorWithCode,
@@ -50,6 +50,7 @@ function extractUploadedFileId(response, { fromFilesApi = false } = {}) {
 export function useSolutionAttachmentUpload({ onUploaded } = {}) {
   const dispatch = useAppDispatch();
   const { showToast } = useToast();
+  const [isUploading, setIsUploading] = useState(false);
 
   const refreshPersonalDocuments = useCallback(() => {
     return dispatch(fetchPersonalDocuments({ page: 1, limit: 100 }));
@@ -80,6 +81,7 @@ export function useSolutionAttachmentUpload({ onUploaded } = {}) {
 
   const performUpload = useCallback(
     async (attachment, pickedFile) => {
+      setIsUploading(true);
       try {
         let response;
         let fromFilesApi = false;
@@ -129,6 +131,8 @@ export function useSolutionAttachmentUpload({ onUploaded } = {}) {
           body: errorBody,
           type: 'error',
         });
+      } finally {
+        setIsUploading(false);
       }
     },
     [onUploaded, refreshPersonalDocuments, resolveFileIdAfterRefresh, showToast],
@@ -225,5 +229,5 @@ export function useSolutionAttachmentUpload({ onUploaded } = {}) {
     [handlePickedFile, showToast],
   );
 
-  return { pickFromGallery, pickFromFiles };
+  return { pickFromGallery, pickFromFiles, isUploading };
 }

@@ -200,17 +200,19 @@ export function FilesMainScreen() {
 
   const renderSectionHeader = useCallback(
     ({ section }) => (
-      <Typography
-        variant="h4"
+      <View
         style={[
-          styles.sectionTitle,
-          section.key === 'additional' && styles.additionalSectionTitle,
+          styles.sectionHeader,
+          section.key === 'additional' && styles.additionalSectionHeader,
         ]}
       >
-        {section.title}
-      </Typography>
+        <View style={styles.sectionAccent} />
+        <Typography variant="h4" style={styles.sectionTitle}>
+          {section.title}
+        </Typography>
+      </View>
     ),
-    [styles.additionalSectionTitle, styles.sectionTitle],
+    [styles.additionalSectionHeader, styles.sectionAccent, styles.sectionHeader, styles.sectionTitle],
   );
 
   const renderItem = useCallback(
@@ -275,13 +277,25 @@ const createStyles = colors =>
     listContentEmpty: {
       flexGrow: 1,
     },
-    sectionTitle: {
-      letterSpacing: 0.4,
-      paddingTop: 8,
-      paddingBottom: 18,
+    sectionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      paddingTop: 10,
+      paddingBottom: 14,
     },
-    additionalSectionTitle: {
-      paddingTop: 20,
+    additionalSectionHeader: {
+      paddingTop: 24,
+    },
+    sectionAccent: {
+      width: 3,
+      height: 18,
+      borderRadius: 2,
+      backgroundColor: colors.primary,
+    },
+    sectionTitle: {
+      letterSpacing: 0.6,
+      color: colors.primary,
     },
     centeredState: {
       flex: 1,

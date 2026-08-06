@@ -10,12 +10,14 @@ import {
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 
-import { Typography } from '../../../../components';
+import { Accordion, Typography } from '../../../../components';
+import LottieAnimation from '../../../../components/animation/LottieAnimation';
 import AuthButton from '../../../../components/buttons/AuthButton';
 import AttachSvg from '../../../../components/icons/AttachSvg';
 import CameraSvg from '../../../../components/icons/CameraSvg';
+import CloseSvg from '../../../../components/icons/CloseSvg';
 import EyeIconSvg from '../../../../components/icons/EyeIconSvg';
-import UploadSvg from '../../../../components/icons/UploadSvg';
+import WarningSvg from '../../../../components/icons/WarningSvg';
 import { useTheme, useThemedStyles } from '../../../../hooks';
 import { FONT_FAMILY, palette } from '../../../../theme';
 
@@ -49,6 +51,34 @@ function isImageUrl(fileUrl) {
   return /\.(png|jpe?g|gif|webp|bmp)(\?|$)/i.test(String(fileUrl || ''));
 }
 
+function attachmentKeyExtractor(item) {
+  return item.key;
+}
+
+function FileLoadingOverlay({ visible, label }) {
+  const styles = useThemedStyles(createLoaderStyles);
+
+  if (!visible) {
+    return null;
+  }
+
+  return (
+    <View style={styles.loaderOverlay} pointerEvents="auto">
+      <View style={styles.loaderCard}>
+        <LottieAnimation
+          source={require('../../../../assets/lottie/PDF.json')}
+          autoPlay
+          loop
+          style={styles.loaderLottie}
+        />
+        <Typography variant="h6" tone="secondary" style={styles.loaderLabel}>
+          {label}
+        </Typography>
+      </View>
+    </View>
+  );
+}
+
 /**
  * @param {{
  *   visible: boolean;
@@ -57,6 +87,8 @@ function isImageUrl(fileUrl) {
  *   onPickFromGallery: (row: SolutionAttachmentRow) => void;
  *   onPickFromFiles: (row: SolutionAttachmentRow) => void;
  *   onConfirm: () => void;
+ *   isConfirming?: boolean;
+ *   isUploading?: boolean;
  * }} props
  */
 export function SolutionAttachmentsSheet({
@@ -66,14 +98,15 @@ export function SolutionAttachmentsSheet({
   onPickFromGallery,
   onPickFromFiles,
   onConfirm,
+  isConfirming = false,
+  isUploading = false,
 }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const iconColor = colors.icons;
   const allUploaded = attachments.every(item => item.isUploaded);
-  const [expandedUploadKey, setExpandedUploadKey] = useState(null);
   const [previewItem, setPreviewItem] = useState(null);
-  const [isWebViewLoading, setIsWebViewLoading] = useState(true);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(true);
 
   const previewUrl = previewItem?.personalDocument?.documentUrl ?? null;
   const previewSource = useMemo(
@@ -81,28 +114,148 @@ export function SolutionAttachmentsSheet({
     [previewUrl],
   );
   const previewIsImage = isImageUrl(previewUrl);
+  const showFileLoader = Boolean(previewItem)
+    ? Boolean(previewSource) && isPreviewLoading
+    : isUploading;
+  const loaderLabel = previewItem ? 'Ֆայլը բեռնվում է...' : 'Ֆայլը վերբեռնվում է...';
 
   const handleClose = useCallback(() => {
-    setExpandedUploadKey(null);
     setPreviewItem(null);
+    setIsPreviewLoading(true);
     onClose?.();
   }, [onClose]);
 
-  const handleUploadPress = useCallback(item => {
-    setExpandedUploadKey(current =>
-      current === item.key ? null : item.key,
-    );
-  }, []);
-
   const handleViewPress = useCallback(item => {
-    setIsWebViewLoading(true);
+    setIsPreviewLoading(true);
     setPreviewItem(item);
   }, []);
 
   const handleClosePreview = useCallback(() => {
     setPreviewItem(null);
-    setIsWebViewLoading(true);
+    setIsPreviewLoading(true);
   }, []);
+
+  const handleRequestClose = useCallback(() => {
+    if (previewItem) {
+      handleClosePreview();
+      return;
+    }
+    handleClose();
+  }, [handleClose, handleClosePreview, previewItem]);
+
+  const renderAttachmentHeader = useCallback(
+    (item, { isOpen }) => (
+      <View style={styles.rowHeader}>
+        <Typography variant="h5" style={styles.rowTitle} numberOfLines={2}>
+          {item.name}
+        </Typography>
+
+        {item.isUploaded ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Դիտել ֆայլը"
+            onPress={() => handleViewPress(item)}
+            style={({ pressed }) => [
+              styles.actionButton,
+              pressed && styles.actionButtonPressed,
+            ]}
+          >
+            <EyeIconSvg
+              width={22}
+              height={22}
+              fill={colors.icons}
+              visible
+            />
+          </Pressable>
+        ) : (
+          <View
+            style={[
+              styles.actionButton,
+              isOpen && styles.actionButtonActive,
+              styles.attachmentItemPending,
+            ]}
+          >
+            <WarningSvg width={22} height={22} fill={colors.error} />
+          </View>
+        )}
+      </View>
+    ),
+    [colors.error, colors.icons, handleViewPress, styles],
+  );
+
+  const renderAttachmentContent = useCallback(
+    item => {
+      if (item.isUploaded) {
+        return (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Դիտել ֆայլը"
+            onPress={() => handleViewPress(item)}
+            style={({ pressed }) => [
+              styles.sourceButton,
+              pressed && styles.sourceButtonPressed,
+            ]}
+          >
+            <EyeIconSvg
+              width={18}
+              height={18}
+              fill={iconColor}
+              visible
+            />
+            <Typography variant="h6" style={styles.sourceButtonText}>
+              Դիտել ֆայլը
+            </Typography>
+          </Pressable>
+        );
+      }
+
+      return (
+        <View style={styles.sourceRow}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Գալերեա"
+            disabled={isUploading}
+            onPress={() => onPickFromGallery?.(item)}
+            style={({ pressed }) => [
+              styles.sourceButton,
+              pressed && styles.sourceButtonPressed,
+              isUploading && styles.sourceButtonDisabled,
+            ]}
+          >
+            <CameraSvg width={18} height={18} fill={iconColor} />
+            <Typography variant="h6" style={styles.sourceButtonText}>
+              Գալերեա
+            </Typography>
+          </Pressable>
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Ֆայլեր"
+            disabled={isUploading}
+            onPress={() => onPickFromFiles?.(item)}
+            style={({ pressed }) => [
+              styles.sourceButton,
+              pressed && styles.sourceButtonPressed,
+              isUploading && styles.sourceButtonDisabled,
+            ]}
+          >
+            <AttachSvg width={18} height={18} fill={iconColor} />
+            <Typography variant="h6" style={styles.sourceButtonText}>
+              Ֆայլեր
+            </Typography>
+          </Pressable>
+        </View>
+      );
+    },
+    [
+      handleViewPress,
+      iconColor,
+      isUploading,
+      onPickFromFiles,
+      onPickFromGallery,
+      styles,
+    ],
+  );
 
   return (
     <Modal
@@ -110,38 +263,27 @@ export function SolutionAttachmentsSheet({
       transparent
       animationType="fade"
       statusBarTranslucent
-      onRequestClose={previewItem ? handleClosePreview : handleClose}
+      onRequestClose={handleRequestClose}
     >
-      <Pressable
-        style={styles.backdrop}
-        onPress={previewItem ? handleClosePreview : handleClose}
-      >
-        <Pressable style={styles.sheet} onPress={() => {}}>
-          {previewItem ? (
-            <View style={styles.previewContainer}>
-              <View style={styles.previewHeader}>
-                <Typography
-                  variant="h4"
-                  style={styles.previewTitle}
-                  numberOfLines={2}
-                >
-                  {previewItem.name}
-                </Typography>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Փակել"
-                  onPress={handleClosePreview}
-                  style={({ pressed }) => [
-                    styles.previewCloseButton,
-                    pressed && styles.actionButtonPressed,
-                  ]}
-                >
-                  <Typography variant="h6" style={styles.previewCloseText}>
-                    Փակել
-                  </Typography>
-                </Pressable>
-              </View>
+      <Pressable style={styles.backdrop} onPress={handleRequestClose}>
+        <Pressable style={styles.card} onPress={() => {}}>
+          <View style={styles.header}>
+            <Typography variant="h4" style={styles.title} numberOfLines={2}>
+              {previewItem ? previewItem.name : 'Բողոքին կից փաստաթղթեր'}
+            </Typography>
+            <Pressable
+              onPress={handleRequestClose}
+              style={styles.closeIconButton}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+            >
+              <CloseSvg width={18} height={18} fill={colors.icons} />
+            </Pressable>
+          </View>
 
+          <View style={styles.body}>
+            {previewItem ? (
               <View style={styles.previewBody}>
                 {previewSource ? (
                   previewIsImage ? (
@@ -149,6 +291,9 @@ export function SolutionAttachmentsSheet({
                       source={previewSource}
                       style={styles.previewImage}
                       resizeMode="contain"
+                      onLoadStart={() => setIsPreviewLoading(true)}
+                      onLoad={() => setIsPreviewLoading(false)}
+                      onError={() => setIsPreviewLoading(false)}
                     />
                   ) : (
                     <WebView
@@ -158,8 +303,8 @@ export function SolutionAttachmentsSheet({
                       scalesPageToFit
                       scrollEnabled
                       showsVerticalScrollIndicator={false}
-                      onLoadStart={() => setIsWebViewLoading(true)}
-                      onLoadEnd={() => setIsWebViewLoading(false)}
+                      onLoadStart={() => setIsPreviewLoading(true)}
+                      onLoadEnd={() => setIsPreviewLoading(false)}
                     />
                   )
                 ) : (
@@ -169,191 +314,178 @@ export function SolutionAttachmentsSheet({
                     </Typography>
                   </View>
                 )}
-
-                {previewSource && !previewIsImage && isWebViewLoading ? (
-                  <View style={styles.previewLoading}>
-                    <Typography variant="h6" tone="secondary">
-                      Բեռնվում է...
-                    </Typography>
-                  </View>
-                ) : null}
               </View>
-            </View>
-          ) : (
-            <>
-              <Typography variant="h3" style={styles.title}>
-              Բողոքին կից փաստաթղթեր
-              </Typography>
-              <Typography variant="h6" tone="secondary" style={styles.subtitle}>
-              Խնդրում ենք կցել բողոքարկման համար անհրաժեշտ փաստաթղթերը նախքան ուղարկելը
-              </Typography>
+            ) : (
+              <>
+                <Typography
+                  variant="h6"
+                  tone="secondary"
+                  style={styles.subtitle}
+                >
+                  Խնդրում ենք կցել բողոքարկման համար անհրաժեշտ փաստաթղթերը
+                  նախքան ուղարկելը
+                </Typography>
 
-              <ScrollView
-                bounces={false}
-                style={styles.list}
-                contentContainerStyle={styles.listContent}
-                showsVerticalScrollIndicator={false}
-              >
-                {attachments.map(item => {
-                  const isExpanded =
-                    !item.isUploaded && expandedUploadKey === item.key;
+                <ScrollView
+                  bounces={false}
+                  style={styles.list}
+                  contentContainerStyle={styles.listContent}
+                  showsVerticalScrollIndicator={false}
+                >
+                  <Accordion
+                    key={visible ? 'attachments-open' : 'attachments-closed'}
+                    items={attachments}
+                    keyExtractor={attachmentKeyExtractor}
+                    itemStyle={item => [
+                      styles.attachmentItem,
+                      item.isUploaded
+                        ? styles.attachmentItemUploaded
+                        : styles.attachmentItemPending,
+                    ]}
+                    contentStyle={styles.attachmentContent}
+                    renderHeader={renderAttachmentHeader}
+                    renderContent={renderAttachmentContent}
+                  />
+                </ScrollView>
 
-                  return (
-                    <View key={item.key} style={styles.row}>
-                      <View style={styles.rowHeader}>
-                        <Typography
-                          variant="h5"
-                          style={styles.rowTitle}
-                          numberOfLines={2}
-                        >
-                          {item.name}
-                        </Typography>
+                <AuthButton
+                  title="Կցել ֆայլերը"
+                  onPress={onConfirm}
+                  disabled={!allUploaded || isUploading}
+                  isLoading={isConfirming}
+                  style={styles.confirmButton}
+                />
+              </>
+            )}
 
-                        <Pressable
-                          accessibilityRole="button"
-                          accessibilityLabel={
-                            item.isUploaded ? 'Դիտել ֆայլը' : 'Կցել ֆայլ'
-                          }
-                          onPress={() =>
-                            item.isUploaded
-                              ? handleViewPress(item)
-                              : handleUploadPress(item)
-                          }
-                          style={({ pressed }) => [
-                            styles.actionButton,
-                            pressed && styles.actionButtonPressed,
-                            isExpanded && styles.actionButtonActive,
-                          ]}
-                        >
-                          {item.isUploaded ? (
-                            <EyeIconSvg
-                              width={22}
-                              height={22}
-                              fill={colors.icons}
-                              visible
-                            />
-                          ) : (
-                            <UploadSvg
-                              width={22}
-                              height={22}
-                              fill={colors.icons}
-                            />
-                          )}
-                        </Pressable>
-                      </View>
-
-                      {isExpanded ? (
-                        <View style={styles.sourceRow}>
-                          <Pressable
-                            accessibilityRole="button"
-                            accessibilityLabel="Գալերեա"
-                            onPress={() => onPickFromGallery?.(item)}
-                            style={({ pressed }) => [
-                              styles.sourceButton,
-                              pressed && styles.sourceButtonPressed,
-                            ]}
-                          >
-                            <CameraSvg
-                              width={18}
-                              height={18}
-                              fill={iconColor}
-                            />
-                            <Typography
-                              variant="h6"
-                              style={styles.sourceButtonText}
-                            >
-                              Գալերեա
-                            </Typography>
-                          </Pressable>
-
-                          <Pressable
-                            accessibilityRole="button"
-                            accessibilityLabel="Ֆայլեր"
-                            onPress={() => onPickFromFiles?.(item)}
-                            style={({ pressed }) => [
-                              styles.sourceButton,
-                              pressed && styles.sourceButtonPressed,
-                            ]}
-                          >
-                            <AttachSvg
-                              width={18}
-                              height={18}
-                              fill={iconColor}
-                            />
-                            <Typography
-                              variant="h6"
-                              style={styles.sourceButtonText}
-                            >
-                              Ֆայլեր
-                            </Typography>
-                          </Pressable>
-                        </View>
-                      ) : null}
-                    </View>
-                  );
-                })}
-              </ScrollView>
-
-              <AuthButton
-                title="Կցել ֆայլերը"
-                onPress={onConfirm}
-                disabled={!allUploaded}
-                style={styles.confirmButton}
-              />
-            </>
-          )}
+            <FileLoadingOverlay visible={showFileLoader} label={loaderLabel} />
+          </View>
         </Pressable>
       </Pressable>
     </Modal>
   );
 }
 
+const createLoaderStyles = colors =>
+  StyleSheet.create({
+    loaderOverlay: {
+      ...StyleSheet.absoluteFill,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'rgba(255, 255, 255, 0.82)',
+      borderRadius: 16,
+      zIndex: 2,
+    },
+    loaderCard: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 24,
+      paddingVertical: 20,
+      borderRadius: 20,
+      backgroundColor: colors.pureWhite,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.14,
+      shadowRadius: 12,
+      elevation: 8,
+    },
+    loaderLottie: {
+      width: 120,
+      height: 120,
+    },
+    loaderLabel: {
+      marginTop: 4,
+      textAlign: 'center',
+    },
+  });
+
 const createStyles = colors =>
   StyleSheet.create({
     backdrop: {
       flex: 1,
-      justifyContent: 'flex-end',
-      backgroundColor: 'rgba(0, 0, 0, 0.4)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.75)',
+      paddingHorizontal: 6,
     },
-    sheet: {
+    card: {
+      width: '90%',
+      height: '80%',
       backgroundColor: colors.surface,
-      borderTopLeftRadius: 40,
-      borderTopRightRadius: 40,
-      paddingHorizontal: 16,
-      paddingTop: 24,
-      paddingBottom: 32,
-      maxHeight: '80%',
-      minHeight: '45%',
+      borderRadius: 24,
+      paddingHorizontal: 20,
+      paddingTop: 20,
+      paddingBottom: 20,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.2,
+      shadowRadius: 16,
+      elevation: 12,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      gap: 12,
+      marginBottom: 16,
     },
     title: {
-      textAlign: 'left',
-      marginBottom: 6,
-      fontSize: 18,
+      flex: 1,
       lineHeight: 24,
+      textAlign: 'center',
+    },
+    closeIconButton: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+    },
+    body: {
+      flex: 1,
+      minHeight: 0,
     },
     subtitle: {
       marginBottom: 16,
+      textAlign: 'center',
     },
     list: {
-      flexGrow: 0,
+      flex: 1,
     },
     listContent: {
       paddingBottom: 8,
-      gap: 10,
     },
-    row: {
-      borderRadius: 16,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.borderSubtle,
-      backgroundColor: colors.background,
-      paddingVertical: 14,
-      paddingHorizontal: 14,
-      gap: 12,
+    attachmentItem: {
+      marginBottom: 12,
+      borderRadius: 14,
+      backgroundColor: colors.pureWhite,
+      borderWidth: 1.5,
+      shadowColor: colors.shadow,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.12,
+      shadowRadius: 6,
+      elevation: 4,
+      paddingHorizontal: 8,
+      overflow: 'hidden',
+    },
+    attachmentItemUploaded: {
+      borderColor: colors.iconAccent,
+    },
+    attachmentItemPending: {
+      borderColor: colors.dangerBorder,
+    },
+    attachmentContent: {
+      paddingHorizontal: 8,
+      paddingTop: 4,
+      paddingBottom: 14,
     },
     rowHeader: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 12,
+      paddingVertical: 6,
+      paddingLeft: 8,
     },
     rowTitle: {
       flex: 1,
@@ -367,6 +499,8 @@ const createStyles = colors =>
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: colors.buttonTextOnPrimary,
+      borderColor: colors.iconAccent,
+      borderWidth: 1,
     },
     actionButtonActive: {
       borderWidth: StyleSheet.hairlineWidth,
@@ -395,6 +529,9 @@ const createStyles = colors =>
     sourceButtonPressed: {
       opacity: 0.7,
     },
+    sourceButtonDisabled: {
+      opacity: 0.5,
+    },
     sourceButtonText: {
       fontFamily: FONT_FAMILY.regular,
       color: colors.icons,
@@ -402,33 +539,9 @@ const createStyles = colors =>
     confirmButton: {
       marginTop: 16,
     },
-    previewContainer: {
-      flexGrow: 1,
-      minHeight: 360,
-    },
-    previewHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 12,
-      marginBottom: 14,
-    },
-    previewTitle: {
-      flex: 1,
-      lineHeight: 22,
-    },
-    previewCloseButton: {
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 10,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.borderSubtle,
-    },
-    previewCloseText: {
-      color: colors.icons,
-    },
     previewBody: {
       flex: 1,
-      minHeight: 280,
+      minHeight: 0,
       borderRadius: 16,
       overflow: 'hidden',
       borderWidth: StyleSheet.hairlineWidth,
@@ -449,11 +562,5 @@ const createStyles = colors =>
       alignItems: 'center',
       justifyContent: 'center',
       paddingHorizontal: 16,
-    },
-    previewLoading: {
-      ...StyleSheet.absoluteFillObject,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'rgba(255,255,255,0.72)',
     },
   });
