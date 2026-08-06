@@ -15,7 +15,10 @@ import {
   resetDocumentFill,
   syncFactSelections,
 } from '../../../store/slices/documentFillSlice';
-import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
+import {
+  AUTH_BUTTON_HEIGHT,
+  TAB_BAR_BOTTOM_OFFSET,
+} from '../../../utils/dimensions';
 import { palette } from '../../../theme';
 import {
   fetchPersonalData,
@@ -416,8 +419,8 @@ export function FillInDetailsScreen({ navigation, route }) {
   );
   return (
     <>
-      <View style={[styles.screen, ]}>
-      <MainHeader onPress={handleBack} />
+      <View style={styles.screen}>
+        <MainHeader onPress={handleBack} />
         <FormFlatList
           style={styles.list}
           data={listData}
@@ -425,9 +428,7 @@ export function FillInDetailsScreen({ navigation, route }) {
           keyExtractor={item => item.key}
           ListHeaderComponent={ListHeaderComponent}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.contentContainer,
-          ]}
+          contentContainerStyle={styles.contentContainer}
           renderItem={() => (
             <AnimatedView
               key={currentStep}
@@ -440,15 +441,15 @@ export function FillInDetailsScreen({ navigation, route }) {
           )}
           removeClippedSubviews={false}
         />
-        <AuthButton
-          title={isLastStep ? 'Կազմել բողոք' : 'Առաջ'}
-          onPress={handleNext}
-          endIcon={
-            !isLastStep ? <ArrowSvg width={14} height={14} fill={palette.white} /> : null
-          }
-          style={[styles.footerButton, { bottom: TAB_BAR_BOTTOM_OFFSET + 20 }]}
-        />
       </View>
+      <AuthButton
+        title={isLastStep ? 'Կազմել բողոք' : 'Առաջ'}
+        onPress={handleNext}
+        endIcon={
+          !isLastStep ? <ArrowSvg width={14} height={14} fill={palette.white} /> : null
+        }
+        style={[styles.footerButton, { bottom: TAB_BAR_BOTTOM_OFFSET + 10 }]}
+      />
     </>
   );
 }
@@ -464,6 +465,7 @@ const createStyles = colors =>
     },
     contentContainer: {
       padding: 10,
+      paddingBottom: TAB_BAR_BOTTOM_OFFSET + AUTH_BUTTON_HEIGHT + 30,
     },
     headerTitle: {
       fontSize: 18,
@@ -486,7 +488,6 @@ const createStyles = colors =>
     headerTextBlock: {
       marginTop: 20,
       marginBottom: 20,
-      // backgroundColor: 'red',
       height: 100,
     },
   });

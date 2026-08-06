@@ -18,11 +18,17 @@ import { SkiaVideoPlayer } from './videoPlayer';
 
 let showSheetHandler = null;
 
+const ACTION_FONT_SIZE = 16;
+const ACTION_FONT_SIZE_COMPACT = 14;
+/** Shrink when text is within this many px of (or past) the available width. */
+const ACTION_TEXT_EDGE_THRESHOLD = 15;
+
 /**
  * @typedef {{
  *   label: string;
  *   onPress?: () => void;
  *   destructive?: boolean;
+ *   labelStyle?: import('react-native').TextStyle;
  * }} SheetAction
  */
 
@@ -97,6 +103,86 @@ function resolveImageSource(content) {
   return content;
 }
 
+/**
+ * Keeps the default action font size when text fits; if it crowds the button
+ * edge (within ~15px), drops the size by 2 without changing button layout.
+ */
+function AdaptiveActionLabel({ label, style }) {
+  const [fontSize, setFontSize] = useState(ACTION_FONT_SIZE);
+  const availableWidthRef = useRef(0);
+  const textWidthRef = useRef(0);
+  const settledRef = useRef(false);
+
+  useEffect(() => {
+    settledRef.current = false;
+    textWidthRef.current = 0;
+    setFontSize(ACTION_FONT_SIZE);
+  }, [label]);
+
+  const tryFit = useCallback(() => {
+    if (settledRef.current) {
+      return;
+    }
+
+    const availableWidth = availableWidthRef.current;
+    const textWidth = textWidthRef.current;
+    if (!availableWidth || !textWidth) {
+      return;
+    }
+
+    settledRef.current = true;
+    if (textWidth > availableWidth - ACTION_TEXT_EDGE_THRESHOLD) {
+      setFontSize(ACTION_FONT_SIZE_COMPACT);
+    }
+  }, []);
+
+  return (
+    <View
+      style={stylesActionLabel.wrap}
+      onLayout={event => {
+        availableWidthRef.current = event.nativeEvent.layout.width;
+        tryFit();
+      }}
+    >
+      {/* Unconstrained measure pass using the same font metrics as the label. */}
+      <Typography
+        pointerEvents="none"
+        style={[
+          stylesActionLabel.measure,
+          {
+            fontSize: ACTION_FONT_SIZE,
+            fontFamily: FONT_FAMILY.regular,
+          },
+        ]}
+        onLayout={event => {
+          textWidthRef.current = event.nativeEvent.layout.width;
+          tryFit();
+        }}
+      >
+        {label}
+      </Typography>
+      <Typography numberOfLines={1} style={[style, { fontSize, width: '100%' }]}>
+        {label}
+      </Typography>
+    </View>
+  );
+}
+
+const stylesActionLabel = StyleSheet.create({
+  wrap: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  measure: {
+    position: 'absolute',
+    opacity: 0,
+    left: -10000,
+    top: 0,
+  },
+});
+
 function SheetActions({ actions, styles, onActionPress }) {
   const isSingleAction = actions.length === 1;
 
@@ -114,10 +200,15 @@ function SheetActions({ actions, styles, onActionPress }) {
         >
           {!action.destructive ? (
             <GradientButton height={45} isLight={false}>
-              <Typography style={styles.actionTextGradient}>{action.label}</Typography>
+              <AdaptiveActionLabel
+                label={action.label}
+                style={[styles.actionTextGradient, action.labelStyle]}
+              />
             </GradientButton>
           ) : (
-            <Typography style={styles.actionText}>{action.label}</Typography>
+            <Typography style={[styles.actionText, action.labelStyle]}>
+              {action.label}
+            </Typography>
           )}
         </Pressable>
       ))}
