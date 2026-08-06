@@ -7,7 +7,7 @@ import { authApi } from '../../../api';
 import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
 
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
-import { getStoredCredentials, saveUserCredentials } from '../../../utils/secureStorage';
+import { saveStoredPinCode } from '../../../utils/secureStorage';
 import { Passcode } from '../../authScreens/signInUP/components/Passcode';
 
 const PIN_LENGTH = 4;
@@ -87,15 +87,7 @@ export function PinCodeChangeScreen() {
 
     try {
       await authApi.changePin({ oldPin, newPin });
-
-      const credentials = await getStoredCredentials();
-      if (credentials) {
-        await saveUserCredentials({
-          email: credentials.email,
-          password: credentials.password,
-          pinCode: newPin,
-        });
-      }
+      await saveStoredPinCode(newPin);
 
       resetForm();
       showToast({
