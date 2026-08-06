@@ -9,7 +9,7 @@ import {
   FormScrollView,
   Typography,
 } from '../../../components';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import MailIconSvg from '../../../components/icons/MailIconSvg';
 import UserSvg from '../../../components/icons/UserSvg';
 import { FONT_FAMILY, palette } from '../../../theme';
@@ -25,8 +25,10 @@ import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   fetchPersonalData,
   selectIsPhoneVerified,
+  selectLastVerifiedPhoneNumber,
   selectPersonalData,
   selectPersonalDataStatus,
+  setUserFlags,
   updatePersonalData,
 } from '../../../store/slices/personalDataSlice';
 import { smsApi } from '../../../api';
@@ -182,8 +184,8 @@ export function ProfileInfoScreen() {
   const personalData = useAppSelector(selectPersonalData);
   const personalDataStatus = useAppSelector(selectPersonalDataStatus);
   const isPhoneVerified = useAppSelector(selectIsPhoneVerified);
+  const lastVerifiedPhoneNumber = useAppSelector(selectLastVerifiedPhoneNumber);
   const [isSendingCode, setIsSendingCode] = useState(false);
-
   const {
     control,
     handleSubmit,
@@ -196,6 +198,16 @@ export function ProfileInfoScreen() {
     mode: 'onChange',
     reValidateMode: 'onChange',
   });
+
+  const watchedPhone = useWatch({ control, name: 'phone' }) ?? '';
+  const storedPhone = personalData?.phoneNumber ?? '';
+  const isPhoneChanged = watchedPhone !== storedPhone;
+  const isChangedPhoneVerified =
+    isPhoneChanged && lastVerifiedPhoneNumber === watchedPhone;
+  const showPhoneVerificationUi =
+    !isPhoneVerified || (isPhoneChanged && !isChangedPhoneVerified);
+  const isSaveDisabled =
+    isSubmitting || (isPhoneChanged && !isChangedPhoneVerified);
 
   useEffect(() => {
     if (personalDataStatus !== 'succeeded' || !personalData) {
@@ -211,9 +223,17 @@ export function ProfileInfoScreen() {
       return;
     }
 
-    const phoneNumber = getValues('phone');
+    const phoneNumber = watchedPhone;
     setIsSendingCode(true);
     try {
+      // /sms/request-code only accepts a phone already on the user profile.
+      if (isPhoneChanged) {
+        await dispatch(
+          updatePersonalData(mapFormValuesToPersonalData(getValues())),
+        ).unwrap();
+        dispatch(setUserFlags({ isPhoneVerified: false }));
+      }
+
       await smsApi.requestCode({ phoneNumber });
       showToast({
         title: 'Կոդը ուղարկված է',
@@ -311,16 +331,15 @@ export function ProfileInfoScreen() {
             }}
           />
         </View>
-        {!isPhoneVerified ? (
+        {showPhoneVerificationUi ? (
           <Typography variant="h5" style={styles.phoneText}>
             ⓘ Խնդրում ենք հաստատել հեռախոսահամարը
           </Typography>
         ) : null}
       </AnimatedView>
-      {!isPhoneVerified ? (
+      {showPhoneVerificationUi ? (
         <Pressable
-          // onPress={handleSendCode}
-          onPress={() => navigation.navigate('ConfirmPhoneCode', { phoneNumber: getValues('phone') })}
+          onPress={handleSendCode}
           disabled={isSubmitting || isSendingCode}
           style={({ pressed }) => [
             styles.primaryButton,
@@ -333,11 +352,11 @@ export function ProfileInfoScreen() {
         </Pressable>
       ) : null}
       <AuthButton
-        disabled={isSubmitting}
+        disabled={isSaveDisabled}
         title={'Պահպանել'}
         onPress={onSubmit}
         isLoading={isLoading}
-        style={{ marginBottom: TAB_BAR_BOTTOM_OFFSET, marginTop: 30 }}
+        style={{ marginBottom: TAB_BAR_BOTTOM_OFFSET, marginTop: !showPhoneVerificationUi ? 30 : 10 }}
       />
     </FormScrollView>
   );

@@ -5,7 +5,12 @@ import {
   View,
 } from 'react-native';
 import { AnimatedView, Typography } from '../../../components';
-import { useGlobalStyles, useThemedStyles, useTheme } from '../../../hooks';
+import {
+  useGlobalStyles,
+  useThemedStyles,
+  useTheme,
+  useToast,
+} from '../../../hooks';
 import { FONT_FAMILY, palette } from '../../../theme';
 import WalletSvg from '../../../components/icons/WalletSvg';
 import PlusSvg from '../../../components/icons/PlusSvg';
@@ -18,6 +23,7 @@ import SignatureSvg from '../../../components/icons/SignatureSvg';
 import TrashSvg from '../../../components/icons/TrashSvg';
 import PinCodeSvg from '../../../components/icons/PinCodeSvg';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
+import { accountApi } from '../../../api';
 
 const ACCOUNT_MENU = [
   {
@@ -157,19 +163,34 @@ export function AccountScreen({ navigation }) {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  const { showToast } = useToast();
 
-  const handleDeleteAccountPress = () => {
-    console.log('delete account');
+  const handleDeleteAccountPress = async () => {
+    try {
+      await accountApi.requestDeletionCode();
+      showToast({
+        title: 'Կոդը ուղարկված է',
+        body: 'Հաստատման կոդը ուղարկվել է Ձեր էլ-փոստին',
+        type: 'success',
+      });
+      navigation.navigate('ConfirmPhoneCode', { purpose: 'delete_account' });
+    } catch (error) {
+      showToast({
+        title: 'Կոդի ուղարկումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    }
   };
 
-  const handleLogoutPress = () => {
+  const handleDeleteAccountConfirmPress = () => {
     showGlobalSheet({
-      message: 'Դուք պատրաստվում եք ջնջել Ջեր հաշիվը',
-      description: 'Հաշիվը ջնջելով կորցնում եք հասանելիությունը բոլոր տվյալներին, Ձեր կողմից ստեղծված բոլոր փաստաթղթերին',
+      message: 'Դուք պատրաստվում եք ջնջել Ձեր հաշիվը',
+      description:
+        'Հաշիվը ջնջելով կորցնում եք հասանելիությունը բոլոր տվյալներին, Ձեր կողմից ստեղծված բոլոր փաստաթղթերին',
       actions: [
         { label: 'Ջնջել', destructive: true, onPress: handleDeleteAccountPress },
         { label: 'Չեղարկել' },
-
       ],
     });
   };
@@ -238,7 +259,11 @@ export function AccountScreen({ navigation }) {
               <Pressable
                 key={item.id}
                 style={[styles.menuItem, item.id === 4 && styles.menuItemLast]}
-                onPress={() => (item.id === 4 ? handleLogoutPress() : navigateToScreen(item.screen))}
+                onPress={() =>
+                  item.id === 4
+                    ? handleDeleteAccountConfirmPress()
+                    : navigateToScreen(item.screen)
+                }
               >
                 <View style={styles.menuItemRow}>
                   <item.Icon

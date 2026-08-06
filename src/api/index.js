@@ -1,4 +1,5 @@
 export { axiosClient, normalizeApiError } from './axiosClient';
+export { accountApi } from './accountApi';
 export { authApi } from './authApi';
 export { categoriesApi } from './categoriesApi';
 export { complaintsApi } from './complaintsApi';

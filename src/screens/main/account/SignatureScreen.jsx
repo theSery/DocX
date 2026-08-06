@@ -17,5 +17,5 @@ export function SignatureScreen({ navigation, route }) {
         })
     : undefined;
 
-  return <SignatureComponents onSaveSuccess={handleSaveSuccess} />;
+  return <SignatureComponents onSaveSuccess={handleSaveSuccess} fromDocumentFlow={fromDocumentFlow} />;
 }

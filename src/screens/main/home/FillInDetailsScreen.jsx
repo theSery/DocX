@@ -380,12 +380,23 @@ export function FillInDetailsScreen({ navigation, route }) {
   const ListHeaderComponent = useMemo(
     () => (
       <>
-        <Typography variant="h2" style={styles.headerTitle}>
-          {headerContent.title}
-        </Typography>
-        <Typography variant="h6" tone="secondary" style={styles.headerSubtitle}>
-          {headerContent.subtitle}
-        </Typography>
+        <View style={styles.headerTextBlock}>
+          <Typography
+            variant="h2"
+            style={styles.headerTitle}
+            numberOfLines={2}
+          >
+            {headerContent.title}
+          </Typography>
+          <Typography
+            variant="h6"
+            tone="secondary"
+            style={styles.headerSubtitle}
+            numberOfLines={2}
+          >
+            {headerContent.subtitle}
+          </Typography>
+        </View>
         <StepIndicator
           steps={steps}
           currentStep={currentStep}
@@ -398,6 +409,7 @@ export function FillInDetailsScreen({ navigation, route }) {
       currentStep,
       handleStepPress,
       headerContent,
+      styles.headerTextBlock,
       styles.headerTitle,
       styles.headerSubtitle,
     ],
@@ -471,5 +483,10 @@ const createStyles = colors =>
     stepContent: {
       gap: 16,
     },
-
+    headerTextBlock: {
+      marginTop: 20,
+      marginBottom: 20,
+      // backgroundColor: 'red',
+      height: 100,
+    },
   });

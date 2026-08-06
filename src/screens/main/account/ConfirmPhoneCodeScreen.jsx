@@ -1,16 +1,30 @@
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { AnimatedView, Typography } from '../../../components';
+import {
+  AnimatedView,
+  FormScrollView,
+  Typography,
+} from '../../../components';
 import AuthButton from '../../../components/buttons/AuthButton';
-import MainHeader from '../../../components/headers/MainHeader';
-import { AuthScreenLayout } from '../../../components/layout';
-import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
+import WarningSvg from '../../../components/icons/WarningSvg';
 import { OtpInputRowCode } from '../../authScreens/signInUP/components/OtpInputRowCode';
-import { smsApi } from '../../../api';
-import { useOtpInput, useThemedStyles, useToast } from '../../../hooks';
+import { accountApi, smsApi, userApi } from '../../../api';
+import {
+  useAuthSession,
+  useGlobalStyles,
+  useOtpInput,
+  useThemedStyles,
+  useToast,
+} from '../../../hooks';
+import { useAppDispatch } from '../../../store';
+import {
+  fetchPersonalData,
+  setPhoneVerified,
+  setUserFlags,
+} from '../../../store/slices/personalDataSlice';
 import { FONT_FAMILY, palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
-import { useState } from 'react';
 
 function formatPhoneForDisplay(phoneNumber) {
   const digits = phoneNumber?.replace(/\D/g, '') ?? '';
@@ -28,64 +42,80 @@ function formatPhoneForDisplay(phoneNumber) {
   return `${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5)}`;
 }
 
-const createStyles = () =>
+const createStyles = colors =>
   StyleSheet.create({
-    layout: {
-      backgroundColor: palette.mainWhite,
-    },
-    layoutContent: {
-      paddingVertical: 0,
-    },
-    body: {
+    screen: {
       flex: 1,
-    },
-    scroll: {
-      flex: 1,
+      paddingHorizontal: 16,
     },
     contentContainer: {
-      width: '100%',
       flexGrow: 1,
+      width: '100%',
     },
     content: {
       flex: 1,
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
       paddingTop: 20,
     },
+    screenTitle: {
+      letterSpacing: 0.9,
+      color: colors.text,
+    },
+    subtitle: {
+      marginTop: 8,
+      marginBottom: 24,
+      letterSpacing: 0.4,
+      color: colors.text,
+      fontFamily: FONT_FAMILY.regular,
+    },
+    warningIcon: {
+      alignItems: 'center',
+      width: '100%',
+      marginBottom: 16,
+    },
     otpSection: {
+      width: '100%',
       marginTop: 8,
     },
     resendContainer: {
       alignItems: 'center',
+      width: '100%',
       marginTop: 20,
       gap: 4,
     },
     resendHelper: {
       fontSize: 12,
       fontFamily: FONT_FAMILY.regular,
-      color: palette.gray,
+      color: colors.textSecondary,
     },
     resendLink: {
       fontSize: 12,
       fontFamily: FONT_FAMILY.semiBold,
-      color: palette.mainBlue,
+      color: colors.icons,
       textDecorationLine: 'underline',
     },
     disabledOpacity: {
       opacity: 0.6,
     },
-    footer: {
-      paddingTop: 12,
-      backgroundColor: palette.mainWhite,
+    actionButton: {
+      marginBottom: TAB_BAR_BOTTOM_OFFSET + 10,
+      marginTop: 30,
     },
   });
 
 export function ConfirmPhoneCodeScreen() {
+  const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const navigation = useNavigation();
   const route = useRoute();
   const { showToast } = useToast();
+  const dispatch = useAppDispatch();
+  const { logout } = useAuthSession();
   const phoneNumber = route.params?.phoneNumber ?? '';
+  const isDeleteAccount = route.params?.purpose === 'delete_account';
 
-  const [isVerifying, setIsVerifying] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const {
     code: otpCode,
@@ -95,7 +125,7 @@ export function ConfirmPhoneCodeScreen() {
   } = useOtpInput();
 
   const displayPhone = formatPhoneForDisplay(phoneNumber);
-  const isConfirmDisabled = isVerifying || !isComplete;
+  const isActionDisabled = isSubmitting || !isComplete;
 
   const handleVerifyCode = async () => {
     if (otpCode.length !== 6) {
@@ -107,9 +137,29 @@ export function ConfirmPhoneCodeScreen() {
       return;
     }
 
-    setIsVerifying(true);
+    setIsSubmitting(true);
     try {
       await smsApi.verifyCode({ phoneNumber, code: otpCode });
+      dispatch(setPhoneVerified(phoneNumber));
+
+      try {
+        await dispatch(fetchPersonalData()).unwrap();
+      } catch {
+        // Local verified flag stays; next screen load can refresh personal data.
+      }
+
+      try {
+        const { data } = await userApi.getMe();
+        dispatch(
+          setUserFlags({
+            hasSignature: Boolean(data?.hasSignature),
+            isPhoneVerified: Boolean(data?.isPhoneVerified),
+          }),
+        );
+      } catch {
+        // Flags already set via setPhoneVerified above.
+      }
+
       showToast({
         title: 'Հեռախոսահամարը հաստատված է',
         type: 'success',
@@ -122,7 +172,37 @@ export function ConfirmPhoneCodeScreen() {
         type: 'error',
       });
     } finally {
-      setIsVerifying(false);
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (otpCode.length !== 6) {
+      showToast({
+        title: 'Սխալ կոդ',
+        body: 'Մուտքագրեք 6 նիշանոց կոդը',
+        type: 'error',
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await accountApi.deleteAccount({ code: otpCode });
+      showToast({
+        title: 'Հաշիվը ջնջված է',
+        body: 'Ձեր հաշիվը հաջողությամբ ջնջվել է',
+        type: 'success',
+      });
+      await logout({ skipApi: true });
+    } catch (error) {
+      showToast({
+        title: 'Ջնջումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -148,49 +228,51 @@ export function ConfirmPhoneCodeScreen() {
   };
 
   return (
-    <AuthScreenLayout style={styles.layout} contentStyle={styles.layoutContent}>
-      <MainHeader onPress={() => navigation.goBack()} isHome={true}/>
-      <View style={styles.body}>
-        <ScrollView
-          style={styles.scroll}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          automaticallyAdjustKeyboardInsets
-          contentContainerStyle={styles.contentContainer}
-        >
-          <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
-            <ContentTiltes
-              title="Հաստատման կոդ"
-              subtitle={`Մուտքագրեք Ձեր ${displayPhone} հեռախոսահամարին ուղարկված կոդը`}
-            />
-            <View style={styles.otpSection}>
-              <OtpInputRowCode {...otpInputProps} />
-            </View>
-            <View style={styles.resendContainer}>
-              <Typography style={styles.resendHelper}>Չե՞ք ստացել կոդը</Typography>
-              <Pressable
-                hitSlop={8}
-                onPress={handleResendCode}
-                disabled={isResending}
-                style={isResending && styles.disabledOpacity}
-              >
-                <Typography style={styles.resendLink}>
-                  {isResending ? 'Ուղարկվում է...' : 'Ուղարկել կրկին'}
-                </Typography>
-              </Pressable>
-            </View>
-          </AnimatedView>
-        </ScrollView>
-        <View style={[styles.footer, { paddingBottom: TAB_BAR_BOTTOM_OFFSET }]}>
-          <AuthButton
-            title="Հաստատել հեռախոսահամարը"
-            onPress={handleVerifyCode}
-            isLoading={isVerifying}
-            disabled={isConfirmDisabled}
-          />
+    <FormScrollView
+      style={[globalStyles.screen, styles.screen]}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.contentContainer}
+    >
+      <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
+        {isDeleteAccount ? (
+          <View style={styles.warningIcon}>
+            <WarningSvg width={45} height={45} fill={palette.red} />
+          </View>
+        ) : null}
+        <Typography variant="h4" style={styles.screenTitle}>
+          {isDeleteAccount ? 'Հաստատեք հաշվի ջնջումը' : 'Հաստատման կոդ'}
+        </Typography>
+        <Typography variant="h6" style={styles.subtitle}>
+          {isDeleteAccount
+            ? 'Մուտքագրեք Ձեր էլ-փոստին ուղարկված կոդը՝ հաշիվը ջնջելու համար'
+            : `Մուտքագրեք Ձեր 0${displayPhone} հեռախոսահամարին ուղարկված կոդը`}
+        </Typography>
+        <View style={styles.otpSection}>
+          <OtpInputRowCode {...otpInputProps} />
         </View>
-      </View>
-    </AuthScreenLayout>
+        {!isDeleteAccount ? (
+          <View style={styles.resendContainer}>
+            <Typography style={styles.resendHelper}>Չե՞ք ստացել կոդը</Typography>
+            <Pressable
+              hitSlop={8}
+              onPress={handleResendCode}
+              disabled={isResending}
+              style={isResending && styles.disabledOpacity}
+            >
+              <Typography style={styles.resendLink}>
+                {isResending ? 'Ուղարկվում է...' : 'Ուղարկել կրկին'}
+              </Typography>
+            </Pressable>
+          </View>
+        ) : null}
+      </AnimatedView>
+      <AuthButton
+        title={isDeleteAccount ? 'Ջնջել' : 'Հաստատել հեռախոսահամարը'}
+        onPress={isDeleteAccount ? handleDeleteAccount : handleVerifyCode}
+        isLoading={isSubmitting}
+        disabled={isActionDisabled}
+        style={styles.actionButton}
+      />
+    </FormScrollView>
   );
 }

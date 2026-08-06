@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, Clipboard } from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
+import { AppState } from 'react-native';
 
 export const DEFAULT_OTP_LENGTH = 6;
 
@@ -144,7 +145,12 @@ export function useOtpInput({
       }
 
       lastClipboardCodeRef.current = extracted;
-      return applyCode(extracted);
+      const applied = applyCode(extracted);
+      if (applied) {
+        // Clear so a stale OTP is not re-applied after reset / new code.
+        Clipboard.setString('');
+      }
+      return applied;
     } catch {
       return false;
     }

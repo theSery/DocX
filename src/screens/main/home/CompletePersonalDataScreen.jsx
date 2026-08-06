@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemedStyles, useTheme, useToast } from '../../../hooks';
 import {
@@ -29,11 +29,14 @@ import {
 } from '../../../utils/patterns';
 import { getIncompletePersonalDataFields } from '../../../utils/personalDataValidation';
 import { smsApi } from '../../../api';
-import { ConfirmPhoneCodeContent } from './components/ConfirmPhoneCodeContent';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   fetchPersonalData,
+  selectHasSignature,
+  selectIsPhoneVerified,
+  selectLastVerifiedPhoneNumber,
   selectPersonalData,
+  setUserFlags,
   updatePersonalData,
 } from '../../../store/slices/personalDataSlice';
 
@@ -80,7 +83,6 @@ const FIELD_CONFIGS = colors => ({
     label: 'Հեռախոսահամար',
     startIcon: <PhoneSvg width={20} height={20} fill={colors.icons} />,
     placeholder: '+374 91 123 456',
-        name: "phone",
     placeholderTextColor: colors.textDisabled,
     keyboardType: 'phone-pad',
     rules: {
@@ -248,6 +250,9 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   const { showToast } = useToast();
   const dispatch = useAppDispatch();
   const personalData = useAppSelector(selectPersonalData);
+  const hasSignature = useAppSelector(selectHasSignature);
+  const isPhoneVerified = useAppSelector(selectIsPhoneVerified);
+  const lastVerifiedPhoneNumber = useAppSelector(selectLastVerifiedPhoneNumber);
   const fieldConfigs = useMemo(() => FIELD_CONFIGS(colors), [colors]);
 
   // Captured once on mount so fields don't disappear while the user is typing.
@@ -291,9 +296,8 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   );
 
   const [isSendingCode, setIsSendingCode] = useState(false);
-  // When set, the modal shows the phone code confirmation content instead of the form.
-  const [confirmingPhoneNumber, setConfirmingPhoneNumber] = useState(null);
   const [focusedAddressField, setFocusedAddressField] = useState(null);
+  const showPhoneField = missingFields.includes('phoneNumber');
 
   // Existing values are shown as placeholders so the user can type immediately,
   // except a valid registrationAddress which is prefilled as the input value.
@@ -327,7 +331,6 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   const {
     control,
     handleSubmit,
-    getValues,
     trigger,
     unregister,
     formState: { isSubmitting },
@@ -349,22 +352,39 @@ export function CompletePersonalDataScreen({ navigation, route }) {
     reValidateMode: 'onChange',
   });
 
+  const watchedPhone = useWatch({ control, name: 'phoneNumber' }) ?? '';
+  const storedPhone = personalData?.phoneNumber ?? '';
+  const isPhoneChanged = showPhoneField && watchedPhone !== storedPhone;
+  const isChangedPhoneVerified =
+    isPhoneChanged && lastVerifiedPhoneNumber === watchedPhone;
+  const showPhoneVerificationUi =
+    showPhoneField &&
+    (!isPhoneVerified || (isPhoneChanged && !isChangedPhoneVerified));
+  const isSaveDisabled =
+    isSubmitting || (showPhoneField && isPhoneChanged && !isChangedPhoneVerified);
+
   const handleSendCode = async () => {
     const isPhoneValid = await trigger('phoneNumber');
     if (!isPhoneValid) {
       return;
     }
 
-    const phoneNumber = getValues('phoneNumber');
+    const phoneNumber = watchedPhone;
     setIsSendingCode(true);
     try {
+      // /sms/request-code only accepts a phone already on the user profile.
+      if (isPhoneChanged) {
+        await dispatch(updatePersonalData({ phoneNumber })).unwrap();
+        dispatch(setUserFlags({ isPhoneVerified: false }));
+      }
+
       await smsApi.requestCode({ phoneNumber });
       showToast({
         title: 'Կոդը ուղարկված է',
         body: 'Հաստատման կոդը ուղարկվել է ձեր հեռախոսահամարին',
         type: 'success',
       });
-      setConfirmingPhoneNumber(phoneNumber);
+      navigation.navigate('ConfirmPhoneCode', { phoneNumber });
     } catch (error) {
       showToast({
         title: 'Ուղարկումը ձախողվեց',
@@ -409,12 +429,28 @@ export function CompletePersonalDataScreen({ navigation, route }) {
         title: 'Տվյալները հաջողությամբ պահպանվեցին',
         type: 'success',
       });
-      navigation.replace('DocumentCreate', {
+
+      const documentParams = {
         templateText,
         templateName,
         templateId,
         templateSolution,
-      });
+      };
+
+      if (!hasSignature) {
+        const tabNavigation = navigation.getParent();
+        navigation.goBack();
+        tabNavigation?.navigate('Account', {
+          screen: 'Signature',
+          params: {
+            ...documentParams,
+            fromDocumentFlow: true,
+          },
+        });
+        return;
+      }
+
+      navigation.replace('DocumentCreate', documentParams);
     } catch (error) {
       console.log(error, 'error');
       setSubmitError(
@@ -498,30 +534,9 @@ export function CompletePersonalDataScreen({ navigation, route }) {
     );
   };
 
-  const handleHeaderBack = () => {
-    if (confirmingPhoneNumber) {
-      setConfirmingPhoneNumber(null);
-      return;
-    }
-
-    navigation.goBack();
-  };
-
-  if (confirmingPhoneNumber) {
-    return (
-      <View style={[styles.screen, { paddingTop: 10, paddingBottom: 10}]}>
-        <MainHeader onPress={handleHeaderBack} />
-        <ConfirmPhoneCodeContent
-          phoneNumber={confirmingPhoneNumber}
-          onConfirmed={() => setConfirmingPhoneNumber(null)}
-        />
-      </View>
-    );
-  }
-
   return (
     <View style={[styles.screen, { paddingTop: 10, paddingBottom: 10}]}>
-      <MainHeader onPress={handleHeaderBack} />
+      <MainHeader onPress={() => navigation.goBack()} />
       <FormScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -546,16 +561,13 @@ export function CompletePersonalDataScreen({ navigation, route }) {
               <View style={styles.formFieldContainer}>
                 {missingProfileFields.map(renderField)}
               </View>
-              {missingFields.includes('phoneNumber') && (
+              {showPhoneVerificationUi ? (
                 <>
                   <Typography variant="h5" style={styles.phoneText}>
                     ⓘ Խնդրում ենք հաստատել հեռախոսահամարը
                   </Typography>
                   <Pressable
-                    // onPress={handleSendCode}
-                    onPress={() =>
-                      setConfirmingPhoneNumber(getValues('phoneNumber'))
-                    }
+                    onPress={handleSendCode}
                     disabled={isSubmitting || isSendingCode}
                     style={({ pressed }) => [
                       styles.primaryButton,
@@ -568,7 +580,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
                     </Typography>
                   </Pressable>
                 </>
-              )}
+              ) : null}
             </>
           )}
 
@@ -584,7 +596,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
           )}
 
           <AuthButton
-            disabled={isSubmitting}
+            disabled={isSaveDisabled}
             isLoading={isSubmitting}
             title="Պահպանել և շարունակել"
             onPress={onSubmit}

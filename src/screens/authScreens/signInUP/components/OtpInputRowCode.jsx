@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, Platform, StyleSheet, TextInput, View } from 'react-native';
 import { useEffect, useRef } from 'react';
 
 import { FONT_FAMILY } from '../../../../theme';
@@ -25,6 +25,20 @@ export function OtpInputRowCode({
     }
     inputRefs.current[focusedIndex]?.focus();
   }, [focusedIndex]);
+
+  useEffect(() => {
+    const isComplete =
+      Array.isArray(digits) &&
+      digits.length === otpLength &&
+      digits.every(Boolean);
+
+    if (!isComplete) {
+      return;
+    }
+
+    inputRefs.current.forEach(ref => ref?.blur());
+    Keyboard.dismiss();
+  }, [digits, otpLength]);
 
   const handleChange = (text, index) => {
     const cleaned = text.replace(/\D/g, '');

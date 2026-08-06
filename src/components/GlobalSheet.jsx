@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Image,
   Modal,
@@ -41,6 +41,7 @@ let showSheetHandler = null;
  *   message?: string;
  *   description?: string;
  *   content?: import('react-native').ImageSourcePropType | string | null;
+ *   customContent?: import('react').ReactNode;
  *   videoUrl?: string | null;
  *   actions?: SheetAction[];
  *   menuItems?: MenuItem[];
@@ -144,6 +145,9 @@ function DefaultSheetContent({ sheet, styles, onActionPress }) {
           {sheet.description}
         </Typography>
       ) : null}
+      {sheet.customContent ? (
+        <View style={styles.customContent}>{sheet.customContent}</View>
+      ) : null}
       <SheetActions actions={sheet.actions} styles={styles} onActionPress={onActionPress} />
     </View>
   );
@@ -216,11 +220,17 @@ function InfoSheetContent({ sheet, styles, onActionPress }) {
 export function GlobalSheetProvider({ children }) {
   const [sheet, setSheet] = useState(null);
   const [visible, setVisible] = useState(false);
+  const visibleRef = useRef(false);
   const styles = useThemedStyles(createStyles);
+
+  useEffect(() => {
+    visibleRef.current = visible;
+  }, [visible]);
 
   useEffect(() => {
     showSheetHandler = options => {
       setSheet(options);
+      visibleRef.current = true;
       setVisible(true);
     };
     return () => {
@@ -230,11 +240,16 @@ export function GlobalSheetProvider({ children }) {
 
   const closeSheet = useCallback(() => {
     sheet?.onDismiss?.();
+    visibleRef.current = false;
     setVisible(false);
   }, [sheet]);
 
+  // Only clear sheet after dismiss if nothing new was opened while the
+  // previous modal was still animating out (e.g. confirm → OTP sheet).
   const handleModalDismiss = useCallback(() => {
-    setSheet(null);
+    if (!visibleRef.current) {
+      setSheet(null);
+    }
   }, []);
 
   useEffect(() => {
@@ -242,11 +257,14 @@ export function GlobalSheetProvider({ children }) {
       return undefined;
     }
 
-    setSheet(null);
+    if (!visibleRef.current) {
+      setSheet(null);
+    }
   }, [sheet, visible]);
 
   const handleActionPress = useCallback(action => {
     sheet?.onDismiss?.();
+    visibleRef.current = false;
     setVisible(false);
     action.onPress?.();
   }, [sheet]);
@@ -257,6 +275,7 @@ export function GlobalSheetProvider({ children }) {
     }
 
     sheet?.onDismiss?.();
+    visibleRef.current = false;
     setVisible(false);
     item.onPress?.();
   }, [sheet]);
@@ -365,6 +384,10 @@ const createStyles = colors =>
       textAlign: 'center',
       color: colors.textSecondary,
       marginBottom: 24,
+    },
+    customContent: {
+      width: '100%',
+      marginBottom: 8,
     },
     actions: {
       flexDirection: 'row',

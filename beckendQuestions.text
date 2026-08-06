@@ -17,3 +17,5 @@
     * What values are supported for recipientType? Is there a list of allowed values (enum)?
     * What IDs should be passed in attachedDocuments? Which endpoint returns these document IDs?
     * Could you provide an example of a valid request for this endpoint?
+3. Favorite APIs
+    * We need Favorite APIs for Complaints, not for Templates (FavoriteTemplates).

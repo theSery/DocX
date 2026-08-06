@@ -214,6 +214,7 @@ export function FaceIdScreen({ navigation, route }) {
     <AuthScreenLayout style={[styles.screen]}>
       <MainHeader
         onPress={isUnlockOnly ? () => navigation.goBack() : undefined}
+        isHome={true}
       />
       <View style={localStyles.content}>
         <View style={localStyles.formContainer}>

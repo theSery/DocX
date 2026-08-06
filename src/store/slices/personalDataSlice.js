@@ -20,6 +20,7 @@ const initialState = {
   data: null,
   hasSignature: false,
   isPhoneVerified: false,
+  lastVerifiedPhoneNumber: null,
   status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
   error: null,
 };
@@ -60,10 +61,19 @@ const personalDataSlice = createSlice({
       }
       if (typeof isPhoneVerified === 'boolean') {
         state.isPhoneVerified = isPhoneVerified;
+        if (!isPhoneVerified) {
+          state.lastVerifiedPhoneNumber = null;
+        }
       }
     },
     setHasSignature: (state, action) => {
       state.hasSignature = Boolean(action.payload);
+    },
+    setPhoneVerified: (state, action) => {
+      state.isPhoneVerified = true;
+      if (typeof action.payload === 'string') {
+        state.lastVerifiedPhoneNumber = action.payload;
+      }
     },
   },
   extraReducers: builder => {
@@ -121,13 +131,19 @@ const personalDataSlice = createSlice({
   },
 });
 
-export const { resetPersonalData, setUserFlags, setHasSignature } =
-  personalDataSlice.actions;
+export const {
+  resetPersonalData,
+  setUserFlags,
+  setHasSignature,
+  setPhoneVerified,
+} = personalDataSlice.actions;
 
 export const selectPersonalData = state => state.personalData.data;
 export const selectPersonalDataStatus = state => state.personalData.status;
 export const selectPersonalDataError = state => state.personalData.error;
 export const selectHasSignature = state => state.personalData.hasSignature;
 export const selectIsPhoneVerified = state => state.personalData.isPhoneVerified;
+export const selectLastVerifiedPhoneNumber = state =>
+  state.personalData.lastVerifiedPhoneNumber;
 
 export default personalDataSlice.reducer;
