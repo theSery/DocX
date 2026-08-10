@@ -11,6 +11,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { personalDocumentsApi } from '../../../../api';
 import { showGlobalSheet } from '../../../../components/GlobalSheet';
 import { useFileDownload, useToast } from '../../../../hooks';
+import { validatePickedUploadFile } from '../../../../utils/fileUploadValidation';
 import { runAfterSheetDismiss } from '../../../../utils/runAfterSheetDismiss';
 import { getUploadPreviewContent } from '../utils/personalDocumentFilePicker';
 
@@ -91,14 +92,20 @@ export function usePersonalDocumentCard({ document, onDeleted, onUploaded }) {
   );
 
   const handlePickedFile = useCallback(
-    pickedFile => {
-      if (!pickedFile?.uri) {
+    async pickedFile => {
+      const result = await validatePickedUploadFile(pickedFile);
+      if (!result.ok) {
+        showToast({
+          title: result.title,
+          body: result.body,
+          type: 'error',
+        });
         return;
       }
 
-      showUploadPreviewSheet(pickedFile);
+      showUploadPreviewSheet(result.file);
     },
-    [showUploadPreviewSheet],
+    [showToast, showUploadPreviewSheet],
   );
 
   const openImageLibrary = useCallback(() => {
@@ -135,6 +142,7 @@ export function usePersonalDocumentCard({ document, onDeleted, onUploaded }) {
           uri: asset.uri,
           name: asset.fileName ?? `image-${Date.now()}.jpg`,
           type: asset.type ?? 'image/jpeg',
+          size: asset.fileSize,
         });
       },
     );
@@ -155,10 +163,11 @@ export function usePersonalDocumentCard({ document, onDeleted, onUploaded }) {
         return;
       }
 
-      handlePickedFile({
+      await handlePickedFile({
         uri: result.uri,
         name: result.name ?? `document-${Date.now()}`,
         type: result.type ?? 'application/octet-stream',
+        size: result.size,
       });
     } catch (error) {
       if (

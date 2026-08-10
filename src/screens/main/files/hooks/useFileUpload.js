@@ -6,67 +6,15 @@ import {
   types,
 } from '@react-native-documents/picker';
 import { launchImageLibrary } from 'react-native-image-picker';
-import RNFS from 'react-native-fs';
 
 import { filesApi } from '../../../../api';
 import { showGlobalSheet } from '../../../../components/GlobalSheet';
 import { useToast, useTheme } from '../../../../hooks';
+import { validatePickedUploadFile } from '../../../../utils/fileUploadValidation';
 import { runAfterSheetDismiss } from '../../../../utils/runAfterSheetDismiss';
 import { FileUploadSheet } from '../components/FileUploadSheet';
 import CameraSvg from '../../../../components/icons/CameraSvg';
 import AttachSvg from '../../../../components/icons/AttachSvg';
-
-const KB = 1024;
-const MB = 1024 * KB;
-
-/** Common production limits: reject empty/tiny files and oversized uploads. */
-const IMAGE_MIN_BYTES = 1 * KB;
-const IMAGE_MAX_BYTES = 10 * MB;
-const FILE_MIN_BYTES = 1 * KB;
-const FILE_MAX_BYTES = 25 * MB;
-
-function isImageMimeType(mimeType) {
-  return typeof mimeType === 'string' && mimeType.startsWith('image/');
-}
-
-function formatSizeLimit(bytes) {
-  if (bytes >= MB) {
-    return `${Math.round(bytes / MB)} ՄԲ`;
-  }
-
-  return `${Math.round(bytes / KB)} ԿԲ`;
-}
-
-function toFsPath(uri) {
-  if (typeof uri !== 'string') {
-    return uri;
-  }
-
-  return uri.startsWith('file://') ? uri.replace('file://', '') : uri;
-}
-
-async function resolveFileSize(uri, reportedSize) {
-  if (typeof reportedSize === 'number' && Number.isFinite(reportedSize) && reportedSize >= 0) {
-    return reportedSize;
-  }
-
-  try {
-    const stat = await RNFS.stat(toFsPath(uri));
-    const size = Number(stat.size);
-    return Number.isFinite(size) ? size : null;
-  } catch (error) {
-    console.error('[useFileUpload] failed to resolve file size:', error);
-    return null;
-  }
-}
-
-function getSizeLimits(mimeType) {
-  if (isImageMimeType(mimeType)) {
-    return { minBytes: IMAGE_MIN_BYTES, maxBytes: IMAGE_MAX_BYTES };
-  }
-
-  return { minBytes: FILE_MIN_BYTES, maxBytes: FILE_MAX_BYTES };
-}
 
 export function useFileUpload({ onUploaded } = {}) {
   const { showToast } = useToast();
@@ -129,41 +77,17 @@ export function useFileUpload({ onUploaded } = {}) {
 
   const handlePickedFile = useCallback(
     async pickedFile => {
-      if (!pickedFile?.uri) {
-        return;
-      }
-
-      const size = await resolveFileSize(pickedFile.uri, pickedFile.size);
-      if (size == null) {
+      const result = await validatePickedUploadFile(pickedFile);
+      if (!result.ok) {
         showToast({
-          title: 'Ֆայլի չափը հնարավոր չէ ստուգել',
-          body: 'Փորձեք ընտրել այլ ֆայլ',
+          title: result.title,
+          body: result.body,
           type: 'error',
         });
         return;
       }
 
-      const { minBytes, maxBytes } = getSizeLimits(pickedFile.type);
-
-      if (size < minBytes) {
-        showToast({
-          title: 'Ֆայլը չափազանց փոքր է',
-          body: `Նվազագույն չափը՝ ${formatSizeLimit(minBytes)}`,
-          type: 'error',
-        });
-        return;
-      }
-
-      if (size > maxBytes) {
-        showToast({
-          title: 'Ֆայլը չափազանց մեծ է',
-          body: `Առավելագույն չափը՝ ${formatSizeLimit(maxBytes)}`,
-          type: 'error',
-        });
-        return;
-      }
-
-      setPendingFile({ ...pickedFile, size });
+      setPendingFile(result.file);
     },
     [showToast],
   );

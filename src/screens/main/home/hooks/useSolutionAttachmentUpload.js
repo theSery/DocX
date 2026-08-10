@@ -14,6 +14,7 @@ import {
   fetchPersonalDocuments,
   removePersonalDocument,
 } from '../../../../store/slices/personalDocumentsSlice';
+import { validatePickedUploadFile } from '../../../../utils/fileUploadValidation';
 
 function toUploadTarget(row) {
   return {
@@ -168,14 +169,20 @@ export function useSolutionAttachmentUpload({ onUploaded } = {}) {
   );
 
   const handlePickedFile = useCallback(
-    (attachment, pickedFile) => {
-      if (!pickedFile?.uri) {
+    async (attachment, pickedFile) => {
+      const result = await validatePickedUploadFile(pickedFile);
+      if (!result.ok) {
+        showToast({
+          title: result.title,
+          body: result.body,
+          type: 'error',
+        });
         return;
       }
 
-      performUpload(attachment, pickedFile);
+      performUpload(attachment, result.file);
     },
-    [performUpload],
+    [performUpload, showToast],
   );
 
   const pickFromGallery = useCallback(
@@ -214,6 +221,7 @@ export function useSolutionAttachmentUpload({ onUploaded } = {}) {
             uri: asset.uri,
             name: asset.fileName ?? `image-${Date.now()}.jpg`,
             type: asset.type ?? 'image/jpeg',
+            size: asset.fileSize,
           });
         },
       );
@@ -235,10 +243,11 @@ export function useSolutionAttachmentUpload({ onUploaded } = {}) {
           return;
         }
 
-        handlePickedFile(attachment, {
+        await handlePickedFile(attachment, {
           uri: result.uri,
           name: result.name ?? `document-${Date.now()}`,
           type: result.type ?? 'application/octet-stream',
+          size: result.size,
         });
       } catch (error) {
         if (
