@@ -69,6 +69,7 @@ export function FillInDetailsScreen({ navigation, route }) {
     templateSolution,
     templateFactGroups: routeFactGroups,
     templateName: routeTemplateName,
+    categoryName,
   } = route.params ?? {};
   const [currentStep, setCurrentStep] = useState(0);
   const [stepDirection, setStepDirection] = useState(1);
@@ -235,6 +236,7 @@ export function FillInDetailsScreen({ navigation, route }) {
           templateName,
           templateId,
           templateSolution,
+          categoryName,
         });
         return;
       }
@@ -249,6 +251,7 @@ export function FillInDetailsScreen({ navigation, route }) {
             templateName,
             templateId,
             templateSolution,
+            categoryName,
             fromDocumentFlow: true,
           },
         });
@@ -260,6 +263,7 @@ export function FillInDetailsScreen({ navigation, route }) {
         templateName,
         templateId,
         templateSolution,
+        categoryName,
       });
       return;
     }
@@ -282,6 +286,7 @@ export function FillInDetailsScreen({ navigation, route }) {
     templateName,
     templateId,
     templateSolution,
+    categoryName,
   ]);
 
   const handleStepPress = useCallback(

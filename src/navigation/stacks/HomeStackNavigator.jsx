@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   CompletePersonalDataScreen,
   DocumentCreateScreen,
+  FavoritesScreen,
   FillInDetailsScreen,
   HomeScreen,
   SubCategoryScreen,
@@ -46,6 +47,7 @@ const nestedScreenOptionsWithHeader = (
   header: ({ navigation, route, options }) => (
     <HomeStackHeader
       onPress={options.isMainHeader ? undefined : () => navigation.goBack()}
+      onFavoritesPress={() => navigation.navigate('Favorites')}
       title={options.title}
       subtitle={options.headerSubtitle}
       showSearch={options.headerShowSearch}
@@ -129,6 +131,15 @@ export function HomeStackNavigator() {
             name="DocumentCreate"
             component={DocumentCreateScreen}
             options={{ headerShown: false }}
+          />
+          <Home.Screen
+            name="Favorites"
+            component={FavoritesScreen}
+            options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
+              title: 'Նախընտրածներ',
+              subtitle: '',
+              collapsible: false,
+            })}
           />
         </Home.Navigator>
       </HomeStackHeaderScrollProvider>

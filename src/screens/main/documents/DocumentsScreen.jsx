@@ -8,9 +8,11 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { favoriteTemplatesApi } from '../../../api';
 import { Typography } from '../../../components';
+import { showGlobalSheet } from '../../../components/GlobalSheet';
 import SadIcon from '../../../components/icons/SadIcon';
-import { useThemedStyles, useTheme } from '../../../hooks';
+import { useThemedStyles, useTheme, useToast } from '../../../hooks';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   fetchComplaints,
@@ -42,9 +44,10 @@ function areFiltersEqual(current, applied) {
   );
 }
 
-export function DocumentsScreen({ route }) {
+export function DocumentsScreen({ route, navigation }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  const { showToast } = useToast();
   const insets = useSafeAreaInsets();
   const dispatch = useAppDispatch();
 
@@ -125,12 +128,62 @@ export function DocumentsScreen({ route }) {
   }, [currentFilters, fetchComplaintsPage]);
 
   const refreshedAt = route?.params?.refreshedAt;
+  const favoriteTemplateId = route?.params?.favoriteTemplateId;
+  const favoriteCategoryName = route?.params?.categoryName;
 
   useEffect(() => {
     if (refreshedAt) {
       fetchComplaintsPage(1);
     }
   }, [refreshedAt, fetchComplaintsPage]);
+
+  useEffect(() => {
+    if (favoriteTemplateId == null) {
+      return;
+    }
+
+    const templateId = favoriteTemplateId;
+    const categoryName = favoriteCategoryName;
+
+    navigation.setParams({
+      favoriteTemplateId: undefined,
+      categoryName: undefined,
+    });
+
+    showGlobalSheet({
+      message: categoryName || 'Ձևանմուշ',
+      description: 'Ցանկանո՞ւմ եք պահպանել այս ձևանմուշը որպես ընտրյալ։',
+      actions: [
+        {
+          label: 'Այո',
+          onPress: async () => {
+            try {
+              await favoriteTemplatesApi.addFavoriteTemplate({ templateId });
+              showToast({
+                title: 'Հաջողություն',
+                body: 'Ձևանմուշը ավելացվել է ընտրյալներին։',
+                type: 'success',
+              });
+            } catch (error) {
+              showToast({
+                title: 'Սխալ',
+                body:
+                  error?.message ??
+                  'Չհաջողվեց ավելացնել ձևանմուշը ընտրյալներին։',
+                type: 'error',
+              });
+            }
+          },
+        },
+        { label: 'Ոչ', destructive: true },
+      ],
+    });
+  }, [
+    favoriteTemplateId,
+    favoriteCategoryName,
+    navigation,
+    showToast,
+  ]);
 
   const handleDateRangeChange = useCallback(range => {
     setDateRange(current => {
@@ -179,10 +232,6 @@ export function DocumentsScreen({ route }) {
     },
     [dispatch],
   );
-
-  const handleRecommendedChange = useCallback(nextRecommendedIds => {
-    setRecommendedIds(nextRecommendedIds);
-  }, []);
 
   const handleDocumentSent = useCallback(() => {
     fetchComplaintsPage(1);
@@ -271,7 +320,6 @@ export function DocumentsScreen({ route }) {
             document={item}
             index={index}
             onDeleted={handleDocumentDeleted}
-            onRecommendedChange={handleRecommendedChange}
             onSent={handleDocumentSent}
           />
         )}

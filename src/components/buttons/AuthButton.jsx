@@ -46,12 +46,16 @@ export default function AuthButton({
         {isLoading ? (
           <ActivityIndicator color={loaderColor} />
         ) : hasStartIcon && !hasEndIcon ? (
-          <View style={styles.buttonContentRow}>
-            {startIcon}
-            <Typography variant="h5" style={textStyle}>
-              {title}
-            </Typography>
-          </View>
+          title ? (
+            <View style={styles.buttonContentRow}>
+              {startIcon}
+              <Typography variant="h5" style={textStyle}>
+                {title}
+              </Typography>
+            </View>
+          ) : (
+            startIcon
+          )
         ) : hasEndIcon ? (
           <View style={styles.buttonContentWithEndIcon}>
             <Typography variant="h5" style={[textStyle, { width: '90%', textAlign: 'center'}]}>

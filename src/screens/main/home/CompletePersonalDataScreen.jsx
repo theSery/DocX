@@ -243,7 +243,13 @@ function buildPayload(
 }
 
 export function CompletePersonalDataScreen({ navigation, route }) {
-  const { templateText, templateName, templateId, templateSolution } = route.params ?? {};
+  const {
+    templateText,
+    templateName,
+    templateId,
+    templateSolution,
+    categoryName,
+  } = route.params ?? {};
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -435,6 +441,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
         templateName,
         templateId,
         templateSolution,
+        categoryName,
       };
 
       if (!hasSignature) {

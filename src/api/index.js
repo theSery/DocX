@@ -3,6 +3,7 @@ export { accountApi } from './accountApi';
 export { authApi } from './authApi';
 export { categoriesApi } from './categoriesApi';
 export { complaintsApi } from './complaintsApi';
+export { favoriteTemplatesApi } from './favoriteTemplatesApi';
 export { filesApi } from './filesApi';
 export { personalDataApi } from './personalDataApi';
 export { personalDocumentsApi } from './personalDocumentsApi';

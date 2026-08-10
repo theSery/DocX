@@ -4,3 +4,4 @@ export { DocumentCreateScreen } from './DocumentCreateScreen';
 export { CategoryScreen } from './CategoryScreen';
 export { SubCategoryScreen } from './SubCategoryScreen';
 export { CompletePersonalDataScreen } from './CompletePersonalDataScreen';
+export { FavoritesScreen } from './FavoritesScreen';

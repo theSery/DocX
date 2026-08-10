@@ -107,14 +107,14 @@ export function SubCategoryScreen({ route, navigation }) {
     };
   });
 
-  const navigateToFillInDetails = (template) => {
-
+  const navigateToFillInDetails = (template, category) => {
     navigation.navigate('FillInDetails', {
       templateId: template.id,
       templateForm: template.form,
       templateSolution: template.solution,
       templateFactGroups: template.factGroups,
       templateName: template.name,
+      categoryName: category?.name,
     });
   };
 
@@ -127,7 +127,10 @@ export function SubCategoryScreen({ route, navigation }) {
       contentImageStyle: { width: 56, height: 56 },
       messageStyle: { fontSize: 14, lineHeight: 20 },
       actions: [
-        { label: template.relatedAction, onPress: () => navigateToFillInDetails(template) },
+        {
+          label: template.relatedAction,
+          onPress: () => navigateToFillInDetails(template, category),
+        },
         { label: 'Փակել', destructive: true },
       ],
     });

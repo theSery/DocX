@@ -12,7 +12,7 @@ import SendSvg from '../../../../components/icons/SendSvg';
 import SignatureSvg from '../../../../components/icons/SignatureSvg';
 import StarOutlineSvg from '../../../../components/icons/StarOutlineSvg';
 import TrashSvg from '../../../../components/icons/TrashSvg';
-import { complaintsApi, favoriteTemplatesApi } from '../../../../api';
+import { complaintsApi } from '../../../../api';
 import { FONT_FAMILY } from '../../../../theme';
 import { useFileDownload, useThemedStyles, useTheme, useToast } from '../../../../hooks';
 import { removeRecommendedDocument } from '../../../../utils/recommendedDocumentsStorage';
@@ -29,7 +29,6 @@ export function DocumentCard({
   document,
   index = 0,
   onDeleted,
-  onRecommendedChange,
   onSent,
 }) {
   const navigation = useNavigation();
@@ -42,7 +41,6 @@ export function DocumentCard({
   const status = STATUS_CONFIG[document.status] ?? STATUS_CONFIG.draft;
   const isRecommended = Boolean(document.recommended);
   const iconColor = colors.icons;
-  const disabledIconColor = colors.textDisabled;
 
   const handleDelete = useCallback(async () => {
     try {
@@ -61,44 +59,6 @@ export function DocumentCard({
       });
     }
   }, [document.id, onDeleted, showToast]);
-
-  const handleToggleRecommended = useCallback(async () => {
-    try {
-      if (isRecommended) {
-        const nextRecommendedIds = await removeRecommendedDocument(document.id);
-        onRecommendedChange?.(nextRecommendedIds);
-        showToast({
-          title: 'Հեռացվեց նախընտրելիից',
-          type: 'success',
-        });
-        return;
-      }
-
-      const addResponse = await favoriteTemplatesApi.addFavoriteTemplate(document.id);
-      console.log('favorite-templates POST response', addResponse.data);
-
-      const idsResponse = await favoriteTemplatesApi.getFavoriteTemplateIds();
-      console.log('favorite-templates/ids GET response', idsResponse.data);
-
-      const nextRecommendedIds = Array.isArray(idsResponse.data)
-        ? idsResponse.data.map(String)
-        : Array.isArray(idsResponse.data?.ids)
-          ? idsResponse.data.ids.map(String)
-          : [];
-
-      onRecommendedChange?.(nextRecommendedIds);
-      showToast({
-        title: 'Նշվեց որպես նախընտրելի',
-        type: 'success',
-      });
-    } catch (error) {
-      showToast({
-        title: 'Գործողությունը ձախողվեց',
-        body: error?.message ?? 'Անհայտ սխալ, փորձեք կրկին',
-        type: 'error',
-      });
-    }
-  }, [document.id, isRecommended, onRecommendedChange, showToast]);
 
   const handleSign = useCallback(() => {
     navigation.navigate('DocumentSign', {
@@ -157,11 +117,6 @@ export function DocumentCard({
           onPress: handleDownload,
         },
         {
-          label: isRecommended ? 'Հեռացնել նախընտրելից' : 'Նշել որպես նախընտրելի',
-          icon: <StarOutlineSvg width={20} height={20} fill={isRecommended ? disabledIconColor  : iconColor} />,
-          onPress: handleToggleRecommended,
-        },
-        {
           label: `Ուղարկել էլ. հասցեի`,
           icon: (
             <SendSvg width={20} height={20} fill={iconColor} />
@@ -174,10 +129,7 @@ export function DocumentCard({
     handleDownload,
     handleOpenSendEmail,
     handleSign,
-    handleToggleRecommended,
     iconColor,
-    disabledIconColor,
-    isRecommended,
     showDeleteConfirmation,
   ]);
 

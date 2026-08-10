@@ -65,7 +65,13 @@ export function DocumentCreateScreen({ route, navigation }) {
   const personalData = useAppSelector(selectPersonalData);
   const documentFill = useAppSelector(selectDocumentFill);
   const personalDocuments = useAppSelector(selectPersonalDocuments);
-  const { templateText = '', templateName = 'document', templateId, templateSolution } = route.params ?? {};
+  const {
+    templateText = '',
+    templateName = 'document',
+    templateId,
+    templateSolution,
+    categoryName,
+  } = route.params ?? {};
   const [hasTypingFinished, setHasTypingFinished] = useState(false);
   const [isTypingWebViewReady, setIsTypingWebViewReady] = useState(false);
   const [isAddingSignature, setIsAddingSignature] = useState(false);
@@ -467,7 +473,7 @@ export function DocumentCreateScreen({ route, navigation }) {
           addresseeEmail: personalData?.email ?? '',
           attachedDocuments,
         });
-console.log(response, 'response');
+
       } catch (error) {
         console.log(
           `[testSendComplaint] POST /complaints/${complaintId}/send error`,
@@ -535,10 +541,14 @@ console.log(response, 'response');
       });
       navigation.navigate('Documents', {
         screen: 'DocumentsMain',
-        params: { refreshedAt: Date.now() },
+        params: {
+          refreshedAt: Date.now(),
+          favoriteTemplateId: templateId,
+          categoryName,
+        },
       });
     } catch (error) {
-      console.log(error, 'error');
+
       const message =
         error?.message ??
         (error instanceof Error
@@ -556,6 +566,7 @@ console.log(response, 'response');
   }, [
     templateId,
     templateName,
+    categoryName,
     bodyHtmlWithSerial,
     documentHtml,
     userId,

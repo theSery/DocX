@@ -6,6 +6,7 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated';
 import MainHeader from './MainHeader';
+import FavoritesButton from '../buttons/FavoritesButton';
 import { useThemedStyles } from '../../hooks';
 import { SearchComponent } from '../titleComponents/SearchComponent';
 import { CachedImage } from '../image';
@@ -88,6 +89,7 @@ const HeaderTitleBlock = ({ styles, title, subtitle, iconUrl }) => {
 const StaticHomeStackHeader = ({
   styles,
   onPress,
+  onFavoritesPress,
   title,
   subtitle,
   showSearch,
@@ -107,7 +109,15 @@ const StaticHomeStackHeader = ({
   >
     <View style={styles.collapsible}>
       <View style={styles.headerRow}>
-        <MainHeader onPress={onPress} isHome={true}/>
+        <MainHeader
+          onPress={onPress}
+          isHome={true}
+          rightAction={
+            onFavoritesPress ? (
+              <FavoritesButton onPress={onFavoritesPress} />
+            ) : null
+          }
+        />
       </View>
       <HeaderTitleBlock
         styles={styles}
@@ -127,6 +137,7 @@ const StaticHomeStackHeader = ({
 const CollapsibleHomeStackHeader = ({
   styles,
   onPress,
+  onFavoritesPress,
   title,
   subtitle,
   showSearch,
@@ -182,7 +193,15 @@ const CollapsibleHomeStackHeader = ({
         style={[styles.titleLayer, animatedTitleStyle]}
       >
         <View style={styles.headerRow}>
-          <MainHeader onPress={onPress} isHome={true}/>
+          <MainHeader
+            onPress={onPress}
+            isHome={true}
+            rightAction={
+              onFavoritesPress ? (
+                <FavoritesButton onPress={onFavoritesPress} />
+              ) : null
+            }
+          />
         </View>
         {(title || subtitle) && (
           <View style={styles.titleContainer}>
@@ -214,6 +233,7 @@ const CollapsibleHomeStackHeader = ({
 
 const HomeStackHeader = ({
   onPress,
+  onFavoritesPress,
   title,
   subtitle,
   showSearch = true,
@@ -229,6 +249,7 @@ const HomeStackHeader = ({
       <StaticHomeStackHeader
         styles={styles}
         onPress={onPress}
+        onFavoritesPress={onFavoritesPress}
         title={title}
         subtitle={subtitle}
         showSearch={showSearch}
@@ -242,6 +263,7 @@ const HomeStackHeader = ({
     <CollapsibleHomeStackHeader
       styles={styles}
       onPress={onPress}
+      onFavoritesPress={onFavoritesPress}
       title={title}
       subtitle={subtitle}
       showSearch={showSearch}

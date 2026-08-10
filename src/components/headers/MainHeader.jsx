@@ -5,7 +5,7 @@ import darkLogo from '../../assets/images/darkLogo.webp';
 import whiteLogo from '../../assets/images/whiteLogo.webp';
 import { useTheme, useThemedStyles } from '../../hooks';
 
-const MainHeader = ({ onPress, isHome = false }) => {
+const MainHeader = ({ onPress, isHome = false, rightAction = null }) => {
   const styles = useThemedStyles(createStyles);
   const { isDarkMode } = useTheme();
 
@@ -24,6 +24,7 @@ const MainHeader = ({ onPress, isHome = false }) => {
         />
       </View>
       <View style={styles.side}>
+        {rightAction}
       </View>
     </View>
   );
