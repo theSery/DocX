@@ -184,7 +184,7 @@ const stylesActionLabel = StyleSheet.create({
   },
 });
 
-function SheetActions({ actions, styles, onActionPress }) {
+function SheetActions({ actions, styles, onActionPress, gradientSurfaceKey = 0 }) {
   const isSingleAction = actions.length === 1;
 
   return (
@@ -200,7 +200,11 @@ function SheetActions({ actions, styles, onActionPress }) {
           ]}
         >
           {!action.destructive ? (
-            <GradientButton height={45} isLight={false}>
+            <GradientButton
+              height={45}
+              isLight={false}
+              surfaceKey={gradientSurfaceKey}
+            >
               {action.icon ? (
                 <View style={styles.actionButtonInner}>
                   {action.icon}
@@ -229,7 +233,7 @@ function SheetActions({ actions, styles, onActionPress }) {
   );
 }
 
-function DefaultSheetContent({ sheet, styles, onActionPress }) {
+function DefaultSheetContent({ sheet, styles, onActionPress, gradientSurfaceKey = 0 }) {
   return (
     <View style={styles.warningContainer}>
       {sheet.content ? (
@@ -252,7 +256,12 @@ function DefaultSheetContent({ sheet, styles, onActionPress }) {
       {sheet.customContent ? (
         <View style={styles.customContent}>{sheet.customContent}</View>
       ) : null}
-      <SheetActions actions={sheet.actions} styles={styles} onActionPress={onActionPress} />
+      <SheetActions
+        actions={sheet.actions}
+        styles={styles}
+        onActionPress={onActionPress}
+        gradientSurfaceKey={gradientSurfaceKey}
+      />
     </View>
   );
 }
@@ -324,6 +333,8 @@ function InfoSheetContent({ sheet, styles, onActionPress }) {
 export function GlobalSheetProvider({ children }) {
   const [sheet, setSheet] = useState(null);
   const [visible, setVisible] = useState(false);
+  // Incremented on every open so Skia GradientButtons remount a fresh surface.
+  const [sheetSurfaceKey, setSheetSurfaceKey] = useState(0);
   const visibleRef = useRef(false);
   const styles = useThemedStyles(createStyles);
 
@@ -334,6 +345,7 @@ export function GlobalSheetProvider({ children }) {
   useEffect(() => {
     showSheetHandler = options => {
       setSheet(options);
+      setSheetSurfaceKey(key => key + 1);
       visibleRef.current = true;
       setVisible(true);
     };
@@ -400,21 +412,25 @@ export function GlobalSheetProvider({ children }) {
             {sheet ? (
               sheet.variant === 'info' ? (
                 <InfoSheetContent
+                  key={sheetSurfaceKey}
                   sheet={sheet}
                   styles={styles}
                   onActionPress={handleActionPress}
                 />
               ) : sheet.variant === 'menu' ? (
                 <MenuSheetContent
+                  key={sheetSurfaceKey}
                   sheet={sheet}
                   styles={styles}
                   onMenuItemPress={handleMenuItemPress}
                 />
               ) : (
                 <DefaultSheetContent
+                  key={sheetSurfaceKey}
                   sheet={sheet}
                   styles={styles}
                   onActionPress={handleActionPress}
+                  gradientSurfaceKey={sheetSurfaceKey}
                 />
               )
             ) : null}

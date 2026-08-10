@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Canvas, Rect, LinearGradient, vec } from '@shopify/react-native-skia';
 import { gradientStops, gradients } from '../../theme/tokens';
@@ -12,16 +12,34 @@ export default function GradientButton({
   height,
   childrenStyle,
   gradientColors,
+  /** Bump when a parent Modal reopens so Skia mounts a fresh surface. */
+  surfaceKey = 0,
 }) {
   const [layout, setLayout] = useState({ width: 0, height: 0 });
+  // Defer Canvas mount one frame after size is known — avoids blank Skia surfaces in Modals.
+  const [canvasReady, setCanvasReady] = useState(false);
   const needsLayout = width == null || height == null;
   const canvasWidth = width ?? layout.width;
   const canvasHeight = height ?? layout.height;
+  const hasSize = canvasWidth > 0 && canvasHeight > 0;
 
   const staticColors = isLight
     ? gradientStops(gradients.lightSky)
     : gradientStops(gradients.blueLarge);
   const colors = gradientColors ?? staticColors;
+
+  useEffect(() => {
+    if (!hasSize) {
+      setCanvasReady(false);
+      return undefined;
+    }
+
+    setCanvasReady(false);
+    const frameId = requestAnimationFrame(() => {
+      setCanvasReady(true);
+    });
+    return () => cancelAnimationFrame(frameId);
+  }, [hasSize, canvasWidth, canvasHeight, surfaceKey]);
 
   return (
     <View
@@ -37,8 +55,11 @@ export default function GradientButton({
           : undefined
       }
     >
-      {canvasWidth > 0 && canvasHeight > 0 && (
-        <Canvas style={[styles.canvas, { width: canvasWidth, height: canvasHeight }]}>
+      {hasSize && canvasReady ? (
+        <Canvas
+          key={`gradient-${surfaceKey}-${canvasWidth}x${canvasHeight}`}
+          style={[styles.canvas, { width: canvasWidth, height: canvasHeight }]}
+        >
           <Rect x={0} y={0} width={canvasWidth} height={canvasHeight}>
             <LinearGradient
               start={vec(0, 0)}
@@ -47,7 +68,7 @@ export default function GradientButton({
             />
           </Rect>
         </Canvas>
-      )}
+      ) : null}
       <View style={[styles.content, !centered && styles.contentFill, childrenStyle]}>
         {children}
       </View>

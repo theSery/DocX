@@ -273,10 +273,13 @@ export function FavoritesScreen({ navigation }) {
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
         >
+          <View style={styles.contentContainer}>
           <ContentTiltes
             title="Նախընտրածներ"
             subtitle={`Դուք ունեք ${favoriteIds?.length ?? 0} նախընտրած`}
           />
+          </View>
+     
           {renderBody()}
         </Animated.ScrollView>
       </View>
@@ -288,9 +291,16 @@ const createStyles = colors =>
   StyleSheet.create({
     screen: {
       flex: 1,
+ 
+      paddingHorizontal: 16,
     },
     scrollView: {
       flex: 1,
+  
+      paddingHorizontal: 16,
+    },
+    contentContainer: {
+      marginTop: -20,
     },
     scrollContentEmpty: {
       flexGrow: 1,
