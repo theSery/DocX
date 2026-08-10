@@ -40,7 +40,6 @@ export function DocumentCard({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSendEmailOpen, setIsSendEmailOpen] = useState(false);
   const status = STATUS_CONFIG[document.status] ?? STATUS_CONFIG.draft;
-  const canSend = document.status === 'signed';
   const isRecommended = Boolean(document.recommended);
   const iconColor = colors.icons;
   const disabledIconColor = colors.textDisabled;
@@ -167,14 +166,11 @@ export function DocumentCard({
           icon: (
             <SendSvg width={20} height={20} fill={iconColor} />
           ),
-          // disabled: !canSend,
           onPress: handleOpenSendEmail,
         },
       ],
     });
   }, [
-    canSend,
-    document.organization,
     handleDownload,
     handleOpenSendEmail,
     handleSign,

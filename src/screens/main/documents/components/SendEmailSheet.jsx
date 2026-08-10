@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
-  Dimensions,
   Keyboard,
   Modal,
   Platform,
@@ -51,8 +50,8 @@ function resolveAttachedDocumentIds(complaint) {
 
 /**
  * Bottom sheet for sending a document to an email address.
- * Measures its content height via onLayout, then expands by the keyboard
- * inset (`contentHeight + keyboardInset`) so the form stays visible.
+ * Grows bottom padding by the keyboard inset so content stays above the
+ * keyboard while the sheet keeps its natural content height.
  */
 export function SendEmailSheet({ visible, documentId, documentTitle, onClose, onSent }) {
   const styles = useThemedStyles(createStyles);
@@ -63,21 +62,12 @@ export function SendEmailSheet({ visible, documentId, documentTitle, onClose, on
   const [email, setEmail] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [keyboardInset, setKeyboardInset] = useState(0);
-  const [contentHeight, setContentHeight] = useState(0);
-  const contentHeightRef = useRef(0);
-  const keyboardInsetRef = useRef(0);
-
-  useEffect(() => {
-    keyboardInsetRef.current = keyboardInset;
-  }, [keyboardInset]);
 
   useEffect(() => {
     if (!visible) {
       setEmail('');
       setIsSending(false);
       setKeyboardInset(0);
-      setContentHeight(0);
-      contentHeightRef.current = 0;
       return undefined;
     }
 
@@ -99,19 +89,6 @@ export function SendEmailSheet({ visible, documentId, documentTitle, onClose, on
       hideSub.remove();
     };
   }, [visible]);
-
-  const handleSheetLayout = useCallback(event => {
-    // Capture natural content height only while the keyboard is closed.
-    if (keyboardInsetRef.current > 0) {
-      return;
-    }
-
-    const nextHeight = Math.ceil(event.nativeEvent.layout.height);
-    if (nextHeight > 0 && nextHeight !== contentHeightRef.current) {
-      contentHeightRef.current = nextHeight;
-      setContentHeight(nextHeight);
-    }
-  }, []);
 
   const trimmedEmail = email.trim();
   const isValidEmail = EMAIL_PATTERN.test(trimmedEmail);
@@ -183,12 +160,6 @@ export function SendEmailSheet({ visible, documentId, documentTitle, onClose, on
     trimmedEmail,
   ]);
 
-  const windowHeight = Dimensions.get('window').height;
-  const sheetHeight =
-    contentHeight > 0
-      ? Math.min(contentHeight + keyboardInset, windowHeight - 24)
-      : undefined;
-
   return (
     <Modal
       visible={visible}
@@ -201,12 +172,8 @@ export function SendEmailSheet({ visible, documentId, documentTitle, onClose, on
         <Pressable
           style={[
             styles.sheet,
-            {
-              height: sheetHeight,
-              paddingBottom: SHEET_PADDING_BOTTOM,
-            },
+            { paddingBottom: SHEET_PADDING_BOTTOM + keyboardInset },
           ]}
-          onLayout={handleSheetLayout}
           onPress={() => {}}
         >
           <View style={styles.iconWrap}>
