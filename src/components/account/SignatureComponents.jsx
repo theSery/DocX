@@ -59,42 +59,58 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveS
     setCanvasSize({ width, height });
   }, []);
 
-  const startPath = useCallback((x, y) => {
-    const builder = Skia.PathBuilder.Make().moveTo(x, y);
-    currentPathBuilder.current = builder;
+  // Existing saved signature is view-only until the user presses Clear.
+  const isLockedToExisting = Boolean(
+    signatureUrl && isImageVisible && !pickedImageUri,
+  );
+  const hasDefaultImage = Boolean(signatureImage && isImageVisible);
+  const canDraw = !isLockedToExisting;
 
-    setPaths(prev => [
-      ...prev,
-      {
-        path: builder.build(),
-        color: STROKE_COLOR,
-        strokeWidth: STROKE_WIDTH,
-      },
-    ]);
-  }, []);
+  const startPath = useCallback(
+    (x, y) => {
+      if (!canDraw) return;
 
-  const updatePath = useCallback((x, y) => {
-    if (!currentPathBuilder.current) return;
+      const builder = Skia.PathBuilder.Make().moveTo(x, y);
+      currentPathBuilder.current = builder;
 
-    currentPathBuilder.current.lineTo(x, y);
-    const updatedPath = currentPathBuilder.current.build();
+      setPaths(prev => [
+        ...prev,
+        {
+          path: builder.build(),
+          color: STROKE_COLOR,
+          strokeWidth: STROKE_WIDTH,
+        },
+      ]);
+    },
+    [canDraw],
+  );
 
-    setPaths(prev => {
-      if (prev.length === 0) return prev;
-      const next = [...prev];
-      next[next.length - 1] = {
-        ...next[next.length - 1],
-        path: updatedPath,
-      };
-      return next;
-    });
-  }, []);
+  const updatePath = useCallback(
+    (x, y) => {
+      if (!canDraw || !currentPathBuilder.current) return;
+
+      currentPathBuilder.current.lineTo(x, y);
+      const updatedPath = currentPathBuilder.current.build();
+
+      setPaths(prev => {
+        if (prev.length === 0) return prev;
+        const next = [...prev];
+        next[next.length - 1] = {
+          ...next[next.length - 1],
+          path: updatedPath,
+        };
+        return next;
+      });
+    },
+    [canDraw],
+  );
 
   const endPath = useCallback(() => {
     currentPathBuilder.current = null;
   }, []);
 
   const panGesture = Gesture.Pan()
+    .enabled(canDraw)
     .minDistance(0)
     .runOnJS(true)
     .onBegin(e => {
@@ -108,19 +124,19 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveS
     });
 
   const clearCanvas = () => {
+    currentPathBuilder.current = null;
     setPaths([]);
     setPickedImageUri(null);
     setIsImageVisible(false);
   };
 
   const undoLastPath = () => {
+    if (!canDraw) return;
     if (currentPathBuilder.current) {
       currentPathBuilder.current = null;
     }
     setPaths(prev => (prev.length === 0 ? prev : prev.slice(0, -1)));
   };
-
-  const hasDefaultImage = Boolean(signatureImage && isImageVisible);
 
   const savePng = async () => {
     if (paths.length === 0 && !hasDefaultImage) {
@@ -139,8 +155,9 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveS
     try {
       await RNFS.writeFile(filePath, img, 'base64');
       if (isEditingExisting) {
-        console.log('isEditingExisting', isEditingExisting);
-        await signatureApi.updateSignature({ uri: `file://${filePath}` });
+        await signatureApi.deleteSignature();
+     
+        await signatureApi.uploadSignature({ uri: `file://${filePath}` });
       } else {
         await signatureApi.uploadSignature({ uri: `file://${filePath}` });
       }
@@ -361,6 +378,13 @@ export function SignatureComponents({ onSaveSuccess, fromDocumentFlow = false })
       await signatureApi.deleteSignature();
       setSignature(null);
       dispatch(setHasSignature(false));
+      showToast({
+
+        title: 'Ձեր ստորագրությունը հաջողությամբ հեռացվել է',
+      
+        type: 'success',
+      
+      });
     } catch (error) {
       console.log('delete signature error', error);
       showToast({
