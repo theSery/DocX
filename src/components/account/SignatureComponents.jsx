@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import {
   Canvas,
@@ -34,7 +35,7 @@ import CleareSvg from '../icons/CleareSvg';
 import UndoSvg from '../icons/UndoSvg';
 
 const INPUT_RADIUS = 16;
-const STROKE_COLOR = '#000000';
+const STROKE_COLOR = '#0047AB';
 const STROKE_WIDTH = 3;
 
 function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveSuccess, fromDocumentFlow = false }) {
@@ -331,17 +332,29 @@ export function SignatureComponents({ onSaveSuccess, fromDocumentFlow = false })
   const { showToast } = useToast();
   const dispatch = useAppDispatch();
   const [signature, setSignature] = useState(null);
-  useEffect(() => {
-    signatureApi
-      .getSignature()
-      .then(result => {
-        // console.log('signature result', result);
-        setSignature(result.data);
-      })
-      .catch(error => {
-        console.log('signature error', error);
-      });
-  }, []);
+  const [canvasKey, setCanvasKey] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      setCanvasKey(key => key + 1);
+      let cancelled = false;
+
+      signatureApi
+        .getSignature()
+        .then(result => {
+          if (!cancelled) {
+            setSignature(result.data);
+          }
+        })
+        .catch(error => {
+          console.log('signature error', error);
+        });
+
+      return () => {
+        cancelled = true;
+      };
+    }, []),
+  );
 
   const handleDeleteSignature = async () => {
     try {
@@ -379,6 +392,7 @@ export function SignatureComponents({ onSaveSuccess, fromDocumentFlow = false })
     >
 
       <SignatureDrawCanvas
+        key={canvasKey}
         signatureUrl={signature?.fileUrl}
         handleDeleteSignaturePress={handleDeleteSignaturePress}
         onSaveSuccess={onSaveSuccess}
