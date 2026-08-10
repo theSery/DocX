@@ -30,6 +30,7 @@ async function resolveStartupRoute(wasSignedIn) {
     // throw Object.assign(new Error('Unauthorized'), { status: 401 });
 
     const { data } = await userApi.getMe();
+    console.log('data', data);
     store.dispatch(
       setUserFlags({
         hasSignature: Boolean(data?.hasSignature),

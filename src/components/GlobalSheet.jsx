@@ -300,7 +300,7 @@ function InfoSheetContent({ sheet, styles, onActionPress }) {
 
       {sheet.videoUrl ? (
         <View style={styles.infoMedia}>
-          <SkiaVideoPlayer youtubeUrl={sheet.videoUrl} />
+          {/* <SkiaVideoPlayer youtubeUrl={sheet.videoUrl} /> */}
         </View>
       ) : imageSource ? (
         <Image

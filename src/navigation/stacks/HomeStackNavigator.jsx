@@ -1,13 +1,13 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   CompletePersonalDataScreen,
+
   DocumentCreateScreen,
   FavoritesScreen,
   FillInDetailsScreen,
   HomeScreen,
   SubCategoryScreen,
 } from '../../screens/main/home';
-import { ConfirmPhoneCodeScreen } from '../../screens/main/account';
 import { useStackScreenOptions, useThemedFocusStatusBar } from '../../hooks';
 import HomeStackHeader from '../../components/headers/HomeStackHeader';
 import MainHeader from '../../components/headers/MainHeader';
@@ -16,6 +16,7 @@ import { HomeStackHeaderScrollProvider } from '../../context/HomeStackHeaderScro
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View } from 'react-native';
 import { animation } from '../constants';
+import { ConfirmPhoneCodeScreenHome } from '../../screens/main/home/ConfirmPhoneCodeScreenHome';
 
 const Home = createNativeStackNavigator();
 
@@ -116,8 +117,8 @@ export function HomeStackNavigator() {
             }}
           />
           <Home.Screen
-            name="ConfirmPhoneCode"
-            component={ConfirmPhoneCodeScreen}
+            name="ConfirmPhoneCodeScreenHome"
+            component={ConfirmPhoneCodeScreenHome}
             options={{
               headerShown: true,
               header: ({ navigation }) => (

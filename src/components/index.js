@@ -9,6 +9,7 @@ export {
   getStaggeredEnterProps,
 } from './animation';
 export { CheckBox } from './checkbox';
+export { ConfirmPhoneCodeForm } from './ConfirmPhoneCodeForm';
 export {
   DocumentLoadingOverlay,
   DocumentLoadingOverlayProvider,

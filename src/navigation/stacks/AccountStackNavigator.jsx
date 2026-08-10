@@ -70,19 +70,10 @@ export function AccountStackNavigator() {
       <Account.Screen
         name="ConfirmPhoneCode"
         component={ConfirmPhoneCodeScreen}
-        options={({ route }) =>
-          nestedScreenOptionsWithHeader(
-            nestedScreenOptions,
-            {
-              title:
-                route.params?.purpose === 'delete_account'
-                  ? 'Ջնջել հաշիվը'
-                  : 'Հաստատման կոդ',
-              isLogoutButton: false,
-              isBackButton: true,
-            },
-          )
-        }
+        options={nestedScreenOptionsWithHeader(
+          nestedScreenOptions,
+          { title: 'Հաստատման կոդ', isLogoutButton: false, isBackButton: true, isMinHeight: true },
+        )}
       />
       <Account.Screen
         name="FaceIdUnlock"

@@ -23,6 +23,7 @@ import { palette } from '../../../theme';
 import {
   fetchPersonalData,
   selectHasSignature,
+  selectIsPhoneVerified,
   selectPersonalData,
   selectPersonalDataStatus,
 } from '../../../store/slices/personalDataSlice';
@@ -107,6 +108,7 @@ export function FillInDetailsScreen({ navigation, route }) {
   const personalData = useAppSelector(selectPersonalData);
   const personalDataStatus = useAppSelector(selectPersonalDataStatus);
   const hasSignature = useAppSelector(selectHasSignature);
+  const isPhoneVerified = useAppSelector(selectIsPhoneVerified);
 
   useEffect(() => {
     if (personalDataStatus === 'idle') {
@@ -228,7 +230,8 @@ export function FillInDetailsScreen({ navigation, route }) {
 
       if (
         !isPersonalDataCompleteForTemplate(personalData) ||
-        !isPassportDataCompleteForTemplate(personalData)
+        !isPassportDataCompleteForTemplate(personalData) ||
+        !isPhoneVerified
       ) {
         setStepError('');
         navigation.navigate('CompletePersonalData', {
@@ -280,6 +283,7 @@ export function FillInDetailsScreen({ navigation, route }) {
     selectedFacts,
     radioFacts,
     personalData,
+    isPhoneVerified,
     hasSignature,
     navigation,
     templateText,

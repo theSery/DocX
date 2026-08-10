@@ -21,6 +21,7 @@ const initialState = {
   hasSignature: false,
   isPhoneVerified: false,
   lastVerifiedPhoneNumber: null,
+  isDeleteAccountConfirm: false,
   status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
   error: null,
 };
@@ -74,6 +75,9 @@ const personalDataSlice = createSlice({
       if (typeof action.payload === 'string') {
         state.lastVerifiedPhoneNumber = action.payload;
       }
+    },
+    setDeleteAccountConfirm: (state, action) => {
+      state.isDeleteAccountConfirm = Boolean(action.payload);
     },
   },
   extraReducers: builder => {
@@ -136,6 +140,7 @@ export const {
   setUserFlags,
   setHasSignature,
   setPhoneVerified,
+  setDeleteAccountConfirm,
 } = personalDataSlice.actions;
 
 export const selectPersonalData = state => state.personalData.data;
@@ -145,5 +150,7 @@ export const selectHasSignature = state => state.personalData.hasSignature;
 export const selectIsPhoneVerified = state => state.personalData.isPhoneVerified;
 export const selectLastVerifiedPhoneNumber = state =>
   state.personalData.lastVerifiedPhoneNumber;
+export const selectIsDeleteAccountConfirm = state =>
+  state.personalData.isDeleteAccountConfirm;
 
 export default personalDataSlice.reducer;

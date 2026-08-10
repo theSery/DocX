@@ -7,4 +7,5 @@ export const STORAGE_KEYS = {
   APP_INSTALLED: '@docx/app_installed',
   RECOMMENDED_DOCUMENTS: '@docx/recommended_documents',
   USER_EMAIL: '@docx/user_email',
+  SMS_RESEND_COOLDOWN: '@docx/sms_resend_cooldown',
 };

@@ -39,6 +39,7 @@ import {
   setUserFlags,
   updatePersonalData,
 } from '../../../store/slices/personalDataSlice';
+import { startSmsResendCooldown } from '../../../utils/smsResendCooldown';
 
 const PROFILE_STORE_FIELDS = ['name', 'surname', 'patronymic', 'birthday', 'phoneNumber'];
 const PASSPORT_STORE_FIELDS = [
@@ -175,6 +176,11 @@ function toFormInitialValue(field, personalData, missingFields) {
     return personalData?.registrationAddress ?? '';
   }
 
+  // Prefill an existing phone so verification can run without retyping.
+  if (field === 'phoneNumber' && personalData?.phoneNumber) {
+    return personalData.phoneNumber;
+  }
+
   return toEmptyFormValue(field);
 }
 
@@ -262,7 +268,14 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   const fieldConfigs = useMemo(() => FIELD_CONFIGS(colors), [colors]);
 
   // Captured once on mount so fields don't disappear while the user is typing.
-  const [missingFields] = useState(() => getIncompletePersonalDataFields(personalData));
+  // Phone is always included when unverified so the confirm-code flow is reachable.
+  const [missingFields] = useState(() => {
+    const incomplete = getIncompletePersonalDataFields(personalData);
+    if (!isPhoneVerified && !incomplete.includes('phoneNumber')) {
+      return [...incomplete, 'phoneNumber'];
+    }
+    return incomplete;
+  });
   const [submitError, setSubmitError] = useState('');
   // Open residence address when it exists or fails validation.
   const [addressesDiffer, setAddressesDiffer] = useState(() => {
@@ -367,7 +380,9 @@ export function CompletePersonalDataScreen({ navigation, route }) {
     showPhoneField &&
     (!isPhoneVerified || (isPhoneChanged && !isChangedPhoneVerified));
   const isSaveDisabled =
-    isSubmitting || (showPhoneField && isPhoneChanged && !isChangedPhoneVerified);
+    isSubmitting ||
+    !isPhoneVerified ||
+    (showPhoneField && isPhoneChanged && !isChangedPhoneVerified);
 
   const handleSendCode = async () => {
     const isPhoneValid = await trigger('phoneNumber');
@@ -385,12 +400,13 @@ export function CompletePersonalDataScreen({ navigation, route }) {
       }
 
       await smsApi.requestCode({ phoneNumber });
+      await startSmsResendCooldown(phoneNumber);
       showToast({
         title: 'Կոդը ուղարկված է',
         body: 'Հաստատման կոդը ուղարկվել է ձեր հեռախոսահամարին',
         type: 'success',
       });
-      navigation.navigate('ConfirmPhoneCode', { phoneNumber });
+      navigation.navigate('ConfirmPhoneCodeScreenHome', { phoneNumber });
     } catch (error) {
       showToast({
         title: 'Ուղարկումը ձախողվեց',
@@ -412,6 +428,11 @@ export function CompletePersonalDataScreen({ navigation, route }) {
 
   const onSubmit = handleSubmit(async formValues => {
     setSubmitError('');
+
+    if (!isPhoneVerified) {
+      setSubmitError('Հեռախոսահամարը պետք է հաստատված լինի');
+      return;
+    }
 
     try {
       await dispatch(

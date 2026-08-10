@@ -24,6 +24,8 @@ import TrashSvg from '../../../components/icons/TrashSvg';
 import PinCodeSvg from '../../../components/icons/PinCodeSvg';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
 import { accountApi } from '../../../api';
+import { useAppDispatch } from '../../../store';
+import { setDeleteAccountConfirm } from '../../../store/slices/personalDataSlice';
 
 const ACCOUNT_MENU = [
   {
@@ -164,16 +166,18 @@ export function AccountScreen({ navigation }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { showToast } = useToast();
+  const dispatch = useAppDispatch();
 
   const handleDeleteAccountPress = async () => {
     try {
-      await accountApi.requestDeletionCode();
+      // await accountApi.requestDeletionCode();
       showToast({
         title: 'Կոդը ուղարկված է',
         body: 'Հաստատման կոդը ուղարկվել է Ձեր էլ-փոստին',
         type: 'success',
       });
-      navigation.navigate('ConfirmPhoneCode', { purpose: 'delete_account' });
+      dispatch(setDeleteAccountConfirm(true));
+      navigation.navigate('ConfirmPhoneCode');
     } catch (error) {
       showToast({
         title: 'Կոդի ուղարկումը ձախողվեց',

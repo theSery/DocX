@@ -28,11 +28,13 @@ import {
   selectLastVerifiedPhoneNumber,
   selectPersonalData,
   selectPersonalDataStatus,
+  setDeleteAccountConfirm,
   setUserFlags,
   updatePersonalData,
 } from '../../../store/slices/personalDataSlice';
 import { smsApi } from '../../../api';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
+import { startSmsResendCooldown } from '../../../utils/smsResendCooldown';
 
 const BIRTH_DATE_RULES = {
   required: 'Ծննդյան ամսաթիվը պարտադիր է',
@@ -234,13 +236,15 @@ export function ProfileInfoScreen() {
         dispatch(setUserFlags({ isPhoneVerified: false }));
       }
 
-      await smsApi.requestCode({ phoneNumber });
+      // await smsApi.requestCode({ phoneNumber });
+      await startSmsResendCooldown(phoneNumber);
       showToast({
         title: 'Կոդը ուղարկված է',
         body: 'Հաստատման կոդը ուղարկվել է ձեր հեռախոսահամարին',
         type: 'success',
       });
-      navigation.navigate('ConfirmPhoneCode', { phoneNumber });
+      dispatch(setDeleteAccountConfirm(false));
+      navigation.navigate('ConfirmPhoneCode');
     } catch (error) {
       showToast({
         title: 'Ուղարկումը ձախողվեց',
