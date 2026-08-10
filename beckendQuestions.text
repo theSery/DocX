@@ -14,7 +14,7 @@
 }
 
 I have a few questions about this endpoint:
-
+lawyer, addressee, email"   (recipientType, voncenq voroshum), voncenq haskanum vor depqum uxarkenq es
 * What values are supported for recipientType? Is there a list of allowed values (enum)?
 * What IDs should be passed in attachedDocuments? Which endpoint returns these document IDs?
 * Could you provide an example of a valid request for this endpoint?

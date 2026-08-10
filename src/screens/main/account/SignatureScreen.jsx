@@ -15,7 +15,8 @@ export function SignatureScreen({ navigation, route }) {
             templateSolution,
           },
         })
-    : undefined;
+    :   () => {    navigation.navigate('AccountMain')}
+    
 
   return <SignatureComponents onSaveSuccess={handleSaveSuccess} fromDocumentFlow={fromDocumentFlow} />;
 }

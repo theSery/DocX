@@ -266,6 +266,7 @@ export function ProfileInfoScreen() {
 
       const updatedFormValues = resolveFormValuesAfterUpdate(data, response);
       reset(updatedFormValues);
+      navigation.navigate('AccountMain');
       showToast({
         title: 'Տվյալները հաջողությամբ պահպանվեցին',
         type: 'success',

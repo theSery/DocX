@@ -26,6 +26,9 @@ async function resolveStartupRoute(wasSignedIn) {
   }
 
   try {
+    // TEMP: simulate unauthorized to force Face ID route
+    // throw Object.assign(new Error('Unauthorized'), { status: 401 });
+
     const { data } = await userApi.getMe();
     store.dispatch(
       setUserFlags({

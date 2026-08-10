@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useGlobalStyles, useThemedStyles, useTheme, useToast } from '../../../hooks';
 import {
   AnimatedView,
@@ -203,6 +204,7 @@ const NOTIFICATION_ADDRESS_FIELD = CONTACT_INFO_FIELDS.find(
 );
 
 export function PassportInfoScreen() {
+  const navigation = useNavigation();
   const globalStyles = useGlobalStyles();
   const [agreed, setAgreed] = useState(false);
   const [focusedAddressField, setFocusedAddressField] = useState(null);
@@ -269,6 +271,7 @@ export function PassportInfoScreen() {
         response,
       );
       reset(updatedFormValues);
+      navigation.navigate('AccountMain');
       showToast({
         title: 'Տվյալները հաջողությամբ պահպանվեցին',
         type: 'success',

@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useForm } from 'react-hook-form';
 import { AnimatedView, FormField, FormScrollView } from '../../../components';
 import AuthButton from '../../../components/buttons/AuthButton';
@@ -37,6 +38,7 @@ const createStyles = (colors) =>
   });
 
 export function ChangePasswordScreen() {
+  const navigation = useNavigation();
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
@@ -64,6 +66,7 @@ export function ChangePasswordScreen() {
         newPassword: data.newPassword,
       });
       reset();
+      navigation.navigate('AccountMain');
       showToast({
         title: 'Գաղտնաբառը հաջողությամբ փոխվեց',
         type: 'success',
