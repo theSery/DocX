@@ -10,6 +10,7 @@ import { showGlobalSheet } from '../../../components/GlobalSheet';
 import { CachedImage } from '../../../components/image';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
 import TrashSvg from '../../../components/icons/TrashSvg';
+import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import { Typography } from '../../../components/typography/Typography';
 import {
   useHomeStackHeaderScrollHandler,
@@ -272,6 +273,10 @@ export function FavoritesScreen({ navigation }) {
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
         >
+          <ContentTiltes
+            title="Նախընտրածներ"
+            subtitle={`Դուք ունեք ${favoriteIds?.length ?? 0} նախընտրած`}
+          />
           {renderBody()}
         </Animated.ScrollView>
       </View>

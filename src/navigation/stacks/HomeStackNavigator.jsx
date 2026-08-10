@@ -135,11 +135,14 @@ export function HomeStackNavigator() {
           <Home.Screen
             name="Favorites"
             component={FavoritesScreen}
-            options={nestedScreenOptionsWithHeader(nestedScreenOptions, {
-              title: 'Նախընտրածներ',
-              subtitle: '',
-              collapsible: false,
-            })}
+            options={{
+              headerShown: true,
+              header: ({ navigation }) => (
+                <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+                  <MainHeader onPress={() => navigation.goBack()} />
+                </View>
+              ),
+            }}
           />
         </Home.Navigator>
       </HomeStackHeaderScrollProvider>
