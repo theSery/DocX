@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { AuthScreenLayout } from '../../../components/layout';
 import {
@@ -27,71 +27,146 @@ export function PinCodeScreen({ navigation, route }) {
   const [firstPin, setFirstPin] = useState('');
   const [step, setStep] = useState('create');
   const [isLoading, setIsLoading] = useState(false);
+  const [isInputLocked, setIsInputLocked] = useState(false);
 
-  const handleRegister = async pinCode => {
-    if (!pinCode || pinCode.length !== PIN_LENGTH || isLoading) return;
+  const isLoadingRef = useRef(false);
+  const isInputLockedRef = useRef(false);
+  const stepRef = useRef(step);
+  const firstPinRef = useRef(firstPin);
 
-    setIsLoading(true);
-    try {
-      const response = await authApi.registerPersonal({
-        email,
-        name,
-        surname,
-        patronymic,
-        password,
-        pinCode,
-      });
-      await persistAuthResponse(response);
-      await saveUserCredentials({ email, password, pinCode });
-      const payload = response?.data?.data ?? response?.data;
+  stepRef.current = step;
+  firstPinRef.current = firstPin;
+
+  const lockInput = useCallback(() => {
+    isInputLockedRef.current = true;
+    setIsInputLocked(true);
+  }, []);
+
+  const unlockInput = useCallback(() => {
+    isInputLockedRef.current = false;
+    setIsInputLocked(false);
+  }, []);
+
+  /** Show a toast and keep PIN input locked until the toast finishes. */
+  const showToastWhileLocked = useCallback(
+    toastConfig => {
+      lockInput();
       showToast({
-        title: 'Գրանցումը հաջողությամբ կատարվեց',
-        body:
-          response?.data?.message ??
-          payload?.message ??
-          'Օգտատերը հաջողությամբ գրանցվել է',
-        type: 'success',
+        ...toastConfig,
+        visibilityTime: 2000,
+        onHide: unlockInput,
       });
-      await login();
-    } catch (error) {
-      console.log('Register personal error:', error);
-      setPasscode([]);
-      setFirstPin('');
-      setStep('create');
-      showToast({
-        title: 'Գրանցումը ձախողվեց',
-        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
-        type: 'error',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [lockInput, showToast, unlockInput],
+  );
 
-  const handlePasscodeComplete = code => {
-    if (isLoading) return;
+  const handleRegister = useCallback(
+    async pinCode => {
+      if (
+        !pinCode ||
+        pinCode.length !== PIN_LENGTH ||
+        isLoadingRef.current
+      ) {
+        return;
+      }
 
-    if (step === 'create') {
-      setFirstPin(code);
-      setPasscode([]);
-      setStep('confirm');
-      return;
-    }
+      isLoadingRef.current = true;
+      setIsLoading(true);
 
-    if (code !== firstPin) {
-      setPasscode([]);
-      setFirstPin('');
-      setStep('create');
-      showToast({
-        title: 'PIN կոդերը չեն համընկնում',
-        body: 'Փորձեք կրկին։',
-        type: 'error',
-      });
-      return;
-    }
+      try {
+        const response = await authApi.registerPersonal({
+          email,
+          name,
+          surname,
+          patronymic,
+          password,
+          pinCode,
+        });
+        await persistAuthResponse(response);
+        await saveUserCredentials({ email, password, pinCode });
+        const payload = response?.data?.data ?? response?.data;
+        showToastWhileLocked({
+          title: 'Գրանցումը հաջողությամբ կատարվեց',
+          body:
+            response?.data?.message ??
+            payload?.message ??
+            'Օգտատերը հաջողությամբ գրանցվել է',
+          type: 'success',
+        });
+        await login();
+      } catch (error) {
+        console.log('Register personal error:', error);
+        setPasscode([]);
+        setFirstPin('');
+        setStep('create');
+        showToastWhileLocked({
+          title: 'Գրանցումը ձախողվեց',
+          body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+          type: 'error',
+        });
+      } finally {
+        isLoadingRef.current = false;
+        setIsLoading(false);
+      }
+    },
+    [email, login, name, password, patronymic, showToastWhileLocked, surname],
+  );
 
-    handleRegister(code);
-  };
+  const handlePasscodeComplete = useCallback(
+    code => {
+      if (
+        isLoadingRef.current ||
+        isInputLockedRef.current ||
+        code.length !== PIN_LENGTH
+      ) {
+        return;
+      }
+
+      // Immediately block further PIN input after the last digit.
+      lockInput();
+
+      if (stepRef.current === 'create') {
+        setFirstPin(code);
+        setPasscode([]);
+        setStep('confirm');
+        showToastWhileLocked({
+          title: 'Կրկնեք PIN կոդը',
+          body: 'Խնդրում ենք կրկին մուտքագրել PIN կոդը։',
+          type: 'success',
+        });
+        return;
+      }
+
+      if (code !== firstPinRef.current) {
+        setPasscode([]);
+        setFirstPin('');
+        setStep('create');
+        showToastWhileLocked({
+          title: 'PIN կոդերը չեն համընկնում',
+          body: 'Փորձեք կրկին։',
+          type: 'error',
+        });
+        return;
+      }
+
+      handleRegister(code);
+    },
+    [handleRegister, lockInput, showToastWhileLocked],
+  );
+
+  const handlePasscodeChange = useCallback(
+    next => {
+      if (
+        isLoadingRef.current ||
+        isLoading ||
+        isInputLockedRef.current
+      ) {
+        return;
+      }
+      setPasscode(next);
+    },
+    [isLoading],
+  );
 
   const title =
     step === 'confirm' ? 'Կրկնեք ձեր PIN կոդը' : 'Սահմանել PIN կոդը';
@@ -108,8 +183,9 @@ export function PinCodeScreen({ navigation, route }) {
           <View style={localStyles.passcodeContainer}>
             <Passcode
               hasBiometric={false}
+              disabled={isInputLocked || isLoading}
               value={passcode}
-              onChange={setPasscode}
+              onChange={handlePasscodeChange}
               onComplete={handlePasscodeComplete}
             />
           </View>

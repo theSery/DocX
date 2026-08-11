@@ -65,8 +65,10 @@ export function PinCodeChangeScreen() {
   const [oldPin, setOldPin] = useState('');
   const [passcode, setPasscode] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInputLocked, setIsInputLocked] = useState(false);
 
   const isLoadingRef = useRef(false);
+  const isInputLockedRef = useRef(false);
   const isBiometricInProgressRef = useRef(false);
   const isFillingPasscodeRef = useRef(false);
   const fillTimeoutsRef = useRef([]);
@@ -81,6 +83,29 @@ export function PinCodeChangeScreen() {
   // Face ID icon is shown on old/confirm steps regardless of permission status.
   // Permission is checked only when the icon is pressed (inside Passcode).
   const showBiometric = step === 'old' || step === 'confirm';
+
+  const lockInput = useCallback(() => {
+    isInputLockedRef.current = true;
+    setIsInputLocked(true);
+  }, []);
+
+  const unlockInput = useCallback(() => {
+    isInputLockedRef.current = false;
+    setIsInputLocked(false);
+  }, []);
+
+  /** Show a toast and keep PIN input locked until the toast finishes. */
+  const showToastWhileLocked = useCallback(
+    toastConfig => {
+      lockInput();
+      showToast({
+        ...toastConfig,
+        visibilityTime: 2000,
+        onHide: unlockInput,
+      });
+    },
+    [lockInput, showToast, unlockInput],
+  );
 
   const clearFillAnimation = useCallback(() => {
     fillTimeoutsRef.current.forEach(clearTimeout);
@@ -172,13 +197,19 @@ export function PinCodeChangeScreen() {
         setOldPin(pinCode);
         setPasscode([]);
         setStep('confirm');
+        showToastWhileLocked({
+          title: 'Կրկնեք PIN կոդը',
+          body: 'Խնդրում ենք կրկին մուտքագրել ներկայիս PIN կոդը։',
+          type: 'success',
+          position: 'bottom',
+        });
       } catch (error) {
         console.log(
           'PinCodeChangeScreen current PIN error',
           error?.response ?? error,
         );
         clearPasscode();
-        showToast({
+        showToastWhileLocked({
           title: 'PIN-ը սխալ է',
           body: error?.message || 'Փորձեք կրկին։',
           type: 'error',
@@ -189,7 +220,7 @@ export function PinCodeChangeScreen() {
         setIsLoading(false);
       }
     },
-    [clearPasscode, showToast, validateCurrentPin],
+    [clearPasscode, showToastWhileLocked, validateCurrentPin],
   );
 
   const handleConfirmPinComplete = useCallback(
@@ -200,7 +231,7 @@ export function PinCodeChangeScreen() {
 
       if (pinCode !== oldPinRef.current) {
         clearPasscode();
-        showToast({
+        showToastWhileLocked({
           title: 'PIN կոդերը չեն համընկնում',
           body: 'Կրկնեք ներկայիս PIN կոդը։',
           type: 'error',
@@ -211,8 +242,14 @@ export function PinCodeChangeScreen() {
 
       setPasscode([]);
       setStep('new');
+      showToastWhileLocked({
+        title: 'Մուտքագրեք նոր PIN կոդը',
+        body: 'Խնդրում ենք մուտքագրել նոր PIN կոդը։',
+        type: 'success',
+        position: 'bottom',
+      });
     },
-    [clearPasscode, showToast],
+    [clearPasscode, showToastWhileLocked],
   );
 
   const handleNewPinComplete = useCallback(
@@ -231,7 +268,7 @@ export function PinCodeChangeScreen() {
         });
         await saveStoredPinCode(pinCode);
 
-        showToast({
+        showToastWhileLocked({
           title: 'PIN կոդը հաջողությամբ փոխվեց',
           type: 'success',
           position: 'bottom',
@@ -248,7 +285,7 @@ export function PinCodeChangeScreen() {
           error?.response ?? error,
         );
         resetFlow();
-        showToast({
+        showToastWhileLocked({
           title: 'PIN կոդի փոփոխումը ձախողվեց',
           body: error?.message,
           type: 'error',
@@ -259,14 +296,17 @@ export function PinCodeChangeScreen() {
         setIsLoading(false);
       }
     },
-    [navigation, resetFlow, showToast],
+    [navigation, resetFlow, showToastWhileLocked],
   );
 
   const handlePasscodeComplete = useCallback(
     pinCode => {
-      if (isFillingPasscodeRef.current) {
+      if (isFillingPasscodeRef.current || isInputLockedRef.current) {
         return;
       }
+
+      // Immediately block further PIN input after the last digit.
+      lockInput();
 
       const currentStep = stepRef.current;
       if (currentStep === 'old') {
@@ -279,7 +319,12 @@ export function PinCodeChangeScreen() {
       }
       handleNewPinComplete(pinCode);
     },
-    [handleConfirmPinComplete, handleNewPinComplete, handleOldPinComplete],
+    [
+      handleConfirmPinComplete,
+      handleNewPinComplete,
+      handleOldPinComplete,
+      lockInput,
+    ],
   );
 
   const handlePasscodeChange = useCallback(
@@ -287,6 +332,7 @@ export function PinCodeChangeScreen() {
       if (
         isLoadingRef.current ||
         isLoading ||
+        isInputLockedRef.current ||
         isFillingPasscodeRef.current ||
         isBiometricInProgressRef.current
       ) {
@@ -305,6 +351,7 @@ export function PinCodeChangeScreen() {
 
     if (
       isLoadingRef.current ||
+      isInputLockedRef.current ||
       isBiometricInProgressRef.current ||
       isFillingPasscodeRef.current
     ) {
@@ -324,7 +371,7 @@ export function PinCodeChangeScreen() {
         (await getStoredPinCode()) ?? credentials?.pinCode ?? null;
 
       if (!storedPin || storedPin.length !== PIN_LENGTH) {
-        showToast({
+        showToastWhileLocked({
           title: 'PIN կոդը չի գտնվել',
           body: 'Խնդրում ենք մուտքագրել PIN կոդը ձեռքով։',
           type: 'error',
@@ -343,14 +390,17 @@ export function PinCodeChangeScreen() {
     } catch (error) {
       console.log('PinCodeChangeScreen biometric error', error);
       if (!isUserCancellation(error)) {
-        showToast({
+        clearPasscode();
+        showToastWhileLocked({
           title: 'Նույնականացումը ձախողվեց',
           body: error?.message || 'Փորձեք կրկին։',
           type: 'error',
           position: 'bottom',
         });
+      } else {
+        clearPasscode();
+        unlockInput();
       }
-      clearPasscode();
     } finally {
       isBiometricInProgressRef.current = false;
       setIsLoading(false);
@@ -360,7 +410,8 @@ export function PinCodeChangeScreen() {
     clearPasscode,
     handleConfirmPinComplete,
     handleOldPinComplete,
-    showToast,
+    showToastWhileLocked,
+    unlockInput,
   ]);
 
   return (
@@ -379,6 +430,7 @@ export function PinCodeChangeScreen() {
           <View style={styles.passcodeContainer}>
             <Passcode
               hasBiometric={showBiometric}
+              disabled={isInputLocked || isLoading}
               value={passcode}
               onChange={handlePasscodeChange}
               onComplete={handlePasscodeComplete}
