@@ -13,6 +13,7 @@ export function OtpInputRowCode({
   focusedIndex,
   onFocusIndex,
   length = DEFAULT_OTP_LENGTH,
+  style,
 }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
@@ -67,7 +68,7 @@ export function OtpInputRowCode({
   };
 
   return (
-    <View style={styles.otpRow}>
+    <View style={[styles.otpRow, style]}>
       {digits.map((digit, index) => {
         const isFocused = focusedIndex === index;
         const isEmpty = !digit;

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AnimatedView } from '../../../components';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
@@ -10,7 +10,9 @@ import {
   getUserCredentialsWithBiometric,
   saveStoredPinCode,
 } from '../../../utils/secureStorage';
+import { FONT_FAMILY } from '../../../theme';
 import { Passcode } from '../../authScreens/signInUP/components/Passcode';
+import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 
 const PIN_LENGTH = 4;
 const PIN_FILL_STEP_MS = 90;
@@ -33,7 +35,7 @@ function isUserCancellation(error) {
   return message.includes('cancel') || message.includes('user denied');
 }
 
-const createStyles = () =>
+const createStyles = colors =>
   StyleSheet.create({
     screen: {
       flex: 1,
@@ -49,10 +51,28 @@ const createStyles = () =>
     content: {
       width: '100%',
       alignItems: 'center',
+      flexGrow: 1,
     },
     passcodeContainer: {
       width: '100%',
       alignItems: 'center',
+    },
+    footer: {
+      flex: 1,
+      justifyContent: 'flex-end',
+      width: '100%',
+      alignItems: 'center',
+      marginBottom: TAB_BAR_BOTTOM_OFFSET,
+    },
+    privacyText: {
+      fontSize: 14,
+      lineHeight: 26,
+      fontFamily: FONT_FAMILY.regular,
+      color: colors.icons,
+      marginTop: 4,
+      marginBottom: 20,
+      textAlign: 'center',
+      textDecorationLine: 'underline',
     },
   });
 
@@ -436,6 +456,14 @@ export function PinCodeChangeScreen() {
               onComplete={handlePasscodeComplete}
               onBiometric={showBiometric ? handleBiometricPress : undefined}
             />
+          </View>
+          <View style={styles.footer}>
+            <Pressable
+              onPress={() => navigation.navigate('AccountResetPin')}
+              disabled={isLoading || isInputLocked}
+            >
+              <Text style={styles.privacyText}>Վերականգնել PIN-կոդը</Text>
+            </Pressable>
           </View>
         </AnimatedView>
       </ScrollView>

@@ -3,6 +3,7 @@ export { ProfileInfoScreen } from './ProfileInfoScreen';
 export { ConfirmPhoneCodeScreen } from './ConfirmPhoneCodeScreen';
 export { PassportInfoScreen } from './PassportInfoScreen';
 export { PinCodeChangeScreen } from './PinCodeChangeScreen';
+export { AccountResetPinScreen } from './AccountResetPinScreen';
 export { ChangePasswordScreen } from './ChangePasswordScreen';
 export { WalletScreen } from './WalletScreen';
 export { SignatureScreen } from './SignatureScreen';

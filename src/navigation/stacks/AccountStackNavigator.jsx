@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   AccountScreen,
+  AccountResetPinScreen,
   ChangePasswordScreen,
   PassportInfoScreen,
   PinCodeChangeScreen,
@@ -103,6 +104,18 @@ export function AccountStackNavigator() {
           { title: 'PIN կոդ', isLogoutButton: true, isBackButton: true , isMinHeight: true},
           logout,
         )}
+      />
+      <Account.Screen
+        name="AccountResetPin"
+        component={AccountResetPinScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => (
+            <SafeAreaView edges={['top']} style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+              <MainHeader onPress={() => navigation.goBack()} />
+            </SafeAreaView>
+          ),
+        }}
       />
       <Account.Screen
         name="ChangePassword"
