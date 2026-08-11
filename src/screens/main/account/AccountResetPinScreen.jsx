@@ -18,6 +18,7 @@ import { authApi, persistAuthResponse } from '../../../api';
 import {
   useGlobalStyles,
   useOtpInput,
+  useTemporaryFocusStatusBar,
   useTheme,
   useThemedStyles,
   useToast,
@@ -102,6 +103,9 @@ export function AccountResetPinScreen() {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { showToast } = useToast();
+
+  // Same theme-aware bar as Home; restore account-stack light icons on leave.
+  useTemporaryFocusStatusBar();
 
   const [contentStep, setContentStep] = useState('verify');
 

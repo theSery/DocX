@@ -28,3 +28,25 @@ export function useThemedFocusStatusBar() {
   // doesn't jump ahead of the Skia overlay.
   useFocusStatusBar(barStyle, colors.background, !isAnimating);
 }
+
+/**
+ * Theme-aware status bar while focused (same as Home / useThemedFocusStatusBar),
+ * then restores another style on blur (default light-content for account stack).
+ */
+export function useTemporaryFocusStatusBar(
+  focusedStyle,
+  restoredStyle = 'light-content',
+) {
+  const { isDarkMode } = useTheme();
+  const resolvedFocusedStyle =
+    focusedStyle ?? (isDarkMode ? 'light-content' : 'dark-content');
+
+  useFocusEffect(
+    useCallback(() => {
+      StatusBar.setBarStyle(resolvedFocusedStyle, true);
+      return () => {
+        StatusBar.setBarStyle(restoredStyle, true);
+      };
+    }, [resolvedFocusedStyle, restoredStyle]),
+  );
+}

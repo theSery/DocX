@@ -1,9 +1,8 @@
-import { useFocusEffect, useRoute } from '@react-navigation/native';
-import { useCallback } from 'react';
-import { StatusBar } from 'react-native';
+import { useRoute } from '@react-navigation/native';
 import { ConfirmPhoneCodeForm } from '../../../components/ConfirmPhoneCodeForm';
 import { useAppSelector } from '../../../store';
 import { selectPersonalData } from '../../../store/slices/personalDataSlice';
+import { useTemporaryFocusStatusBar } from '../../../hooks';
 
 export function ConfirmPhoneCodeScreen() {
   const route = useRoute();
@@ -12,14 +11,7 @@ export function ConfirmPhoneCodeScreen() {
   const isDeleteAccount = route.params?.purpose === 'delete_account';
 
   // MainHeader sits on a light surface; restore account-stack light icons on leave.
-  useFocusEffect(
-    useCallback(() => {
-      StatusBar.setBarStyle('dark-content', true);
-      return () => {
-        StatusBar.setBarStyle('light-content', true);
-      };
-    }, []),
-  );
+  useTemporaryFocusStatusBar();
 
   return (
     <ConfirmPhoneCodeForm

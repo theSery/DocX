@@ -1,5 +1,4 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { LightThemeScope } from '../../theme';
 import {
   RegistrationScreen,
   SignInUpScreen,

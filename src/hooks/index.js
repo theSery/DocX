@@ -7,7 +7,7 @@ export { useMainScreenStyles } from './useMainScreenStyles';
 export { useNavigationTheme } from './useNavigationTheme';
 export { useStackScreenOptions } from './useStackScreenOptions';
 export { useHomeStackHeaderScrollHandler } from './useHomeStackHeaderScrollHandler';
-export { useFocusStatusBar, useThemedFocusStatusBar } from './useFocusStatusBar';
+export { useFocusStatusBar, useThemedFocusStatusBar, useTemporaryFocusStatusBar } from './useFocusStatusBar';
 export { useTheme } from './useTheme';
 export { useThemedStyles } from './useThemedStyles';
 export { useToast } from './useToast';

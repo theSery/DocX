@@ -3,7 +3,6 @@ import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Canvas, Rect, LinearGradient, vec, RoundedRect } from '@shopify/react-native-skia';
 import { gradients } from '../theme/tokens';
 import { HEADER_BOTTOM_RADIUS } from './gradientConstants';
-import { useTheme } from '../hooks';
 
 export default function GradientBackground({
   children,
@@ -15,7 +14,6 @@ export default function GradientBackground({
   isAccountScreen = false,
 }) {
   const { width, height } = useWindowDimensions();
-  const { isDarkMode } = useTheme();
   const calculateGradientHeight = () => {
     if (!gradientHeight) return height; // Если не передано, на весь экран
 
@@ -35,13 +33,11 @@ export default function GradientBackground({
     bottomLeft: { x: HEADER_BOTTOM_RADIUS, y: HEADER_BOTTOM_RADIUS },
   };
 
-  const gradient = isDarkMode && !isLight
-    ? gradients.accountStackDark
-    : isAccountScreen
-      ? gradients.accountStack
-      : isLight
-        ? gradients.lightSky
-        : gradients.blueLarge;
+  const gradient = isAccountScreen
+    ? gradients.accountStack
+    : isLight
+      ? gradients.lightSky
+      : gradients.blueLarge;
   const startColor = gradient.start;
   const endColor = gradient.end;
 
