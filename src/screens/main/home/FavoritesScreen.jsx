@@ -304,7 +304,7 @@ const createStyles = colors =>
     },
     scrollContentEmpty: {
       flexGrow: 1,
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
     },
     bg: {
       position: 'absolute',

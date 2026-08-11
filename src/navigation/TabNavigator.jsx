@@ -1,5 +1,6 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { StackActions } from '@react-navigation/native';
 
 import { useAuthSession } from '../hooks';
 import {
@@ -18,21 +19,33 @@ const Tab = createBottomTabNavigator();
 export function TabNavigator() {
   const { isAuthenticated, openAuth } = useAuthSession();
 
-  const guardProtectedTab = useCallback(
-    e => {
-      if (!isAuthenticated) {
-        e.preventDefault();
-        openAuth();
-      }
-    },
-    [isAuthenticated, openAuth],
-  );
+  const tabListeners = useCallback(
+    ({ navigation, route }) => ({
+      tabPress: e => {
+        if (
+          !isAuthenticated &&
+          !PUBLIC_TAB_ROUTE_NAMES.includes(route.name)
+        ) {
+          e.preventDefault();
+          openAuth();
+          return;
+        }
 
-  const protectedListeners = useMemo(
-    () => ({
-      tabPress: guardProtectedTab,
+        // Re-pressing the active tab always returns to that tab's main screen.
+        const nestedState = route.state;
+        if (
+          navigation.isFocused() &&
+          nestedState?.key != null &&
+          nestedState.index > 0
+        ) {
+          navigation.dispatch({
+            ...StackActions.popToTop(),
+            target: nestedState.key,
+          });
+        }
+      },
     }),
-    [guardProtectedTab],
+    [isAuthenticated, openAuth],
   );
 
   const renderTabBar = useCallback(props => <TabBar {...props} />, []);
@@ -50,6 +63,7 @@ export function TabNavigator() {
         options={{
           title: 'Ստեղծել',
         }}
+        listeners={tabListeners}
       />
       <Tab.Screen
         name="Documents"
@@ -57,7 +71,7 @@ export function TabNavigator() {
         options={{
           title: 'Փաստաթղթեր',
         }}
-        listeners={protectedListeners}
+        listeners={tabListeners}
       />
       <Tab.Screen
         name="Files"
@@ -65,7 +79,7 @@ export function TabNavigator() {
         options={{
           title: 'Ֆայլեր',
         }}
-        listeners={protectedListeners}
+        listeners={tabListeners}
       />
       <Tab.Screen
         name="Account"
@@ -74,7 +88,7 @@ export function TabNavigator() {
           headerShown: false,
           title: 'Հաշիվ',
         }}
-        listeners={protectedListeners}
+        listeners={tabListeners}
       />
     </Tab.Navigator>
   );

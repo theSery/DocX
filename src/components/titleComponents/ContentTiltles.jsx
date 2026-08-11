@@ -1,6 +1,5 @@
 import { StyleSheet } from 'react-native';
 import { Typography } from '../typography';
-import { palette } from '../../theme';
 import { useThemedStyles } from '../../hooks';
 
 export function ContentTiltes({ title, subtitle, isSearch = false }) {

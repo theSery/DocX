@@ -7,7 +7,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import MainHeader from './MainHeader';
 import FavoritesButton from '../buttons/FavoritesButton';
-import { useThemedStyles } from '../../hooks';
+import { useAuthSession, useThemedStyles } from '../../hooks';
 import { SearchComponent } from '../titleComponents/SearchComponent';
 import { CachedImage } from '../image';
 import { Typography } from '../typography';
@@ -242,14 +242,16 @@ const HomeStackHeader = ({
   route,
 }) => {
   const styles = useThemedStyles(createStyles);
+  const { isAuthenticated } = useAuthSession();
   const searchScope = resolveSearchScope(route);
+  const favoritesPress = isAuthenticated ? onFavoritesPress : undefined;
 
   if (!collapsible) {
     return (
       <StaticHomeStackHeader
         styles={styles}
         onPress={onPress}
-        onFavoritesPress={onFavoritesPress}
+        onFavoritesPress={favoritesPress}
         title={title}
         subtitle={subtitle}
         showSearch={showSearch}
@@ -263,7 +265,7 @@ const HomeStackHeader = ({
     <CollapsibleHomeStackHeader
       styles={styles}
       onPress={onPress}
-      onFavoritesPress={onFavoritesPress}
+      onFavoritesPress={favoritesPress}
       title={title}
       subtitle={subtitle}
       showSearch={showSearch}

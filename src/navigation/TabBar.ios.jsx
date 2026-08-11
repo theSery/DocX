@@ -70,25 +70,7 @@ function TabBarBackground({ glass }) {
         blurAmount={glass.blurAmount}
         reducedTransparencyFallbackColor={glass.fallback}
       />
-      {/* Milky translucent plate */}
-      {/* <View
-        style={[StyleSheet.absoluteFill, { backgroundColor: glass.fill }]}
-      /> */}
-      {/* Soft top wash */}
-      {/* <View
-        style={[styles.glassHighlight, { backgroundColor: glass.highlight }]}
-      /> */}
-      {/* Vertical refraction (bright rims + lower-middle caustic) */}
-      {/* <GlassSheen
-        stops={glass.sheen}
-        gradientId="tabBarGlassSheen"
-        direction="vertical"
-      /> */}
-      {/* Crisp glass edge highlights */}
-      {/* <View style={[styles.glassRimTop, { backgroundColor: glass.rim }]} />
-      <View
-        style={[styles.glassRimBottom, { backgroundColor: glass.rimBottom }]}
-      /> */}
+
     </View>
   );
 }

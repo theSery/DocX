@@ -1,4 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   AccountScreen,
   ChangePasswordScreen,
@@ -13,6 +14,7 @@ import {
 import { FaceIdScreen } from '../../screens/faceId';
 import { useAuthSession, useFocusStatusBar, useStackScreenOptions } from '../../hooks';
 import AccountStackHeader from '../../components/headers/accountStackHeader/AccountStackHeader';
+import MainHeader from '../../components/headers/MainHeader';
 import { animation } from '../constants';
 
 const Account = createNativeStackNavigator();
@@ -70,10 +72,14 @@ export function AccountStackNavigator() {
       <Account.Screen
         name="ConfirmPhoneCode"
         component={ConfirmPhoneCodeScreen}
-        options={nestedScreenOptionsWithHeader(
-          nestedScreenOptions,
-          { title: 'Հաստատման կոդ', isLogoutButton: false, isBackButton: true, isMinHeight: true },
-        )}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => (
+            <SafeAreaView edges={['top']} style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+              <MainHeader onPress={() => navigation.goBack()} />
+            </SafeAreaView>
+          ),
+        }}
       />
       <Account.Screen
         name="FaceIdUnlock"
