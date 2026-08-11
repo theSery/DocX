@@ -200,7 +200,7 @@ const createStyles = () =>
     content: {
       flex: 1,
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
       width: '100%',
       marginBottom: 20,
     },

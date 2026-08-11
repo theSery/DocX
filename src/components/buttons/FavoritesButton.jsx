@@ -1,14 +1,14 @@
 import React from 'react';
-import { Image, Pressable, StyleSheet } from 'react-native';
+import { ImageBackground, Pressable, StyleSheet } from 'react-native';
 
-import darkFav from '../../assets/images/darkFav.webp';
-import lightFav from '../../assets/images/lightFav.webp';
+import leftIconBg from '../../assets/images/leftIconBg.webp';
+import ligtBlueButton from '../../assets/images/ligtBlueButton.webp';
+import StarOutlineSvg from '../icons/StarOutlineSvg';
 import { useTheme } from '../../hooks';
 
 /**
  * Circular favorites control for HomeStackHeader.
- * Theme-aware assets from examples/DarlFav.png and examples/LigthFav.png
- * (same Image-button approach as BackButton).
+ * Same ImageBackground + SVG approach as BackButton.
  */
 const FavoritesButton = ({ onPress }) => {
   const { isDarkMode } = useTheme();
@@ -20,25 +20,37 @@ const FavoritesButton = ({ onPress }) => {
       accessibilityLabel="Favorites"
       style={styles.pressable}
     >
-      <Image
-        source={isDarkMode ? darkFav : lightFav}
+      <ImageBackground
+        source={isDarkMode ? ligtBlueButton : leftIconBg}
         style={styles.image}
-        resizeMode="contain"
-      />
+        imageStyle={styles.imageInner}
+        resizeMode="cover"
+      >
+        <StarOutlineSvg
+          width={19}
+          height={18}
+          fill={isDarkMode ? '#FFFFFF' : '#1D3D81'}
+        />
+      </ImageBackground>
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   pressable: {
-    width: 50,
-    height: 50,
+    width: 45,
+    height: 45,
     alignItems: 'center',
     justifyContent: 'center',
   },
   image: {
-    width: 50,
-    height: 50,
+    width: '100%',
+    height: '100%',
+    borderRadius: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imageInner: {
     borderRadius: 100,
   },
 });

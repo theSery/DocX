@@ -77,7 +77,7 @@ export function AccountStackNavigator() {
           headerShown: true,
           header: ({ navigation }) => (
             <SafeAreaView edges={['top']} style={{ paddingHorizontal: 16, paddingTop: 10 }}>
-              <MainHeader onPress={() => navigation.goBack()} />
+              <MainHeader onPress={() => navigation.goBack()} isHome={true} />
             </SafeAreaView>
           ),
         }}
@@ -112,7 +112,7 @@ export function AccountStackNavigator() {
           headerShown: true,
           header: ({ navigation }) => (
             <SafeAreaView edges={['top']} style={{ paddingHorizontal: 16, paddingTop: 10 }}>
-              <MainHeader onPress={() => navigation.goBack()} />
+              <MainHeader onPress={() => navigation.goBack()} isHome={true} />
             </SafeAreaView>
           ),
         }}

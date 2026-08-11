@@ -144,7 +144,7 @@ export function EmailVerificationScreen({ navigation, route }) {
 
   return (
     <AuthScreenLayout style={[styles.screen]}>
-      <MainHeader onPress={() => navigation.goBack()} isHome={true} />
+      <MainHeader onPress={() => navigation.goBack()} />
       <ScrollView
         style={localStyles.formArea}
         showsVerticalScrollIndicator={false}

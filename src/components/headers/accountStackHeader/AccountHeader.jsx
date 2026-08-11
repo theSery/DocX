@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Image, Pressable } from 'react-native';
+import { StyleSheet, View, ImageBackground, Pressable } from 'react-native';
 import ligtBlueButton from '../../../assets/images/ligtBlueButton.webp';
 import { Typography } from '../../typography';
 import { palette } from '../../../theme';
@@ -11,31 +11,36 @@ import { showGlobalSheet } from '../../GlobalSheet';
 const LOGOUT_CONFIRMATION_MESSAGE =
   'Վստա՞հ եք, որ ցանկանում եք դուրս գալ հավելվածից։';
 
-const createStyles = (colors) =>
+const createStyles = () =>
   StyleSheet.create({
     container: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
+
     },
     backButtonContainer: {
-      width: '15%',
+      // width: '15%',
     },
     logoContainer: {
+      alignItems: 'center',
+    },
+    button: {
+      width: 45,
+      height: 45,
+      borderRadius: 100,
+      justifyContent: 'center',
       alignItems: 'center',
     },
     image: {
       width: '100%',
       height: '100%',
-      position: 'absolute',
-    },
-    logOut: {
-      position: 'relative',
-      width: '100%',
-      height: 50,
       borderRadius: 100,
       justifyContent: 'center',
       alignItems: 'center',
+    },
+    imageInner: {
+      borderRadius: 100,
     },
     title: {
       color: palette.white,
@@ -64,18 +69,20 @@ const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutBu
     <View style={styles.container}>
       <View style={styles.backButtonContainer}>
         {isBackButton ? (
-          <Pressable onPress={onPress} style={styles.logOut}>
-            <Image
+          <Pressable onPress={onPress} style={styles.button}>
+            <ImageBackground
               source={ligtBlueButton}
               style={styles.image}
-              resizeMode="contain"
-            />
-            <ArrowSvg
-              fill={palette.white}
-              width={20}
-              height={20}
-              rotate={180}
-            />
+              imageStyle={styles.imageInner}
+              resizeMode="cover"
+            >
+              <ArrowSvg
+                fill={palette.white}
+                width={18}
+                height={15}
+                rotate={180}
+              />
+            </ImageBackground>
           </Pressable>
         ) : null}
       </View>
@@ -90,13 +97,15 @@ const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutBu
       </View>
       <View style={styles.backButtonContainer}>
         {isLogoutButton ? (
-          <Pressable onPress={handleLogoutPress} style={styles.logOut}>
-            <Image
+          <Pressable onPress={handleLogoutPress} style={styles.button}>
+            <ImageBackground
               source={ligtBlueButton}
               style={styles.image}
-              resizeMode="contain"
-            />
-            <LogoutSvg fill={palette.white} width={20} height={20} />
+              imageStyle={styles.imageInner}
+              resizeMode="cover"
+            >
+              <LogoutSvg fill={palette.white} width={15} height={18} />
+            </ImageBackground>
           </Pressable>
         ) : null}
       </View>
