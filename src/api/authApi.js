@@ -5,6 +5,10 @@ export const authApi = {
     return axiosClient.post('/auth/login', { email, password });
   },
 
+  loginWithPhone({ phoneNumber, password }) {
+    return axiosClient.post('/auth/phone/login', { phoneNumber, password });
+  },
+
   sendOtp({ email, purpose }) {
     return axiosClient.post('/auth/send-otp', { email, purpose });
   },

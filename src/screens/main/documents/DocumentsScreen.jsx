@@ -115,8 +115,7 @@ export function DocumentsScreen({ route, navigation }) {
   );
 
   useEffect(() => {
-    // Skip when slice already has data for these filters (e.g. startup prefetch).
-    // Still fetch when status is idle so the screen can load if startup hasn't.
+    // Skip when this screen already loaded the current filters.
     if (areFiltersEqual(currentFilters, appliedFilters) && status !== 'idle') {
       return;
     }

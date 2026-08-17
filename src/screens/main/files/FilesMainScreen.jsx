@@ -69,8 +69,7 @@ export function FilesMainScreen() {
   );
 
   useEffect(() => {
-    // Skip when slice already has data for this search (e.g. startup prefetch).
-    // Still fetch when status is idle so the screen can load if startup hasn't.
+    // Skip when this screen already loaded the current search.
     if (searchTerm === appliedSearchTerm && status !== 'idle') {
       return;
     }
@@ -182,13 +181,13 @@ export function FilesMainScreen() {
       <View style={styles.centeredState}>
         <SadIcon width={48} height={48} fill={colors.icons} />
         <Typography variant="h5" tone="secondary" style={styles.stateText}>
-          {emptyMessage}
+          { }
         </Typography>
       </View>
     );
   }, [
     colors.primary,
-    colors.icons,
+    colors.icons,      
     errorMessage,
     handleRetry,
     isLoading,

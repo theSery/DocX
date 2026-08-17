@@ -208,11 +208,11 @@ export function AccountScreen({ navigation }) {
       <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
         <View style={styles.balanceContainer}>
           <View style={styles.balanceRow}>
-            <WalletSvg fill={palette.lightGray} width={50} height={50} />
-            <Typography variant="h1" style={styles.balanceText}>500֏</Typography>
+            {/* <WalletSvg fill={palette.lightGray} width={50} height={50} />
+            <Typography variant="h1" style={styles.balanceText}>500֏</Typography> */}
           </View>
 
-          <Pressable
+          {/* <Pressable
             onPress={() => navigation.navigate('Wallet')}
             style={styles.addBalanceButton}
           >
@@ -222,7 +222,7 @@ export function AccountScreen({ navigation }) {
                 Համալրել
               </Typography>
             </View>
-          </Pressable>
+          </Pressable> */}
         </View>
 
         <View style={styles.section}>

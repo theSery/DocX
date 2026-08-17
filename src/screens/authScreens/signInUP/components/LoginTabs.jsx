@@ -57,6 +57,7 @@ function OutlineButton({ title, onPress, icon }) {
       style={({ pressed }) => [
         styles.outlineButton,
         pressed && styles.buttonPressed,
+        { justifyContent: 'center' },
       ]}
       onPress={onPress}
     >
@@ -338,56 +339,92 @@ function MailLogin({ handleTabPress, isResetPassword, onForgotPassword }) {
   );
 }
 
-function PhoneLogin({ handleTabPress, onSendCode }) {
+function PhoneLogin({ handleTabPress }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
-  const [isSending, setIsSending] = useState(false);
-  const { control, handleSubmit } = useForm({
-    defaultValues: { phone: '' },
+  const { login } = useAuthSession();
+  const { showToast } = useToast();
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm({
+    defaultValues: { phone: '', password: '' },
     mode: 'onBlur',
   });
+  const isLoading = isSubmitting;
 
-  const handleSendCode = handleSubmit(async values => {
-    setIsSending(true);
+  const handleSignIn = handleSubmit(async values => {
     try {
-      await onSendCode(values.phone);
-    } finally {
-      setIsSending(false);
+      const response = await authApi.loginWithPhone({
+        phoneNumber: values.phone,
+        password: values.password,
+      });
+      await persistAuthResponse(response);
+      const payload = response?.data?.data ?? response?.data;
+      showToast({
+        title: 'Մուտքը հաջողությամբ կատարվեց',
+        body: response?.data?.message ?? payload?.message ?? 'Բարի գալուստ',
+        type: 'success',
+      });
+      await login();
+    } catch (error) {
+      showToast({
+        title: 'Մուտք ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
     }
   });
 
   return (
     <View style={{ justifyContent: 'space-between', height: SCREEN_HEIGHT }}>
-      <FormField
-        control={control}
-        name="phone"
-        label="Հեռախոսահամար"
-        keyboardType="phone-pad"
-        placeholder="91 123 456"
-        placeholderTextColor={colors.textDisabled}
-        startIcon={<PhoneSvg width={20} height={20} fill={colors.icons} />}
-        rules={{
-          required: 'Հեռախոսահամարը պարտադիր է',
-          pattern: {
-            value: PHONE_PATTERN,
-            message: 'Մուտքագրեք վավեր հեռախոսահամար',
-          },
-        }}
-      />
+      <View>
+        <FormField
+          control={control}
+          name="phone"
+          label="Հեռախոսահամար"
+          keyboardType="phone-pad"
+          placeholder="91 123 456"
+          placeholderTextColor={colors.textDisabled}
+          startIcon={<PhoneSvg width={20} height={20} fill={colors.icons} />}
+          rules={{
+            required: 'Հեռախոսահամարը պարտադիր է',
+            pattern: {
+              value: PHONE_PATTERN,
+              message: 'Մուտքագրեք վավեր հեռախոսահամար',
+            },
+          }}
+        />
+        <View style={{ marginTop: 16 }}>
+          <FormField
+            control={control}
+            name="password"
+            label="Գաղտնաբառ"
+            placeholder="********"
+            startIcon={<LockIconSbg width={17} height={19} fill={colors.icons} />}
+            secureTextEntry
+            rules={{
+              required: 'Գաղտնաբառը պարտադիր է',
+              minLength: { value: 6, message: 'Առնվազն 6 նիշ' },
+            }}
+          />
+        </View>
+      </View>
 
       <View style={styles.actions}>
         <Pressable
           style={({ pressed }) => [
             styles.primaryButton,
-            (pressed || isSending) && styles.buttonPressed,
-            isSending && styles.primaryButtonDisabled,
+            (pressed || isLoading) && styles.buttonPressed,
+            isLoading && styles.primaryButtonDisabled,
           ]}
-          onPress={handleSendCode}
-          disabled={isSending}
+          onPress={handleSignIn}
+          disabled={isLoading}
         >
           <GradientButton height={45} isLight={false}>
             <Typography variant="h5" style={styles.primaryButtonText}>
-              {isSending ? 'Ուղարկվում է...' : 'Ուղարկել կոդը'}
+              {isLoading ? 'Մուտք է կատարվում...' : 'Մուտք գործել'}
             </Typography>
           </GradientButton>
         </Pressable>
@@ -433,9 +470,7 @@ function renderLoginContent(
         />
       );
     case 'phone':
-      return (
-        <PhoneLogin handleTabPress={handleTabPress} onSendCode={onSendCode} />
-      );
+      return <PhoneLogin handleTabPress={handleTabPress} />;
     default:
       return null;
   }
@@ -625,10 +660,10 @@ const createStyles = colors =>
     paddingHorizontal: 16,
   },
   outlineButtonText: {
-    width: '80%',
+    // width: '80%',
     textAlign: 'center',
     color: colors.icons,
-    letterSpacing: 2,
+    // letterSpacing: 2,
   },
   buttonPressed: {
     opacity: 0.88,

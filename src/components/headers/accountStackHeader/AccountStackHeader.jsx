@@ -121,11 +121,11 @@ const AccountStackHeader = ({
                 <Typography variant="h3" tone="onDark" style={styles.userName}>
                   {surname}
                 </Typography>
-                <View style={styles.accountInfoContainer}>
+                {/* <View style={styles.accountInfoContainer}>
                   <Typography tone="onDark" style={styles.accountType}>
                     Ֆիզիկական անձ
                   </Typography>
-                </View>
+                </View> */}
               </View>
             </View>
           </View>

@@ -34,6 +34,7 @@ import {
   fetchPersonalDocuments,
   removePersonalDocument,
   selectPersonalDocuments,
+  selectPersonalDocumentsStatus,
 } from '../../../store/slices/personalDocumentsSlice';
 import {
   useFileDownload,
@@ -65,6 +66,7 @@ export function DocumentCreateScreen({ route, navigation }) {
   const personalData = useAppSelector(selectPersonalData);
   const documentFill = useAppSelector(selectDocumentFill);
   const personalDocuments = useAppSelector(selectPersonalDocuments);
+  const personalDocumentsStatus = useAppSelector(selectPersonalDocumentsStatus);
   const {
     templateText = '',
     templateName = 'document',
@@ -390,6 +392,12 @@ export function DocumentCreateScreen({ route, navigation }) {
     () => `${templateText}:${JSON.stringify(documentFill)}:${JSON.stringify(personalData)}`,
     [templateText, documentFill, personalData],
   );
+
+  useEffect(() => {
+    if (personalDocumentsStatus === 'idle') {
+      dispatch(fetchPersonalDocuments({ page: 1, limit: 100 }));
+    }
+  }, [dispatch, personalDocumentsStatus]);
 
   useEffect(() => {
     setHasTypingFinished(false);

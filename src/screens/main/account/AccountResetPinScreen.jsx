@@ -482,7 +482,7 @@ export function AccountResetPinScreen() {
           {!isSuccess && (
             <Pressable
               onPress={handleSendOtp}
-              disabled={isSendingOtp}
+              disabled={isSendingOtp}         
               style={styles.sendOtpButton}
             >
               {isSendingOtp ? (
