@@ -17,7 +17,8 @@ import { authApi, persistAuthResponse } from '../../../api';
 const PIN_LENGTH = 4;
 
 export function PinCodeScreen({ navigation, route }) {
-  const { name, surname, patronymic, email, password } = route.params;
+  const { name, surname, patronymic, email, phoneNumber, password } =
+    route.params ?? {};
   const styles = useAuthScreenStyles();
   const localStyles = useThemedStyles(createStyles);
   const { showToast } = useToast();
@@ -74,16 +75,30 @@ export function PinCodeScreen({ navigation, route }) {
       setIsLoading(true);
 
       try {
-        const response = await authApi.registerPersonal({
+        const response = phoneNumber
+          ? await authApi.registerPersonalWithPhone({
+              phoneNumber,
+              name,
+              surname,
+              patronymic,
+              password,
+              pinCode,
+            })
+          : await authApi.registerPersonal({
+              email,
+              name,
+              surname,
+              patronymic,
+              password,
+              pinCode,
+            });
+        await persistAuthResponse(response);
+        await saveUserCredentials({
           email,
-          name,
-          surname,
-          patronymic,
+          phoneNumber,
           password,
           pinCode,
         });
-        await persistAuthResponse(response);
-        await saveUserCredentials({ email, password, pinCode });
         const payload = response?.data?.data ?? response?.data;
         showToastWhileLocked({
           title: 'Գրանցումը հաջողությամբ կատարվեց',
@@ -109,7 +124,16 @@ export function PinCodeScreen({ navigation, route }) {
         setIsLoading(false);
       }
     },
-    [email, login, name, password, patronymic, showToastWhileLocked, surname],
+    [
+      email,
+      login,
+      name,
+      password,
+      patronymic,
+      phoneNumber,
+      showToastWhileLocked,
+      surname,
+    ],
   );
 
   const handlePasscodeComplete = useCallback(

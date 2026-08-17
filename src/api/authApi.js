@@ -13,14 +13,44 @@ export const authApi = {
     return axiosClient.post('/auth/send-otp', { email, purpose });
   },
 
+  sendPhoneOtp({ phoneNumber, purpose }) {
+    return axiosClient.post('/auth/phone/send-otp', { phoneNumber, purpose });
+  },
+
   verifyOtp({ email, code, purpose }) {
     console.log('verifyOtp', email, code, purpose);
     return axiosClient.post('/auth/verify-otp', { email, code, purpose });
   },
 
+  verifyPhoneOtp({ phoneNumber, purpose, code }) {
+    return axiosClient.post('/auth/phone/verify-otp', {
+      phoneNumber,
+      purpose,
+      code,
+    });
+  },
+
   registerPersonal({ email, name, surname, patronymic, password, pinCode }) {
     return axiosClient.post('/auth/register/personal', {
       email,
+      name,
+      surname,
+      patronymic,
+      password,
+      pinCode,
+    });
+  },
+
+  registerPersonalWithPhone({
+    phoneNumber,
+    name,
+    surname,
+    patronymic,
+    password,
+    pinCode,
+  }) {
+    return axiosClient.post('/auth/phone/register/personal', {
+      phoneNumber,
       name,
       surname,
       patronymic,

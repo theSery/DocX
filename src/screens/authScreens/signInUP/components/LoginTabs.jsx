@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
@@ -361,6 +361,10 @@ function PhoneLogin({ handleTabPress }) {
         password: values.password,
       });
       await persistAuthResponse(response);
+      await saveUserCredentials({
+        phoneNumber: values.phone,
+        password: values.password,
+      });
       const payload = response?.data?.data ?? response?.data;
       showToast({
         title: 'Մուտքը հաջողությամբ կատարվեց',
@@ -434,7 +438,7 @@ function PhoneLogin({ handleTabPress }) {
           onPress={() => handleTabPress('mail')}
           icon={<MailIconSvg width={19} height={15} fill={colors.icons} />}
         />
-        <Image source={bg} resizeMode="cover" style={styles.bg} />
+        {/* <Image source={bg} resizeMode="cover" style={styles.bg} /> */}
       </View>
     </View>
   );
@@ -476,7 +480,7 @@ function renderLoginContent(
   }
 }
 
-export function LoginTabs({ onPhoneLogin }) {
+export function LoginTabs({ onPhoneLogin, onActiveTabChange }) {
   const styles = useThemedStyles(createStyles);
   const [activeTab, setActiveTab] = useState('mail');
   const [phoneStep, setPhoneStep] = useState('entry');
@@ -485,6 +489,10 @@ export function LoginTabs({ onPhoneLogin }) {
   const { showToast } = useToast();
   const contentOpacity = useRef(new Animated.Value(1)).current;
   const contentTranslateY = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    onActiveTabChange?.(activeTab);
+  }, [activeTab, onActiveTabChange]);
 
   const loginTitle =
     isResetPassword && activeTab === 'mail'

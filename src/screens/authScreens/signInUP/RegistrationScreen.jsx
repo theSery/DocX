@@ -10,7 +10,7 @@ import { ContentTiltes } from '../../../components/titleComponents/ContentTiltle
 import AuthButton from '../../../components/buttons/AuthButton';
 
 export function RegistrationScreen({ navigation, route }) {
-  const { email, password } = route.params ?? {};
+  const { email, phoneNumber, password } = route.params ?? {};
   const styles = useAuthScreenStyles();
   const localStyles = useThemedStyles(createStyles);
   const { colors } = useTheme();
@@ -30,6 +30,7 @@ export function RegistrationScreen({ navigation, route }) {
       surname: values.surname,
       patronymic: values.patronymic,
       email,
+      phoneNumber,
       password,
     });
   });

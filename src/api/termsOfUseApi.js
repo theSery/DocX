@@ -1,7 +1,7 @@
-import { axiosClient } from './axiosClient';
+import { LEGAL_DOCUMENT_TYPE, legalDocumentsApi } from './legalDocumentsApi';
 
 export const termsOfUseApi = {
   getTermsOfUse() {
-    return axiosClient.get('/terms-of-use');
+    return legalDocumentsApi.getByType(LEGAL_DOCUMENT_TYPE.termsOfUse);
   },
 };

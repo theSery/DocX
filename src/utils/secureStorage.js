@@ -161,14 +161,29 @@ export async function hasStoredPinCode() {
   return Boolean(credentials?.pinCode);
 }
 
-export async function saveUserCredentials({ email, password, pinCode }) {
-  const payload = JSON.stringify({ password, pinCode });
+export async function saveUserCredentials({
+  email,
+  phoneNumber,
+  password,
+  pinCode,
+}) {
+  const identifier = email || phoneNumber;
+  if (!identifier) {
+    throw new Error('Email or phone number is required');
+  }
+
+  const payload = JSON.stringify({
+    email: email || undefined,
+    phoneNumber: phoneNumber || undefined,
+    password,
+    pinCode,
+  });
 
   // Credentials stay readable after PIN auth. Face ID is gated separately so
   // either method alone can unlock — they are not both required.
   await Keychain.resetGenericPassword({ service: KEYCHAIN_SERVICE });
   const result = await Keychain.setGenericPassword(
-    email,
+    identifier,
     payload,
     buildSetOptions(),
   );
@@ -177,7 +192,7 @@ export async function saveUserCredentials({ email, password, pinCode }) {
     throw new Error('Failed to save credentials to keychain');
   }
 
-  await saveStoredEmail(email);
+  await saveStoredEmail(email || '');
   await saveBiometricGate();
 
   if (pinCode != null && pinCode !== '') {
@@ -224,11 +239,22 @@ export async function getStoredCredentials() {
 }
 
 function parseStoredCredentials(credentials) {
-  const { username: email, password: payload } = credentials;
+  const { username, password: payload } = credentials;
 
   try {
-    const { password, pinCode } = JSON.parse(payload);
-    return { email, password, pinCode };
+    const parsed = JSON.parse(payload);
+    const email =
+      parsed.email || (username?.includes('@') ? username : undefined);
+    const phoneNumber =
+      parsed.phoneNumber ||
+      (!email && username && !username.includes('@') ? username : undefined);
+
+    return {
+      email,
+      phoneNumber,
+      password: parsed.password,
+      pinCode: parsed.pinCode,
+    };
   } catch {
     return null;
   }

@@ -1,11 +1,50 @@
-import { useEffect } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
+import { WebView } from 'react-native-webview';
 import CloseSvg from '../icons/CloseSvg';
 import { Typography } from '../typography';
 import { useTheme, useThemedStyles } from '../../hooks';
 
+function getLegalDocumentPayload(response) {
+  return response?.data?.data ?? response?.data ?? response;
+}
+
+function buildLegalDocumentHtml(content, colors) {
+  return `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: ${colors.surface};
+        color: ${colors.text};
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 15px;
+        line-height: 1.55;
+      }
+      p { margin: 0 0 12px; }
+      a { color: ${colors.icons}; }
+    </style>
+  </head>
+  <body>${content || ''}</body>
+</html>`;
+}
+
 export function LegalDocumentContent({ title, fetchDocument, logKey }) {
   const styles = useThemedStyles(createContentStyles);
+  const { colors } = useTheme();
+  const [content, setContent] = useState('');
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(Boolean(fetchDocument));
 
   useEffect(() => {
     if (!fetchDocument) {
@@ -13,16 +52,28 @@ export function LegalDocumentContent({ title, fetchDocument, logKey }) {
     }
 
     let cancelled = false;
+    setIsLoading(true);
+    setError(null);
+    setContent('');
 
     (async () => {
       try {
         const response = await fetchDocument();
-        if (!cancelled) {
-          console.log(`${logKey} response`, response?.data ?? response);
+        const payload = getLegalDocumentPayload(response);
+        if (cancelled) {
+          return;
         }
-      } catch (error) {
+
+        console.log(`${logKey} response`, payload);
+        setContent(payload?.content ?? '');
+      } catch (fetchError) {
         if (!cancelled) {
-          console.log(`${logKey} error`, error);
+          console.log(`${logKey} error`, fetchError);
+          setError(fetchError?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։');
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
         }
       }
     })();
@@ -32,18 +83,47 @@ export function LegalDocumentContent({ title, fetchDocument, logKey }) {
     };
   }, [fetchDocument, logKey]);
 
-  return (
-    <ScrollView
-      style={styles.scroll}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-    >
+  const html = useMemo(
+    () => buildLegalDocumentHtml(content, colors),
+    [colors, content],
+  );
+
+  if (isLoading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator color={colors.icons} />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.centered}>
+        <Typography variant="h5" tone="secondary" style={styles.message}>
+          {error}
+        </Typography>
+      </View>
+    );
+  }
+
+  if (!content) {
+    return (
       <View style={styles.section}>
         <Typography variant="h5" tone="secondary">
           {title}
         </Typography>
       </View>
-    </ScrollView>
+    );
+  }
+
+  return (
+    <WebView
+      originWhitelist={['*']}
+      source={{ html }}
+      style={styles.webView}
+      nestedScrollEnabled
+      showsVerticalScrollIndicator={false}
+    />
   );
 }
 
@@ -93,13 +173,17 @@ export function PrivacyPolicyModal({ visible, onClose, title, fetchDocument, log
 
 const createContentStyles = () =>
   StyleSheet.create({
-    scroll: {
+    webView: {
       flex: 1,
-      width: '100%',
+      backgroundColor: 'transparent',
     },
-    contentContainer: {
-      justifyContent: 'flex-start',
-      paddingBottom: 16,
+    centered: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    message: {
+      textAlign: 'center',
     },
     section: {
       width: '100%',

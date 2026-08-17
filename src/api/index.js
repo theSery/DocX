@@ -5,6 +5,7 @@ export { categoriesApi } from './categoriesApi';
 export { complaintsApi } from './complaintsApi';
 export { favoriteTemplatesApi } from './favoriteTemplatesApi';
 export { filesApi } from './filesApi';
+export { LEGAL_DOCUMENT_TYPE, legalDocumentsApi } from './legalDocumentsApi';
 export { personalDataApi } from './personalDataApi';
 export { personalDocumentsApi } from './personalDocumentsApi';
 export { privacyPolicyApi } from './privacyPolicyApi';

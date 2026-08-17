@@ -138,10 +138,14 @@ export function FaceIdScreen({ navigation, route }) {
   }, [completeReauth, isUnlockOnly, navigation, nextScreen]);
 
   const loginWithCredentials = useCallback(
-    async ({ email, password }) => {
+    async ({ email, phoneNumber, password }) => {
       try {
-        console.log('[FaceId] Logging in with keychain credentials for:', email);
-        const response = await authApi.login({ email, password });
+        const identifier = email || phoneNumber;
+        console.log('[FaceId] Logging in with keychain credentials for:', identifier);
+        const response =
+          phoneNumber && !email
+            ? await authApi.loginWithPhone({ phoneNumber, password })
+            : await authApi.login({ email, password });
         await persistAuthResponse(response);
         console.log('[FaceId] Login successful');
         await completeAuthentication();
@@ -209,7 +213,10 @@ export function FaceIdScreen({ navigation, route }) {
         return;
       }
 
-      console.log('[FaceId] Biometric success — credentials retrieved for:', credentials.email);
+      console.log(
+        '[FaceId] Biometric success — credentials retrieved for:',
+        credentials.email || credentials.phoneNumber,
+      );
       if (credentials.email) {
         await saveStoredEmail(credentials.email);
       }
@@ -360,13 +367,18 @@ export function FaceIdScreen({ navigation, route }) {
         return;
       }
 
-      if (!credentials?.email || !credentials?.password) {
+      if (
+        !(credentials?.email || credentials?.phoneNumber) ||
+        !credentials?.password
+      ) {
         console.log('[FaceId] PIN verification failed — credentials missing');
         showInvalidPin();
         return;
       }
 
-      await saveStoredEmail(credentials.email);
+      if (credentials.email) {
+        await saveStoredEmail(credentials.email);
+      }
 
       if (hasCompletedAuthRef.current) {
         console.log('[FaceId] Auth already completed via Face ID, ignoring PIN result');
