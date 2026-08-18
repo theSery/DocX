@@ -44,23 +44,6 @@ function OrDivider() {
   );
 }
 
-function OutlineButton({ title, onPress, icon }) {
-  const styles = useThemedStyles(createStyles);
-  return (
-    <Pressable
-      style={({ pressed }) => [
-        styles.outlineButton,
-        pressed && styles.buttonPressed,
-      ]}
-      onPress={onPress}
-    >
-      {icon}
-      <Typography variant="h5" style={styles.outlineButtonText}>
-        {title}
-      </Typography>
-    </Pressable>
-  );
-}
 
 function PhonePasswordForm({ phoneNumber }) {
   const styles = useThemedStyles(createStyles);
@@ -384,12 +367,7 @@ export function RegistrationPhoneNumber({ onSwitchToMail }) {
           onPress={onSubmit}
           isLoading={isLoading}
         />
-        {/* <OrDivider /> */}
-        {/* <OutlineButton
-          title="Գրանցում էլեկտրոնային փոստով"
-          onPress={onSwitchToMail}
-          icon={<MailIconSvg width={19} height={15} fill={colors.icons} />}
-        /> */}
+
       </View>
     </View>
   );

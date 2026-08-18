@@ -17,9 +17,13 @@ export const authApi = {
     return axiosClient.post('/auth/phone/send-otp', { phoneNumber, purpose });
   },
 
-  verifyOtp({ email, code, purpose }) {
-    console.log('verifyOtp', email, code, purpose);
-    return axiosClient.post('/auth/verify-otp', { email, code, purpose });
+  verifyOtp({ email, phoneNumber, code, purpose }) {
+    return axiosClient.post('/auth/verify-otp', {
+      ...(email ? { email } : {}),
+      ...(phoneNumber ? { phoneNumber } : {}),
+      code,
+      purpose,
+    });
   },
 
   verifyPhoneOtp({ phoneNumber, purpose, code }) {
@@ -91,6 +95,13 @@ export const authApi = {
     return axiosClient.put('/auth/reset-password', {
       email,
       code,
+      newPassword,
+    });
+  },
+
+  resetPasswordWithPhone({ phoneNumber, newPassword }) {
+    return axiosClient.put('/auth/phone/reset-password', {
+      phoneNumber,
       newPassword,
     });
   },

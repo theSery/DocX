@@ -39,7 +39,7 @@ const createStyles = () =>
 
     },
     side: {
-      // width: 50,
+      width: 50,
       alignItems: 'center',
       justifyContent: 'center',
     },

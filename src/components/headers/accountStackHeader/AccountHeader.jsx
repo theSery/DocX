@@ -20,9 +20,11 @@ const createStyles = () =>
 
     },
     backButtonContainer: {
-      // width: '15%',
+      width: '15%',
+      
     },
     logoContainer: {
+      width: '68%',
       alignItems: 'center',
     },
     button: {
@@ -31,6 +33,7 @@ const createStyles = () =>
       borderRadius: 100,
       justifyContent: 'center',
       alignItems: 'center',
+   
     },
     image: {
       width: '100%',
@@ -67,7 +70,7 @@ const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutBu
 
   return (
     <View style={styles.container}>
-      <View style={styles.backButtonContainer}>
+      <View style={[styles.backButtonContainer, {alignItems: 'flex-start',}]}>
         {isBackButton ? (
           <Pressable onPress={onPress} style={styles.button}>
             <ImageBackground
@@ -95,7 +98,7 @@ const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutBu
           {title}
         </Typography>
       </View>
-      <View style={styles.backButtonContainer}>
+      <View style={[styles.backButtonContainer, {alignItems: 'flex-end',}]}>
         {isLogoutButton ? (
           <Pressable onPress={handleLogoutPress} style={styles.button}>
             <ImageBackground

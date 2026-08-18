@@ -21,6 +21,13 @@ import { OtpInputRowCode } from './OtpInputRowCode';
 import { authApi, persistAuthResponse, smsApi } from '../../../../api';
 import { useAuthSession, useOtpInput, useTheme, useThemedStyles, useToast } from '../../../../hooks';
 import { saveUserCredentials } from '../../../../utils/secureStorage';
+import { PASSWORD_STRENGTH_RULE } from '../../../../utils/patterns';
+import {
+  formatSmsResendCountdown,
+  getSmsResendRemainingSeconds,
+  SMS_RESEND_COOLDOWN_MS,
+  startSmsResendCooldown,
+} from '../../../../utils/smsResendCooldown';
 const INPUT_RADIUS = 16;
 
 const OTP_BOX_SIZE = 48;
@@ -339,13 +346,326 @@ function MailLogin({ handleTabPress, isResetPassword, onForgotPassword }) {
   );
 }
 
-function PhoneLogin({ handleTabPress }) {
+function PhoneResetRequest({ defaultPhone, handleTabPress, onCodeSent }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
+  const { showToast } = useToast();
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm({
+    defaultValues: { phone: defaultPhone || '' },
+    mode: 'onBlur',
+  });
+
+  const onSubmit = handleSubmit(async values => {
+    try {
+      const response = await authApi.sendPhoneOtp({
+        phoneNumber: values.phone,
+        purpose: 'reset_password',
+      });
+      console.log('Send phone reset OTP response:', response.data);
+      await startSmsResendCooldown(values.phone);
+      showToast({
+        title: 'Կոդը ուղարկված է',
+        body: 'Հաստատման կոդը ուղարկվել է ձեր հեռախոսահամարին',
+        type: 'success',
+      });
+      onCodeSent(values.phone);
+    } catch (error) {
+      console.log('Send phone reset OTP error:', error);
+      showToast({
+        title: 'Ուղարկումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    }
+  });
+
+  return (
+    <View style={{ justifyContent: 'space-between', height: SCREEN_HEIGHT }}>
+      <FormField
+        control={control}
+        name="phone"
+        label="Հեռախոսահամար"
+        keyboardType="phone-pad"
+        placeholder="91 123 456"
+        placeholderTextColor={colors.textDisabled}
+        startIcon={<PhoneSvg width={20} height={20} fill={colors.icons} />}
+        rules={{
+          required: 'Հեռախոսահամարը պարտադիր է',
+          pattern: {
+            value: PHONE_PATTERN,
+            message: 'Մուտքագրեք վավեր հեռախոսահամար',
+          },
+        }}
+      />
+
+      <View style={styles.actions}>
+        <AuthButton
+          title="Ուղարկել կոդը"
+          onPress={onSubmit}
+          isLoading={isSubmitting}
+          borderRadius={INPUT_RADIUS}
+        />
+        <OrDivider />
+        <OutlineButton
+          title="Մուտք էլեկտրոնային փոստով"
+          onPress={() => handleTabPress('mail')}
+          icon={<MailIconSvg width={19} height={15} fill={colors.icons} />}
+        />
+      </View>
+    </View>
+  );
+}
+
+function PhoneResetOtp({ phoneNumber, handleTabPress, onVerified }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
+  const { showToast } = useToast();
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState(null);
+  const {
+    code: otpCode,
+    isComplete,
+    reset: resetOtp,
+    inputProps: otpInputProps,
+  } = useOtpInput();
+
+  const canResend = remainingSeconds === 0;
+  const isActionDisabled = isVerifying || !isComplete;
+
+  useEffect(() => {
+    if (!phoneNumber) {
+      return undefined;
+    }
+
+    let isMounted = true;
+    let intervalId;
+
+    const syncRemaining = async () => {
+      const remaining = await getSmsResendRemainingSeconds(phoneNumber);
+      if (isMounted) {
+        setRemainingSeconds(remaining);
+      }
+    };
+
+    syncRemaining();
+    intervalId = setInterval(syncRemaining, 1000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
+  }, [phoneNumber]);
+
+  const handleVerifyCode = async () => {
+    if (otpCode.length !== 6) {
+      showToast({
+        title: 'Սխալ կոդ',
+        body: 'Մուտքագրեք 6 նիշանոց կոդը',
+        type: 'error',
+      });
+      return;
+    }
+
+    setIsVerifying(true);
+    try {
+      const response = await authApi.verifyPhoneOtp({
+        phoneNumber,
+        code: otpCode,
+        purpose: 'reset_password',
+      });
+      console.log('Verify phone reset OTP response:', response.data);
+      showToast({
+        title: 'Հեռախոսահամարը հաստատված է',
+        body: response?.data?.message ?? 'Կոդը հաջողությամբ հաստատված է',
+        type: 'success',
+      });
+      onVerified();
+    } catch (error) {
+      console.log('Verify phone reset OTP error:', error);
+      showToast({
+        title: 'Հաստատումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    if (!canResend || isResending) {
+      return;
+    }
+
+    setIsResending(true);
+    try {
+      await authApi.sendPhoneOtp({
+        phoneNumber,
+        purpose: 'reset_password',
+      });
+      await startSmsResendCooldown(phoneNumber);
+      setRemainingSeconds(Math.ceil(SMS_RESEND_COOLDOWN_MS / 1000));
+      resetOtp();
+      showToast({
+        title: 'Կոդը ուղարկված է',
+        body: 'Նոր հաստատման կոդը ուղարկվել է ձեր հեռախոսահամարին',
+        type: 'success',
+      });
+    } catch (error) {
+      console.log('Resend phone reset OTP error:', error);
+      showToast({
+        title: 'Ուղարկումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+  return (
+    <View style={{ justifyContent: 'space-between', height: SCREEN_HEIGHT }}>
+      <>
+        <Typography style={styles.otpSubtitle}>{phoneNumber}</Typography>
+        <OtpInputRowCode {...otpInputProps} />
+        <View style={styles.resendRow}>
+          <Typography style={styles.resendHelper}>Չե՞ք ստացել կոդը</Typography>
+          {remainingSeconds === null ? null : canResend ? (
+            <Pressable
+              hitSlop={8}
+              onPress={handleResendCode}
+              disabled={isResending}
+              style={isResending && styles.disabledOpacity}
+            >
+              <Typography style={styles.resendLink}>
+                {isResending ? 'Ուղարկվում է...' : 'Ուղարկել կրկին'}
+              </Typography>
+            </Pressable>
+          ) : (
+            <Typography style={styles.resendCountdown}>
+              {formatSmsResendCountdown(remainingSeconds)}
+            </Typography>
+          )}
+        </View>
+      </>
+      <View style={styles.actions}>
+        <AuthButton
+          title="Հաստատել կոդը"
+          onPress={handleVerifyCode}
+          isLoading={isVerifying}
+          disabled={isActionDisabled}
+          borderRadius={INPUT_RADIUS}
+        />
+        <OrDivider />
+        <OutlineButton
+          title="Մուտք էլեկտրոնային փոստով"
+          onPress={() => handleTabPress('mail')}
+          icon={<MailIconSvg width={19} height={15} fill={colors.icons} />}
+        />
+      </View>
+    </View>
+  );
+}
+
+function PhoneResetPassword({ phoneNumber, handleTabPress, onComplete }) {
+  const styles = useThemedStyles(createStyles);
+  const { colors } = useTheme();
+  const { showToast } = useToast();
+  const {
+    control,
+    getValues,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm({
+    defaultValues: { password: '', confirmPassword: '' },
+    mode: 'onBlur',
+  });
+
+  const onSubmit = handleSubmit(async values => {
+    try {
+      await authApi.resetPasswordWithPhone({
+        phoneNumber,
+        newPassword: values.password,
+      });
+      showToast({
+        title: 'Գաղտնաբառը հաջողությամբ փոխվեց',
+        body: 'Այժմ կարող եք մուտք գործել նոր գաղտնաբառով',
+        type: 'success',
+      });
+      onComplete();
+    } catch (error) {
+      showToast({
+        title: 'Վերականգնումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    }
+  });
+
+  return (
+    <View style={{ justifyContent: 'space-between', height: SCREEN_HEIGHT }}>
+      <View>
+        <FormField
+          control={control}
+          name="password"
+          label="Ստեղծել նոր գաղտնաբառ *"
+          placeholder="********"
+          startIcon={<LockIconSbg width={17} height={19} fill={colors.icons} />}
+          secureTextEntry
+          rules={{
+            required: 'Գաղտնաբառը պարտադիր է',
+            ...PASSWORD_STRENGTH_RULE,
+          }}
+        />
+        <View style={{ marginTop: 16 }}>
+          <FormField
+            control={control}
+            name="confirmPassword"
+            label="Կրկնել գաղտնաբառը *"
+            placeholder="********"
+            startIcon={<LockIconSbg width={17} height={19} fill={colors.icons} />}
+            secureTextEntry
+            rules={{
+              required: 'Կրկնեք գաղտնաբառը',
+              validate: value =>
+                value === getValues('password') || 'Գաղտնաբառերը չեն համընկնում',
+            }}
+          />
+        </View>
+      </View>
+      <View style={styles.actions}>
+        <AuthButton
+          title="Պահպանել"
+          onPress={onSubmit}
+          isLoading={isSubmitting}
+          borderRadius={INPUT_RADIUS}
+        />
+        <OrDivider />
+        <OutlineButton
+          title="Մուտք էլեկտրոնային փոստով"
+          onPress={() => handleTabPress('mail')}
+          icon={<MailIconSvg width={19} height={15} fill={colors.icons} />}
+        />
+      </View>
+    </View>
+  );
+}
+
+function PhoneLogin({ handleTabPress, onForgotPassword, onResetComplete }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { login } = useAuthSession();
   const { showToast } = useToast();
+  const [resetStep, setResetStep] = useState(null);
+  const [resetPhoneNumber, setResetPhoneNumber] = useState('');
   const {
     control,
+    getValues,
     handleSubmit,
     formState: { isSubmitting },
   } = useForm({
@@ -381,6 +701,49 @@ function PhoneLogin({ handleTabPress }) {
     }
   });
 
+  const handleForgotPassword = () => {
+    setResetPhoneNumber(getValues('phone') || '');
+    setResetStep('phone');
+    onForgotPassword?.();
+  };
+
+  if (resetStep === 'phone') {
+    return (
+      <PhoneResetRequest
+        defaultPhone={resetPhoneNumber}
+        handleTabPress={handleTabPress}
+        onCodeSent={phone => {
+          setResetPhoneNumber(phone);
+          setResetStep('otp');
+        }}
+      />
+    );
+  }
+
+  if (resetStep === 'otp') {
+    return (
+      <PhoneResetOtp
+        phoneNumber={resetPhoneNumber}
+        handleTabPress={handleTabPress}
+        onVerified={() => setResetStep('password')}
+      />
+    );
+  }
+
+  if (resetStep === 'password') {
+    return (
+      <PhoneResetPassword
+        phoneNumber={resetPhoneNumber}
+        handleTabPress={handleTabPress}
+        onComplete={() => {
+          setResetStep(null);
+          setResetPhoneNumber('');
+          onResetComplete?.();
+        }}
+      />
+    );
+  }
+
   return (
     <View style={{ justifyContent: 'space-between', height: SCREEN_HEIGHT }}>
       <View>
@@ -414,6 +777,15 @@ function PhoneLogin({ handleTabPress }) {
             }}
           />
         </View>
+        <Pressable
+          style={styles.forgotLink}
+          hitSlop={8}
+          onPress={handleForgotPassword}
+        >
+          <Typography style={styles.forgotLinkText}>
+            Մոռացե՞լ եք գաղտնաբառը
+          </Typography>
+        </Pressable>
       </View>
 
       <View style={styles.actions}>
@@ -453,6 +825,7 @@ function renderLoginContent(
   onResendCode,
   isResetPassword,
   onForgotPassword,
+  onResetComplete,
 ) {
   if (activeTab === 'phone' && phoneStep === 'otp') {
     return (
@@ -474,7 +847,13 @@ function renderLoginContent(
         />
       );
     case 'phone':
-      return <PhoneLogin handleTabPress={handleTabPress} />;
+      return (
+        <PhoneLogin
+          handleTabPress={handleTabPress}
+          onForgotPassword={onForgotPassword}
+          onResetComplete={onResetComplete}
+        />
+      );
     default:
       return null;
   }
@@ -495,7 +874,7 @@ export function LoginTabs({ onPhoneLogin, onActiveTabChange }) {
   }, [activeTab, onActiveTabChange]);
 
   const loginTitle =
-    isResetPassword && activeTab === 'mail'
+    isResetPassword
       ? LOGIN_TITLES.resetPassword
       : activeTab === 'phone' && phoneStep === 'otp'
         ? LOGIN_TITLES.phoneOtp
@@ -541,6 +920,10 @@ export function LoginTabs({ onPhoneLogin, onActiveTabChange }) {
 
   const handleForgotPassword = useCallback(() => {
     setIsResetPassword(true);
+  }, []);
+
+  const handleResetComplete = useCallback(() => {
+    setIsResetPassword(false);
   }, []);
 
   const handleTabPress = useCallback(
@@ -610,6 +993,7 @@ export function LoginTabs({ onPhoneLogin, onActiveTabChange }) {
           handleResendCode,
           isResetPassword,
           handleForgotPassword,
+          handleResetComplete,
         )}
       </Animated.View>
     </View>
@@ -754,6 +1138,15 @@ const createStyles = colors =>
     fontFamily: FONT_FAMILY.semiBold,
     color: colors.icons,
     textDecorationLine: 'underline',
+  },
+  resendCountdown: {
+    fontSize: 12,
+    fontFamily: FONT_FAMILY.semiBold,
+    color: colors.icons,
+    letterSpacing: 0.6,
+  },
+  disabledOpacity: {
+    opacity: 0.6,
   },
   bg: {
     width: '100%',

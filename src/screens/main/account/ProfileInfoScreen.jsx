@@ -46,7 +46,7 @@ const CONTACT_INFO_FIELDS = [
     name: 'email',
     label: 'Էլ.-փոստ *',
     Icon: MailIconSvg,
-    placeholder: 'example@docx.am',
+    placeholder: 'Էլ.-փոստ',
     keyboardType: 'email-address',
     editable: false,
     rules: {
@@ -199,7 +199,7 @@ export function ProfileInfoScreen() {
     mode: 'onChange',
     reValidateMode: 'onChange',
   });
-
+console.log(personalData, 'personalData');
   const watchedPhone = useWatch({ control, name: 'phone' }) ?? '';
   const storedPhone = personalData?.phoneNumber ?? '';
   const isPhoneChanged = watchedPhone !== storedPhone;
