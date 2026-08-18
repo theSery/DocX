@@ -189,10 +189,12 @@ export function ConfirmPhoneCodeForm({
 
       try {
         const { data } = await userApi.getMe();
+
         dispatch(
           setUserFlags({
             hasSignature: Boolean(data?.hasSignature),
             isPhoneVerified: Boolean(data?.isPhoneVerified),
+            hasNotificationAddress: Boolean(data?.hasNotificationAddress),
           }),
         );
       } catch {

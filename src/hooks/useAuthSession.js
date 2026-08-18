@@ -24,6 +24,7 @@ export function useAuthSession() {
         setUserFlags({
           hasSignature: Boolean(data?.hasSignature),
           isPhoneVerified: Boolean(data?.isPhoneVerified),
+          hasNotificationAddress: Boolean(data?.hasNotificationAddress),
         }),
       );
     } catch {
