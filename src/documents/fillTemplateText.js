@@ -118,7 +118,7 @@ export function injectSignatureAtPlaceholder(templateText, imageSrc) {
   }
 
   const date = formatDocumentDateTime(new Date());
-  const signatureImage = `<span style="display:block; text-align:center;" data-signature="true"><img src="${imageSrc}" alt="signature" style="max-width:150px; height:auto; display:inline-block;" /></span>`;
+  const signatureImage = `<span style="display:block; text-align:center;" data-signature="true"><img class="signature" src="${imageSrc}" alt="signature" style="max-width:150px; height:auto; width:auto; object-fit:contain;" /></span>`;
   const signatureDate = `<span style="display:inline-block" data-signature-date="true">${escapeHtml(date)}</span>`;
 
   return templateText

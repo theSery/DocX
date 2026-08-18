@@ -83,7 +83,7 @@ export function FillInDetailsScreen({ navigation, route }) {
   const [selectedFacts, setSelectedFacts] = useState({});
   const [radioFacts, setRadioFacts] = useState({});
   const [stepError, setStepError] = useState('');
-console.log(route.params, 'pppppp')
+
   const templateVariables = useMemo(
     () =>
       [...(templateForm?.variables ?? [])].sort(

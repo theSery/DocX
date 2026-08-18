@@ -80,6 +80,13 @@ function getDocumentStyles() {
     }
     .section p { margin: 0 0 8pt; text-align: justify; }
     strong { font-weight: 700; }
+    .signature {
+      max-width: 150px;
+      height: auto;
+      max-height: 80px;
+      width: auto;
+      object-fit: contain;
+    }
   `;
 }
 

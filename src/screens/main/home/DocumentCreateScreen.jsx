@@ -63,20 +63,20 @@ function resolveComplaintRecipient(solution) {
   if (lawyerEmail == null) {
     return {
       recipientType: 'addressee',
-      recipientEmail: addressee?.email ?? '',
+      addresseeEmail: addressee?.email ?? '',
     };
   }
 
   if (addressee == null) {
     return {
       recipientType: 'lawyer',
-      recipientEmail: lawyerEmail?.email ?? '',
+      addresseeEmail: lawyerEmail?.email ?? '',
     };
   }
 
   return {
     recipientType: 'addressee',
-    recipientEmail: addressee?.email ?? '',
+    addresseeEmail: addressee?.email ?? '',
   };
 }
 
@@ -503,7 +503,7 @@ export function DocumentCreateScreen({ route, navigation }) {
         return;
       }
 
-      const { recipientType, recipientEmail } =
+      const { recipientType, addresseeEmail } =
         resolveComplaintRecipient(templateSolution);
       const attachedDocuments =
         resolveSolutionAttachedDocumentIds(templateSolution);
@@ -511,8 +511,8 @@ export function DocumentCreateScreen({ route, navigation }) {
       try {
         const response = await complaintsApi.sendComplaint(complaintId, {
           recipientType,
-          recipientEmail,
-          addresseeEmail: personalData?.email ?? '',
+          recipientEmail: personalData?.email ?? '',
+          addresseeEmail,
           attachedDocuments,
         });
 
