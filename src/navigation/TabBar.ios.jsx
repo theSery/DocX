@@ -30,8 +30,8 @@ const HORIZONTAL_MARGIN = 16;
 const BOTTOM_OFFSET = 10;
 /** Matches example pill: slight inset so long labels (e.g. Փաստաթղթեր) still fit */
 const INDICATOR_INSET = 1;
-const PILL_RADIUS = TAB_BAR_HEIGHT / 2;
-const INDICATOR_RADIUS = (TAB_BAR_HEIGHT - INDICATOR_INSET * 2) / 2;
+const PILL_RADIUS = 16;
+const INDICATOR_RADIUS = 16
 
 const SPRING_CONFIG = {
   damping: 20,

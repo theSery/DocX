@@ -56,6 +56,39 @@ const DOCUMENT_REVEAL_SWAP_DELAY_MS = Math.round(
   DOCUMENT_LOADING_OVERLAY_FADE_OUT_MS * 0.55,
 );
 
+function resolveComplaintRecipient(solution) {
+  const lawyerEmail = solution?.lawyerEmail ?? null;
+  const addressee = solution?.addressee ?? null;
+
+  if (lawyerEmail == null) {
+    return {
+      recipientType: 'addressee',
+      recipientEmail: addressee?.email ?? '',
+    };
+  }
+
+  if (addressee == null) {
+    return {
+      recipientType: 'lawyer',
+      recipientEmail: lawyerEmail?.email ?? '',
+    };
+  }
+
+  return {
+    recipientType: 'addressee',
+    recipientEmail: addressee?.email ?? '',
+  };
+}
+
+function resolveSolutionAttachedDocumentIds(solution) {
+  return (solution?.solutionAttachments ?? [])
+    .map(
+      attachment =>
+        attachment?.attachedDocument?.id ?? attachment?.attachedDocumentId,
+    )
+    .filter(id => id != null);
+}
+
 export function DocumentCreateScreen({ route, navigation }) {
 
   const styles = useThemedStyles(createStyles);
@@ -470,14 +503,15 @@ export function DocumentCreateScreen({ route, navigation }) {
         return;
       }
 
-      const attachedDocuments = (templateSolution?.solutionAttachments ?? [])
-        .map(attachment => attachment?.attachedDocumentId ?? attachment?.attachedDocument?.id)
-        .filter(id => id != null);
-//lawyer, addressee, email"
+      const { recipientType, recipientEmail } =
+        resolveComplaintRecipient(templateSolution);
+      const attachedDocuments =
+        resolveSolutionAttachedDocumentIds(templateSolution);
+
       try {
         const response = await complaintsApi.sendComplaint(complaintId, {
-          recipientType: 'email',
-          recipientEmail: templateSolution?.addressee?.email ?? '',
+          recipientType,
+          recipientEmail,
           addresseeEmail: personalData?.email ?? '',
           attachedDocuments,
         });
@@ -583,14 +617,21 @@ export function DocumentCreateScreen({ route, navigation }) {
     testSendComplaint,
   ]);
 
+  const [hasConfirmedAttachments, setHasConfirmedAttachments] = useState(false);
+
+  const handleConfirmAttachments = useCallback(() => {
+    setHasConfirmedAttachments(true);
+    setIsAttachmentsSheetVisible(false);
+  }, []);
+
   const handleSubmitComplaint = useCallback(() => {
-    if (solutionAttachments.length > 0) {
+    if (solutionAttachments.length > 0 && !hasConfirmedAttachments) {
       setIsAttachmentsSheetVisible(true);
       return;
     }
 
     return submitComplaint();
-  }, [solutionAttachments.length, submitComplaint]);
+  }, [hasConfirmedAttachments, solutionAttachments.length, submitComplaint]);
 
   const isActionDisabled =
     !hasTypingFinished ||
@@ -679,8 +720,7 @@ export function DocumentCreateScreen({ route, navigation }) {
         onPickFromFiles={handlePickFromFiles}
         onPickFromMyFiles={handlePickFromMyFiles}
         onRemoveAttachment={handleRemoveAttachment}
-        onConfirm={submitComplaint}
-        isConfirming={isSubmittingComplaint}
+        onConfirm={handleConfirmAttachments}
         isUploading={isUploading}
       />
     </View>

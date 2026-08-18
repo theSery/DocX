@@ -6,8 +6,10 @@ import {
   types,
 } from '@react-native-documents/picker';
 import { launchImageLibrary } from 'react-native-image-picker';
+import RNFS from 'react-native-fs';
 
-import { filesApi, personalDocumentsApi } from '../../../../api';
+import { personalDocumentsApi } from '../../../../api';
+import { resolveRemoteFileMeta } from '../../../../documents';
 import { useToast } from '../../../../hooks';
 import { useAppDispatch } from '../../../../store';
 import {
@@ -17,27 +19,22 @@ import {
 import { validatePickedUploadFile } from '../../../../utils/fileUploadValidation';
 
 function toUploadTarget(row) {
+  const attachedDocument = row?.attachedDocument;
   return {
-    documentName: row.name,
-    attachedDocumentId: row.attachedDocumentId,
-    // Default personal-document slots accept POST /personal-documents.
-    usePersonalDocumentSlot: Boolean(row.isDefault),
+    documentName: attachedDocument?.name ?? row?.name,
+    attachedDocumentId: attachedDocument?.id ?? row?.attachedDocumentId,
     // When replacing a non-default upload, delete this id after the new file succeeds.
-    replacePersonalDocumentId: row.replacePersonalDocumentId ?? null,
+    replacePersonalDocumentId: row?.replacePersonalDocumentId ?? null,
   };
 }
 
-function extractUploadedFileId(response, { fromFilesApi = false } = {}) {
+function extractUploadedFileId(response) {
   const payload = response?.data?.data ?? response?.data ?? response;
   if (payload == null || typeof payload !== 'object') {
     return null;
   }
 
-  const candidates = fromFilesApi
-    ? [payload.fileId, payload.file?.id, payload.id]
-    : [payload.fileId, payload.file?.id];
-
-  for (const candidate of candidates) {
+  for (const candidate of [payload.fileId, payload.file?.id]) {
     const value = Number(candidate);
     if (Number.isFinite(value)) {
       return value;
@@ -47,11 +44,55 @@ function extractUploadedFileId(response, { fromFilesApi = false } = {}) {
   return null;
 }
 
+function toFileUri(localPath) {
+  if (!localPath) {
+    return localPath;
+  }
+
+  return localPath.startsWith('file://') ? localPath : `file://${localPath}`;
+}
+
+async function downloadPersonalDocumentAsPickedFile(personalDocument) {
+  const url = personalDocument?.downloadUrl || personalDocument?.documentUrl;
+  if (!url) {
+    throw new Error('Ֆայլի հղում չի գտնվել');
+  }
+
+  const { extension, mimeType } = resolveRemoteFileMeta({
+    url: personalDocument?.downloadUrl,
+    previewUrl: personalDocument?.documentUrl,
+    fileName:
+      personalDocument?.documentName || personalDocument?.title || undefined,
+  });
+
+  const localFileName = `solution-attach-${Date.now()}.${extension}`;
+  const localPath = `${RNFS.CachesDirectoryPath}/${localFileName}`;
+
+  if (await RNFS.exists(localPath)) {
+    await RNFS.unlink(localPath);
+  }
+
+  const { statusCode } = await RNFS.downloadFile({
+    fromUrl: url,
+    toFile: localPath,
+  }).promise;
+
+  if (statusCode !== 200) {
+    throw new Error('Չհաջողվեց ներբեռնել ֆայլը');
+  }
+
+  return {
+    uri: toFileUri(localPath),
+    name: localFileName,
+    type: mimeType,
+    localPath,
+  };
+}
+
 /**
- * Gallery / Files pickers + upload for solution attachments.
- * Picks open from the attachments sheet row; uploads immediately after selection.
- * - Default personal-doc slots → POST /personal-documents
- * - Everything else → POST /files (fileName = attachedDocument.name)
+ * Gallery / Files / My Files pickers + upload for solution attachments.
+ * Every source creates a personal document via POST /personal-documents
+ * with both documentName and attachedDocumentId from attachedDocument.
  */
 export function useSolutionAttachmentUpload({ onUploaded } = {}) {
   const dispatch = useAppDispatch();
@@ -87,30 +128,28 @@ export function useSolutionAttachmentUpload({ onUploaded } = {}) {
 
   const performUpload = useCallback(
     async (attachment, pickedFile) => {
+      if (
+        attachment?.attachedDocumentId == null ||
+        !attachment?.documentName
+      ) {
+        showToast({
+          title: 'Փաստաթղթի տվյալները բացակայում են',
+          type: 'error',
+        });
+        return;
+      }
+
       setIsUploading(true);
       try {
-        let response;
-        let fromFilesApi = false;
+        const response = await personalDocumentsApi.uploadPersonalDocument({
+          documentName: attachment.documentName,
+          attachedDocumentId: attachment.attachedDocumentId,
+          uri: pickedFile.uri,
+          name: pickedFile.name,
+          type: pickedFile.type,
+        });
 
-        if (attachment.usePersonalDocumentSlot) {
-          response = await personalDocumentsApi.uploadPersonalDocument({
-            documentName: attachment.documentName,
-            attachedDocumentId: attachment.attachedDocumentId,
-            uri: pickedFile.uri,
-            name: pickedFile.name,
-            type: pickedFile.type,
-          });
-        } else {
-          fromFilesApi = true;
-          response = await filesApi.uploadFile({
-            fileName: attachment.documentName,
-            uri: pickedFile.uri,
-            name: pickedFile.name,
-            type: pickedFile.type,
-          });
-        }
-
-        const responseFileId = extractUploadedFileId(response, { fromFilesApi });
+        const responseFileId = extractUploadedFileId(response);
         const fileId = await resolveFileIdAfterRefresh(
           attachment,
           responseFileId,
@@ -123,10 +162,7 @@ export function useSolutionAttachmentUpload({ onUploaded } = {}) {
         // Replace flow: drop the previous non-default personal document so the
         // store keeps a single version for this attachment slot.
         const replaceId = attachment.replacePersonalDocumentId;
-        if (
-          replaceId != null &&
-          String(replaceId) !== String(fileId)
-        ) {
+        if (replaceId != null && String(replaceId) !== String(fileId)) {
           try {
             await personalDocumentsApi.deletePersonalDocument(replaceId);
             dispatch(removePersonalDocument(replaceId));
@@ -157,6 +193,9 @@ export function useSolutionAttachmentUpload({ onUploaded } = {}) {
         });
       } finally {
         setIsUploading(false);
+        if (pickedFile?.localPath) {
+          RNFS.unlink(pickedFile.localPath).catch(() => {});
+        }
       }
     },
     [
@@ -180,7 +219,7 @@ export function useSolutionAttachmentUpload({ onUploaded } = {}) {
         return;
       }
 
-      performUpload(attachment, result.file);
+      await performUpload(attachment, result.file);
     },
     [performUpload, showToast],
   );
@@ -267,5 +306,54 @@ export function useSolutionAttachmentUpload({ onUploaded } = {}) {
     [handlePickedFile, showToast],
   );
 
-  return { pickFromGallery, pickFromFiles, isUploading };
+  const pickFromMyFiles = useCallback(
+    async (row, personalDocument) => {
+      const attachment = toUploadTarget(row);
+
+      if (
+        attachment.attachedDocumentId == null ||
+        !attachment.documentName
+      ) {
+        showToast({
+          title: 'Փաստաթղթի տվյալները բացակայում են',
+          type: 'error',
+        });
+        return;
+      }
+
+      const alreadyMatchesSlot =
+        personalDocument?.attachedDocumentId != null &&
+        String(personalDocument.attachedDocumentId) ===
+          String(attachment.attachedDocumentId) &&
+        Boolean(
+          personalDocument?.documentUrl || personalDocument?.downloadUrl,
+        );
+
+      if (alreadyMatchesSlot) {
+        onUploaded?.(attachment.attachedDocumentId);
+        return;
+      }
+
+      setIsUploading(true);
+      try {
+        const pickedFile =
+          await downloadPersonalDocumentAsPickedFile(personalDocument);
+        await handlePickedFile(attachment, pickedFile);
+      } catch (error) {
+        console.error(
+          '[SolutionAttachmentUpload] my-files copy failed:',
+          error,
+        );
+        showToast({
+          title: 'Վերբեռնումը ձախողվեց',
+          body: error?.message ?? 'Անհայտ սխալ, փորձեք կրկին',
+          type: 'error',
+        });
+        setIsUploading(false);
+      }
+    },
+    [handlePickedFile, onUploaded, showToast],
+  );
+
+  return { pickFromGallery, pickFromFiles, pickFromMyFiles, isUploading };
 }
