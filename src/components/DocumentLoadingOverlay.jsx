@@ -20,6 +20,7 @@ import { AnimatedView } from './animation';
 import LottieAnimation from './animation/LottieAnimation';
 import LogoIcon from './icons/LogoIcon';
 import { Typography } from './typography';
+import { citat } from '../data/citat';
 import { useTheme } from '../hooks';
 import { colors, FONT_FAMILY } from '../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../utils/dimensions';
@@ -27,26 +28,43 @@ import { TAB_BAR_BOTTOM_OFFSET } from '../utils/dimensions';
 /** Keep in sync with DocumentCreateScreen reveal timing. */
 export const DOCUMENT_LOADING_OVERLAY_FADE_OUT_MS = 650;
 
-export const DOCUMENT_LOADING_QUOTES = [
-  '«Յուրաքանչյուր նոր փաստաթուղթ՝ քո ապագայի քայլ է»',
-  '«Ճիշտ փաստաթուղթը բացում է նոր հնարավորություններ»',
-  '«Այսօրվա որոշումը վաղվա անվտանգությունն է»',
-  '«Յուրաքանչյուր ստորագրություն՝ քո վստահության կնիքն է»',
-  '«Կարգ ու կանոնով գրված խոսքը ուժ է ստանում»',
-  '«Փոքր քայլը մեծ փոփոխության սկիզբն է»',
-  '«Պարզությունն ու ճշտությունը հաջողության հիմքն են»',
-  '«Քո իրավունքը սկսվում է ճիշտ ձևակերպված խոսքից»',
-  '«Ամեն նոր փաստաթուղթ մոտեցնում է նպատակիդ»',
-  '«Հստակ գրված միտքը դառնում է գործողություն»',
-];
+export const DOCUMENT_LOADING_QUOTES = citat;
 
 /** @deprecated Use DOCUMENT_LOADING_QUOTES / getNextDocumentLoadingQuote */
 export const DOCUMENT_LOADING_QUOTE = DOCUMENT_LOADING_QUOTES[0];
 
-/** @type {string[]} */
+/** @type {typeof citat} */
 let quoteDeck = [];
-/** @type {string | null} */
+/** @type {(typeof citat)[number] | null} */
 let lastDocumentLoadingQuote = null;
+
+function getQuoteKey(quote) {
+  if (quote == null) {
+    return null;
+  }
+
+  if (typeof quote === 'object') {
+    return quote.id ?? quote.text;
+  }
+
+  return quote;
+}
+
+function getQuoteText(quote) {
+  if (quote == null) {
+    return undefined;
+  }
+
+  return typeof quote === 'string' ? quote : quote.text;
+}
+
+function getQuoteAutor(quote) {
+  if (quote == null || typeof quote !== 'object') {
+    return undefined;
+  }
+
+  return quote.autor;
+}
 
 function shuffleQuotes(quotes) {
   const deck = [...quotes];
@@ -64,11 +82,13 @@ function shuffleQuotes(quotes) {
  * and never returns the same quote twice in a row.
  */
 export function getNextDocumentLoadingQuote() {
+  const lastQuoteKey = getQuoteKey(lastDocumentLoadingQuote);
+
   if (quoteDeck.length === 0) {
     quoteDeck = shuffleQuotes(DOCUMENT_LOADING_QUOTES);
     if (
       quoteDeck.length > 1 &&
-      quoteDeck[0] === lastDocumentLoadingQuote
+      getQuoteKey(quoteDeck[0]) === lastQuoteKey
     ) {
       quoteDeck.push(quoteDeck.shift());
     }
@@ -76,10 +96,15 @@ export function getNextDocumentLoadingQuote() {
 
   let nextQuote = quoteDeck.shift();
 
-  if (nextQuote === lastDocumentLoadingQuote && DOCUMENT_LOADING_QUOTES.length > 1) {
+  if (
+    getQuoteKey(nextQuote) === lastQuoteKey &&
+    DOCUMENT_LOADING_QUOTES.length > 1
+  ) {
     if (quoteDeck.length === 0) {
       quoteDeck = shuffleQuotes(
-        DOCUMENT_LOADING_QUOTES.filter(quote => quote !== lastDocumentLoadingQuote),
+        DOCUMENT_LOADING_QUOTES.filter(
+          quote => getQuoteKey(quote) !== lastQuoteKey,
+        ),
       );
     }
     nextQuote = quoteDeck.shift() ?? nextQuote;
@@ -221,6 +246,9 @@ function DocumentLoadingOverlayView({
     transform: [{ translateY: contentTranslateY.value }],
   }));
 
+  const quoteText = getQuoteText(quote);
+  const quoteAutor = getQuoteAutor(quote);
+
   if (!mounted) {
     return null;
   }
@@ -245,11 +273,20 @@ function DocumentLoadingOverlayView({
           <LogoIcon width={72} height={72} fill={colors.mainBlue}/>
         </AnimatedView>
 
-        {quote ? (
+        {quoteText ? (
           <AnimatedView animation="fadeIn" delay={350} duration={600}>
             <Typography variant="h4" tone="onDark" style={[styles.quote, { color: colors.mainBlue }]}>
-              {quote}
+              {quoteText}
             </Typography>
+            {quoteAutor ? (
+              <Typography
+                variant="h5"
+                tone="onDark"
+                style={[styles.quoteAutor, { color: colors.mainBlue }]}
+              >
+                {quoteAutor}
+              </Typography>
+            ) : null}
           </AnimatedView>
         ) : null}
       </Animated.View>
@@ -307,5 +344,10 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     fontSize: 18,
     fontFamily: FONT_FAMILY.black,
+  },
+  quoteAutor: {
+    marginTop: 12,
+    textAlign: 'center',
+    fontFamily: FONT_FAMILY.semiBold,
   },
 });
