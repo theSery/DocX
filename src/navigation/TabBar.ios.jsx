@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: INDICATOR_RADIUS,
-    opacity: 0.72,
+    opacity: 0.3,
   },
   indicatorTint: {
     ...StyleSheet.absoluteFill,

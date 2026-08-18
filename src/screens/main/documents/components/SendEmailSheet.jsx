@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Keyboard,
   Modal,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   TextInput,
   View,
@@ -19,6 +20,7 @@ import { useAppSelector } from '../../../../store';
 import { selectPersonalData } from '../../../../store/slices/personalDataSlice';
 import { FONT_FAMILY } from '../../../../theme';
 import { EMAIL_PATTERN } from '../../../../utils/patterns';
+import { resolveAttachedDocumentIds } from '../utils/mapComplaintToDocument';
 
 const SHEET_PADDING_BOTTOM = 32;
 
@@ -38,14 +40,8 @@ function resolveKeyboardInset(event) {
   return getAndroidKeyboardOverlayInset(keyboardTop, keyboardHeight);
 }
 
-function resolveAttachedDocumentIds(complaint) {
-  if (!Array.isArray(complaint?.attachedDocuments)) {
-    return [];
-  }
-
-  return complaint.attachedDocuments
-    .map(item => item?.id ?? item?.attachedDocumentId ?? item)
-    .filter(id => id != null);
+function unwrapComplaint(response) {
+  return response?.data?.data ?? response?.data ?? null;
 }
 
 /**
@@ -53,7 +49,14 @@ function resolveAttachedDocumentIds(complaint) {
  * Grows bottom padding by the keyboard inset so content stays above the
  * keyboard while the sheet keeps its natural content height.
  */
-export function SendEmailSheet({ visible, documentId, documentTitle, onClose, onSent }) {
+export function SendEmailSheet({
+  visible,
+  documentId,
+  documentTitle,
+  attachedDocuments: attachedDocumentIds,
+  onClose,
+  onSent,
+}) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { showToast } = useToast();
@@ -62,12 +65,14 @@ export function SendEmailSheet({ visible, documentId, documentTitle, onClose, on
   const [email, setEmail] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [keyboardInset, setKeyboardInset] = useState(0);
+  const isSendingRef = useRef(false);
 
   useEffect(() => {
     if (!visible) {
       setEmail('');
       setIsSending(false);
       setKeyboardInset(0);
+      isSendingRef.current = false;
       return undefined;
     }
 
@@ -103,27 +108,36 @@ export function SendEmailSheet({ visible, documentId, documentTitle, onClose, on
   }, [isSending, onClose]);
 
   const handleSend = useCallback(async () => {
-    if (!canSend || !documentId) {
-      if (!isValidEmail) {
-        showToast({
-          title: 'Անվավեր էլ. հասցե',
-          body: 'Մուտքագրեք վավեր էլ.-փոստ',
-          type: 'error',
-        });
-      }
+    if (isSendingRef.current || !documentId) {
       return;
     }
 
+    if (!isValidEmail) {
+      showToast({
+        title: 'Անվավեր էլ. հասցե',
+        body: 'Մուտքագրեք վավեր էլ.-փոստ',
+        type: 'error',
+      });
+      return;
+    }
+
+    isSendingRef.current = true;
     setIsSending(true);
     Keyboard.dismiss();
 
     try {
-      let attachedDocuments = [];
-      try {
-        const response = await complaintsApi.getComplaint(documentId);
-        attachedDocuments = resolveAttachedDocumentIds(response?.data);
-      } catch {
-        attachedDocuments = [];
+      let attachedDocuments = resolveAttachedDocumentIds(attachedDocumentIds);
+
+      if (attachedDocuments.length === 0) {
+        try {
+          const response = await complaintsApi.getComplaint(documentId);
+          const complaint = unwrapComplaint(response);
+          attachedDocuments = resolveAttachedDocumentIds(
+            complaint?.attachedDocuments,
+          );
+        } catch {
+          attachedDocuments = [];
+        }
       }
 
       await complaintsApi.sendComplaint(documentId, {
@@ -141,16 +155,18 @@ export function SendEmailSheet({ visible, documentId, documentTitle, onClose, on
       onSent?.(documentId);
       onClose?.();
     } catch (error) {
+      console.log('error', error.response);
       showToast({
         title: 'Ուղարկումը ձախողվեց',
         body: error?.message ?? 'Անհայտ սխալ, փորձեք կրկին',
         type: 'error',
       });
     } finally {
+      isSendingRef.current = false;
       setIsSending(false);
     }
   }, [
-    canSend,
+    attachedDocumentIds,
     documentId,
     isValidEmail,
     onClose,
@@ -176,58 +192,68 @@ export function SendEmailSheet({ visible, documentId, documentTitle, onClose, on
           ]}
           onPress={() => {}}
         >
-          <View style={styles.iconWrap}>
-            <MailIconSvg width={28} height={22} fill={colors.icons} />
-          </View>
+          <ScrollView
+            keyboardShouldPersistTaps="always"
+            scrollEnabled={false}
+            bounces={false}
+            contentContainerStyle={styles.sheetContent}
+          >
+            <View style={styles.iconWrap}>
+              <MailIconSvg width={28} height={22} fill={colors.icons} />
+            </View>
 
-          <Typography variant="h4" style={styles.title}>
-            Ուղարկել էլ. հասցեով
-          </Typography>
-
-          {documentTitle ? (
-            <Typography variant="h6" style={styles.subtitle} numberOfLines={2}>
-              {documentTitle}
+            <Typography variant="h4" style={styles.title}>
+              Ուղարկել էլ. հասցեով
             </Typography>
-          ) : null}
 
-          <View style={styles.inputRow}>
-            <TextInput
-              value={email}
-              onChangeText={setEmail}
-              placeholder="example@docx.am"
-              placeholderTextColor={colors.textDisabled}
-              style={styles.input}
-              editable={!isSending}
-              autoFocus
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="email-address"
-              textContentType="emailAddress"
-              returnKeyType="send"
-              onSubmitEditing={handleSend}
-            />
-          </View>
+            {documentTitle ? (
+              <Typography variant="h6" style={styles.subtitle} numberOfLines={2}>
+                {documentTitle}
+              </Typography>
+            ) : null}
 
-          <View style={styles.actions}>
-            <Pressable
-              onPress={handleClose}
-              disabled={isSending}
-              style={[styles.actionButton, styles.cancelButton]}
-            >
-              <Typography style={styles.cancelText}>Չեղարկել</Typography>
-            </Pressable>
-            <Pressable
-              onPress={handleSend}
-              disabled={!canSend}
-              style={[styles.actionButton, !canSend && styles.actionButtonDisabled]}
-            >
-              <GradientButton height={45} isLight={false}>
-                <Typography style={styles.sendText}>
-                  {isSending ? 'Ուղարկվում է...' : 'Ուղարկել'}
-                </Typography>
-              </GradientButton>
-            </Pressable>
-          </View>
+            <View style={styles.inputRow}>
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                placeholder="example@docx.am"
+                placeholderTextColor={colors.textDisabled}
+                style={styles.input}
+                editable={!isSending}
+                autoFocus
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="email-address"
+                textContentType="emailAddress"
+                returnKeyType="send"
+                blurOnSubmit={false}
+                onSubmitEditing={handleSend}
+              />
+            </View>
+
+            <View style={styles.actions}>
+              <Pressable
+                onPress={handleClose}
+                disabled={isSending}
+                style={[styles.actionButton, styles.cancelButton]}
+              >
+                <Typography style={styles.cancelText}>Չեղարկել</Typography>
+              </Pressable>
+              <Pressable
+                onPressIn={handleSend}
+                disabled={!canSend}
+                style={[styles.actionButton, !canSend && styles.actionButtonDisabled]}
+              >
+                <View pointerEvents="none" style={styles.sendButtonFill}>
+                  <GradientButton height={45} isLight={false}>
+                    <Typography style={styles.sendText}>
+                      {isSending ? 'Ուղարկվում է...' : 'Ուղարկել'}
+                    </Typography>
+                  </GradientButton>
+                </View>
+              </Pressable>
+            </View>
+          </ScrollView>
         </Pressable>
       </Pressable>
     </Modal>
@@ -247,12 +273,15 @@ const createStyles = colors =>
       borderTopRightRadius: 40,
       paddingHorizontal: 16,
       paddingTop: 24,
-      alignItems: 'center',
       shadowColor: colors.shadow,
       shadowOffset: { width: 0, height: -3 },
       shadowOpacity: 0.12,
       shadowRadius: 6,
       elevation: 8,
+    },
+    sheetContent: {
+      alignItems: 'center',
+      width: '100%',
     },
     iconWrap: {
       marginBottom: 12,
@@ -297,6 +326,10 @@ const createStyles = colors =>
       overflow: 'hidden',
       justifyContent: 'center',
       alignItems: 'center',
+    },
+    sendButtonFill: {
+      flex: 1,
+      width: '100%',
     },
     actionButtonDisabled: {
       opacity: 0.5,

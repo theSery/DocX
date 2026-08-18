@@ -9,7 +9,6 @@ import DotsVerticalSvg from '../../../../components/icons/DotsVerticalSvg';
 import DownloadSvg from '../../../../components/icons/DownloadSvg';
 import MailIconSvg from '../../../../components/icons/MailIconSvg';
 import SendSvg from '../../../../components/icons/SendSvg';
-import SignatureSvg from '../../../../components/icons/SignatureSvg';
 import StarOutlineSvg from '../../../../components/icons/StarOutlineSvg';
 import TrashSvg from '../../../../components/icons/TrashSvg';
 import { complaintsApi } from '../../../../api';
@@ -17,6 +16,7 @@ import { FONT_FAMILY } from '../../../../theme';
 import { useFileDownload, useThemedStyles, useTheme, useToast } from '../../../../hooks';
 import { removeRecommendedDocument } from '../../../../utils/recommendedDocumentsStorage';
 import EyeIconSvg from '../../../../components/icons/EyeIconSvg';
+import { AttachedDocumentsSheet } from './AttachedDocumentsSheet';
 import { SendEmailSheet } from './SendEmailSheet';
 
 const STATUS_CONFIG = {
@@ -38,8 +38,13 @@ export function DocumentCard({
   const { downloadRemoteFile } = useFileDownload();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSendEmailOpen, setIsSendEmailOpen] = useState(false);
+  const [isAttachedDocsOpen, setIsAttachedDocsOpen] = useState(false);
   const status = STATUS_CONFIG[document.status] ?? STATUS_CONFIG.draft;
   const isRecommended = Boolean(document.recommended);
+  const hasAttachedDocuments =
+    document.hasAttachment ||
+    (Array.isArray(document.attachedDocuments) &&
+      document.attachedDocuments.length > 0);
   const iconColor = colors.icons;
 
   const handleDelete = useCallback(async () => {
@@ -92,6 +97,14 @@ export function DocumentCard({
     setIsSendEmailOpen(false);
   }, []);
 
+  const handleOpenAttachedDocuments = useCallback(() => {
+    setIsAttachedDocsOpen(true);
+  }, []);
+
+  const handleCloseAttachedDocuments = useCallback(() => {
+    setIsAttachedDocsOpen(false);
+  }, []);
+
   const handleMenuPress = useCallback(() => {
     setIsMenuOpen(true);
 
@@ -106,11 +119,20 @@ export function DocumentCard({
         },
         {
           label: 'Դիտել ֆայլը',
-                icon: (
-                  <EyeIconSvg width={20} height={20} fill={iconColor} visible />
-                ),
+          icon: (
+            <EyeIconSvg width={20} height={20} fill={iconColor} visible />
+          ),
           onPress: handleSign,
         },
+        ...(hasAttachedDocuments
+          ? [
+              {
+                label: 'Դիտել կցված փաստաթղթերը',
+                icon: <AttachSvg width={20} height={20} fill={iconColor} />,
+                onPress: handleOpenAttachedDocuments,
+              },
+            ]
+          : []),
         {
           label: 'Ներբեռնել',
           icon: <DownloadSvg width={20} height={20} fill={iconColor} />,
@@ -127,8 +149,10 @@ export function DocumentCard({
     });
   }, [
     handleDownload,
+    handleOpenAttachedDocuments,
     handleOpenSendEmail,
     handleSign,
+    hasAttachedDocuments,
     iconColor,
     showDeleteConfirmation,
   ]);
@@ -143,8 +167,16 @@ export function DocumentCard({
           visible={isSendEmailOpen}
           documentId={document.id}
           documentTitle={document.title}
+          attachedDocuments={document.attachedDocuments}
           onClose={handleCloseSendEmail}
           onSent={onSent}
+        />
+      ) : null}
+      {isAttachedDocsOpen ? (
+        <AttachedDocumentsSheet
+          visible={isAttachedDocsOpen}
+          attachedDocuments={document.attachedDocuments}
+          onClose={handleCloseAttachedDocuments}
         />
       ) : null}
       <TouchableOpacity

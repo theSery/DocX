@@ -43,15 +43,39 @@ function resolveCategory(complaint) {
   return 'state';
 }
 
+export function resolveAttachedDocumentIds(attachedDocuments) {
+  if (!Array.isArray(attachedDocuments)) {
+    return [];
+  }
+
+  return attachedDocuments
+    .map(item => {
+      if (item == null || item === '') {
+        return null;
+      }
+
+      if (typeof item === 'object') {
+        return item.id ?? item.attachedDocumentId ?? null;
+      }
+
+      return item;
+    })
+    .filter(id => id != null);
+}
+
 export function mapComplaintToDocument(complaint) {
+  const attachedDocuments = resolveAttachedDocumentIds(
+    complaint.attachedDocuments,
+  );
+
   return {
     id: String(complaint.id),
     sendDate: complaint.sendDate ? formatArmenianDate(complaint.sendDate) : '—',
     title: complaint.documentName,
     organization: complaint.recipientValue || '—',
     status: complaint.sendDate ? 'sent' : 'draft',
-    hasAttachment:
-      Array.isArray(complaint.attachedDocuments) && complaint.attachedDocuments.length > 0,
+    attachedDocuments,
+    hasAttachment: attachedDocuments.length > 0,
     category: resolveCategory(complaint),
     fileUrl: complaint.fileUrl,
     downloadUrl: complaint.downloadUrl,

@@ -43,20 +43,7 @@ function areFiltersEqual(current, applied) {
     current.endDate === applied.endDate
   );
 }
-const datatF = [      {
-  "id": 196,
-  "documentName": "Բողոք ՀՀ ՆԳՆ պարեկային ծառայությանը.pdf",
-  "sendDate": "2026-08-18T03:32:00.543Z",
-  "recipientType": "addressee",
-  "recipientValue": "lawyerhovhannisyan@gmail.com",
-  "fileId": 811,
-  "fileName": "1787023919072-%D4%B2%D5%B8%D5%B2%D5%B8%D6%84%20%D5%80%D5%80%20%D5%86%D4%B3%D5%86%20%D5%BA%D5%A1%D6%80%D5%A5%D5%AF%D5%A1%D5%B5%D5%AB%D5%B6%20%D5%AE%D5%A1%D5%BC%D5%A1%D5%B5%D5%B8%D6%82%D5%A9%D5%B5%D5%A1%D5%B6%D5%A8.pdf",
-  "fileUrl": "https://craoc.upcloudobjects.com/docx-bucket/complaints/user-265/1787023919072-%25D4%25B2%25D5%25B8%25D5%25B2%25D5%25B8%25D6%2584%2520%25D5%2580%25D5%2580%2520%25D5%2586%25D4%25B3%25D5%2586%2520%25D5%25BA%25D5%25A1%25D6%2580%25D5%25A5%25D5%25AF%25D5%25A1%25D5%25B5%25D5%25AB%25D5%25B6%2520%25D5%25AE%25D5%25A1%25D5%25BC%25D5%25A1%25D5%25B5%25D5%25B8%25D6%2582%25D5%25A9%25D5%25B5%25D5%25A1%25D5%25B6%25D5%25A8.pdf?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260818%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260818T034832Z&X-Amz-Expires=3600&X-Amz-Signature=a97ec0bf488bf17a935f0ba69188ccef0efb5c6140d74b52969dc7c7b93447ad&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
-  "downloadUrl": "https://craoc.upcloudobjects.com/docx-bucket/complaints/user-265/1787023919072-%25D4%25B2%25D5%25B8%25D5%25B2%25D5%25B8%25D6%2584%2520%25D5%2580%25D5%2580%2520%25D5%2586%25D4%25B3%25D5%2586%2520%25D5%25BA%25D5%25A1%25D6%2580%25D5%25A5%25D5%25AF%25D5%25A1%25D5%25B5%25D5%25AB%25D5%25B6%2520%25D5%25AE%25D5%25A1%25D5%25BC%25D5%25A1%25D5%25B5%25D5%25B8%25D6%2582%25D5%25A9%25D5%25B5%25D5%25A1%25D5%25B6%25D5%25A8.pdf?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260818%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260818T034832Z&X-Amz-Expires=3600&X-Amz-Signature=5fe059236dbf9502f7ab55a0c02fb7ce7408421891476c590136a9739736ea40&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22document.pdf%22&x-amz-checksum-mode=ENABLED&x-id=GetObject",
-  "createdAt": "2026-08-18T03:31:59.071Z",
-  "updatedAt": "2026-08-18T03:31:59.199Z",
-  "attachedDocuments": [11, 6]
-},]
+
 export function DocumentsScreen({ route, navigation }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
@@ -317,8 +304,7 @@ export function DocumentsScreen({ route, navigation }) {
       <FlatList
         style={styles.list}
         data={sortedDocuments}
-        // data={datatF}
-        keyExtractor={item => item.id}
+        keyExtractor={item => String(item.id)}
         ListEmptyComponent={renderEmptyComponent}
         contentContainerStyle={[
           styles.listContent,
