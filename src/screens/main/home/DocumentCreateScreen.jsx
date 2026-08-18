@@ -29,7 +29,10 @@ import {
 import { AnimatedView } from '../../../components/animation';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { selectDocumentFill } from '../../../store/slices/documentFillSlice';
-import { selectPersonalData } from '../../../store/slices/personalDataSlice';
+import {
+  selectHasNotificationAddress,
+  selectPersonalData,
+} from '../../../store/slices/personalDataSlice';
 import {
   fetchPersonalDocuments,
   removePersonalDocument,
@@ -97,6 +100,7 @@ export function DocumentCreateScreen({ route, navigation }) {
   const dispatch = useAppDispatch();
   const { isDownloading, shareGeneratedPdf } = useFileDownload();
   const personalData = useAppSelector(selectPersonalData);
+  const hasNotificationAddress = useAppSelector(selectHasNotificationAddress);
   const documentFill = useAppSelector(selectDocumentFill);
   const personalDocuments = useAppSelector(selectPersonalDocuments);
   const personalDocumentsStatus = useAppSelector(selectPersonalDocumentsStatus);
@@ -396,10 +400,16 @@ export function DocumentCreateScreen({ route, navigation }) {
     () =>
       buildFilledTemplateBodyHtml(
         templateText,
-        { personalData, documentFill },
+        { personalData, documentFill, hasNotificationAddress },
         { signatureImageSrc: signatureImageSrc ?? undefined },
       ),
-    [templateText, personalData, documentFill, signatureImageSrc],
+    [
+      templateText,
+      personalData,
+      documentFill,
+      hasNotificationAddress,
+      signatureImageSrc,
+    ],
   );
 
   const bodyHtmlWithSerial = useMemo(
@@ -417,13 +427,15 @@ export function DocumentCreateScreen({ route, navigation }) {
       buildFilledTemplateBodyHtml(templateText, {
         personalData,
         documentFill,
+        hasNotificationAddress,
       }),
-    [templateText, personalData, documentFill],
+    [templateText, personalData, documentFill, hasNotificationAddress],
   );
 
   const typingSourceKey = useMemo(
-    () => `${templateText}:${JSON.stringify(documentFill)}:${JSON.stringify(personalData)}`,
-    [templateText, documentFill, personalData],
+    () =>
+      `${templateText}:${JSON.stringify(documentFill)}:${JSON.stringify(personalData)}:${hasNotificationAddress}`,
+    [templateText, documentFill, personalData, hasNotificationAddress],
   );
 
   useEffect(() => {

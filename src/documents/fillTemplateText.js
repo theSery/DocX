@@ -17,6 +17,68 @@ const HTML_VARIABLES = new Set(['past', 'hodvac', 'text2']);
 // injectSignatureAtPlaceholder can place the signature image and date later.
 const SIGNATURE_PLACEHOLDER_LABELS = new Set(['sign', 'signature_date']);
 
+const REGISTRATION_ADDRESS_LABEL = 'Հաշվառման հասցե՝';
+const NOTIFICATION_ADDRESS_LABEL = 'Ծանուցման հասցե՝';
+const REGISTRATION_ADDRESS_DATA_LABEL = 'userRegistrationAddress';
+const NOTIFICATION_ADDRESS_DATA_LABEL = 'userNotificationAddress';
+
+/**
+ * @param {string} value
+ */
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Removes the unused address line (label + value) from template HTML.
+ *
+ * @param {string} html
+ * @param {{ label: string; dataLabel: string }} unusedAddress
+ */
+function stripUnusedAddressLine(html, { label, dataLabel }) {
+  const unusedSpanMarker = `data-label="${dataLabel}"`;
+
+  let nextHtml = html.replace(/<p\b[^>]*>[\s\S]*?<\/p>/gi, paragraph => {
+    if (paragraph.includes(label) || paragraph.includes(unusedSpanMarker)) {
+      return '';
+    }
+
+    return paragraph;
+  });
+
+  const leftoverLabeledSpanPattern = new RegExp(
+    `${escapeRegExp(label)}\\s*<span\\b[^>]*\\bdata-label="${escapeRegExp(dataLabel)}"[^>]*>[\\s\\S]*?<\\/span>`,
+    'gi',
+  );
+  nextHtml = nextHtml.replace(leftoverLabeledSpanPattern, '');
+
+  const leftoverSpanPattern = new RegExp(
+    `<span\\b[^>]*\\bdata-label="${escapeRegExp(dataLabel)}"[^>]*>[\\s\\S]*?<\\/span>`,
+    'gi',
+  );
+  nextHtml = nextHtml.replace(leftoverSpanPattern, '');
+
+  return nextHtml.replace(new RegExp(`${escapeRegExp(label)}\\s*`, 'g'), '');
+}
+
+/**
+ * @param {string} html
+ * @param {boolean} hasNotificationAddress
+ */
+function applyNotificationAddressVisibility(html, hasNotificationAddress) {
+  if (hasNotificationAddress) {
+    return stripUnusedAddressLine(html, {
+      label: REGISTRATION_ADDRESS_LABEL,
+      dataLabel: REGISTRATION_ADDRESS_DATA_LABEL,
+    });
+  }
+
+  return stripUnusedAddressLine(html, {
+    label: NOTIFICATION_ADDRESS_LABEL,
+    dataLabel: NOTIFICATION_ADDRESS_DATA_LABEL,
+  });
+}
+
 /**
  * @param {string} html
  */
@@ -55,8 +117,9 @@ function joinHtmlBlocks(items) {
 
 /**
  * @param {Record<string, unknown> | null | undefined} personalData
+ * @param {boolean} hasNotificationAddress
  */
-function mapPersonalDataToVariables(personalData) {
+function mapPersonalDataToVariables(personalData, hasNotificationAddress) {
   if (!personalData) {
     return {};
   }
@@ -72,8 +135,12 @@ function mapPersonalDataToVariables(personalData) {
     userDateOfIssue: dateOfIssue,
     userDataOfIssue: dateOfIssue,
     userFromWhom: personalData.fromWhom ?? '',
-    userRegistrationAddress: personalData.registrationAddress ?? '',
-    userNotificationAddress: personalData.notificationAddress ?? '',
+    userRegistrationAddress: hasNotificationAddress
+      ? ''
+      : (personalData.registrationAddress ?? ''),
+    userNotificationAddress: hasNotificationAddress
+      ? (personalData.notificationAddress ?? '')
+      : '',
     userPhoneNumber: personalData.phoneNumber ?? '',
     userEmail: personalData.email ?? '',
   };
@@ -139,19 +206,31 @@ export function injectSignatureAtPlaceholder(templateText, imageSrc) {
  *     text2?: string[];
  *     articles?: string[];
  *   };
+ *   hasNotificationAddress?: boolean;
  * }} sources
  */
-export function fillTemplateText(templateText, { personalData, documentFill } = {}) {
+export function fillTemplateText(
+  templateText,
+  { personalData, documentFill, hasNotificationAddress } = {},
+) {
   if (!templateText) {
     return '';
   }
 
+  const showNotificationAddress = Boolean(
+    hasNotificationAddress ?? personalData?.hasNotificationAddress,
+  );
+  const templateWithVisibleAddress = applyNotificationAddressVisibility(
+    templateText,
+    showNotificationAddress,
+  );
+
   const variables = {
-    ...mapPersonalDataToVariables(personalData),
+    ...mapPersonalDataToVariables(personalData, showNotificationAddress),
     ...mapDocumentFillToVariables(documentFill),
   };
 
-  return templateText.replace(VARIABLE_SPAN_PATTERN, (match, label) => {
+  return templateWithVisibleAddress.replace(VARIABLE_SPAN_PATTERN, (match, label) => {
     if (SIGNATURE_PLACEHOLDER_LABELS.has(label)) {
       return `<span data-label="${label}"></span>`;
     }
