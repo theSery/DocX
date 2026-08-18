@@ -77,7 +77,15 @@ const FIELD_CONFIGS = colors => ({
     placeholder: 'ՕՕ / ԱԱ / ՏՏՏՏ',
     rules: {
       required: 'Ծննդյան ամսաթիվը պարտադիր է',
-      validate: value => value instanceof Date || 'Ծննդյան ամսաթիվը պարտադիր է',
+      validate: value => {
+        if (!(value instanceof Date)) {
+          return 'Ծննդյան ամսաթիվը պարտադիր է';
+        }
+
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+        return value <= today || 'Ծննդյան ամսաթիվը չի կարող լինել ապագայում';
+      },
     },
   },
   phoneNumber: {
@@ -118,7 +126,15 @@ const FIELD_CONFIGS = colors => ({
     placeholder: 'ՕՕ / ԱԱ / ՏՏՏՏ',
     rules: {
       required: 'Տրման ամսաթիվը պարտադիր է',
-      validate: value => value instanceof Date || 'Տրման ամսաթիվը պարտադիր է',
+      validate: value => {
+        if (!(value instanceof Date)) {
+          return 'Տրման ամսաթիվը պարտադիր է';
+        }
+
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+        return value <= today || 'Տրման ամսաթիվը չի կարող լինել ապագայում';
+      },
     },
   },
   publicServiceLicensePlate: {
@@ -506,6 +522,11 @@ export function CompletePersonalDataScreen({ navigation, route }) {
           startIcon={config.startIcon}
           placeholder={placeholder}
           rules={config.rules}
+          maximumDate={
+            field === 'birthday' || field === 'dateOfIssue'
+              ? new Date()
+              : undefined
+          }
         />
       );
     }

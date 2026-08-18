@@ -118,7 +118,7 @@ export function FillDates({
 const createStyles = colors =>
   StyleSheet.create({
     container: {
-      paddingTop: 8,
+      paddingTop: 16,
       gap: 16,
     },
     grid: {

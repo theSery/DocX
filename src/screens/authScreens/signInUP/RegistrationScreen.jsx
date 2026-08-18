@@ -1,13 +1,13 @@
-import { Linking, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { AuthScreenLayout } from '../../../components/layout';
 import { useAuthScreenStyles, useTheme, useThemedFocusStatusBar, useThemedStyles } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
 import { FormField, FormScrollView } from '../../../components';
 import { useForm } from 'react-hook-form';
 import UserSvg from '../../../components/icons/UserSvg';
-import { FONT_FAMILY } from '../../../theme';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import AuthButton from '../../../components/buttons/AuthButton';
+import { RegistrationPrivacyText } from './components/RegistrationPrivacyText';
 
 export function RegistrationScreen({ navigation, route }) {
   const { email, phoneNumber, password } = route.params ?? {};
@@ -74,22 +74,7 @@ export function RegistrationScreen({ navigation, route }) {
         </View>
 
         <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-          <Text style={localStyles.privacyText}>
-            Գրանցվելով՝ Դուք համաձայնվում եք{'  '}
-            <Text
-              style={localStyles.privacyTextBold}
-              onPress={() => Linking.openURL('https://www.google.com')}
-            >
-              Օգտագործման պայմաններին և դրույթներին
-            </Text>
-            {'  '} և{'  '}
-            <Text
-              style={localStyles.privacyTextBold}
-              onPress={() => Linking.openURL('https://www.google.com')}
-            >
-              Գաղտնիության քաղաքականությանը
-            </Text>
-          </Text>
+          <RegistrationPrivacyText />
           <AuthButton
             title="Ստեղծել PIN"
             onPress={onSubmit}
@@ -101,7 +86,7 @@ export function RegistrationScreen({ navigation, route }) {
   );
 }
 
-const createStyles = colors =>
+const createStyles = () =>
   StyleSheet.create({
     content: {
       flex: 1,
@@ -116,19 +101,5 @@ const createStyles = colors =>
     formArea: {
       flex: 1,
       width: '100%',
-    },
-    privacyText: {
-      fontSize: 10,
-      lineHeight: 18,
-      fontFamily: FONT_FAMILY.regular,
-      color: colors.textSecondary,
-      marginTop: 4,
-      marginBottom: 20,
-      textAlign: 'center',
-    },
-    privacyTextBold: {
-      fontFamily: FONT_FAMILY.semiBold,
-      color: colors.icons,
-      textDecorationLine: 'underline',
     },
   });

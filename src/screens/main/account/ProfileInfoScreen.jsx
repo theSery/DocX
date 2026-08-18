@@ -37,8 +37,15 @@ import { startSmsResendCooldown } from '../../../utils/smsResendCooldown';
 
 const BIRTH_DATE_RULES = {
   required: 'Ծննդյան ամսաթիվը պարտադիր է',
-  validate: value =>
-    value instanceof Date || 'Ծննդյան ամսաթիվը պարտադիր է',
+  validate: value => {
+    if (!(value instanceof Date)) {
+      return 'Ծննդյան ամսաթիվը պարտադիր է';
+    }
+
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    return value <= today || 'Ծննդյան ամսաթիվը չի կարող լինել ապագայում';
+  },
 };
 
 const CONTACT_INFO_FIELDS = [
@@ -48,7 +55,7 @@ const CONTACT_INFO_FIELDS = [
     Icon: MailIconSvg,
     placeholder: 'Էլ.-փոստ',
     keyboardType: 'email-address',
-    editable: false,
+    // editable: false,
     rules: {
       required: 'Էլ.-փոստը պարտադիր է',
       pattern: {
@@ -199,7 +206,7 @@ export function ProfileInfoScreen() {
     mode: 'onChange',
     reValidateMode: 'onChange',
   });
-console.log(personalData, 'personalData');
+console.log(personalDataStatus, 'personalDataStatus');
   const watchedPhone = useWatch({ control, name: 'phone' }) ?? '';
   const storedPhone = personalData?.phoneNumber ?? '';
   const isPhoneChanged = watchedPhone !== storedPhone;
@@ -312,6 +319,7 @@ console.log(personalData, 'personalData');
             name="birthDate"
             label="Ծննդյան ամսաթիվ *"
             rules={BIRTH_DATE_RULES}
+            maximumDate={new Date()}
             startIcon={
               <CalendarSvg width={20} height={20} fill={colors.icons} />
             }

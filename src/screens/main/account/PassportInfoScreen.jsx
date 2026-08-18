@@ -31,8 +31,15 @@ import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 
 const DATE_OF_ISSUE_RULES = {
   required: 'Տրման ամսաթիվը պարտադիր է',
-  validate: value =>
-    value instanceof Date || 'Տրման ամսաթիվը պարտադիր է',
+  validate: value => {
+    if (!(value instanceof Date)) {
+      return 'Տրման ամսաթիվը պարտադիր է';
+    }
+
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    return value <= today || 'Տրման ամսաթիվը չի կարող լինել ապագայում';
+  },
 };
 
 const CONTACT_INFO_FIELDS = [
@@ -183,6 +190,7 @@ function mapFormValuesToPersonalData(values, { includeNotificationAddress = true
     dateOfIssue: values.dateOfIssue instanceof Date ? values.dateOfIssue.toISOString() : null,
     publicServiceLicensePlate: values.publicServiceLicensePlate,
     registrationAddress: values.registrationAddress,
+    notificationAddress: '',
   };
 
   if (includeNotificationAddress) {
@@ -317,6 +325,7 @@ export function PassportInfoScreen() {
                   startIcon={startIcon}
                   placeholder={field.placeholder}
                   rules={field.rules}
+                  maximumDate={new Date()}
                 />
               );
             }
