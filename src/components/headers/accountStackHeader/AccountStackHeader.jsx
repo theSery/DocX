@@ -1,8 +1,8 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StatusBar, StyleSheet, View } from 'react-native';
 import UserSvg from '../../icons/UserSvg';
 import PenSvg from '../../icons/PenSvg';
-import { useGlobalStyles, useThemedStyles } from '../../../hooks';
+import { useGlobalStyles, useTheme, useThemedStyles } from '../../../hooks';
 import GradientBackground from '../../GradientBackground';
 import { ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT, ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT } from '../stackHeaderConstants';
 import { Typography } from '../../typography';
@@ -37,9 +37,9 @@ const createStyles = (colors) =>
       width: 88,
       height: 88,
       borderRadius: 100,
+      overflow: 'hidden',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: palette.skyBlue,
     },
     userImageOverlay: {
       position: 'absolute',
@@ -81,6 +81,7 @@ const AccountStackHeader = ({
 }) => {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
+  const { isDarkMode } = useTheme();
   const insets = useSafeAreaInsets();
   const personalData = useAppSelector(selectPersonalData);
   const name = personalData?.name ?? '';
@@ -92,6 +93,7 @@ const AccountStackHeader = ({
         height: isMinHeight ? ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT : ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT,
         overflow: 'hidden',
       }}>
+      {isDarkMode ? <StatusBar barStyle="dark-content" /> : null}
       <GradientBackground
         isAccountScreen
         centered={false}
@@ -109,16 +111,34 @@ const AccountStackHeader = ({
           <View>
             <View style={styles.accountContainer}>
               <View style={styles.userImageContainer}>
-                <UserSvg width={45} height={45} />
-                {/* <View style={styles.userImageOverlay}>
-                  <PenSvg width={16} height={16} fill={palette.mainBlue} />
-                </View> */}
+                <GradientBackground
+                  isLight={!isDarkMode}
+                  // isReversed={!isDarkMode}
+                  centered
+                  gradientWidth={88}
+                  gradientHeight={88}
+                  gradientRadius={44}
+                >
+                  <UserSvg
+                    width={45}
+                    height={45}
+                    fill={isDarkMode ? palette.white : palette.mainBlue}
+                  />
+                </GradientBackground>
               </View>
               <View>
-                <Typography variant="h3" tone="onDark" style={styles.userName}>
+                <Typography
+                  variant="h3"
+                  tone="onDark"
+                  style={[styles.userName, isDarkMode && { color: palette.mainBlue }]}
+                >
                   {name}
                 </Typography>
-                <Typography variant="h3" tone="onDark" style={styles.userName}>
+                <Typography
+                  variant="h3"
+                  tone="onDark"
+                  style={[styles.userName, isDarkMode && { color: palette.mainBlue }]}
+                >
                   {surname}
                 </Typography>
                 {/* <View style={styles.accountInfoContainer}>

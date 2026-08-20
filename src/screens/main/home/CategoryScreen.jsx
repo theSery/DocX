@@ -9,6 +9,7 @@ import { TAB_BAR_HEIGHT, TOP_HEADER_HEIGHT, WIDTH } from '../../../utils/dimensi
 import { Typography } from '../../../components/typography/Typography';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
 import { useGlobalStyles, useHomeStackHeaderScrollHandler, useThemedStyles, useTheme } from '../../../hooks';
+import { palette } from '../../../theme';
 
 const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
 
@@ -102,7 +103,7 @@ const createStyles = colors =>
       width: 50,
       height: 50,
       resizeMode: 'contain',
-      backgroundColor: colors.skyBlue,
+      backgroundColor: palette.skyBlue,
       padding: 10,
       borderRadius: 16,
     },

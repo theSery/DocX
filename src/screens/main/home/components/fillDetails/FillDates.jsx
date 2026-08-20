@@ -152,7 +152,7 @@ const createStyles = colors =>
       width: 32,
       height: 32,
       borderRadius: 50,
-      backgroundColor: colors.icons,
+      backgroundColor: colors.border,
       alignItems: 'center',
       justifyContent: 'center',
     },

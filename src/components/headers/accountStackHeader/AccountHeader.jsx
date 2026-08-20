@@ -3,7 +3,7 @@ import { StyleSheet, View, ImageBackground, Pressable } from 'react-native';
 import ligtBlueButton from '../../../assets/images/ligtBlueButton.webp';
 import { Typography } from '../../typography';
 import { palette } from '../../../theme';
-import { useThemedStyles } from '../../../hooks';
+import { useTheme, useThemedStyles } from '../../../hooks';
 import LogoutSvg from '../../icons/LogoutSvg';
 import ArrowSvg from '../../icons/ArrowSvg';
 import { showGlobalSheet } from '../../GlobalSheet';
@@ -57,6 +57,8 @@ const createStyles = () =>
 
 const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutButton }) => {
   const styles = useThemedStyles(createStyles);
+  const { isDarkMode } = useTheme();
+  const titleColor = isDarkMode ? palette.mainBlue : palette.white;
 
   const handleLogoutPress = () => {
     showGlobalSheet({
@@ -93,7 +95,7 @@ const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutBu
         <Typography
           variant="h2"
           tone="onDark"
-          style={isBackButton ? styles.titleCompact : styles.title}
+          style={[isBackButton ? styles.titleCompact : styles.title, { color: titleColor }]}
         >
           {title}
         </Typography>

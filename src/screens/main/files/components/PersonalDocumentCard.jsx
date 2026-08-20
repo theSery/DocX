@@ -211,7 +211,8 @@ const createStyles = colors =>
     },
     card: {
       borderRadius: 24,
-      backgroundColor: colors.background,
+      // backgroundColor: colors.background,
+      backgroundColor: colors.pureWhite,
       borderColor: colors.borderSubtle,
       borderWidth: 1,
       paddingHorizontal: 16,

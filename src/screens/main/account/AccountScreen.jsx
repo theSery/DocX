@@ -226,7 +226,7 @@ export function AccountScreen({ navigation }) {
         </View>
 
         <View style={styles.section}>
-          <Typography variant="h4" tone="disabled">
+          <Typography variant="h4" tone="secondary" >
             Հաշիվ
           </Typography>
           <View style={styles.menuList}>
@@ -251,7 +251,7 @@ export function AccountScreen({ navigation }) {
         </View>
 
         <View style={styles.sectionSpaced}>
-          <Typography variant="h4" tone="disabled">
+          <Typography variant="h4" tone="secondary" >
             Հաշվի կարգավորումներ
           </Typography>
           <View style={styles.menuList}>
@@ -265,15 +265,15 @@ export function AccountScreen({ navigation }) {
                     : navigateToScreen(item.screen)
                 }
               >
-                <View style={styles.menuItemRow}>
+                <View style={[styles.menuItemRow]}>
                   <item.Icon
-                    fill={item.muted ? colors.textDisabled : colors.icons}
+                    fill={item.muted ? '#5D6983' : colors.icons}
                     width={20}
                     height={20}
                   />
                   <Typography
                     variant="h5"
-                    tone={item.id === 4 ? 'disabled' : 'default'}
+                    tone={item.muted  ? 'secondary' : 'default'}
                   >
                     {item.label}
                   </Typography>
