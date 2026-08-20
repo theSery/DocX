@@ -295,7 +295,7 @@ export function ConfirmPhoneCodeForm({
           {isDeleteAccount ? 'Հաստատեք հաշվի ջնջումը' : 'Հաստատման կոդ'}
         </Typography>
         <Typography variant="h6" style={styles.subtitle}>
-          {isDeleteAccount
+          {!isDeleteAccount
             ? 'Մուտքագրեք Ձեր էլ-փոստին ուղարկված կոդը՝ հաշիվը ջնջելու համար'
             : `Մուտքագրեք Ձեր 0${displayPhone} հեռախոսահամարին ուղարկված կոդը`}
         </Typography>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
-import lightBlueButton from '../../assets/images/ligtBlueButton.webp';
+import leftIconBg from '../../assets/images/leftIconBg.webp';
 import ligtBlackButton from '../../assets/images/ligtBlackButton.webp';
 import ArrowSvg from '../icons/ArrowSvg';
 import { useTheme } from '../../hooks';
@@ -11,7 +11,7 @@ const BackButton = ({ onPress, isHome = false }) => {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.container}>
       <ImageBackground
-        source={isDarkMode ? ligtBlackButton : lightBlueButton}
+        source={isDarkMode ? ligtBlackButton : leftIconBg}
         style={styles.image}
         imageStyle={styles.imageInner}
         resizeMode="cover"
@@ -20,7 +20,7 @@ const BackButton = ({ onPress, isHome = false }) => {
           width={14}
           height={14}
           rotate={180}
-          fill="#FFFFFF"
+          fill={isDarkMode ? '#FFFFFF' : '#01174D'}
         />
       </ImageBackground>
     </TouchableOpacity>
