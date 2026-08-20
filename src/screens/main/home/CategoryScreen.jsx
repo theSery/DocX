@@ -118,5 +118,6 @@ const createStyles = colors =>
     subCategoryArrowWrap: {
       width: '20%',
       alignItems: 'flex-end',
+      paddingRight: 10,
     },
   });

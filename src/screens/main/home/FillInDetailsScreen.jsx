@@ -22,6 +22,7 @@ import {
 import { palette } from '../../../theme';
 import {
   fetchPersonalData,
+  selectHasNotificationAddress,
   selectHasSignature,
   selectIsPhoneVerified,
   selectPersonalData,
@@ -109,6 +110,7 @@ export function FillInDetailsScreen({ navigation, route }) {
   const personalDataStatus = useAppSelector(selectPersonalDataStatus);
   const hasSignature = useAppSelector(selectHasSignature);
   const isPhoneVerified = useAppSelector(selectIsPhoneVerified);
+  const hasNotificationAddress = useAppSelector(selectHasNotificationAddress);
 
   useEffect(() => {
     if (personalDataStatus === 'idle') {
@@ -230,7 +232,7 @@ export function FillInDetailsScreen({ navigation, route }) {
 
       if (
         !isPersonalDataCompleteForTemplate(personalData) ||
-        !isPassportDataCompleteForTemplate(personalData) ||
+        !isPassportDataCompleteForTemplate(personalData, hasNotificationAddress) ||
         !isPhoneVerified
       ) {
         setStepError('');
@@ -284,6 +286,7 @@ export function FillInDetailsScreen({ navigation, route }) {
     radioFacts,
     personalData,
     isPhoneVerified,
+    hasNotificationAddress,
     hasSignature,
     navigation,
     templateText,
