@@ -24,6 +24,8 @@ import {
   saveStoredEmail,
 } from '../../utils/secureStorage';
 import * as Keychain from 'react-native-keychain';
+import { useAppSelector } from '../../store';
+import { selectIsEmailVerified } from '../../store/slices/personalDataSlice';
 
 const PIN_LENGTH = 4;
 const PIN_FILL_STEP_MS = 60;
@@ -53,6 +55,7 @@ export function FaceIdScreen({ navigation, route }) {
   const { showToast } = useToast();
   useThemedFocusStatusBar();
   const { completeReauth } = useAuthSession();
+  const isEmailVerified = useAppSelector(selectIsEmailVerified);
   const nextScreen = route.params?.nextScreen;
   const isUnlockOnly = Boolean(nextScreen);
   const [passcode, setPasscode] = useState([]);
@@ -318,6 +321,30 @@ export function FaceIdScreen({ navigation, route }) {
     setPasscode(next);
   }, []);
 
+  const handleResetPin = useCallback(async () => {
+    if (!isEmailVerified) {
+      showToast({
+        title: 'Հաստատեք էլ.-փոստը',
+        body: 'PIN կոդը վերականգնելու համար խնդրում ենք նախ հաստատել ձեր էլ.-փոստը։',
+        type: 'error',
+      });
+      if (isUnlockOnly) {
+        navigation.navigate('ProfileInfo');
+      } else {
+        navigation.getParent()?.navigate('Main', {
+          screen: 'Account',
+          params: { screen: 'ProfileInfo' },
+        });
+      }
+      return;
+    }
+
+    const storedEmail = await getStoredEmail();
+    navigation.navigate('PinVerification', {
+      email: storedEmail || undefined,
+    });
+  }, [isEmailVerified, isUnlockOnly, navigation, showToast]);
+
   const handlePinComplete = async pinCode => {
     // Never block PIN on Face ID — only prevent duplicate PIN submits,
     // auto-fill animation, and skip if Face ID already claimed success.
@@ -434,12 +461,7 @@ export function FaceIdScreen({ navigation, route }) {
               {`${biometricLabel} կամ PIN`}
             </Text>
             <Pressable
-              onPress={async () => {
-                const storedEmail = await getStoredEmail();
-                navigation.navigate('PinVerification', {
-                  email: storedEmail || undefined,
-                });
-              }}
+              onPress={handleResetPin}
               disabled={isPinVerifying}
             >
               <Text style={localStyles.privacyText}>

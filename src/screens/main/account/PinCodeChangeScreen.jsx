@@ -13,6 +13,8 @@ import {
 import { FONT_FAMILY } from '../../../theme';
 import { Passcode } from '../../authScreens/signInUP/components/Passcode';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
+import { useAppSelector } from '../../../store';
+import { selectIsEmailVerified } from '../../../store/slices/personalDataSlice';
 
 const PIN_LENGTH = 4;
 const PIN_FILL_STEP_MS = 90;
@@ -81,6 +83,7 @@ export function PinCodeChangeScreen() {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { showToast } = useToast();
+  const isEmailVerified = useAppSelector(selectIsEmailVerified);
   const [step, setStep] = useState('old');
   const [oldPin, setOldPin] = useState('');
   const [passcode, setPasscode] = useState([]);
@@ -126,6 +129,21 @@ export function PinCodeChangeScreen() {
     },
     [lockInput, showToast, unlockInput],
   );
+
+  const handleResetPin = useCallback(() => {
+    if (!isEmailVerified) {
+      showToast({
+        title: 'Հաստատեք էլ.-փոստը',
+        body: 'PIN կոդը վերականգնելու համար խնդրում ենք նախ հաստատել ձեր էլ.-փոստը։',
+        type: 'error',
+        position: 'bottom',
+      });
+      navigation.navigate('ProfileInfo');
+      return;
+    }
+
+    navigation.navigate('AccountResetPin');
+  }, [isEmailVerified, navigation, showToast]);
 
   const clearFillAnimation = useCallback(() => {
     fillTimeoutsRef.current.forEach(clearTimeout);
@@ -459,7 +477,7 @@ export function PinCodeChangeScreen() {
           </View>
           <View style={styles.footer}>
             <Pressable
-              onPress={() => navigation.navigate('AccountResetPin')}
+              onPress={handleResetPin}
               disabled={isLoading || isInputLocked}
             >
               <Text style={styles.privacyText}>Վերականգնել PIN-կոդը</Text>
