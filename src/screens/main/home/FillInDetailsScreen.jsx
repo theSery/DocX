@@ -24,6 +24,7 @@ import {
   fetchPersonalData,
   selectHasNotificationAddress,
   selectHasSignature,
+  selectIsEmailVerified,
   selectIsPhoneVerified,
   selectPersonalData,
   selectPersonalDataStatus,
@@ -110,6 +111,7 @@ export function FillInDetailsScreen({ navigation, route }) {
   const personalDataStatus = useAppSelector(selectPersonalDataStatus);
   const hasSignature = useAppSelector(selectHasSignature);
   const isPhoneVerified = useAppSelector(selectIsPhoneVerified);
+  const isEmailVerified = useAppSelector(selectIsEmailVerified);
   const hasNotificationAddress = useAppSelector(selectHasNotificationAddress);
 
   useEffect(() => {
@@ -233,7 +235,8 @@ export function FillInDetailsScreen({ navigation, route }) {
       if (
         !isPersonalDataCompleteForTemplate(personalData) ||
         !isPassportDataCompleteForTemplate(personalData, hasNotificationAddress) ||
-        !isPhoneVerified
+        !isPhoneVerified ||
+        !isEmailVerified
       ) {
         setStepError('');
         navigation.navigate('CompletePersonalData', {
@@ -286,6 +289,7 @@ export function FillInDetailsScreen({ navigation, route }) {
     radioFacts,
     personalData,
     isPhoneVerified,
+    isEmailVerified,
     hasNotificationAddress,
     hasSignature,
     navigation,

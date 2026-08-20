@@ -13,6 +13,10 @@ export const authApi = {
     return axiosClient.post('/auth/send-otp', { email, purpose });
   },
 
+  sendEmailOtp({ email }) {
+    return axiosClient.post('/auth/email/send-otp', { email });
+  },
+
   sendPhoneOtp({ phoneNumber, purpose }) {
     return axiosClient.post('/auth/phone/send-otp', { phoneNumber, purpose });
   },
@@ -24,6 +28,10 @@ export const authApi = {
       code,
       purpose,
     });
+  },
+
+  verifyEmailOtp({ email, code }) {
+    return axiosClient.post('/auth/email/verify-otp', { email, code });
   },
 
   verifyPhoneOtp({ phoneNumber, purpose, code }) {

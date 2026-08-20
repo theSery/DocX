@@ -8,6 +8,7 @@ import {
   PinCodeChangeScreen,
   ProfileInfoScreen,
   ConfirmPhoneCodeScreen,
+  ConfirmEmailCodeScreen,
   SettingsScreen,
   SignatureScreen,
   WalletScreen,
@@ -73,6 +74,18 @@ export function AccountStackNavigator() {
       <Account.Screen
         name="ConfirmPhoneCode"
         component={ConfirmPhoneCodeScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => (
+            <SafeAreaView edges={['top']} style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+              <MainHeader onPress={() => navigation.goBack()} isHome={true} />
+            </SafeAreaView>
+          ),
+        }}
+      />
+      <Account.Screen
+        name="ConfirmEmailCode"
+        component={ConfirmEmailCodeScreen}
         options={{
           headerShown: true,
           header: ({ navigation }) => (

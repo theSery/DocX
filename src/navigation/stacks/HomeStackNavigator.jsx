@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { View } from 'react-native';
 import { animation } from '../constants';
 import { ConfirmPhoneCodeScreenHome } from '../../screens/main/home/ConfirmPhoneCodeScreenHome';
+import { ConfirmEmailCodeScreen } from '../../screens/main/account';
 
 const Home = createNativeStackNavigator();
 
@@ -119,6 +120,18 @@ export function HomeStackNavigator() {
           <Home.Screen
             name="ConfirmPhoneCodeScreenHome"
             component={ConfirmPhoneCodeScreenHome}
+            options={{
+              headerShown: true,
+              header: ({ navigation }) => (
+                <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+                  <MainHeader onPress={() => navigation.goBack()} />
+                </View>
+              ),
+            }}
+          />
+          <Home.Screen
+            name="ConfirmEmailCode"
+            component={ConfirmEmailCodeScreen}
             options={{
               headerShown: true,
               header: ({ navigation }) => (

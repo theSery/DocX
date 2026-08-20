@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useGlobalStyles, useThemedStyles, useTheme, useToast } from '../../../hooks';
@@ -32,7 +32,7 @@ import {
   setUserFlags,
   updatePersonalData,
 } from '../../../store/slices/personalDataSlice';
-import { smsApi } from '../../../api';
+import { authApi, smsApi } from '../../../api';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import { startSmsResendCooldown } from '../../../utils/smsResendCooldown';
 
@@ -195,6 +195,7 @@ export function ProfileInfoScreen() {
   const isEmailVerified = useAppSelector(selectIsEmailVerified);
   const lastVerifiedPhoneNumber = useAppSelector(selectLastVerifiedPhoneNumber);
   const [isSendingCode, setIsSendingCode] = useState(false);
+  const [isSendingEmailCode, setIsSendingEmailCode] = useState(false);
   const {
     control,
     handleSubmit,
@@ -207,12 +208,14 @@ export function ProfileInfoScreen() {
     mode: 'onChange',
     reValidateMode: 'onChange',
   });
-console.log(personalDataStatus, 'personalDataStatus');
+
+  const watchedEmail = useWatch({ control, name: 'email' }) ?? '';
   const watchedPhone = useWatch({ control, name: 'phone' }) ?? '';
   const storedPhone = personalData?.phoneNumber ?? '';
   const isPhoneChanged = watchedPhone !== storedPhone;
   const isChangedPhoneVerified =
     isPhoneChanged && lastVerifiedPhoneNumber === watchedPhone;
+  const showEmailVerificationUi = !isEmailVerified;
   const showPhoneVerificationUi =
     !isPhoneVerified || (isPhoneChanged && !isChangedPhoneVerified);
   const isSaveDisabled =
@@ -225,6 +228,34 @@ console.log(personalDataStatus, 'personalDataStatus');
 
     reset(mapPersonalDataToFormValues(personalData));
   }, [personalData, personalDataStatus, reset]);
+
+  const handleSendEmailCode = async () => {
+    const isEmailValid = await trigger('email');
+    if (!isEmailValid) {
+      return;
+    }
+
+    const email = watchedEmail;
+    setIsSendingEmailCode(true);
+    try {
+      await authApi.sendEmailOtp({ email });
+      await startSmsResendCooldown(email);
+      showToast({
+        title: 'Կոդը ուղարկված է',
+        body: 'Հաստատման կոդը ուղարկվել է ձեր էլ.-փոստին',
+        type: 'success',
+      });
+      navigation.navigate('ConfirmEmailCode', { email });
+    } catch (error) {
+      showToast({
+        title: 'Ուղարկումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    } finally {
+      setIsSendingEmailCode(false);
+    }
+  };
 
   const handleSendCode = async () => {
     const isPhoneValid = await trigger('phone');
@@ -303,19 +334,40 @@ console.log(personalDataStatus, 'personalDataStatus');
         </Typography>
         <View style={styles.formFieldContainer}>
           {CONTACT_INFO_FIELDS.map(field => (
-            <FormField
-              key={field.name}
-              control={control}
-              name={field.name}
-              label={field.label}
-              startIcon={<field.Icon fill={colors.icons} width={20} height={20} />}
-              placeholder={field.placeholder}
-              keyboardType={field.keyboardType}
-              editable={
-                field.name === 'email' ? !isEmailVerified : field.editable
-              }
-              rules={field.rules}
-            />
+            <Fragment key={field.name}>
+              <FormField
+                control={control}
+                name={field.name}
+                label={field.label}
+                startIcon={<field.Icon fill={colors.icons} width={20} height={20} />}
+                placeholder={field.placeholder}
+                keyboardType={field.keyboardType}
+                editable={
+                  field.name === 'email' ? !isEmailVerified : field.editable
+                }
+                rules={field.rules}
+              />
+              {field.name === 'email' && showEmailVerificationUi ? (
+                <View>
+                  <Typography variant="h5" style={styles.phoneText}>
+                    ⓘ Խնդրում ենք հաստատել էլ.-փոստը
+                  </Typography>
+                  <Pressable
+                    onPress={handleSendEmailCode}
+                    disabled={isSubmitting || isSendingEmailCode}
+                    style={({ pressed }) => [
+                      styles.primaryButton,
+                      (pressed || isSubmitting || isSendingEmailCode) &&
+                        styles.buttonPressed,
+                    ]}
+                  >
+                    <Typography variant="h5" style={styles.primaryButtonText}>
+                      {isSendingEmailCode ? 'Ուղարկվում է...' : 'Ուղարկել կոդը'}
+                    </Typography>
+                  </Pressable>
+                </View>
+              ) : null}
+            </Fragment>
           ))}
           <FormDateField
             control={control}

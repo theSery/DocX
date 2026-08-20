@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useForm, useWatch } from 'react-hook-form';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,6 +15,7 @@ import {
 import MainHeader from '../../../components/headers/MainHeader';
 import AuthButton from '../../../components/buttons/AuthButton';
 import UserSvg from '../../../components/icons/UserSvg';
+import MailIconSvg from '../../../components/icons/MailIconSvg';
 import PhoneSvg from '../../../components/icons/PhoneSvg';
 import CalendarSvg from '../../../components/icons/CalendarSvg';
 import PasportSvg from '../../../components/icons/PasportSvg';
@@ -25,14 +26,16 @@ import { FONT_FAMILY } from '../../../theme';
 import {
   ARMENIAN_ADDRESS_RULES,
   ARMENIAN_NAME_RULES,
+  EMAIL_PATTERN,
   PHONE_NUMBER_PATTERN,
 } from '../../../utils/patterns';
 import { getIncompletePersonalDataFields } from '../../../utils/personalDataValidation';
-import { smsApi, userApi } from '../../../api';
+import { authApi, smsApi, userApi } from '../../../api';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   fetchPersonalData,
   selectHasSignature,
+  selectIsEmailVerified,
   selectIsPhoneVerified,
   selectLastVerifiedPhoneNumber,
   selectPersonalData,
@@ -42,6 +45,7 @@ import {
 import { startSmsResendCooldown } from '../../../utils/smsResendCooldown';
 
 const PROFILE_STORE_FIELDS = ['name', 'surname', 'patronymic', 'birthday', 'phoneNumber'];
+const PROFILE_DISPLAY_FIELDS = ['email', ...PROFILE_STORE_FIELDS];
 const PASSPORT_STORE_FIELDS = [
   'passportSeries',
   'fromWhom',
@@ -52,6 +56,19 @@ const PASSPORT_STORE_FIELDS = [
 ];
 
 const FIELD_CONFIGS = colors => ({
+  email: {
+    label: 'Էլ.-փոստ *',
+    startIcon: <MailIconSvg width={20} height={20} fill={colors.icons} />,
+    placeholder: 'Էլ.-փոստ',
+    keyboardType: 'email-address',
+    rules: {
+      required: 'Էլ.-փոստը պարտադիր է',
+      pattern: {
+        value: EMAIL_PATTERN,
+        message: 'Մուտքագրեք վավեր էլ.-փոստ',
+      },
+    },
+  },
   name: {
     label: 'Անուն *',
     startIcon: <UserSvg width={24} height={24} fill={colors.icons} />,
@@ -192,6 +209,11 @@ function toFormInitialValue(field, personalData, missingFields) {
     return personalData?.registrationAddress ?? '';
   }
 
+  // Prefill an existing email so verification can run without retyping.
+  if (field === 'email' && personalData?.email) {
+    return personalData.email;
+  }
+
   // Prefill an existing phone so verification can run without retyping.
   if (field === 'phoneNumber' && personalData?.phoneNumber) {
     return personalData.phoneNumber;
@@ -279,17 +301,22 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   const personalData = useAppSelector(selectPersonalData);
   const hasSignature = useAppSelector(selectHasSignature);
   const isPhoneVerified = useAppSelector(selectIsPhoneVerified);
+  const isEmailVerified = useAppSelector(selectIsEmailVerified);
   const lastVerifiedPhoneNumber = useAppSelector(selectLastVerifiedPhoneNumber);
   const fieldConfigs = useMemo(() => FIELD_CONFIGS(colors), [colors]);
 
   // Captured once on mount so fields don't disappear while the user is typing.
-  // Phone is always included when unverified so the confirm-code flow is reachable.
+  // Phone and email are always included when unverified so the confirm-code flow is reachable.
   const [missingFields] = useState(() => {
     const incomplete = getIncompletePersonalDataFields(personalData);
+    const extra = [];
     if (!isPhoneVerified && !incomplete.includes('phoneNumber')) {
-      return [...incomplete, 'phoneNumber'];
+      extra.push('phoneNumber');
     }
-    return incomplete;
+    if (!isEmailVerified && !incomplete.includes('email')) {
+      extra.push('email');
+    }
+    return extra.length ? [...incomplete, ...extra] : incomplete;
   });
   const [submitError, setSubmitError] = useState('');
   // Open residence address when it exists or fails validation.
@@ -309,7 +336,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
     missingFields.includes('registrationAddress') || notificationAddressMissing;
 
   const missingProfileFields = useMemo(
-    () => PROFILE_STORE_FIELDS.filter(field => missingFields.includes(field)),
+    () => PROFILE_DISPLAY_FIELDS.filter(field => missingFields.includes(field)),
     [missingFields],
   );
   const missingPassportFields = useMemo(
@@ -330,8 +357,10 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   );
 
   const [isSendingCode, setIsSendingCode] = useState(false);
+  const [isSendingEmailCode, setIsSendingEmailCode] = useState(false);
   const [focusedAddressField, setFocusedAddressField] = useState(null);
   const showPhoneField = missingFields.includes('phoneNumber');
+  const showEmailField = missingFields.includes('email');
 
   // Existing values are shown as placeholders so the user can type immediately,
   // except a valid registrationAddress which is prefilled as the input value.
@@ -386,18 +415,49 @@ export function CompletePersonalDataScreen({ navigation, route }) {
     reValidateMode: 'onChange',
   });
 
+  const watchedEmail = useWatch({ control, name: 'email' }) ?? '';
   const watchedPhone = useWatch({ control, name: 'phoneNumber' }) ?? '';
   const storedPhone = personalData?.phoneNumber ?? '';
   const isPhoneChanged = showPhoneField && watchedPhone !== storedPhone;
   const isChangedPhoneVerified =
     isPhoneChanged && lastVerifiedPhoneNumber === watchedPhone;
+  const showEmailVerificationUi = showEmailField && !isEmailVerified;
   const showPhoneVerificationUi =
     showPhoneField &&
     (!isPhoneVerified || (isPhoneChanged && !isChangedPhoneVerified));
   const isSaveDisabled =
     isSubmitting ||
     !isPhoneVerified ||
+    !isEmailVerified ||
     (showPhoneField && isPhoneChanged && !isChangedPhoneVerified);
+
+  const handleSendEmailCode = async () => {
+    const isEmailValid = await trigger('email');
+    if (!isEmailValid) {
+      return;
+    }
+
+    const email = watchedEmail;
+    setIsSendingEmailCode(true);
+    try {
+      await authApi.sendEmailOtp({ email });
+      await startSmsResendCooldown(email);
+      showToast({
+        title: 'Կոդը ուղարկված է',
+        body: 'Հաստատման կոդը ուղարկվել է ձեր էլ.-փոստին',
+        type: 'success',
+      });
+      navigation.navigate('ConfirmEmailCode', { email });
+    } catch (error) {
+      showToast({
+        title: 'Ուղարկումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    } finally {
+      setIsSendingEmailCode(false);
+    }
+  };
 
   const handleSendCode = async () => {
     const isPhoneValid = await trigger('phoneNumber');
@@ -449,12 +509,19 @@ export function CompletePersonalDataScreen({ navigation, route }) {
       return;
     }
 
+    if (!isEmailVerified) {
+      setSubmitError('Էլ.-փոստը պետք է հաստատված լինի');
+      return;
+    }
+
     try {
       const payload = buildPayload(missingFields, formValues, personalData, {
         addressFieldsMissing,
         addressesDiffer,
       });
-      await dispatch(updatePersonalData(payload)).unwrap();
+      if (Object.keys(payload).length > 0) {
+        await dispatch(updatePersonalData(payload)).unwrap();
+      }
 
       if ('notificationAddress' in payload) {
         dispatch(
@@ -596,6 +663,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
         placeholder={placeholder}
         placeholderTextColor={config.placeholderTextColor}
         keyboardType={config.keyboardType}
+        editable={field === 'email' ? !isEmailVerified : undefined}
         rules={config.rules}
       />
     );
@@ -626,7 +694,31 @@ export function CompletePersonalDataScreen({ navigation, route }) {
                 Անձնական տվյալներ
               </Typography>
               <View style={styles.formFieldContainer}>
-                {missingProfileFields.map(renderField)}
+                {missingProfileFields.map(field => (
+                  <Fragment key={field}>
+                    {renderField(field)}
+                    {field === 'email' && showEmailVerificationUi ? (
+                      <>
+                        <Typography variant="h5" style={styles.phoneText}>
+                          ⓘ Խնդրում ենք հաստատել էլ.-փոստը
+                        </Typography>
+                        <Pressable
+                          onPress={handleSendEmailCode}
+                          disabled={isSubmitting || isSendingEmailCode}
+                          style={({ pressed }) => [
+                            styles.primaryButton,
+                            (pressed || isSubmitting || isSendingEmailCode) &&
+                              styles.buttonPressed,
+                          ]}
+                        >
+                          <Typography variant="h5" style={styles.primaryButtonText}>
+                            {isSendingEmailCode ? 'Ուղարկվում է...' : 'Ուղարկել կոդը'}
+                          </Typography>
+                        </Pressable>
+                      </>
+                    ) : null}
+                  </Fragment>
+                ))}
               </View>
               {showPhoneVerificationUi ? (
                 <>
