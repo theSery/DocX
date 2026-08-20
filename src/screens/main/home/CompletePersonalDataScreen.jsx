@@ -28,7 +28,7 @@ import {
   PHONE_NUMBER_PATTERN,
 } from '../../../utils/patterns';
 import { getIncompletePersonalDataFields } from '../../../utils/personalDataValidation';
-import { smsApi } from '../../../api';
+import { smsApi, userApi } from '../../../api';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   fetchPersonalData,
@@ -247,13 +247,12 @@ function buildPayload(
       // Only submit notificationAddress from the form when that field is visible.
       (addressFieldsMissing && addressesDiffer && field === 'notificationAddress');
 
-    // Keep existing notificationAddress when its form is hidden.
     if (
       field === 'notificationAddress' &&
       addressFieldsMissing &&
       !addressesDiffer
     ) {
-      payload[field] = toPayloadValue(field, personalData?.[field]);
+      payload[field] = null;
       return payload;
     }
 
@@ -451,14 +450,19 @@ export function CompletePersonalDataScreen({ navigation, route }) {
     }
 
     try {
-      await dispatch(
-        updatePersonalData(
-          buildPayload(missingFields, formValues, personalData, {
-            addressFieldsMissing,
-            addressesDiffer,
+      const payload = buildPayload(missingFields, formValues, personalData, {
+        addressFieldsMissing,
+        addressesDiffer,
+      });
+      await dispatch(updatePersonalData(payload)).unwrap();
+
+      if ('notificationAddress' in payload) {
+        dispatch(
+          setUserFlags({
+            hasNotificationAddress: Boolean(payload.notificationAddress?.trim()),
           }),
-        ),
-      ).unwrap();
+        );
+      }
 
       // Refresh canonical personal data so DocumentCreate and account screens
       // all read the same latest Redux state.
@@ -466,6 +470,20 @@ export function CompletePersonalDataScreen({ navigation, route }) {
         await dispatch(fetchPersonalData()).unwrap();
       } catch (refreshError) {
         console.log(refreshError, 'personal data refresh error');
+      }
+
+      try {
+        const { data: me } = await userApi.getMe();
+        dispatch(
+          setUserFlags({
+            hasSignature: Boolean(me?.hasSignature),
+            isPhoneVerified: Boolean(me?.isPhoneVerified),
+            isEmailVerified: Boolean(me?.isEmailVerified),
+            hasNotificationAddress: Boolean(me?.hasNotificationAddress),
+          }),
+        );
+      } catch {
+        // Local hasNotificationAddress already reflects the saved payload.
       }
 
       showToast({

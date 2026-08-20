@@ -207,7 +207,7 @@ export function CustomButton({
           gradientColors={
             isBackButton
               ? [palette.white, palette.white]
-              : gradientStops(gradients.blueMain)
+              : [gradients.blueMain.start, gradients.blueMain.start]
           }
           style={styles.gradientButton}
           childrenStyle={styles.gradientContent}

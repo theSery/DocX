@@ -20,6 +20,7 @@ const initialState = {
   data: null,
   hasSignature: false,
   isPhoneVerified: false,
+  isEmailVerified: false,
   hasNotificationAddress: false,
   lastVerifiedPhoneNumber: null,
   status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
@@ -56,8 +57,12 @@ const personalDataSlice = createSlice({
   reducers: {
     resetPersonalData: () => initialState,
     setUserFlags: (state, action) => {
-      const { hasSignature, isPhoneVerified, hasNotificationAddress } =
-        action.payload ?? {};
+      const {
+        hasSignature,
+        isPhoneVerified,
+        isEmailVerified,
+        hasNotificationAddress,
+      } = action.payload ?? {};
       if (typeof hasSignature === 'boolean') {
         state.hasSignature = hasSignature;
       }
@@ -66,6 +71,9 @@ const personalDataSlice = createSlice({
         if (!isPhoneVerified) {
           state.lastVerifiedPhoneNumber = null;
         }
+      }
+      if (typeof isEmailVerified === 'boolean') {
+        state.isEmailVerified = isEmailVerified;
       }
       if (typeof hasNotificationAddress === 'boolean') {
         state.hasNotificationAddress = hasNotificationAddress;
@@ -148,6 +156,8 @@ export const selectPersonalDataStatus = state => state.personalData.status;
 export const selectPersonalDataError = state => state.personalData.error;
 export const selectHasSignature = state => state.personalData.hasSignature;
 export const selectIsPhoneVerified = state => state.personalData.isPhoneVerified;
+export const selectIsEmailVerified = state =>
+  state.personalData.isEmailVerified;
 export const selectHasNotificationAddress = state =>
   state.personalData.hasNotificationAddress;
 export const selectLastVerifiedPhoneNumber = state =>

@@ -208,7 +208,7 @@ const CollapsibleHomeStackHeader = ({
             {title ? (
               <Typography
                 variant="h2"
-                style={[styles.loginTitle, { fontSize: 16, letterSpacing: 0 }]}
+                style={[styles.loginTitle, { fontSize: 16, letterSpacing: 0, lineHeight: 20 }]}
                 numberOfLines={2}
               >
                 {title}

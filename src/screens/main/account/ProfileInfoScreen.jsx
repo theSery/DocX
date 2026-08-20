@@ -24,6 +24,7 @@ import AuthButton from '../../../components/buttons/AuthButton';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   fetchPersonalData,
+  selectIsEmailVerified,
   selectIsPhoneVerified,
   selectLastVerifiedPhoneNumber,
   selectPersonalData,
@@ -55,7 +56,6 @@ const CONTACT_INFO_FIELDS = [
     Icon: MailIconSvg,
     placeholder: 'Էլ.-փոստ',
     keyboardType: 'email-address',
-    // editable: false,
     rules: {
       required: 'Էլ.-փոստը պարտադիր է',
       pattern: {
@@ -192,6 +192,7 @@ export function ProfileInfoScreen() {
   const personalData = useAppSelector(selectPersonalData);
   const personalDataStatus = useAppSelector(selectPersonalDataStatus);
   const isPhoneVerified = useAppSelector(selectIsPhoneVerified);
+  const isEmailVerified = useAppSelector(selectIsEmailVerified);
   const lastVerifiedPhoneNumber = useAppSelector(selectLastVerifiedPhoneNumber);
   const [isSendingCode, setIsSendingCode] = useState(false);
   const {
@@ -310,7 +311,9 @@ console.log(personalDataStatus, 'personalDataStatus');
               startIcon={<field.Icon fill={colors.icons} width={20} height={20} />}
               placeholder={field.placeholder}
               keyboardType={field.keyboardType}
-              editable={field.editable}
+              editable={
+                field.name === 'email' ? !isEmailVerified : field.editable
+              }
               rules={field.rules}
             />
           ))}

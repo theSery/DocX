@@ -20,11 +20,13 @@ import AuthButton from '../../../components/buttons/AuthButton';
 import CodeSvg from '../../../components/icons/CodeSvg';
 import PasporFromSvg from '../../../components/icons/PasporFromSvg';
 import AddressSvg from '../../../components/icons/AddressSvg';
+import { userApi } from '../../../api';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   fetchPersonalData,
   selectPersonalData,
   selectPersonalDataStatus,
+  setUserFlags,
   updatePersonalData,
 } from '../../../store/slices/personalDataSlice';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
@@ -184,20 +186,16 @@ function mapPersonalDataToFormValues(data) {
 }
 
 function mapFormValuesToPersonalData(values, { includeNotificationAddress = true } = {}) {
-  const payload = {
+  return {
     passportSeries: values.passportSeries,
     fromWhom: values.fromWhom,
     dateOfIssue: values.dateOfIssue instanceof Date ? values.dateOfIssue.toISOString() : null,
     publicServiceLicensePlate: values.publicServiceLicensePlate,
     registrationAddress: values.registrationAddress,
-    notificationAddress: '',
+    notificationAddress: includeNotificationAddress
+      ? (values.notificationAddress ?? null)
+      : null,
   };
-
-  if (includeNotificationAddress) {
-    payload.notificationAddress = values.notificationAddress;
-  }
-
-  return payload;
 }
 
 function resolveFormValuesAfterUpdate(submittedValues, apiData) {
@@ -261,6 +259,11 @@ export function PassportInfoScreen() {
         includeNotificationAddress: agreed,
       });
       const response = await dispatch(updatePersonalData(payload)).unwrap();
+      dispatch(
+        setUserFlags({
+          hasNotificationAddress: Boolean(payload.notificationAddress?.trim()),
+        }),
+      );
 
       try {
         await dispatch(fetchPersonalData()).unwrap();
@@ -268,13 +271,24 @@ export function PassportInfoScreen() {
         console.log(refreshError, 'personal data refresh error');
       }
 
+      try {
+        const { data: me } = await userApi.getMe();
+        dispatch(
+          setUserFlags({
+            hasSignature: Boolean(me?.hasSignature),
+            isPhoneVerified: Boolean(me?.isPhoneVerified),
+            isEmailVerified: Boolean(me?.isEmailVerified),
+            hasNotificationAddress: Boolean(me?.hasNotificationAddress),
+          }),
+        );
+      } catch {
+        // Local hasNotificationAddress already reflects the saved payload.
+      }
+
       const updatedFormValues = resolveFormValuesAfterUpdate(
         {
           ...data,
-          // Keep the existing notification address when it was not part of the update.
-          notificationAddress: agreed
-            ? payload.notificationAddress
-            : (personalData?.notificationAddress ?? ''),
+          notificationAddress: agreed ? payload.notificationAddress : null,
         },
         response,
       );

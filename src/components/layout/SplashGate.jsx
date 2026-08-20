@@ -35,6 +35,7 @@ async function resolveStartupRoute(wasSignedIn) {
       setUserFlags({
         hasSignature: Boolean(data?.hasSignature),
         isPhoneVerified: Boolean(data?.isPhoneVerified),
+        isEmailVerified: Boolean(data?.isEmailVerified),
         hasNotificationAddress: Boolean(data?.hasNotificationAddress),
       }),
     );
