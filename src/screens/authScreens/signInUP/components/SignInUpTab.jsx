@@ -187,7 +187,13 @@ function RegistrationForm({ onSwitchToPhone }) {
 
 export function SignInUpTab({ onPhoneLogin }) {
   const styles = useThemedStyles(createStyles);
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
+  const tabActiveColor = isDarkMode
+    ? colors.buttonTextOnPrimary
+    : colors.icons;
+  const tabInactiveColor = isDarkMode
+    ? '#3D8FB5'
+    : colors.buttonTextOnPrimary;
   const activeTab = useSharedValue(0);
   const layoutWidth = useSharedValue(0);
   const layoutHeight = useSharedValue(0);
@@ -310,8 +316,8 @@ export function SignInUpTab({ onPhoneLogin }) {
             activeTab={activeTab}
             index={0}
             label="Մուտք"
-            activeColor={colors.icons}
-            inactiveColor={colors.buttonTextOnPrimary}
+            activeColor={tabActiveColor}
+            inactiveColor={tabInactiveColor}
           />
         </Pressable>
         <Pressable style={styles.tabButton} onPress={() => handleTabPress(1)}>
@@ -319,8 +325,8 @@ export function SignInUpTab({ onPhoneLogin }) {
             activeTab={activeTab}
             index={1}
             label="Գրանցում"
-            activeColor={colors.icons}
-            inactiveColor={colors.buttonTextOnPrimary}
+            activeColor={tabActiveColor}
+            inactiveColor={tabInactiveColor}
           />
         </Pressable>
       </View>
