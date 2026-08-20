@@ -8,7 +8,7 @@ import {
 import { launchImageLibrary } from 'react-native-image-picker';
 import RNFS from 'react-native-fs';
 
-import { personalDocumentsApi } from '../../../../api';
+import { filesApi, personalDocumentsApi } from '../../../../api';
 import { resolveRemoteFileMeta } from '../../../../documents';
 import { useToast } from '../../../../hooks';
 import { useAppDispatch } from '../../../../store';
@@ -23,18 +23,24 @@ function toUploadTarget(row) {
   return {
     documentName: attachedDocument?.name ?? row?.name,
     attachedDocumentId: attachedDocument?.id ?? row?.attachedDocumentId,
+    // Default personal-document slots accept POST /personal-documents.
+    usePersonalDocumentSlot: Boolean(row.isDefault),
     // When replacing a non-default upload, delete this id after the new file succeeds.
     replacePersonalDocumentId: row?.replacePersonalDocumentId ?? null,
   };
 }
 
-function extractUploadedFileId(response) {
+function extractUploadedFileId(response, { fromFilesApi = false } = {}) {
   const payload = response?.data?.data ?? response?.data ?? response;
   if (payload == null || typeof payload !== 'object') {
     return null;
   }
 
-  for (const candidate of [payload.fileId, payload.file?.id]) {
+  const candidates = fromFilesApi
+    ? [payload.fileId, payload.file?.id, payload.id]
+    : [payload.fileId, payload.file?.id];
+
+  for (const candidate of candidates) {
     const value = Number(candidate);
     if (Number.isFinite(value)) {
       return value;
@@ -91,8 +97,8 @@ async function downloadPersonalDocumentAsPickedFile(personalDocument) {
 
 /**
  * Gallery / Files / My Files pickers + upload for solution attachments.
- * Every source creates a personal document via POST /personal-documents
- * with both documentName and attachedDocumentId from attachedDocument.
+ * - Default personal-doc slots → POST /personal-documents
+ * - Everything else → POST /files (fileName = attachedDocument.name)
  */
 export function useSolutionAttachmentUpload({ onUploaded } = {}) {
   const dispatch = useAppDispatch();
@@ -141,15 +147,30 @@ export function useSolutionAttachmentUpload({ onUploaded } = {}) {
 
       setIsUploading(true);
       try {
-        const response = await personalDocumentsApi.uploadPersonalDocument({
-          documentName: attachment.documentName,
-          attachedDocumentId: attachment.attachedDocumentId,
-          uri: pickedFile.uri,
-          name: pickedFile.name,
-          type: pickedFile.type,
-        });
+        let response;
+        let fromFilesApi = false;
 
-        const responseFileId = extractUploadedFileId(response);
+        if (attachment.usePersonalDocumentSlot) {
+          response = await personalDocumentsApi.uploadPersonalDocument({
+            documentName: attachment.documentName,
+            attachedDocumentId: attachment.attachedDocumentId,
+            uri: pickedFile.uri,
+            name: pickedFile.name,
+            type: pickedFile.type,
+          });
+        } else {
+          fromFilesApi = true;
+          response = await filesApi.uploadFile({
+            fileName: attachment.documentName,
+            uri: pickedFile.uri,
+            name: pickedFile.name,
+            type: pickedFile.type,
+          });
+        }
+
+        const responseFileId = extractUploadedFileId(response, {
+          fromFilesApi,
+        });
         const fileId = await resolveFileIdAfterRefresh(
           attachment,
           responseFileId,
