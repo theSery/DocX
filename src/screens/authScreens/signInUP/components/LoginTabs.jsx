@@ -277,7 +277,7 @@ function MailLogin({ handleTabPress, isResetPassword, onForgotPassword }) {
           />
           <OrDivider />
           <OutlineButton
-            title="Մուտք հեռախոսահամարով"
+            title="Մուտք / Գրանցում հեռ. համարով"
             onPress={() => handleTabPress('phone')}
             icon={<PhoneSvg width={20} height={20} fill={colors.icons} />}
           />
@@ -336,7 +336,7 @@ function MailLogin({ handleTabPress, isResetPassword, onForgotPassword }) {
           />
           <OrDivider />
           <OutlineButton
-            title="Մուտք հեռախոսահամարով"
+            title="Մուտք / Գրանցում հեռ. համարով"
             onPress={() => handleTabPress('phone')}
             icon={<PhoneSvg width={20} height={20} fill={colors.icons} />}
           />
@@ -647,7 +647,7 @@ function PhoneResetPassword({ phoneNumber, handleTabPress, onComplete }) {
         />
         <OrDivider />
         <OutlineButton
-          title="Մուտք էլեկտրոնային փոստով"
+          title="Մուտք / Գրանցում էլ. փոստով"
           onPress={() => handleTabPress('mail')}
           icon={<MailIconSvg width={19} height={15} fill={colors.icons} />}
         />
@@ -806,7 +806,7 @@ function PhoneLogin({ handleTabPress, onForgotPassword, onResetComplete }) {
         </Pressable>
         <OrDivider />
         <OutlineButton
-          title="Մուտք էլեկտրոնային փոստով"
+          title="Մուտք / Գրանցում էլ. փոստով"
           onPress={() => handleTabPress('mail')}
           icon={<MailIconSvg width={19} height={15} fill={colors.icons} />}
         />
