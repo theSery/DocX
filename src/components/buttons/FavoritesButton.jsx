@@ -1,8 +1,8 @@
 import React from 'react';
 import { ImageBackground, Pressable, StyleSheet } from 'react-native';
 
-import leftIconBg from '../../assets/images/leftIconBg.webp';
-import ligtBlueButton from '../../assets/images/ligtBlueButton.webp';
+import lightBlueButton from '../../assets/images/ligtBlueButton.webp';
+import ligtBlackButton from '../../assets/images/ligtBlackButton.webp';
 import StarOutlineSvg from '../icons/StarOutlineSvg';
 import { useTheme } from '../../hooks';
 
@@ -21,7 +21,7 @@ const FavoritesButton = ({ onPress }) => {
       style={styles.pressable}
     >
       <ImageBackground
-        source={isDarkMode ? ligtBlueButton : leftIconBg}
+        source={isDarkMode ? ligtBlackButton : lightBlueButton}
         style={styles.image}
         imageStyle={styles.imageInner}
         resizeMode="cover"
@@ -29,7 +29,7 @@ const FavoritesButton = ({ onPress }) => {
         <StarOutlineSvg
           width={19}
           height={18}
-          fill={isDarkMode ? '#FFFFFF' : '#1D3D81'}
+          fill="#FFFFFF"
         />
       </ImageBackground>
     </Pressable>

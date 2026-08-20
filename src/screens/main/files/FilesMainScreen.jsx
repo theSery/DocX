@@ -206,7 +206,7 @@ export function FilesMainScreen() {
         ]}
       >
         <View style={styles.sectionAccent} />
-        <Typography variant="h4" style={styles.sectionTitle}>
+        <Typography variant="h4" style={styles.sectionTitle} tone="secondary">
           {section.title}
         </Typography>
       </View>
@@ -294,7 +294,7 @@ const createStyles = colors =>
     },
     sectionTitle: {
       letterSpacing: 0.6,
-      color: colors.primary,
+      // color: colors.primary,
     },
     centeredState: {
       flex: 1,

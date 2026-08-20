@@ -24,10 +24,10 @@ export default function GradientButton({
   const needsLayout = width == null || height == null;
   const staticColors = isLight
     ? gradientStops(gradients.lightSky)
-    : gradientStops(gradients.blueLarge);
+    : ['#1A4DBB', '#052060'];
   const colors = gradientColors ?? staticColors;
   // Solid fallback so the button never flashes empty if the gradient is slow.
-  const fallbackColor = colors[0] ?? gradients.blueLarge.start;
+  const fallbackColor = colors[0] ?? '#1A4DBB';
 
   return (
     <View
@@ -42,7 +42,7 @@ export default function GradientButton({
     >
       <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
         <Defs>
-          <LinearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+          <LinearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             {colors.map((color, index) => (
               <Stop
                 key={`${index}-${color}`}
