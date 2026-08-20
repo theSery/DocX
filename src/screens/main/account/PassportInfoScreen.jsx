@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useGlobalStyles, useThemedStyles, useTheme, useToast } from '../../../hooks';
+import { useGlobalStyles, useThemedFocusStatusBar, useThemedStyles, useTheme, useToast } from '../../../hooks';
 import {
   AnimatedView,
   CheckBox,
@@ -212,6 +212,7 @@ const NOTIFICATION_ADDRESS_FIELD = CONTACT_INFO_FIELDS.find(
 export function PassportInfoScreen() {
   const navigation = useNavigation();
   const globalStyles = useGlobalStyles();
+  useThemedFocusStatusBar({ inverted: true });
   const [agreed, setAgreed] = useState(false);
   const [focusedAddressField, setFocusedAddressField] = useState(null);
   const styles = useThemedStyles(createStyles);

@@ -1,6 +1,8 @@
 import { SignatureComponents } from '../../../components/account/SignatureComponents';
+import { useThemedFocusStatusBar } from '../../../hooks';
 
 export function SignatureScreen({ navigation, route }) {
+  useThemedFocusStatusBar({ inverted: true });
   const {
     fromDocumentFlow,
     templateText,

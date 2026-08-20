@@ -19,7 +19,7 @@ export function AccountTypeScreen({ navigation }) {
       gradientHeight={'32%'}
       contentStyle={styles.screen}
     >
-      <StatusBar barStyle="light-content" />
+      {/* <StatusBar barStyle="light-content" /> */}
       <View style={styles.container}>
         <AnimatedView
           animation="fadeIn"

@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useGlobalStyles, useThemedStyles, useTheme, useToast } from '../../../hooks';
+import { useGlobalStyles, useThemedFocusStatusBar, useThemedStyles, useTheme, useToast } from '../../../hooks';
 import {
   AnimatedView,
   FormDateField,
@@ -186,6 +186,7 @@ export function ProfileInfoScreen() {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  useThemedFocusStatusBar({ inverted: true });
   const navigation = useNavigation();
   const { showToast } = useToast();
   const dispatch = useAppDispatch();

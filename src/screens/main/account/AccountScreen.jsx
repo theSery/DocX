@@ -7,6 +7,7 @@ import {
 import { AnimatedView, Typography } from '../../../components';
 import {
   useGlobalStyles,
+  useThemedFocusStatusBar,
   useThemedStyles,
   useTheme,
   useToast,
@@ -164,6 +165,7 @@ export function AccountScreen({ navigation }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { showToast } = useToast();
+  useThemedFocusStatusBar({ inverted: true });
 
   const handleDeleteAccountPress = async () => {
     try {

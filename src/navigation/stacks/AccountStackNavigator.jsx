@@ -14,7 +14,7 @@ import {
   WalletScreen,
 } from '../../screens/main/account';
 import { FaceIdScreen } from '../../screens/faceId';
-import { useAuthSession, useFocusStatusBar, useStackScreenOptions } from '../../hooks';
+import { useAuthSession, useStackScreenOptions, useThemedFocusStatusBar } from '../../hooks';
 import AccountStackHeader from '../../components/headers/accountStackHeader/AccountStackHeader';
 import MainHeader from '../../components/headers/MainHeader';
 import { animation } from '../constants';
@@ -47,7 +47,7 @@ const nestedScreenOptionsWithHeader = (
 export function AccountStackNavigator() {
   const nestedScreenOptions = useStackScreenOptions();
   const { logout } = useAuthSession();
-  useFocusStatusBar('light-content');
+  useThemedFocusStatusBar({ inverted: true });
 
   return (
     <Account.Navigator

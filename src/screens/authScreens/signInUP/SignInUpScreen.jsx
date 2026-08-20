@@ -7,12 +7,13 @@ import backButton from '../../../assets/images/backButton.webp';
 import { SignInUpTab } from './components/SignInUpTab';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { resetToMain } from '../../../navigation/navigationRef';
-import { useTheme, useThemedStyles } from '../../../hooks';
+import { useTheme, useThemedFocusStatusBar, useThemedStyles } from '../../../hooks';
 
 export function SignInUpScreen() {
   const insets = useSafeAreaInsets();
   const styles = useThemedStyles(createStyles);
   const { isDarkMode, colors } = useTheme();
+  useThemedFocusStatusBar({ inverted: true });
 
   return (
     <AuthScreenLayout

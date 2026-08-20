@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AnimatedView } from '../../../components';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import { authApi } from '../../../api';
-import { useGlobalStyles, useThemedStyles, useToast } from '../../../hooks';
+import { useGlobalStyles, useThemedFocusStatusBar, useThemedStyles, useToast } from '../../../hooks';
 import {
   getStoredPinCode,
   getUserCredentialsWithBiometric,
@@ -83,6 +83,7 @@ export function PinCodeChangeScreen() {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { showToast } = useToast();
+  useThemedFocusStatusBar({ inverted: true });
   const isEmailVerified = useAppSelector(selectIsEmailVerified);
   const [step, setStep] = useState('old');
   const [oldPin, setOldPin] = useState('');

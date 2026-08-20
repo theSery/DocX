@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { privacyPolicyApi, termsOfUseApi } from '../../../api';
 import { ColorSchemeToggle } from '../../../components/theme';
 import { PrivacyPolicyModal } from '../../../components/account/PrivacyPolicyModal';
-import { useGlobalStyles, useTheme, useThemedStyles } from '../../../hooks';
+import { useGlobalStyles, useTheme, useThemedFocusStatusBar, useThemedStyles } from '../../../hooks';
 import { AnimatedView, Typography } from '../../../components';
 
 import ContactUsSvg from '../../../components/icons/ContactUsSvg';
@@ -27,6 +27,7 @@ export function SettingsScreen({ navigation }) {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  useThemedFocusStatusBar({ inverted: true });
   const [activeLegalDocument, setActiveLegalDocument] = useState(null);
 
   const closeLegalModal = useCallback(() => {

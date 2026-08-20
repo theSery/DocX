@@ -316,14 +316,16 @@ export function ColorSchemeProvider({ children }) {
       <View ref={ref} style={styles.fill} collapsable={false}>
         <ColorSchemeContext.Provider value={value}>{children}</ColorSchemeContext.Provider>
       </View>
-      <Canvas style={styles.overlay} pointerEvents="none">
-        <Image image={overlay1} x={0} y={0} width={width} height={height} />
-        {overlay2 ? (
-          <Circle c={circle} r={revealRadius}>
-            <ImageShader image={overlay2} x={0} y={0} width={width} height={height} fit="cover" />
-          </Circle>
-        ) : null}
-      </Canvas>
+      <View style={styles.overlay} pointerEvents="none">
+        <Canvas style={StyleSheet.absoluteFill}>
+          <Image image={overlay1} x={0} y={0} width={width} height={height} />
+          {overlay2 ? (
+            <Circle c={circle} r={revealRadius}>
+              <ImageShader image={overlay2} x={0} y={0} width={width} height={height} fit="cover" />
+            </Circle>
+          ) : null}
+        </Canvas>
+      </View>
     </View>
   );
 }
@@ -334,7 +336,8 @@ const styles = StyleSheet.create({
   // (tab bar, screens) — otherwise the live theme swap shows through.
   overlay: {
     ...StyleSheet.absoluteFill,
-    zIndex: 1000,
-    elevation: 1000,
+    // Above native-stack headers (zIndex 1) and HomeStackHeader (2000).
+    zIndex: 100000,
+    elevation: 100000,
   },
 });
