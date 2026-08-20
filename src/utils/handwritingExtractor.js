@@ -12,6 +12,9 @@ import {
  * estimates paper color from borders, and emits a transparent PNG of the ink.
  */
 
+/** Final ink tint applied after background removal (#0047AB). */
+const SIGNATURE_INK = { r: 0, g: 71, b: 171 };
+
 const DEFAULT_OPTIONS = {
   /** Longest side after decode; keeps memory bounded on camera photos. */
   maxDimension: 2048,
@@ -378,17 +381,10 @@ async function removeBackgroundPixels(pixels, width, height, paper, options) {
         continue;
       }
 
-      // Keep only ink on transparent background (pure black, or tinted for color pens).
-      if (sat >= minSaturationForColorInk && inkScore > 0.35) {
-        const mix = smoothstep(0.35, 1, inkScore);
-        out[i] = clampByte(r * (1 - mix * 0.55));
-        out[i + 1] = clampByte(g * (1 - mix * 0.55));
-        out[i + 2] = clampByte(b * (1 - mix * 0.55));
-      } else {
-        out[i] = 0;
-        out[i + 1] = 0;
-        out[i + 2] = 0;
-      }
+      // Keep ink on transparent background, always tinted to #0047AB.
+      out[i] = SIGNATURE_INK.r;
+      out[i + 1] = SIGNATURE_INK.g;
+      out[i + 2] = SIGNATURE_INK.b;
       out[i + 3] = alpha;
     }
 
@@ -513,7 +509,7 @@ export async function extractHandwritingToTransparentPng(sourcePath, options) {
   const srcPixels = raster.readPixels(0, 0, {
     width,
     height,
-    colorType: ColorType.RGBA_8888,
+    colorType: ColorType.BGRA_8888,
     alphaType: AlphaType.Unpremul,
   });
   if (!srcPixels || srcPixels.length < width * height * 4) {

@@ -1,14 +1,18 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import categoriesReducer from './slices/categoriesSlice';
+import complaintsReducer from './slices/complaintsSlice';
 import documentFillReducer from './slices/documentFillSlice';
 import personalDataReducer from './slices/personalDataSlice';
+import personalDocumentsReducer from './slices/personalDocumentsSlice';
 
 export const store = configureStore({
   reducer: {
     categories: categoriesReducer,
+    complaints: complaintsReducer,
     documentFill: documentFillReducer,
     personalData: personalDataReducer,
+    personalDocuments: personalDocumentsReducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

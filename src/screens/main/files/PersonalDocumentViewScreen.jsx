@@ -111,6 +111,7 @@ function createStyles(colors) {
   return StyleSheet.create({
     root: {
       flex: 1,
+      paddingHorizontal: 10,
     },
     screen: {
       flex: 1,

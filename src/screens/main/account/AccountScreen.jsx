@@ -5,7 +5,13 @@ import {
   View,
 } from 'react-native';
 import { AnimatedView, Typography } from '../../../components';
-import { useGlobalStyles, useThemedStyles, useTheme } from '../../../hooks';
+import {
+  useGlobalStyles,
+  useThemedFocusStatusBar,
+  useThemedStyles,
+  useTheme,
+  useToast,
+} from '../../../hooks';
 import { FONT_FAMILY, palette } from '../../../theme';
 import WalletSvg from '../../../components/icons/WalletSvg';
 import PlusSvg from '../../../components/icons/PlusSvg';
@@ -18,6 +24,7 @@ import SignatureSvg from '../../../components/icons/SignatureSvg';
 import TrashSvg from '../../../components/icons/TrashSvg';
 import PinCodeSvg from '../../../components/icons/PinCodeSvg';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
+import { accountApi } from '../../../api';
 
 const ACCOUNT_MENU = [
   {
@@ -157,19 +164,35 @@ export function AccountScreen({ navigation }) {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  const { showToast } = useToast();
+  useThemedFocusStatusBar({ inverted: true });
 
-  const handleDeleteAccountPress = () => {
-    console.log('delete account');
+  const handleDeleteAccountPress = async () => {
+    try {
+      await accountApi.requestDeletionCode();
+      showToast({
+        title: 'Կոդը ուղարկված է',
+        body: 'Հաստատման կոդը ուղարկվել է Ձեր էլ-փոստին',
+        type: 'success',
+      });
+      navigation.navigate('ConfirmPhoneCode', { purpose: 'delete_account' });
+    } catch (error) {
+      showToast({
+        title: 'Կոդի ուղարկումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    }
   };
 
-  const handleLogoutPress = () => {
+  const handleDeleteAccountConfirmPress = () => {
     showGlobalSheet({
-      message: 'Դուք պատրաստվում եք ջնջել Ջեր հաշիվը',
-      description: 'Հաշիվը ջնջելով կորցնում եք հասանելիությունը բոլոր տվյալներին, Ձեր կողմից ստեղծված բոլոր փաստաթղթերին',
+      message: 'Դուք պատրաստվում եք ջնջել Ձեր հաշիվը',
+      description:
+        'Հաշիվը ջնջելով կորցնում եք հասանելիությունը բոլոր տվյալներին, Ձեր կողմից ստեղծված բոլոր փաստաթղթերին',
       actions: [
         { label: 'Ջնջել', destructive: true, onPress: handleDeleteAccountPress },
         { label: 'Չեղարկել' },
-
       ],
     });
   };
@@ -187,11 +210,11 @@ export function AccountScreen({ navigation }) {
       <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
         <View style={styles.balanceContainer}>
           <View style={styles.balanceRow}>
-            <WalletSvg fill={palette.lightGray} width={50} height={50} />
-            <Typography variant="h1" style={styles.balanceText}>500֏</Typography>
+            {/* <WalletSvg fill={palette.lightGray} width={50} height={50} />
+            <Typography variant="h1" style={styles.balanceText}>500֏</Typography> */}
           </View>
 
-          <Pressable
+          {/* <Pressable
             onPress={() => navigation.navigate('Wallet')}
             style={styles.addBalanceButton}
           >
@@ -201,11 +224,11 @@ export function AccountScreen({ navigation }) {
                 Համալրել
               </Typography>
             </View>
-          </Pressable>
+          </Pressable> */}
         </View>
 
         <View style={styles.section}>
-          <Typography variant="h4" tone="disabled">
+          <Typography variant="h4" tone="secondary" >
             Հաշիվ
           </Typography>
           <View style={styles.menuList}>
@@ -230,7 +253,7 @@ export function AccountScreen({ navigation }) {
         </View>
 
         <View style={styles.sectionSpaced}>
-          <Typography variant="h4" tone="disabled">
+          <Typography variant="h4" tone="secondary" >
             Հաշվի կարգավորումներ
           </Typography>
           <View style={styles.menuList}>
@@ -238,17 +261,21 @@ export function AccountScreen({ navigation }) {
               <Pressable
                 key={item.id}
                 style={[styles.menuItem, item.id === 4 && styles.menuItemLast]}
-                onPress={() => (item.id === 4 ? handleLogoutPress() : navigateToScreen(item.screen))}
+                onPress={() =>
+                  item.id === 4
+                    ? handleDeleteAccountConfirmPress()
+                    : navigateToScreen(item.screen)
+                }
               >
-                <View style={styles.menuItemRow}>
+                <View style={[styles.menuItemRow]}>
                   <item.Icon
-                    fill={item.muted ? colors.textDisabled : colors.icons}
+                    fill={item.muted ? '#5D6983' : colors.icons}
                     width={20}
                     height={20}
                   />
                   <Typography
                     variant="h5"
-                    tone={item.id === 4 ? 'disabled' : 'default'}
+                    tone={item.muted  ? 'secondary' : 'default'}
                   >
                     {item.label}
                   </Typography>

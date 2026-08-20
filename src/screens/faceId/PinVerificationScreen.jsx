@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 import { AuthScreenLayout } from '../../components/layout';
@@ -25,9 +26,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { OtpInputRowCode } from '../authScreens/signInUP/components/OtpInputRowCode';
 import LottieAnimation from '../../components/animation/LottieAnimation';
 import { ContentTiltes } from '../../components/titleComponents/ContentTiltles';
-import { getStoredCredentials } from '../../utils/secureStorage';
+import { getStoredEmail, saveStoredEmail } from '../../utils/secureStorage';
 import { authApi } from '../../api';
 import { FONT_FAMILY, palette } from '../../theme';
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function CompletedPinVerification({ otpInputProps, styles }) {
   return (
@@ -87,13 +90,16 @@ function SuccessPinVerification({ styles, colors }) {
   );
 }
 
-export function PinVerificationScreen({ navigation }) {
+export function PinVerificationScreen({ navigation, route }) {
   const styles = useAuthScreenStyles();
   const localStyles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { showToast } = useToast();
   useThemedFocusStatusBar();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(route.params?.email ?? '');
+  const [emailResolved, setEmailResolved] = useState(
+    Boolean(route.params?.email),
+  );
   const { code: otpCode, inputProps: otpInputProps } = useOtpInput();
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
@@ -105,13 +111,26 @@ export function PinVerificationScreen({ navigation }) {
     let isMounted = true;
 
     async function loadEmail() {
+      if (route.params?.email) {
+        setEmailResolved(true);
+        return;
+      }
+
       try {
-        const credentials = await getStoredCredentials();
-        if (isMounted && credentials?.email) {
-          setEmail(credentials.email);
+        // Never call getStoredCredentials / biometric APIs here.
+        const storedEmail = await getStoredEmail();
+        if (!isMounted) {
+          return;
         }
+        if (storedEmail) {
+          setEmail(storedEmail);
+        }
+        setEmailResolved(true);
       } catch (error) {
         console.log('Load email error:', error);
+        if (isMounted) {
+          setEmailResolved(true);
+        }
       }
     }
 
@@ -120,7 +139,15 @@ export function PinVerificationScreen({ navigation }) {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [route.params?.email]);
+
+  const resolveEmail = useCallback(async () => {
+    const trimmed = email.trim();
+    if (trimmed) {
+      return trimmed;
+    }
+    return (await getStoredEmail()) || '';
+  }, [email]);
 
   const handleSendOtp = useCallback(async () => {
     if (isSendingOtp) {
@@ -129,21 +156,19 @@ export function PinVerificationScreen({ navigation }) {
 
     setIsSendingOtp(true);
     try {
-      const credentials = await getStoredCredentials();
-      const userEmail = credentials?.email || email;
+      const userEmail = await resolveEmail();
 
-      if (!userEmail) {
+      if (!userEmail || !EMAIL_PATTERN.test(userEmail)) {
         showToast({
           title: 'Վերականգնումը ձախողվեց',
-          body: 'Էլ-փոստը չի գտնվել։',
+          body: 'Մուտքագրեք վավեր էլ-փոստ։',
           type: 'error',
         });
         return;
       }
 
-      if (!email) {
-        setEmail(userEmail);
-      }
+      setEmail(userEmail);
+      await saveStoredEmail(userEmail);
 
       await authApi.sendOtp({
         email: userEmail,
@@ -166,13 +191,15 @@ export function PinVerificationScreen({ navigation }) {
     } finally {
       setIsSendingOtp(false);
     }
-  }, [email, isSendingOtp, showToast]);
+  }, [isSendingOtp, resolveEmail, showToast]);
 
   const handleSubmit = async () => {
-    if (!email) {
+    const userEmail = email.trim();
+
+    if (!userEmail || !EMAIL_PATTERN.test(userEmail)) {
       showToast({
         title: 'Հաստատումը ձախողվեց',
-        body: 'Էլ-փոստը չի գտնվել։',
+        body: 'Մուտքագրեք վավեր էլ-փոստ։',
         type: 'error',
       });
       return;
@@ -191,6 +218,7 @@ export function PinVerificationScreen({ navigation }) {
     try {
       // Validate OTP format only — do not call verifyOtp here.
       // reset-pin validates and consumes the OTP; verifyOtp would invalidate it first.
+      await saveStoredEmail(userEmail);
       setVerifiedCode(otpCode);
       setIsSuccess(true);
       showToast({
@@ -212,10 +240,12 @@ export function PinVerificationScreen({ navigation }) {
 
   const handleNavigate = () => {
     navigation.navigate('ResetPin', {
-      email,
+      email: email.trim(),
       code: verifiedCode,
     });
   };
+
+  const needsEmailInput = emailResolved && !email.trim();
 
   return (
     <AuthScreenLayout style={[styles.screen]}>
@@ -233,11 +263,30 @@ export function PinVerificationScreen({ navigation }) {
             <ContentTiltes
               title={'PIN կոդի վերականգնում'}
               subtitle={
-                email
-                  ? `Մուտքագրեք Ձեր (${email}) էլ-փոստին ուղարկված կոդը`
-                  : 'Մուտքագրեք էլ-փոստին ուղարկված կոդը'
+                email.trim()
+                  ? `Մուտքագրեք Ձեր (${email.trim()}) էլ-փոստին ուղարկված կոդը`
+                  : 'Մուտքագրեք Ձեր էլ-փոստը և ուղարկված կոդը'
               }
             />
+            {!isSuccess && needsEmailInput && (
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                placeholder="example@docx.am"
+                placeholderTextColor={colors.textDisabled}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                style={[
+                  localStyles.emailInput,
+                  {
+                    color: colors.icons,
+                    borderColor: colors.cardSelected,
+                    backgroundColor: colors.surface,
+                  },
+                ]}
+              />
+            )}
             {!isSuccess && (
               <Pressable
                 onPress={handleSendOtp}
@@ -329,6 +378,16 @@ const createStyles = () =>
     loginTitle: {},
     sendOtpButton: {
       marginBottom: 20,
+    },
+    emailInput: {
+      width: '100%',
+      borderWidth: 1,
+      borderRadius: 16,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      fontSize: 16,
+      fontFamily: FONT_FAMILY.regular,
+      marginBottom: 16,
     },
     privacyText: {
       fontSize: 14,

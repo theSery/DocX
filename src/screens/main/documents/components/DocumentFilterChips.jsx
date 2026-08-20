@@ -68,7 +68,7 @@ export function DocumentFilterChips({
           Փաստաթղթեր
         </Typography>
         <Typography variant="h6" tone="secondary" style={styles.subTitle}>
-          Ընդհանուր գեներացվել է {total} փաստաթուղթ
+          Ընդհանուր {total} փաստաթուղթ
         </Typography>
       </View>
       <View style={styles.searchFieldContainer}>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import {
   Canvas,
@@ -28,24 +29,22 @@ import { WIDTH } from '../../utils/dimensions';
 import { extractHandwritingToTransparentPng } from '../../utils/handwritingExtractor';
 import { runAfterSheetDismiss } from '../../utils/runAfterSheetDismiss';
 import TrashSvg from '../icons/TrashSvg';
-import PenSvg from '../icons/PenSvg';
 import { showGlobalSheet } from '../GlobalSheet';
 import CameraSvg from '../icons/CameraSvg';
-import CloseSvg from '../icons/CloseSvg';
 import CleareSvg from '../icons/CleareSvg';
+import UndoSvg from '../icons/UndoSvg';
 
 const INPUT_RADIUS = 16;
-const STROKE_COLOR = '#000000';
+const STROKE_COLOR = '#0047AB';
 const STROKE_WIDTH = 3;
 
-function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveSuccess }) {
+function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveSuccess, fromDocumentFlow = false }) {
   const canvasRef = useCanvasRef();
   const styles = useThemedStyles(createStyles);
   const { showToast } = useToast();
   const dispatch = useAppDispatch();
 
   const [paths, setPaths] = useState([]);
-  const [isDrawingEnabled, setIsDrawingEnabled] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isImageVisible, setIsImageVisible] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -60,43 +59,58 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveS
     setCanvasSize({ width, height });
   }, []);
 
-  const startPath = useCallback((x, y) => {
-    const builder = Skia.PathBuilder.Make().moveTo(x, y);
-    currentPathBuilder.current = builder;
+  // Existing saved signature is view-only until the user presses Clear.
+  const isLockedToExisting = Boolean(
+    signatureUrl && isImageVisible && !pickedImageUri,
+  );
+  const hasDefaultImage = Boolean(signatureImage && isImageVisible);
+  const canDraw = !isLockedToExisting;
 
-    setPaths(prev => [
-      ...prev,
-      {
-        path: builder.build(),
-        color: STROKE_COLOR,
-        strokeWidth: STROKE_WIDTH,
-      },
-    ]);
-  }, []);
+  const startPath = useCallback(
+    (x, y) => {
+      if (!canDraw) return;
 
-  const updatePath = useCallback((x, y) => {
-    if (!currentPathBuilder.current) return;
+      const builder = Skia.PathBuilder.Make().moveTo(x, y);
+      currentPathBuilder.current = builder;
 
-    currentPathBuilder.current.lineTo(x, y);
-    const updatedPath = currentPathBuilder.current.build();
+      setPaths(prev => [
+        ...prev,
+        {
+          path: builder.build(),
+          color: STROKE_COLOR,
+          strokeWidth: STROKE_WIDTH,
+        },
+      ]);
+    },
+    [canDraw],
+  );
 
-    setPaths(prev => {
-      if (prev.length === 0) return prev;
-      const next = [...prev];
-      next[next.length - 1] = {
-        ...next[next.length - 1],
-        path: updatedPath,
-      };
-      return next;
-    });
-  }, []);
+  const updatePath = useCallback(
+    (x, y) => {
+      if (!canDraw || !currentPathBuilder.current) return;
+
+      currentPathBuilder.current.lineTo(x, y);
+      const updatedPath = currentPathBuilder.current.build();
+
+      setPaths(prev => {
+        if (prev.length === 0) return prev;
+        const next = [...prev];
+        next[next.length - 1] = {
+          ...next[next.length - 1],
+          path: updatedPath,
+        };
+        return next;
+      });
+    },
+    [canDraw],
+  );
 
   const endPath = useCallback(() => {
     currentPathBuilder.current = null;
   }, []);
 
   const panGesture = Gesture.Pan()
-    .enabled(isDrawingEnabled)
+    .enabled(canDraw)
     .minDistance(0)
     .runOnJS(true)
     .onBegin(e => {
@@ -110,12 +124,19 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveS
     });
 
   const clearCanvas = () => {
+    currentPathBuilder.current = null;
     setPaths([]);
     setPickedImageUri(null);
     setIsImageVisible(false);
   };
 
-  const hasDefaultImage = Boolean(signatureImage && isImageVisible);
+  const undoLastPath = () => {
+    if (!canDraw) return;
+    if (currentPathBuilder.current) {
+      currentPathBuilder.current = null;
+    }
+    setPaths(prev => (prev.length === 0 ? prev : prev.slice(0, -1)));
+  };
 
   const savePng = async () => {
     if (paths.length === 0 && !hasDefaultImage) {
@@ -130,12 +151,13 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveS
 
     setIsSaving(true);
     const filePath = `${RNFS.CachesDirectoryPath}/signature-${Date.now()}.png`;
-    const isEditingExisting = isDrawingEnabled && Boolean(signatureUrl);
+    const isEditingExisting = Boolean(signatureUrl);
     try {
       await RNFS.writeFile(filePath, img, 'base64');
       if (isEditingExisting) {
-        console.log('isEditingExisting', isEditingExisting);
-        await signatureApi.updateSignature({ uri: `file://${filePath}` });
+        await signatureApi.deleteSignature();
+     
+        await signatureApi.uploadSignature({ uri: `file://${filePath}` });
       } else {
         await signatureApi.uploadSignature({ uri: `file://${filePath}` });
       }
@@ -236,7 +258,12 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveS
   }, [paths]);
 
   return (
-    <View style={styles.drawContainer}>
+    <View style={[styles.drawContainer, {height: fromDocumentFlow ? '75%' : '80%'}]}>
+      {fromDocumentFlow ? (
+        <Typography variant="h6" tone="secondary" style={styles.documentFlowHint}>
+          Շարունակելու համար ստեղծեք ձեր ստորագրությունը
+        </Typography>
+      ) : null}
       <View style={styles.paper}>
         <GestureDetector gesture={panGesture}>
           <View style={styles.canvas} onLayout={onCanvasLayout}>
@@ -261,30 +288,22 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveS
           </View>
         ) : null}
       </View>
-      <View style={styles.imageContainer}>
+      <View style={[styles.imageContainer, {top: !fromDocumentFlow ? 10 : 50}]}>
         <Pressable
-          style={styles.trashButton}
-          onPress={() => {
-            setIsDrawingEnabled(prev => !prev);
-            // clearCanvas();
-          }}
+          style={[styles.trashButton, paths.length === 0 && styles.disabledButton]}
+          onPress={undoLastPath}
+          disabled={paths.length === 0}
         >
-          <GradientButton height={50} isLight={isDrawingEnabled}>
-            {!isDrawingEnabled ? (
-              <PenSvg width={20} height={20} fill={palette.white} />
-            ) : (
-              <CloseSvg width={16} height={16} fill={palette.mainBlue} />
-            )}
+          <GradientButton height={50} isLight={true}>
+            <UndoSvg width={22} height={22} fill={palette.mainBlue} />
           </GradientButton>
         </Pressable>
-        {isDrawingEnabled && (
-          <Pressable style={styles.trashButton} onPress={clearCanvas}>
-            <GradientButton height={50} isLight={true}>
-              <CleareSvg width={20} height={20} fill={palette.mainBlue} />
-            </GradientButton>
-          </Pressable>
-        )}
-        {signatureUrl && (
+        <Pressable style={styles.trashButton} onPress={clearCanvas}>
+          <GradientButton height={50} isLight={true}>
+            <CleareSvg width={20} height={20} fill={palette.mainBlue} />
+          </GradientButton>
+        </Pressable>
+        {signatureUrl ? (
           <Pressable
             style={styles.trashButton}
             onPress={handleDeleteSignaturePress}
@@ -293,15 +312,12 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveS
               <TrashSvg width={22} height={22} fill={palette.mainBlue} />
             </GradientButton>
           </Pressable>
-        )}
-        {isDrawingEnabled && (
-          <Pressable style={styles.trashButton} onPress={handlePickFromGallery}>
-            <GradientButton height={50} isLight={true}>
-              <CameraSvg width={25} height={25} fill={palette.mainBlue} />
-            </GradientButton>
-          </Pressable>
-        )}
-        {/* */}
+        ) : null}
+        <Pressable style={styles.trashButton} onPress={handlePickFromGallery}>
+          <GradientButton height={50} isLight={true}>
+            <CameraSvg width={25} height={25} fill={palette.mainBlue} />
+          </GradientButton>
+        </Pressable>
       </View>
       <View style={styles.drawButtons}>
         <Pressable
@@ -327,29 +343,48 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveS
   );
 }
 
-export function SignatureComponents({ onSaveSuccess }) {
+export function SignatureComponents({ onSaveSuccess, fromDocumentFlow = false }) {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { showToast } = useToast();
   const dispatch = useAppDispatch();
   const [signature, setSignature] = useState(null);
-  useEffect(() => {
-    signatureApi
-      .getSignature()
-      .then(result => {
-        // console.log('signature result', result);
-        setSignature(result.data);
-      })
-      .catch(error => {
-        console.log('signature error', error);
-      });
-  }, []);
+  const [canvasKey, setCanvasKey] = useState(0);
+
+  useFocusEffect(
+    useCallback(() => {
+      setCanvasKey(key => key + 1);
+      let cancelled = false;
+
+      signatureApi
+        .getSignature()
+        .then(result => {
+          if (!cancelled) {
+            setSignature(result.data);
+          }
+        })
+        .catch(error => {
+          console.log('signature error', error);
+        });
+
+      return () => {
+        cancelled = true;
+      };
+    }, []),
+  );
 
   const handleDeleteSignature = async () => {
     try {
       await signatureApi.deleteSignature();
       setSignature(null);
       dispatch(setHasSignature(false));
+      showToast({
+
+        title: 'Ձեր ստորագրությունը հաջողությամբ հեռացվել է',
+      
+        type: 'success',
+      
+      });
     } catch (error) {
       console.log('delete signature error', error);
       showToast({
@@ -379,10 +414,13 @@ export function SignatureComponents({ onSaveSuccess }) {
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="on-drag"
     >
+
       <SignatureDrawCanvas
+        key={canvasKey}
         signatureUrl={signature?.fileUrl}
         handleDeleteSignaturePress={handleDeleteSignaturePress}
         onSaveSuccess={onSaveSuccess}
+        fromDocumentFlow={fromDocumentFlow}
       />
     </ScrollView>
   );
@@ -393,6 +431,12 @@ const createStyles = colors =>
       paddingBottom: 32,
       gap: 16,
       paddingTop: 20,
+    },
+    documentFlowHint: {
+      fontSize: 14,
+      letterSpacing: 0.4,
+      marginBottom: 4,
+      paddingHorizontal: 4,
     },
     title: {
       letterSpacing: 0.9,
@@ -474,5 +518,8 @@ const createStyles = colors =>
       borderWidth: 1,
       borderColor: colors.border,
       overflow: 'hidden',
+    },
+    disabledButton: {
+      opacity: 0.4,
     },
   });

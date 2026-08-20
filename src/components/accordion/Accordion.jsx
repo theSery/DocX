@@ -48,8 +48,12 @@ function defaultKeyExtractor(item, index) {
  *   scrollOffset?: import('react-native-reanimated').SharedValue<number>;
  *   scrollIntoViewOffset?: number;
  *   style?: import('react-native').StyleProp<import('react-native').ViewStyle>;
- *   itemStyle?: import('react-native').StyleProp<import('react-native').ViewStyle>;
- *   contentStyle?: import('react-native').StyleProp<import('react-native').ViewStyle>;
+ *   itemStyle?:
+ *     | import('react-native').StyleProp<import('react-native').ViewStyle>
+ *     | ((item: object, state: { isOpen: boolean }) => import('react-native').StyleProp<import('react-native').ViewStyle>);
+ *   contentStyle?:
+ *     | import('react-native').StyleProp<import('react-native').ViewStyle>
+ *     | ((item: object, state: { isOpen: boolean }) => import('react-native').StyleProp<import('react-native').ViewStyle>);
  *   staggeredEnter?: boolean;
  *   itemAnimation?: string | import('react-native-reanimated').IEntryExitAnimationBuilder;
  *   itemAnimationConfig?: object | ((item: object, index: number) => object);
@@ -165,8 +169,16 @@ export function Accordion({
             openingIndex={openingIndex}
             scrollRef={scrollRef}
             scrollOffset={scrollOffset}
-            style={itemStyle}
-            contentStyle={contentStyle}
+            style={
+              typeof itemStyle === 'function'
+                ? itemStyle(item, { isOpen })
+                : itemStyle
+            }
+            contentStyle={
+              typeof contentStyle === 'function'
+                ? contentStyle(item, { isOpen })
+                : contentStyle
+            }
             header={
               renderHeader ? (
                 renderHeader(item, { isOpen })

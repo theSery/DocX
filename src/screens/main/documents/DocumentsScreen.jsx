@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -8,10 +8,22 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { complaintsApi } from '../../../api';
+import { favoriteTemplatesApi } from '../../../api';
 import { Typography } from '../../../components';
+import { showGlobalSheet } from '../../../components/GlobalSheet';
 import SadIcon from '../../../components/icons/SadIcon';
-import { useThemedStyles, useTheme } from '../../../hooks';
+import { useThemedStyles, useTheme, useToast } from '../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../store';
+import {
+  fetchComplaints,
+  removeComplaint,
+  selectComplaints,
+  selectComplaintsError,
+  selectComplaintsFilters,
+  selectComplaintsIsFetching,
+  selectComplaintsPagination,
+  selectComplaintsStatus,
+} from '../../../store/slices/complaintsSlice';
 import { getRecommendedDocumentIds } from '../../../utils/recommendedDocumentsStorage';
 import { DocumentCard } from './components/DocumentCard';
 import { DocumentFilterChips } from './components/DocumentFilterChips';
@@ -23,68 +35,75 @@ import { sortDocumentsWithRecommended } from './utils/sortDocumentsWithRecommend
 
 const PAGE_LIMIT = 10;
 
-export function DocumentsScreen({ route }) {
+function areFiltersEqual(current, applied) {
+  return (
+    current.searchTerm === applied.searchTerm &&
+    current.recipientType === applied.recipientType &&
+    current.startDate === applied.startDate &&
+    current.endDate === applied.endDate
+  );
+}
+
+export function DocumentsScreen({ route, navigation }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  const { showToast } = useToast();
   const insets = useSafeAreaInsets();
+  const dispatch = useAppDispatch();
+
+  const items = useAppSelector(selectComplaints);
+  const status = useAppSelector(selectComplaintsStatus);
+  const error = useAppSelector(selectComplaintsError);
+  const pagination = useAppSelector(selectComplaintsPagination);
+  const appliedFilters = useAppSelector(selectComplaintsFilters);
+  const isFetching = useAppSelector(selectComplaintsIsFetching);
+
   const [activeFilterId, setActiveFilterId] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
-  const [documents, setDocuments] = useState([]);
-  const [page, setPage] = useState(1);
-  const [lastPage, setLastPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [error, setError] = useState(null);
   const [recommendedIds, setRecommendedIds] = useState([]);
-  const isFetchingRef = useRef(false);
-  const hasDocumentsRef = useRef(false);
 
-  const fetchComplaints = useCallback(async (pageToLoad, { append = false } = {}) => {
-    if (isFetchingRef.current) {
-      return;
-    }
+  const documents = useMemo(
+    () => items.map(mapComplaintToDocument),
+    [items],
+  );
 
-    isFetchingRef.current = true;
-    setError(null);
+  const isLoading = status === 'loading';
+  const isLoadingMore = status === 'loadingMore';
+  const errorMessage =
+    error?.message ||
+    (status === 'failed' ? 'Չհաջողվեց բեռնել փաստաթղթերը' : null);
+  const { page, lastPage, total } = pagination;
 
-    if (append) {
-      setIsLoadingMore(true);
-    } else if (!hasDocumentsRef.current) {
-      setIsLoading(true);
-    }
+  const startDate = formatApiDate(dateRange.startDate) || '';
+  const endDate = formatApiDate(dateRange.endDate) || '';
 
-    try {
-      const startDate = formatApiDate(dateRange.startDate);
-      const endDate = formatApiDate(dateRange.endDate);
+  const currentFilters = useMemo(
+    () => ({
+      searchTerm,
+      recipientType: activeFilterId,
+      startDate,
+      endDate,
+    }),
+    [activeFilterId, endDate, searchTerm, startDate],
+  );
 
-      const response = await complaintsApi.getComplaints({
-        page: pageToLoad,
-        limit: PAGE_LIMIT,
-        ...(activeFilterId !== 'all' ? { recipientType: activeFilterId } : {}),
-        ...(startDate ? { startDate } : {}),
-        ...(endDate ? { endDate } : {}),
-        ...(searchTerm ? { searchTerm } : {}),
-      });
-      const { data = [], total: responseTotal = 0, lastPage: responseLastPage = 1 } =
-        response.data ?? {};
-      const mappedDocuments = data.map(mapComplaintToDocument);
-
-      setDocuments(currentDocuments =>
-        append ? [...currentDocuments, ...mappedDocuments] : mappedDocuments,
+  const fetchComplaintsPage = useCallback(
+    (pageToLoad, { append = false } = {}) => {
+      dispatch(
+        fetchComplaints({
+          page: pageToLoad,
+          limit: PAGE_LIMIT,
+          searchTerm,
+          recipientType: activeFilterId,
+          startDate,
+          endDate,
+          append,
+        }),
       );
-      setPage(pageToLoad);
-      setTotal(responseTotal);
-      setLastPage(responseLastPage);
-    } catch (fetchError) {
-      setError(fetchError?.message || 'Չհաջողվեց բեռնել փաստաթղթերը');
-    } finally {
-      isFetchingRef.current = false;
-      setIsLoading(false);
-      setIsLoadingMore(false);
-    }
-  }, [activeFilterId, dateRange, searchTerm]);
+    },
+    [activeFilterId, dispatch, endDate, searchTerm, startDate],
+  );
 
   useEffect(() => {
     getRecommendedDocumentIds().then(setRecommendedIds);
@@ -96,20 +115,74 @@ export function DocumentsScreen({ route }) {
   );
 
   useEffect(() => {
-    hasDocumentsRef.current = documents.length > 0;
-  }, [documents.length]);
+    // Skip when this screen already loaded the current filters.
+    if (areFiltersEqual(currentFilters, appliedFilters) && status !== 'idle') {
+      return;
+    }
 
-  useEffect(() => {
-    fetchComplaints(1);
-  }, [fetchComplaints]);
+    fetchComplaintsPage(1);
+    // Intentionally keyed on filters/fetch only — status/error updates
+    // must not re-trigger fetches (would loop on failure).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentFilters, fetchComplaintsPage]);
 
   const refreshedAt = route?.params?.refreshedAt;
+  const favoriteTemplateId = route?.params?.favoriteTemplateId;
+  const favoriteCategoryName = route?.params?.categoryName;
 
   useEffect(() => {
     if (refreshedAt) {
-      fetchComplaints(1);
+      fetchComplaintsPage(1);
     }
-  }, [refreshedAt, fetchComplaints]);
+  }, [refreshedAt, fetchComplaintsPage]);
+
+  useEffect(() => {
+    if (favoriteTemplateId == null) {
+      return;
+    }
+
+    const templateId = favoriteTemplateId;
+    const categoryName = favoriteCategoryName;
+
+    navigation.setParams({
+      favoriteTemplateId: undefined,
+      categoryName: undefined,
+    });
+
+    showGlobalSheet({
+      message: categoryName || 'Ձևանմուշ',
+      description: 'Ցանկանո՞ւմ եք պահպանել այս ձևանմուշը որպես ընտրյալ։',
+      actions: [
+        {
+          label: 'Այո',
+          onPress: async () => {
+            try {
+              await favoriteTemplatesApi.addFavoriteTemplate({ templateId });
+              showToast({
+                title: 'Հաջողություն',
+                body: 'Ձևանմուշը ավելացվել է ընտրյալներին։',
+                type: 'success',
+              });
+            } catch (error) {
+              showToast({
+                title: 'Սխալ',
+                body:
+                  error?.message ??
+                  'Չհաջողվեց ավելացնել ձևանմուշը ընտրյալներին։',
+                type: 'error',
+              });
+            }
+          },
+        },
+        { label: 'Ոչ', destructive: true },
+      ],
+    });
+  }, [
+    favoriteTemplateId,
+    favoriteCategoryName,
+    navigation,
+    showToast,
+  ]);
 
   const handleDateRangeChange = useCallback(range => {
     setDateRange(current => {
@@ -131,28 +204,37 @@ export function DocumentsScreen({ route }) {
   const hasMorePages = page < lastPage;
 
   const handleLoadMore = useCallback(() => {
-    if (!hasMorePages || isLoading || isLoadingMore) {
+    if (!hasMorePages || isLoading || isLoadingMore || isFetching) {
       return;
     }
 
-    fetchComplaints(page + 1, { append: true });
-  }, [fetchComplaints, hasMorePages, isLoading, isLoadingMore, page]);
+    fetchComplaintsPage(page + 1, { append: true });
+  }, [
+    fetchComplaintsPage,
+    hasMorePages,
+    isFetching,
+    isLoading,
+    isLoadingMore,
+    page,
+  ]);
 
   const handleRetry = useCallback(() => {
-    fetchComplaints(1);
-  }, [fetchComplaints]);
+    fetchComplaintsPage(1);
+  }, [fetchComplaintsPage]);
 
-  const handleDocumentDeleted = useCallback(deletedId => {
-    setDocuments(currentDocuments =>
-      currentDocuments.filter(document => document.id !== deletedId),
-    );
-    setRecommendedIds(currentIds => currentIds.filter(id => id !== String(deletedId)));
-    setTotal(currentTotal => Math.max(0, currentTotal - 1));
-  }, []);
+  const handleDocumentDeleted = useCallback(
+    deletedId => {
+      dispatch(removeComplaint(deletedId));
+      setRecommendedIds(currentIds =>
+        currentIds.filter(id => id !== String(deletedId)),
+      );
+    },
+    [dispatch],
+  );
 
-  const handleRecommendedChange = useCallback(nextRecommendedIds => {
-    setRecommendedIds(nextRecommendedIds);
-  }, []);
+  const handleDocumentSent = useCallback(() => {
+    fetchComplaintsPage(1);
+  }, [fetchComplaintsPage]);
 
   const renderEmptyComponent = useCallback(() => {
     if (isLoading) {
@@ -163,13 +245,17 @@ export function DocumentsScreen({ route }) {
       );
     }
 
-    if (error) {
+    if (errorMessage) {
       return (
         <View style={styles.centeredState}>
           <Typography variant="h5" tone="secondary" style={styles.stateText}>
-            {error}
+            {errorMessage}
           </Typography>
-          <TouchableOpacity activeOpacity={0.8} onPress={handleRetry} style={styles.retryButton}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={handleRetry}
+            style={styles.retryButton}
+          >
             <Typography variant="h6" tone="onDark">
               Կրկին փորձել
             </Typography>
@@ -179,7 +265,9 @@ export function DocumentsScreen({ route }) {
     }
 
     const emptyMessage =
-      sortedDocuments.length > 0 ? 'Այս ֆիլտրով փաստաթղթեր չեն գտնվել' : 'Փաստաթղթեր չեն գտնվել';
+      sortedDocuments.length > 0
+        ? 'Այս ֆիլտրով փաստաթղթեր չեն գտնվել'
+        : 'Փաստաթղթեր չեն գտնվել';
 
     return (
       <View style={styles.centeredState}>
@@ -193,7 +281,7 @@ export function DocumentsScreen({ route }) {
     colors.primary,
     colors.icons,
     sortedDocuments.length,
-    error,
+    errorMessage,
     handleRetry,
     isLoading,
     styles.centeredState,
@@ -216,7 +304,7 @@ export function DocumentsScreen({ route }) {
       <FlatList
         style={styles.list}
         data={sortedDocuments}
-        keyExtractor={item => item.id}
+        keyExtractor={item => String(item.id)}
         ListEmptyComponent={renderEmptyComponent}
         contentContainerStyle={[
           styles.listContent,
@@ -231,7 +319,7 @@ export function DocumentsScreen({ route }) {
             document={item}
             index={index}
             onDeleted={handleDocumentDeleted}
-            onRecommendedChange={handleRecommendedChange}
+            onSent={handleDocumentSent}
           />
         )}
       />

@@ -37,19 +37,31 @@ export function isPersonalDataCompleteForTemplate(data) {
   );
 }
 
-export function isPassportDataCompleteForTemplate(data) {
+export function isPassportDataCompleteForTemplate(
+  data,
+  hasNotificationAddress = false,
+) {
   if (!data) {
     return false;
   }
 
-  return (
+  const isComplete =
     isNonEmptyString(data.passportSeries) &&
     isNonEmptyString(data.fromWhom) &&
     Boolean(data.dateOfIssue) &&
     isNonEmptyString(data.publicServiceLicensePlate) &&
-    isValidArmenianAddress(data.registrationAddress) &&
-    isValidArmenianAddress(data.notificationAddress)
-  );
+    isValidArmenianAddress(data.registrationAddress);
+
+  if (!isComplete) {
+    return false;
+  }
+
+  // Documents only use notificationAddress when hasNotificationAddress is true.
+  if (!hasNotificationAddress) {
+    return true;
+  }
+
+  return isValidArmenianAddress(data.notificationAddress);
 }
 
 export const PERSONAL_DATA_FIELD_VALIDATORS = {

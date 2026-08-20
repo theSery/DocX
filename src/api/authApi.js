@@ -5,18 +5,64 @@ export const authApi = {
     return axiosClient.post('/auth/login', { email, password });
   },
 
+  loginWithPhone({ phoneNumber, password }) {
+    return axiosClient.post('/auth/phone/login', { phoneNumber, password });
+  },
+
   sendOtp({ email, purpose }) {
     return axiosClient.post('/auth/send-otp', { email, purpose });
   },
 
-  verifyOtp({ email, code, purpose }) {
-    console.log('verifyOtp', email, code, purpose);
-    return axiosClient.post('/auth/verify-otp', { email, code, purpose });
+  sendEmailOtp({ email }) {
+    return axiosClient.post('/auth/email/send-otp', { email });
+  },
+
+  sendPhoneOtp({ phoneNumber, purpose }) {
+    return axiosClient.post('/auth/phone/send-otp', { phoneNumber, purpose });
+  },
+
+  verifyOtp({ email, phoneNumber, code, purpose }) {
+    return axiosClient.post('/auth/verify-otp', {
+      ...(email ? { email } : {}),
+      ...(phoneNumber ? { phoneNumber } : {}),
+      code,
+      purpose,
+    });
+  },
+
+  verifyEmailOtp({ email, code }) {
+    return axiosClient.post('/auth/email/verify-otp', { email, code });
+  },
+
+  verifyPhoneOtp({ phoneNumber, purpose, code }) {
+    return axiosClient.post('/auth/phone/verify-otp', {
+      phoneNumber,
+      purpose,
+      code,
+    });
   },
 
   registerPersonal({ email, name, surname, patronymic, password, pinCode }) {
     return axiosClient.post('/auth/register/personal', {
       email,
+      name,
+      surname,
+      patronymic,
+      password,
+      pinCode,
+    });
+  },
+
+  registerPersonalWithPhone({
+    phoneNumber,
+    name,
+    surname,
+    patronymic,
+    password,
+    pinCode,
+  }) {
+    return axiosClient.post('/auth/phone/register/personal', {
+      phoneNumber,
       name,
       surname,
       patronymic,
@@ -57,6 +103,13 @@ export const authApi = {
     return axiosClient.put('/auth/reset-password', {
       email,
       code,
+      newPassword,
+    });
+  },
+
+  resetPasswordWithPhone({ phoneNumber, newPassword }) {
+    return axiosClient.put('/auth/phone/reset-password', {
+      phoneNumber,
       newPassword,
     });
   },

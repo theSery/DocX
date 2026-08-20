@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useGlobalStyles, useThemedStyles, useTheme, useToast } from '../../../hooks';
+import { useNavigation } from '@react-navigation/native';
+import { useGlobalStyles, useThemedFocusStatusBar, useThemedStyles, useTheme, useToast } from '../../../hooks';
 import {
   AnimatedView,
   CheckBox,
@@ -19,19 +20,28 @@ import AuthButton from '../../../components/buttons/AuthButton';
 import CodeSvg from '../../../components/icons/CodeSvg';
 import PasporFromSvg from '../../../components/icons/PasporFromSvg';
 import AddressSvg from '../../../components/icons/AddressSvg';
+import { userApi } from '../../../api';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   fetchPersonalData,
   selectPersonalData,
   selectPersonalDataStatus,
+  setUserFlags,
   updatePersonalData,
 } from '../../../store/slices/personalDataSlice';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 
 const DATE_OF_ISSUE_RULES = {
   required: 'Տրման ամսաթիվը պարտադիր է',
-  validate: value =>
-    value instanceof Date || 'Տրման ամսաթիվը պարտադիր է',
+  validate: value => {
+    if (!(value instanceof Date)) {
+      return 'Տրման ամսաթիվը պարտադիր է';
+    }
+
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    return value <= today || 'Տրման ամսաթիվը չի կարող լինել ապագայում';
+  },
 };
 
 const CONTACT_INFO_FIELDS = [
@@ -137,15 +147,21 @@ const createStyles = (colors) =>
       overflow: 'visible',
       zIndex: 1,
     },
+    addressBlockFocused: {
+      zIndex: 9999,
+      elevation: 9999,
+    },
     addressCheckbox: {
       marginTop: 20,
     },
     secondaryAddressField: {
       marginTop: 20,
       overflow: 'visible',
-      // Keep the lower address field above the primary one so its upward
-      // suggestions overlay registrationAddress instead of sitting under it.
-      zIndex: 2,
+      zIndex: 1,
+    },
+    secondaryAddressFieldFocused: {
+      zIndex: 9999,
+      elevation: 9999,
     },
   });
 
@@ -170,19 +186,16 @@ function mapPersonalDataToFormValues(data) {
 }
 
 function mapFormValuesToPersonalData(values, { includeNotificationAddress = true } = {}) {
-  const payload = {
+  return {
     passportSeries: values.passportSeries,
     fromWhom: values.fromWhom,
     dateOfIssue: values.dateOfIssue instanceof Date ? values.dateOfIssue.toISOString() : null,
     publicServiceLicensePlate: values.publicServiceLicensePlate,
     registrationAddress: values.registrationAddress,
+    notificationAddress: includeNotificationAddress
+      ? (values.notificationAddress ?? null)
+      : null,
   };
-
-  if (includeNotificationAddress) {
-    payload.notificationAddress = values.notificationAddress;
-  }
-
-  return payload;
 }
 
 function resolveFormValuesAfterUpdate(submittedValues, apiData) {
@@ -197,8 +210,11 @@ const NOTIFICATION_ADDRESS_FIELD = CONTACT_INFO_FIELDS.find(
 );
 
 export function PassportInfoScreen() {
+  const navigation = useNavigation();
   const globalStyles = useGlobalStyles();
+  useThemedFocusStatusBar({ inverted: true });
   const [agreed, setAgreed] = useState(false);
+  const [focusedAddressField, setFocusedAddressField] = useState(null);
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { showToast } = useToast();
@@ -244,6 +260,11 @@ export function PassportInfoScreen() {
         includeNotificationAddress: agreed,
       });
       const response = await dispatch(updatePersonalData(payload)).unwrap();
+      dispatch(
+        setUserFlags({
+          hasNotificationAddress: Boolean(payload.notificationAddress?.trim()),
+        }),
+      );
 
       try {
         await dispatch(fetchPersonalData()).unwrap();
@@ -251,17 +272,29 @@ export function PassportInfoScreen() {
         console.log(refreshError, 'personal data refresh error');
       }
 
+      try {
+        const { data: me } = await userApi.getMe();
+        dispatch(
+          setUserFlags({
+            hasSignature: Boolean(me?.hasSignature),
+            isPhoneVerified: Boolean(me?.isPhoneVerified),
+            isEmailVerified: Boolean(me?.isEmailVerified),
+            hasNotificationAddress: Boolean(me?.hasNotificationAddress),
+          }),
+        );
+      } catch {
+        // Local hasNotificationAddress already reflects the saved payload.
+      }
+
       const updatedFormValues = resolveFormValuesAfterUpdate(
         {
           ...data,
-          // Keep the existing notification address when it was not part of the update.
-          notificationAddress: agreed
-            ? payload.notificationAddress
-            : (personalData?.notificationAddress ?? ''),
+          notificationAddress: agreed ? payload.notificationAddress : null,
         },
         response,
       );
       reset(updatedFormValues);
+      navigation.navigate('AccountMain');
       showToast({
         title: 'Տվյալները հաջողությամբ պահպանվեցին',
         type: 'success',
@@ -284,7 +317,7 @@ export function PassportInfoScreen() {
     >
       <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
         <Typography variant="h4" style={styles.screenTitle}>
-          Անձը հաստատող փաստաթուղթ` Անձնագիր. Նույն. քարտ
+          Անձը հաստատող փաստաթուղթ` Անձնագիր / Նույն. քարտ
         </Typography>
         <View style={styles.formFieldContainer}>
           {CONTACT_INFO_FIELDS.map((field) => {
@@ -307,13 +340,22 @@ export function PassportInfoScreen() {
                   startIcon={startIcon}
                   placeholder={field.placeholder}
                   rules={field.rules}
+                  maximumDate={new Date()}
                 />
               );
             }
 
             if (field.type === 'address') {
               return (
-                <View key={field.name} style={styles.addressBlock}>
+                <View
+                  key={field.name}
+                  style={[
+                    styles.addressBlock,
+                    (focusedAddressField === field.name ||
+                      focusedAddressField === NOTIFICATION_ADDRESS_FIELD.name) &&
+                      styles.addressBlockFocused,
+                  ]}
+                >
                   <FormAddressField
                     control={control}
                     name={field.name}
@@ -321,6 +363,9 @@ export function PassportInfoScreen() {
                     startIcon={startIcon}
                     placeholder={field.placeholder}
                     rules={field.rules}
+                    onFocusChange={(focused) => {
+                      setFocusedAddressField(focused ? field.name : null);
+                    }}
                   />
                   <CheckBox
                     style={styles.addressCheckbox}
@@ -329,7 +374,13 @@ export function PassportInfoScreen() {
                     label="Հաշվառման և բնակության հասցեն տարբերվում են"
                   />
                   {agreed ? (
-                    <View style={styles.secondaryAddressField}>
+                    <View
+                      style={[
+                        styles.secondaryAddressField,
+                        focusedAddressField === NOTIFICATION_ADDRESS_FIELD.name &&
+                          styles.secondaryAddressFieldFocused,
+                      ]}
+                    >
                       <FormAddressField
                         control={control}
                         name={NOTIFICATION_ADDRESS_FIELD.name}
@@ -343,6 +394,11 @@ export function PassportInfoScreen() {
                         }
                         placeholder={NOTIFICATION_ADDRESS_FIELD.placeholder}
                         rules={NOTIFICATION_ADDRESS_FIELD.rules}
+                        onFocusChange={(focused) => {
+                          setFocusedAddressField(
+                            focused ? NOTIFICATION_ADDRESS_FIELD.name : null,
+                          );
+                        }}
                       />
                     </View>
                   ) : null}

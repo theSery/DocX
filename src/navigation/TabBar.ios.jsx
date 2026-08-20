@@ -30,8 +30,8 @@ const HORIZONTAL_MARGIN = 16;
 const BOTTOM_OFFSET = 10;
 /** Matches example pill: slight inset so long labels (e.g. Փաստաթղթեր) still fit */
 const INDICATOR_INSET = 1;
-const PILL_RADIUS = TAB_BAR_HEIGHT / 2;
-const INDICATOR_RADIUS = (TAB_BAR_HEIGHT - INDICATOR_INSET * 2) / 2;
+const PILL_RADIUS = 16;
+const INDICATOR_RADIUS = 16
 
 const SPRING_CONFIG = {
   damping: 20,
@@ -70,25 +70,7 @@ function TabBarBackground({ glass }) {
         blurAmount={glass.blurAmount}
         reducedTransparencyFallbackColor={glass.fallback}
       />
-      {/* Milky translucent plate */}
-      {/* <View
-        style={[StyleSheet.absoluteFill, { backgroundColor: glass.fill }]}
-      /> */}
-      {/* Soft top wash */}
-      {/* <View
-        style={[styles.glassHighlight, { backgroundColor: glass.highlight }]}
-      /> */}
-      {/* Vertical refraction (bright rims + lower-middle caustic) */}
-      {/* <GlassSheen
-        stops={glass.sheen}
-        gradientId="tabBarGlassSheen"
-        direction="vertical"
-      /> */}
-      {/* Crisp glass edge highlights */}
-      {/* <View style={[styles.glassRimTop, { backgroundColor: glass.rim }]} />
-      <View
-        style={[styles.glassRimBottom, { backgroundColor: glass.rimBottom }]}
-      /> */}
+
     </View>
   );
 }
@@ -428,7 +410,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: INDICATOR_RADIUS,
-    opacity: 0.72,
+    opacity: 0.3,
   },
   indicatorTint: {
     ...StyleSheet.absoluteFill,

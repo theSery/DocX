@@ -1,4 +1,11 @@
-import { useEffect, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { BlurView } from '@sbaiahmed1/react-native-blur';
 import Animated, {
@@ -13,33 +20,51 @@ import { AnimatedView } from './animation';
 import LottieAnimation from './animation/LottieAnimation';
 import LogoIcon from './icons/LogoIcon';
 import { Typography } from './typography';
+import { citat } from '../data/citat';
 import { useTheme } from '../hooks';
-import { FONT_FAMILY } from '../theme';
+import { colors, FONT_FAMILY } from '../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../utils/dimensions';
 
 /** Keep in sync with DocumentCreateScreen reveal timing. */
 export const DOCUMENT_LOADING_OVERLAY_FADE_OUT_MS = 650;
 
-export const DOCUMENT_LOADING_QUOTES = [
-  '«Յուրաքանչյուր նոր փաստաթուղթ՝ քո ապագայի քայլ է»',
-  '«Ճիշտ փաստաթուղթը բացում է նոր հնարավորություններ»',
-  '«Այսօրվա որոշումը վաղվա անվտանգությունն է»',
-  '«Յուրաքանչյուր ստորագրություն՝ քո վստահության կնիքն է»',
-  '«Կարգ ու կանոնով գրված խոսքը ուժ է ստանում»',
-  '«Փոքր քայլը մեծ փոփոխության սկիզբն է»',
-  '«Պարզությունն ու ճշտությունը հաջողության հիմքն են»',
-  '«Քո իրավունքը սկսվում է ճիշտ ձևակերպված խոսքից»',
-  '«Ամեն նոր փաստաթուղթ մոտեցնում է նպատակիդ»',
-  '«Հստակ գրված միտքը դառնում է գործողություն»',
-];
+export const DOCUMENT_LOADING_QUOTES = citat;
 
 /** @deprecated Use DOCUMENT_LOADING_QUOTES / getNextDocumentLoadingQuote */
 export const DOCUMENT_LOADING_QUOTE = DOCUMENT_LOADING_QUOTES[0];
 
-/** @type {string[]} */
+/** @type {typeof citat} */
 let quoteDeck = [];
-/** @type {string | null} */
+/** @type {(typeof citat)[number] | null} */
 let lastDocumentLoadingQuote = null;
+
+function getQuoteKey(quote) {
+  if (quote == null) {
+    return null;
+  }
+
+  if (typeof quote === 'object') {
+    return quote.id ?? quote.text;
+  }
+
+  return quote;
+}
+
+function getQuoteText(quote) {
+  if (quote == null) {
+    return undefined;
+  }
+
+  return typeof quote === 'string' ? quote : quote.text;
+}
+
+function getQuoteAutor(quote) {
+  if (quote == null || typeof quote !== 'object') {
+    return undefined;
+  }
+
+  return quote.autor;
+}
 
 function shuffleQuotes(quotes) {
   const deck = [...quotes];
@@ -57,11 +82,13 @@ function shuffleQuotes(quotes) {
  * and never returns the same quote twice in a row.
  */
 export function getNextDocumentLoadingQuote() {
+  const lastQuoteKey = getQuoteKey(lastDocumentLoadingQuote);
+
   if (quoteDeck.length === 0) {
     quoteDeck = shuffleQuotes(DOCUMENT_LOADING_QUOTES);
     if (
       quoteDeck.length > 1 &&
-      quoteDeck[0] === lastDocumentLoadingQuote
+      getQuoteKey(quoteDeck[0]) === lastQuoteKey
     ) {
       quoteDeck.push(quoteDeck.shift());
     }
@@ -69,10 +96,15 @@ export function getNextDocumentLoadingQuote() {
 
   let nextQuote = quoteDeck.shift();
 
-  if (nextQuote === lastDocumentLoadingQuote && DOCUMENT_LOADING_QUOTES.length > 1) {
+  if (
+    getQuoteKey(nextQuote) === lastQuoteKey &&
+    DOCUMENT_LOADING_QUOTES.length > 1
+  ) {
     if (quoteDeck.length === 0) {
       quoteDeck = shuffleQuotes(
-        DOCUMENT_LOADING_QUOTES.filter(quote => quote !== lastDocumentLoadingQuote),
+        DOCUMENT_LOADING_QUOTES.filter(
+          quote => getQuoteKey(quote) !== lastQuoteKey,
+        ),
       );
     }
     nextQuote = quoteDeck.shift() ?? nextQuote;
@@ -85,13 +117,80 @@ export function getNextDocumentLoadingQuote() {
 const FADE_OUT_EASING = Easing.out(Easing.cubic);
 const FADE_IN_EASING = Easing.out(Easing.quad);
 
+const DocumentLoadingOverlayContext = createContext(null);
+
+/**
+ * Hosts the loading overlay at the app root so it covers navigation chrome
+ * (header, floating tab bar) while staying in the same window as BlurView.
+ */
+export function DocumentLoadingOverlayProvider({ children }) {
+  const [overlayState, setOverlayState] = useState({
+    visible: false,
+    quote: undefined,
+  });
+
+  const sync = useCallback((visible, quote) => {
+    setOverlayState({
+      visible: Boolean(visible),
+      quote,
+    });
+  }, []);
+
+  const value = useMemo(() => ({ sync }), [sync]);
+
+  return (
+    <DocumentLoadingOverlayContext.Provider value={value}>
+      <View style={styles.host} pointerEvents="box-none" collapsable={false}>
+        {children}
+        <DocumentLoadingOverlayView
+          visible={overlayState.visible}
+          quote={overlayState.quote}
+        />
+      </View>
+    </DocumentLoadingOverlayContext.Provider>
+  );
+}
+
 /**
  * Full-screen loading overlay with native blur.
- * Rendered as an absolute backdrop (not RN Modal) so BlurView does not
- * snapshot a separate window and blank the screen underneath on dismiss.
- * Fades out smoothly when `visible` becomes false instead of unmounting abruptly.
+ * When wrapped by DocumentLoadingOverlayProvider, the visual layer is rendered
+ * at the app root (above header + tab bar). Avoid RN Modal — BlurView in a
+ * separate window blanks the screen underneath on dismiss.
  */
 export function DocumentLoadingOverlay({
+  visible,
+  quote,
+}) {
+  const overlayHost = useContext(DocumentLoadingOverlayContext);
+
+  useEffect(() => {
+    if (!overlayHost) {
+      return undefined;
+    }
+
+    overlayHost.sync(visible, quote);
+    return undefined;
+  }, [overlayHost, visible, quote]);
+
+  // Clear only on unmount so quote updates do not flash the overlay off.
+  useEffect(() => {
+    if (!overlayHost) {
+      return undefined;
+    }
+
+    return () => {
+      overlayHost.sync(false, undefined);
+    };
+  }, [overlayHost]);
+
+  if (overlayHost) {
+    return null;
+  }
+
+  return <DocumentLoadingOverlayView visible={visible} quote={quote} />;
+}
+
+function DocumentLoadingOverlayView({
   visible,
   quote,
 }) {
@@ -147,6 +246,9 @@ export function DocumentLoadingOverlay({
     transform: [{ translateY: contentTranslateY.value }],
   }));
 
+  const quoteText = getQuoteText(quote);
+  const quoteAutor = getQuoteAutor(quote);
+
   if (!mounted) {
     return null;
   }
@@ -168,14 +270,23 @@ export function DocumentLoadingOverlay({
       <View style={styles.overlayTint} />
       <Animated.View style={[styles.overlayContent, contentStyle]}>
         <AnimatedView animation="fadeInDown" duration={600} style={styles.logoContainer}>
-          <LogoIcon width={72} height={72} />
+          <LogoIcon width={72} height={72} fill={colors.mainBlue}/>
         </AnimatedView>
 
-        {quote ? (
+        {quoteText ? (
           <AnimatedView animation="fadeIn" delay={350} duration={600}>
-            <Typography variant="h4" tone="onDark" style={styles.quote}>
-              {quote}
+            <Typography variant="h4" tone="onDark" style={[styles.quote, { color: colors.mainBlue }]}>
+              {quoteText}
             </Typography>
+            {quoteAutor ? (
+              <Typography
+                variant="h5"
+                tone="onDark"
+                style={[styles.quoteAutor, { color: colors.mainBlue }]}
+              >
+                {quoteAutor}
+              </Typography>
+            ) : null}
           </AnimatedView>
         ) : null}
       </Animated.View>
@@ -198,8 +309,13 @@ export function DocumentLoadingOverlay({
 }
 
 const styles = StyleSheet.create({
+  host: {
+    flex: 1,
+  },
   fullScreenOverlay: {
     ...StyleSheet.absoluteFill,
+    zIndex: 10000,
+    elevation: 10000,
     overflow: 'hidden',
   },
   overlayTint: {
@@ -220,13 +336,18 @@ const styles = StyleSheet.create({
     marginBottom: TAB_BAR_BOTTOM_OFFSET,
   },
   lottie: {
-    width: 160,
-    height: 100,
+    width: 190,
+    height: 130,
   },
   quote: {
     textAlign: 'center',
     fontStyle: 'italic',
     fontSize: 18,
     fontFamily: FONT_FAMILY.black,
+  },
+  quoteAutor: {
+    marginTop: 12,
+    textAlign: 'center',
+    fontFamily: FONT_FAMILY.semiBold,
   },
 });

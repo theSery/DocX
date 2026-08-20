@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Image,
   Modal,
@@ -18,11 +18,18 @@ import { SkiaVideoPlayer } from './videoPlayer';
 
 let showSheetHandler = null;
 
+const ACTION_FONT_SIZE = 16;
+const ACTION_FONT_SIZE_COMPACT = 14;
+/** Shrink when text is within this many px of (or past) the available width. */
+const ACTION_TEXT_EDGE_THRESHOLD = 15;
+
 /**
  * @typedef {{
  *   label: string;
  *   onPress?: () => void;
  *   destructive?: boolean;
+ *   icon?: import('react').ReactNode;
+ *   labelStyle?: import('react-native').TextStyle;
  * }} SheetAction
  */
 
@@ -41,10 +48,13 @@ let showSheetHandler = null;
  *   message?: string;
  *   description?: string;
  *   content?: import('react-native').ImageSourcePropType | string | null;
+ *   customContent?: import('react').ReactNode;
  *   videoUrl?: string | null;
  *   actions?: SheetAction[];
  *   menuItems?: MenuItem[];
  *   onDismiss?: () => void;
+ *   messageStyle?: import('react-native').TextStyle;
+ *   contentImageStyle?: import('react-native').ImageStyle;
  * }} GlobalSheetOptions
  */
 
@@ -94,7 +104,87 @@ function resolveImageSource(content) {
   return content;
 }
 
-function SheetActions({ actions, styles, onActionPress }) {
+/**
+ * Keeps the default action font size when text fits; if it crowds the button
+ * edge (within ~15px), drops the size by 2 without changing button layout.
+ */
+function AdaptiveActionLabel({ label, style }) {
+  const [fontSize, setFontSize] = useState(ACTION_FONT_SIZE);
+  const availableWidthRef = useRef(0);
+  const textWidthRef = useRef(0);
+  const settledRef = useRef(false);
+
+  useEffect(() => {
+    settledRef.current = false;
+    textWidthRef.current = 0;
+    setFontSize(ACTION_FONT_SIZE);
+  }, [label]);
+
+  const tryFit = useCallback(() => {
+    if (settledRef.current) {
+      return;
+    }
+
+    const availableWidth = availableWidthRef.current;
+    const textWidth = textWidthRef.current;
+    if (!availableWidth || !textWidth) {
+      return;
+    }
+
+    settledRef.current = true;
+    if (textWidth > availableWidth - ACTION_TEXT_EDGE_THRESHOLD) {
+      setFontSize(ACTION_FONT_SIZE_COMPACT);
+    }
+  }, []);
+
+  return (
+    <View
+      style={stylesActionLabel.wrap}
+      onLayout={event => {
+        availableWidthRef.current = event.nativeEvent.layout.width;
+        tryFit();
+      }}
+    >
+      {/* Unconstrained measure pass using the same font metrics as the label. */}
+      <Typography
+        pointerEvents="none"
+        style={[
+          stylesActionLabel.measure,
+          {
+            fontSize: ACTION_FONT_SIZE,
+            fontFamily: FONT_FAMILY.regular,
+          },
+        ]}
+        onLayout={event => {
+          textWidthRef.current = event.nativeEvent.layout.width;
+          tryFit();
+        }}
+      >
+        {label}
+      </Typography>
+      <Typography numberOfLines={1} style={[style, { fontSize, width: '100%' }]}>
+        {label}
+      </Typography>
+    </View>
+  );
+}
+
+const stylesActionLabel = StyleSheet.create({
+  wrap: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  measure: {
+    position: 'absolute',
+    opacity: 0,
+    left: -10000,
+    top: 0,
+  },
+});
+
+function SheetActions({ actions, styles, onActionPress, gradientSurfaceKey = 0 }) {
   const isSingleAction = actions.length === 1;
 
   return (
@@ -110,11 +200,32 @@ function SheetActions({ actions, styles, onActionPress }) {
           ]}
         >
           {!action.destructive ? (
-            <GradientButton height={45} isLight={false}>
-              <Typography style={styles.actionTextGradient}>{action.label}</Typography>
+            <GradientButton
+              height={45}
+              isLight={false}
+              surfaceKey={gradientSurfaceKey}
+            >
+              {action.icon ? (
+                <View style={styles.actionButtonInner}>
+                  {action.icon}
+                  <Typography
+                    numberOfLines={1}
+                    style={[styles.actionTextGradient, styles.actionTextWithIcon, action.labelStyle]}
+                  >
+                    {action.label}
+                  </Typography>
+                </View>
+              ) : (
+                <AdaptiveActionLabel
+                  label={action.label}
+                  style={[styles.actionTextGradient, action.labelStyle]}
+                />
+              )}
             </GradientButton>
           ) : (
-            <Typography style={styles.actionText}>{action.label}</Typography>
+            <Typography style={[styles.actionText, action.labelStyle]}>
+              {action.label}
+            </Typography>
           )}
         </Pressable>
       ))}
@@ -122,19 +233,19 @@ function SheetActions({ actions, styles, onActionPress }) {
   );
 }
 
-function DefaultSheetContent({ sheet, styles, onActionPress }) {
+function DefaultSheetContent({ sheet, styles, onActionPress, gradientSurfaceKey = 0 }) {
   return (
     <View style={styles.warningContainer}>
       {sheet.content ? (
         <Image
           source={resolveImageSource(sheet.content)}
-          style={styles.contentImage}
+          style={[styles.contentImage, sheet.contentImageStyle]}
           resizeMode="contain"
         />
       ) : (
         <WarningSvg width={45} height={45} fill={palette.red} />
       )}
-      <Typography variant="h4" style={styles.message}>
+      <Typography variant="h4" style={[styles.message, sheet.messageStyle]}>
         {sheet.message}
       </Typography>
       {sheet.description ? (
@@ -142,7 +253,15 @@ function DefaultSheetContent({ sheet, styles, onActionPress }) {
           {sheet.description}
         </Typography>
       ) : null}
-      <SheetActions actions={sheet.actions} styles={styles} onActionPress={onActionPress} />
+      {sheet.customContent ? (
+        <View style={styles.customContent}>{sheet.customContent}</View>
+      ) : null}
+      <SheetActions
+        actions={sheet.actions}
+        styles={styles}
+        onActionPress={onActionPress}
+        gradientSurfaceKey={gradientSurfaceKey}
+      />
     </View>
   );
 }
@@ -190,7 +309,7 @@ function InfoSheetContent({ sheet, styles, onActionPress }) {
 
       {sheet.videoUrl ? (
         <View style={styles.infoMedia}>
-          <SkiaVideoPlayer youtubeUrl={sheet.videoUrl} />
+          {/* <SkiaVideoPlayer youtubeUrl={sheet.videoUrl} /> */}
         </View>
       ) : imageSource ? (
         <Image
@@ -214,11 +333,20 @@ function InfoSheetContent({ sheet, styles, onActionPress }) {
 export function GlobalSheetProvider({ children }) {
   const [sheet, setSheet] = useState(null);
   const [visible, setVisible] = useState(false);
+  // Incremented on every open so Skia GradientButtons remount a fresh surface.
+  const [sheetSurfaceKey, setSheetSurfaceKey] = useState(0);
+  const visibleRef = useRef(false);
   const styles = useThemedStyles(createStyles);
+
+  useEffect(() => {
+    visibleRef.current = visible;
+  }, [visible]);
 
   useEffect(() => {
     showSheetHandler = options => {
       setSheet(options);
+      setSheetSurfaceKey(key => key + 1);
+      visibleRef.current = true;
       setVisible(true);
     };
     return () => {
@@ -228,11 +356,16 @@ export function GlobalSheetProvider({ children }) {
 
   const closeSheet = useCallback(() => {
     sheet?.onDismiss?.();
+    visibleRef.current = false;
     setVisible(false);
   }, [sheet]);
 
+  // Only clear sheet after dismiss if nothing new was opened while the
+  // previous modal was still animating out (e.g. confirm → OTP sheet).
   const handleModalDismiss = useCallback(() => {
-    setSheet(null);
+    if (!visibleRef.current) {
+      setSheet(null);
+    }
   }, []);
 
   useEffect(() => {
@@ -240,11 +373,14 @@ export function GlobalSheetProvider({ children }) {
       return undefined;
     }
 
-    setSheet(null);
+    if (!visibleRef.current) {
+      setSheet(null);
+    }
   }, [sheet, visible]);
 
   const handleActionPress = useCallback(action => {
     sheet?.onDismiss?.();
+    visibleRef.current = false;
     setVisible(false);
     action.onPress?.();
   }, [sheet]);
@@ -255,6 +391,7 @@ export function GlobalSheetProvider({ children }) {
     }
 
     sheet?.onDismiss?.();
+    visibleRef.current = false;
     setVisible(false);
     item.onPress?.();
   }, [sheet]);
@@ -275,21 +412,25 @@ export function GlobalSheetProvider({ children }) {
             {sheet ? (
               sheet.variant === 'info' ? (
                 <InfoSheetContent
+                  key={sheetSurfaceKey}
                   sheet={sheet}
                   styles={styles}
                   onActionPress={handleActionPress}
                 />
               ) : sheet.variant === 'menu' ? (
                 <MenuSheetContent
+                  key={sheetSurfaceKey}
                   sheet={sheet}
                   styles={styles}
                   onMenuItemPress={handleMenuItemPress}
                 />
               ) : (
                 <DefaultSheetContent
+                  key={sheetSurfaceKey}
                   sheet={sheet}
                   styles={styles}
                   onActionPress={handleActionPress}
+                  gradientSurfaceKey={sheetSurfaceKey}
                 />
               )
             ) : null}
@@ -364,6 +505,10 @@ const createStyles = colors =>
       color: colors.textSecondary,
       marginBottom: 24,
     },
+    customContent: {
+      width: '100%',
+      marginBottom: 8,
+    },
     actions: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -373,7 +518,7 @@ const createStyles = colors =>
     },
     destructiveButton: {
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.mainBlue,
+      borderColor: colors.icons,
     },
     actionButton: {
       height: 45,
@@ -390,7 +535,7 @@ const createStyles = colors =>
     actionText: {
       fontSize: 16,
       fontFamily: FONT_FAMILY.regular,
-      color: colors.mainBlue,
+      color: colors.icons,
     },
     mutedText: {
       color: colors.textSecondary,
@@ -404,6 +549,20 @@ const createStyles = colors =>
       color: palette.white,
       width: '100%',
       textAlign: 'center',
+    },
+    actionButtonInner: {
+      width: '100%',
+      height: '100%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      paddingHorizontal: 12,
+    },
+    actionTextWithIcon: {
+      width: undefined,
+      flexShrink: 1,
+      textAlign: 'left',
     },
     menuContainer: {
       paddingBottom: 8,

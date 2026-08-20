@@ -1,8 +1,16 @@
 import { SignatureComponents } from '../../../components/account/SignatureComponents';
+import { useThemedFocusStatusBar } from '../../../hooks';
 
 export function SignatureScreen({ navigation, route }) {
-  const { fromDocumentFlow, templateText, templateName, templateId, templateSolution } =
-    route.params ?? {};
+  useThemedFocusStatusBar({ inverted: true });
+  const {
+    fromDocumentFlow,
+    templateText,
+    templateName,
+    templateId,
+    templateSolution,
+    categoryName,
+  } = route.params ?? {};
 
   const handleSaveSuccess = fromDocumentFlow
     ? () =>
@@ -13,9 +21,12 @@ export function SignatureScreen({ navigation, route }) {
             templateName,
             templateId,
             templateSolution,
+            categoryName,
           },
         })
-    : undefined;
+    : () => {
+        navigation.navigate('AccountMain');
+      };
 
-  return <SignatureComponents onSaveSuccess={handleSaveSuccess} />;
+  return <SignatureComponents onSaveSuccess={handleSaveSuccess} fromDocumentFlow={fromDocumentFlow} />;
 }

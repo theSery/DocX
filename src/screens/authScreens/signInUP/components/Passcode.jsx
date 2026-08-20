@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
@@ -6,6 +6,7 @@ import { FONT_FAMILY } from '../../../../theme';
 import { Typography } from '../../../../components';
 import DeleteSvg from '../../../../components/icons/DeleteSvg';
 import { useTheme, useThemedStyles } from '../../../../hooks';
+import { runBiometricOrPromptSettings } from '../../../../utils/biometricAuth';
 
 const PASSCODE_LENGTH = 4;
 
@@ -103,43 +104,72 @@ export function Passcode({
   onBiometric,
   length = PASSCODE_LENGTH,
   hasBiometric = true,
+  disabled = false,
 }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  const [isCheckingBiometric, setIsCheckingBiometric] = useState(false);
+  const isCompletingRef = useRef(false);
   const passcode = useMemo(
     () => (Array.isArray(value) ? value : []),
     [value],
   );
 
+  useEffect(() => {
+    if (passcode.length < length) {
+      isCompletingRef.current = false;
+    }
+  }, [passcode.length, length]);
+
   const handleDigitPress = useCallback(
     digit => {
-      if (passcode.length >= length) {
+      if (
+        disabled ||
+        isCompletingRef.current ||
+        passcode.length >= length
+      ) {
         return;
       }
       const next = [...passcode, digit];
+      if (next.length === length) {
+        // Guard against rapid duplicate presses before the parent re-renders.
+        isCompletingRef.current = true;
+      }
       onChange?.(next);
       if (next.length === length) {
         onComplete?.(next.join(''));
       }
     },
-    [passcode, length, onChange, onComplete],
+    [disabled, passcode, length, onChange, onComplete],
   );
 
   const handleBackspace = useCallback(() => {
-    if (passcode.length === 0) {
+    if (disabled || passcode.length === 0) {
       return;
     }
     const next = passcode.slice(0, -1);
     onChange?.(next);
-  }, [passcode, onChange]);
+  }, [disabled, passcode, onChange]);
 
-  const handleBiometric = useCallback(() => {
-    if (onBiometric) {
-      onBiometric();
+  const handleBiometric = useCallback(async () => {
+    if (!hasBiometric || disabled || isCheckingBiometric) {
       return;
     }
-    console.log('Handle biometrics');
-  }, [onBiometric]);
+
+    setIsCheckingBiometric(true);
+    try {
+      // Centralized Face ID permission gate for every FaceIdIcon press.
+      await runBiometricOrPromptSettings(async () => {
+        if (onBiometric) {
+          await onBiometric();
+          return;
+        }
+        console.log('Handle biometrics');
+      });
+    } finally {
+      setIsCheckingBiometric(false);
+    }
+  }, [disabled, hasBiometric, isCheckingBiometric, onBiometric]);
 
   const renderKey = key => {
     if (key.type === 'digit') {
@@ -157,6 +187,8 @@ export function Passcode({
       );
     }
     if (key.type === 'biometric') {
+      // Icon visibility is controlled only by hasBiometric (screen flow),
+      // never by whether Face ID permission is currently granted.
       return (
         <KeypadButton
           key="biometric"
@@ -164,7 +196,7 @@ export function Passcode({
           accessibilityLabel="Biometric authentication"
           styles={styles}
         >
-          {hasBiometric && <FaceIdIcon color={colors.icons} />}
+          {hasBiometric ? <FaceIdIcon color={colors.icons} /> : null}
         </KeypadButton>
       );
     }
@@ -187,7 +219,10 @@ export function Passcode({
         length={length}
         styles={styles}
       />
-      <View style={styles.keypad}>
+      <View
+        style={styles.keypad}
+        pointerEvents={disabled ? 'none' : 'auto'}
+      >
         {KEYPAD_ROWS.map((row, rowIndex) => (
           <View key={`row-${rowIndex}`} style={styles.keypadRow}>
             {row.map(renderKey)}
@@ -242,7 +277,8 @@ const createStyles = colors =>
       width: 88,
       borderRadius: 18,
       borderWidth: 1,
-      borderColor: colors.cardSelected,
+      // borderColor: colors.cardSelected,
+      borderColor: colors.icons,
       alignItems: 'center',
       justifyContent: 'center',
     },

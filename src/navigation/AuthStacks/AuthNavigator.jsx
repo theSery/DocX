@@ -1,5 +1,4 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { LightThemeScope } from '../../theme';
 import {
   RegistrationScreen,
   SignInUpScreen,
@@ -16,12 +15,12 @@ export function AuthNavigator() {
   return (
     // <LightThemeScope>
       <Stack.Navigator
-        initialRouteName="AccountType"
+        initialRouteName="SignInUp"
         screenOptions={{
           headerShown: false,
           animation,
         }}>
-        <Stack.Screen name="AccountType" component={AccountTypeScreen} />
+        {/* <Stack.Screen name="AccountType" component={AccountTypeScreen} /> */}
         <Stack.Screen name="SignInUp" component={SignInUpScreen} />
         <Stack.Screen name="Registration" component={RegistrationScreen} />
         <Stack.Screen name="EmailVerification" component={EmailVerificationScreen} />

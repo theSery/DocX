@@ -2,21 +2,24 @@ import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { AuthScreenLayout } from '../../../components/layout';
 import { AnimatedView, Typography } from '../../../components';
 import whiteLogo from '../../../assets/images/whiteLogo.webp';
+import darkLogo from '../../../assets/images/darkLogo.webp';
 import backButton from '../../../assets/images/backButton.webp';
 import { SignInUpTab } from './components/SignInUpTab';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { resetToMain } from '../../../navigation/navigationRef';
-import { useThemedStyles } from '../../../hooks';
+import { useTheme, useThemedFocusStatusBar, useThemedStyles } from '../../../hooks';
 
 export function SignInUpScreen() {
   const insets = useSafeAreaInsets();
   const styles = useThemedStyles(createStyles);
+  const { isDarkMode, colors } = useTheme();
+  useThemedFocusStatusBar({ inverted: true });
 
   return (
     <AuthScreenLayout
       withGradient
       isReversed
-      gradientIsLight={false}
+      gradientIsLight={isDarkMode}
       gradientHeight={'100%'}
       contentStyle={styles.screen}
     >
@@ -26,7 +29,14 @@ export function SignInUpScreen() {
             <Image source={backButton} style={styles.image} resizeMode="cover" />
           </Pressable>
           <Pressable onPress={resetToMain}>
-            <Typography variant="h5" style={styles.headerCloseButton}>
+            <Typography
+              variant="h5"
+              style={{
+                color: isDarkMode
+                  ? colors.mainBlue
+                  : colors.buttonTextOnPrimary,
+              }}
+            >
               Փակել
             </Typography>
           </Pressable>
@@ -36,7 +46,7 @@ export function SignInUpScreen() {
           duration={500}
           style={styles.logoContainer}
         >
-          <Image source={whiteLogo} style={styles.logo} />
+          <Image source={isDarkMode ? darkLogo : whiteLogo} style={styles.logo} />
         </AnimatedView>
       </View>
       <View style={[styles.tabsSection, { marginBottom: -insets.bottom }]}>
@@ -46,7 +56,7 @@ export function SignInUpScreen() {
   );
 }
 
-const createStyles = colors =>
+const createStyles = () =>
   StyleSheet.create({
     screen: {
       flex: 1,
@@ -78,9 +88,6 @@ const createStyles = colors =>
       alignItems: 'center',
       flexDirection: 'row',
       marginBottom: '10%',
-    },
-    headerCloseButton: {
-      color: colors.buttonTextOnPrimary,
     },
     image: {
       width: 70,

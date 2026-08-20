@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useId, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Canvas, Rect, LinearGradient, vec } from '@shopify/react-native-skia';
+import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { gradientStops, gradients } from '../../theme/tokens';
 
 export default function GradientButton({
@@ -12,43 +12,59 @@ export default function GradientButton({
   height,
   childrenStyle,
   gradientColors,
+  /** Kept for callers (e.g. GlobalSheet); SVG gradients don't need a remount key. */
+  surfaceKey = 0,
 }) {
-  const [layout, setLayout] = useState({ width: 0, height: 0 });
-  const needsLayout = width == null || height == null;
-  const canvasWidth = width ?? layout.width;
-  const canvasHeight = height ?? layout.height;
+  const reactId = useId();
+  const gradientId = useMemo(
+    () => `gb-${surfaceKey}-${reactId.replace(/[^a-zA-Z0-9_-]/g, '')}`,
+    [reactId, surfaceKey],
+  );
 
+  const needsLayout = width == null || height == null;
   const staticColors = isLight
     ? gradientStops(gradients.lightSky)
-    : gradientStops(gradients.blueLarge);
+    : ['#1A4DBB', '#052060'];
   const colors = gradientColors ?? staticColors;
+  // Solid fallback so the button never flashes empty if the gradient is slow.
+  const fallbackColor = colors[0] ?? '#1A4DBB';
 
   return (
     <View
-      style={[styles.container, needsLayout && styles.fill, style]}
-      onLayout={
-        needsLayout
-          ? (event) => {
-              const { width: w, height: h } = event.nativeEvent.layout;
-              if (w !== layout.width || h !== layout.height) {
-                setLayout({ width: w, height: h });
-              }
-            }
-          : undefined
-      }
+      style={[
+        styles.container,
+        { backgroundColor: fallbackColor },
+        needsLayout && styles.fill,
+        width != null ? { width } : null,
+        height != null ? { height } : null,
+        style,
+      ]}
     >
-      {canvasWidth > 0 && canvasHeight > 0 && (
-        <Canvas style={[styles.canvas, { width: canvasWidth, height: canvasHeight }]}>
-          <Rect x={0} y={0} width={canvasWidth} height={canvasHeight}>
-            <LinearGradient
-              start={vec(0, 0)}
-              end={vec(canvasWidth, canvasHeight)}
-              colors={colors}
-            />
-          </Rect>
-        </Canvas>
-      )}
-      <View style={[styles.content, !centered && styles.contentFill, childrenStyle]}>
+      <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
+        <Defs>
+          <LinearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            {colors.map((color, index) => (
+              <Stop
+                key={`${index}-${color}`}
+                offset={
+                  colors.length <= 1
+                    ? '0'
+                    : String(index / (colors.length - 1))
+                }
+                stopColor={color}
+              />
+            ))}
+          </LinearGradient>
+        </Defs>
+        <Rect width="100%" height="100%" fill={`url(#${gradientId})`} />
+      </Svg>
+      <View
+        style={[
+          styles.content,
+          !centered && styles.contentFill,
+          childrenStyle,
+        ]}
+      >
         {children}
       </View>
     </View>
@@ -56,15 +72,13 @@ export default function GradientButton({
 }
 
 const styles = StyleSheet.create({
-  container: {backgroundColor: 'transparent'},
+  container: {
+    backgroundColor: 'transparent',
+    overflow: 'hidden',
+  },
   fill: {
     flex: 1,
     alignSelf: 'stretch',
-  },
-  canvas: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
   },
   content: {
     ...StyleSheet.absoluteFill,

@@ -1,18 +1,22 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   AccountScreen,
+  AccountResetPinScreen,
   ChangePasswordScreen,
   PassportInfoScreen,
   PinCodeChangeScreen,
   ProfileInfoScreen,
   ConfirmPhoneCodeScreen,
+  ConfirmEmailCodeScreen,
   SettingsScreen,
   SignatureScreen,
   WalletScreen,
 } from '../../screens/main/account';
 import { FaceIdScreen } from '../../screens/faceId';
-import { useAuthSession, useFocusStatusBar, useStackScreenOptions } from '../../hooks';
+import { useAuthSession, useStackScreenOptions, useThemedFocusStatusBar } from '../../hooks';
 import AccountStackHeader from '../../components/headers/accountStackHeader/AccountStackHeader';
+import MainHeader from '../../components/headers/MainHeader';
 import { animation } from '../constants';
 
 const Account = createNativeStackNavigator();
@@ -43,7 +47,7 @@ const nestedScreenOptionsWithHeader = (
 export function AccountStackNavigator() {
   const nestedScreenOptions = useStackScreenOptions();
   const { logout } = useAuthSession();
-  useFocusStatusBar('light-content');
+  useThemedFocusStatusBar({ inverted: true });
 
   return (
     <Account.Navigator
@@ -70,7 +74,26 @@ export function AccountStackNavigator() {
       <Account.Screen
         name="ConfirmPhoneCode"
         component={ConfirmPhoneCodeScreen}
-        options={{ headerShown: false }}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => (
+            <SafeAreaView edges={['top']} style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+              <MainHeader onPress={() => navigation.goBack()} isHome={true} />
+            </SafeAreaView>
+          ),
+        }}
+      />
+      <Account.Screen
+        name="ConfirmEmailCode"
+        component={ConfirmEmailCodeScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => (
+            <SafeAreaView edges={['top']} style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+              <MainHeader onPress={() => navigation.goBack()} isHome={true} />
+            </SafeAreaView>
+          ),
+        }}
       />
       <Account.Screen
         name="FaceIdUnlock"
@@ -94,6 +117,18 @@ export function AccountStackNavigator() {
           { title: 'PIN կոդ', isLogoutButton: true, isBackButton: true , isMinHeight: true},
           logout,
         )}
+      />
+      <Account.Screen
+        name="AccountResetPin"
+        component={AccountResetPinScreen}
+        options={{
+          headerShown: true,
+          header: ({ navigation }) => (
+            <SafeAreaView edges={['top']} style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+              <MainHeader onPress={() => navigation.goBack()} isHome={true} />
+            </SafeAreaView>
+          ),
+        }}
       />
       <Account.Screen
         name="ChangePassword"

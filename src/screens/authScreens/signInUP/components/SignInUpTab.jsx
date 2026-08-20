@@ -1,12 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import {
-  Dimensions,
-  Linking,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
 import { Canvas, Path, Skia } from '@shopify/react-native-skia';
 import { useForm } from 'react-hook-form';
 import { useNavigation } from '@react-navigation/native';
@@ -23,7 +16,10 @@ import { AUTH_SCREEN_HORIZONTAL_PADDING } from '../../../../components/layout/au
 import { FONT_FAMILY } from '../../../../theme';
 import { FormField, FormScrollView, Typography } from '../../../../components';
 import { LoginTabs } from './LoginTabs';
+import { RegistrationPhoneNumber } from './RegistrationPhoneNumber';
+import { RegistrationPrivacyText } from './RegistrationPrivacyText';
 import LockIconSbg from '../../../../components/icons/LockIconSbg';
+import PhoneSvg from '../../../../components/icons/PhoneSvg';
 import AuthButton from '../../../../components/buttons/AuthButton';
 import { authApi } from '../../../../api';
 import { useTheme, useThemedStyles, useToast } from '../../../../hooks';
@@ -55,7 +51,7 @@ function TabLabel({ activeTab, index, label, activeColor, inactiveColor }) {
   );
 }
 
-function RegistrationForm() {
+function RegistrationForm({ onSwitchToPhone }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const navigation = useNavigation();
@@ -161,21 +157,29 @@ function RegistrationForm() {
       </>
 
       <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-        <Text style={styles.privacyText}>
-          Գրանցվելով՝ Դուք համաձայնվում եք{'  '}
-          <Text style={styles.privacyTextBold} onPress={() => Linking.openURL('https://www.google.com')}>
-            Օգտագործման պայմաններին և դրույթներին
-          </Text>
-          {'  '} և{'  '}
-          <Text style={styles.privacyTextBold} Press={() => Linking.openURL('https://www.google.com')}>
-            Գաղտնիության քաղաքականությանը
-          </Text>
-        </Text>
+        <RegistrationPrivacyText />
         <AuthButton
           title="Գրանցվել"
           onPress={onSubmit}
           isLoading={isLoading}
         />
+        {/* <View style={styles.dividerRow}>
+          <View style={styles.dividerLine} />
+          <Typography style={styles.dividerText}>Կամ</Typography>
+          <View style={styles.dividerLine} />
+        </View> */}
+        {/* <Pressable
+          style={({ pressed }) => [
+            styles.outlineButton,
+            pressed && styles.buttonPressed,
+          ]}
+          onPress={onSwitchToPhone}
+        >
+          <PhoneSvg width={20} height={20} fill={colors.icons} />
+          <Typography variant="h5" style={styles.outlineButtonText}>
+            Գրանցում հեռախոսահամարով
+          </Typography>
+        </Pressable> */}
       </View>
     </View>
   );
@@ -183,11 +187,19 @@ function RegistrationForm() {
 
 export function SignInUpTab({ onPhoneLogin }) {
   const styles = useThemedStyles(createStyles);
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
+  const tabActiveColor = isDarkMode
+    ? colors.buttonTextOnPrimary
+    : colors.icons;
+  const tabInactiveColor = isDarkMode
+    ? '#3D8FB5'
+    : colors.buttonTextOnPrimary;
   const activeTab = useSharedValue(0);
   const layoutWidth = useSharedValue(0);
   const layoutHeight = useSharedValue(0);
   const [tabIndex, setTabIndex] = useState(0);
+  const [loginChannel, setLoginChannel] = useState('mail');
+  const [registerChannel, setRegisterChannel] = useState('mail');
 
   const animatedPath = useDerivedValue(() => {
     const width = layoutWidth.value;
@@ -258,12 +270,21 @@ export function SignInUpTab({ onPhoneLogin }) {
     return builder.detach();
   });
 
+  const handleLoginTabChange = useCallback(tab => {
+    const activeLoginTab = tab === 'phone' ? 'PhoneLogin' : 'MailLogin';
+    console.log('Active login tab:', activeLoginTab);
+    setLoginChannel(tab === 'phone' ? 'phone' : 'mail');
+  }, []);
+
   const handleTabPress = useCallback(
     index => {
       activeTab.value = withTiming(index, TAB_TIMING);
       setTabIndex(index);
+      if (index === 1) {
+        setRegisterChannel(loginChannel);
+      }
     },
-    [activeTab],
+    [activeTab, loginChannel],
   );
 
   const onLayout = useCallback(
@@ -295,8 +316,8 @@ export function SignInUpTab({ onPhoneLogin }) {
             activeTab={activeTab}
             index={0}
             label="Մուտք"
-            activeColor={colors.icons}
-            inactiveColor={colors.buttonTextOnPrimary}
+            activeColor={tabActiveColor}
+            inactiveColor={tabInactiveColor}
           />
         </Pressable>
         <Pressable style={styles.tabButton} onPress={() => handleTabPress(1)}>
@@ -304,8 +325,8 @@ export function SignInUpTab({ onPhoneLogin }) {
             activeTab={activeTab}
             index={1}
             label="Գրանցում"
-            activeColor={colors.icons}
-            inactiveColor={colors.buttonTextOnPrimary}
+            activeColor={tabActiveColor}
+            inactiveColor={tabInactiveColor}
           />
         </Pressable>
       </View>
@@ -321,7 +342,10 @@ export function SignInUpTab({ onPhoneLogin }) {
               style={[styles.formPanel, loginFormStyle]}
               pointerEvents={tabIndex === 0 ? 'auto' : 'none'}
             >
-              <LoginTabs onPhoneLogin={onPhoneLogin} />
+              <LoginTabs
+                onPhoneLogin={onPhoneLogin}
+                onActiveTabChange={handleLoginTabChange}
+              />
             </Animated.View>
           ) : (
             <Animated.View
@@ -332,7 +356,15 @@ export function SignInUpTab({ onPhoneLogin }) {
               ]}
               pointerEvents={tabIndex === 1 ? 'auto' : 'none'}
             >
-              <RegistrationForm />
+              {registerChannel === 'phone' ? (
+                <RegistrationPhoneNumber
+                  onSwitchToMail={() => setRegisterChannel('mail')}
+                />
+              ) : (
+                <RegistrationForm
+                  onSwitchToPhone={() => setRegisterChannel('phone')}
+                />
+              )}
             </Animated.View>
           )}
         </View>
@@ -390,19 +422,5 @@ const createStyles = colors =>
     letterSpacing: 1.2,
     textAlign: 'center',
     marginBottom: 20,
-  },
-  privacyText: {
-    fontSize: 10,
-    lineHeight: 18,
-    fontFamily: FONT_FAMILY.regular,
-    color: colors.textSecondary,
-    marginTop: 4,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  privacyTextBold: {
-    fontFamily: FONT_FAMILY.semiBold,
-    color: colors.icons,
-    textDecorationLine: 'underline',
   },
 });

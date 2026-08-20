@@ -2,22 +2,25 @@ import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from '
 import { Controller } from 'react-hook-form';
 import {
   ActivityIndicator,
+  Dimensions,
+  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 import { Typography } from '../typography';
 import { FONT_FAMILY } from '../../theme';
 import { useTheme, useThemedStyles } from '../../hooks';
 import { ENV } from '../../config/env';
 import LocationSvg from '../icons/LocationSvg';
+import CloseIcon from '../icons/CloseIcon';
 import { useEnsureInputVisible } from './formKeyboard';
 import {
   ARMENIAN_ADDRESS_RULES,
@@ -26,48 +29,102 @@ import {
 
 const INPUT_RADIUS = 16;
 const MIN_QUERY_LENGTH = 2;
+const SUGGESTIONS_DEBOUNCE_MS = 300;
+const SUGGESTIONS_MAX_HEIGHT = 220;
+const SUGGESTIONS_MIN_HEIGHT = 80;
+const SUGGESTIONS_GAP = 4;
+/** Keep the suggestions panel above sibling form fields / checkboxes. */
+const SUGGESTIONS_Z_INDEX = 9999;
+const PLACES_AUTOCOMPLETE_URL =
+  'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+const PLACES_DETAILS_URL =
+  'https://maps.googleapis.com/maps/api/place/details/json';
 
 /**
- * Prop types derived from the library's own definitions
- * (react-native-google-places-autocomplete/GooglePlacesAutocomplete.d.ts).
- * `Query`, `Language`, `AutocompleteRequestType`, etc. are not exported from
- * the package, so we reference them through the component's props instead.
- * @typedef {import('react').ComponentProps<typeof GooglePlacesAutocomplete>} GooglePlacesAutocompleteProps
+ * Prefer opening below the input; flip above when there isn't enough room
+ * under the field (keyboard / screen bottom), comparing remaining space.
  */
+function resolveSuggestionsLayout({ y, height, windowHeight, keyboardTop }) {
+  const visibleBottom =
+    typeof keyboardTop === 'number' ? keyboardTop : windowHeight;
+  const spaceBelow = Math.max(0, visibleBottom - (y + height) - SUGGESTIONS_GAP);
+  const spaceAbove = Math.max(0, y - SUGGESTIONS_GAP);
+  const openBelow =
+    spaceBelow >= SUGGESTIONS_MAX_HEIGHT || spaceBelow >= spaceAbove;
+  const available = openBelow ? spaceBelow : spaceAbove;
 
-/**
- * `region` is supported by the Place Details API but missing from the
- * library's `Query` interface, hence the intersection.
- * @type {GooglePlacesAutocompleteProps['GooglePlacesDetailsQuery'] & { region?: string }}
- */
-const PLACES_DETAILS_QUERY = {
-  fields: 'address_component,formatted_address,geometry,name',
-  // language: 'hy',
-  region: 'am',
-};
+  return {
+    placement: openBelow ? 'below' : 'above',
+    maxHeight: Math.max(
+      SUGGESTIONS_MIN_HEIGHT,
+      Math.min(
+        SUGGESTIONS_MAX_HEIGHT,
+        available > 0 ? available : SUGGESTIONS_MAX_HEIGHT,
+      ),
+    ),
+  };
+}
 
-/**
- * The `query` prop is declared as `Query | Object`; extract the `Query`
- * interface (the union member with a required `key`) so the object is
- * actually type-checked.
- * @type {Extract<GooglePlacesAutocompleteProps['query'], { key: string }>}
- */
-const PLACES_QUERY = {
+const PLACES_AUTOCOMPLETE_PARAMS = {
   key: ENV.GOOGLE_PLACES_API_KEY,
-  // language: 'hy',
   components: 'country:am',
   region: 'am',
-  // No `type` restriction: like the Google Maps search box, return
-  // everything — addresses, streets, districts, cities, and places
-  // (businesses, landmarks, metro stations, etc.).
-  // Bias results toward Yerevan (same as Google Maps centered on the
-  // city) without hard-restricting them, so anything in Armenia
-  // still shows up.
+  // Bias toward Yerevan without hard-restricting results.
   location: '40.1772,44.5133',
-  radius: 20000,
+  radius: '20000',
+};
+
+const PLACES_DETAILS_PARAMS = {
+  key: ENV.GOOGLE_PLACES_API_KEY,
+  fields: 'address_component,formatted_address,geometry,name',
+  region: 'am',
 };
 
 const GEOCODE_URL = 'https://maps.googleapis.com/maps/api/geocode/json';
+
+function toQueryString(params) {
+  return Object.entries(params)
+    .filter(([, value]) => value != null && value !== '')
+    .map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
+    .join('&');
+}
+
+async function fetchPlacePredictions(input) {
+  const query = toQueryString({
+    ...PLACES_AUTOCOMPLETE_PARAMS,
+    input,
+  });
+  const response = await fetch(`${PLACES_AUTOCOMPLETE_URL}?${query}`);
+  const json = await response.json();
+
+  if (json?.status === 'ZERO_RESULTS') {
+    return [];
+  }
+
+  if (json?.status !== 'OK' || !Array.isArray(json.predictions)) {
+    const message = json?.error_message || json?.status || 'Places autocomplete failed';
+    throw new Error(message);
+  }
+
+  return json.predictions;
+}
+
+async function fetchPlaceDetails(placeId) {
+  const query = toQueryString({
+    ...PLACES_DETAILS_PARAMS,
+    place_id: placeId,
+  });
+  const response = await fetch(`${PLACES_DETAILS_URL}?${query}`);
+  const json = await response.json();
+
+  if (json?.status !== 'OK' || !json.result) {
+    const message = json?.error_message || json?.status || 'Place details failed';
+    throw new Error(message);
+  }
+
+  return json.result;
+}
+
 const ARMENIAN_SCRIPT_REGEX = /[\u0530-\u058F]/;
 const LATIN_SCRIPT_REGEX = /[A-Za-z]/;
 const UNIT_TOKEN_REGEX = /\d+[^\s,]*-(?:Շ|Բ|Տ)/g;
@@ -434,6 +491,12 @@ const createStyles = colors =>
   StyleSheet.create({
     container: {
       gap: 8,
+      zIndex: 1,
+      overflow: 'visible',
+    },
+    containerFocused: {
+      zIndex: SUGGESTIONS_Z_INDEX,
+      elevation: SUGGESTIONS_Z_INDEX,
     },
     field: {
       gap: 8,
@@ -441,8 +504,8 @@ const createStyles = colors =>
       overflow: 'visible',
     },
     fieldFocused: {
-      zIndex: 20,
-      elevation: 20,
+      zIndex: SUGGESTIONS_Z_INDEX,
+      elevation: SUGGESTIONS_Z_INDEX,
     },
     autocompleteWrapper: {
       borderWidth: 1,
@@ -450,6 +513,25 @@ const createStyles = colors =>
       borderRadius: INPUT_RADIUS,
       backgroundColor: colors.input,
       overflow: 'visible',
+      zIndex: SUGGESTIONS_Z_INDEX,
+      elevation: SUGGESTIONS_Z_INDEX,
+    },
+    inputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      height: 45,
+      paddingHorizontal: 16,
+      gap: 10,
+    },
+    textInput: {
+      flex: 1,
+      height: 45,
+      margin: 0,
+      padding: 0,
+      fontSize: 15,
+      fontFamily: FONT_FAMILY.regular,
+      color: colors.text,
+      backgroundColor: 'transparent',
     },
     inputError: {
       borderColor: colors.error,
@@ -457,6 +539,24 @@ const createStyles = colors =>
     inputIcon: {
       justifyContent: 'center',
       alignItems: 'center',
+    },
+    clearButton: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 3,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 100,
+    },
+    suggestionSeparator: {
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: colors.border,
+    },
+    suggestionRow: {
+      backgroundColor: colors.input,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      minHeight: 52,
     },
     errorText: {
       fontSize: 12,
@@ -591,73 +691,39 @@ const createStyles = colors =>
     },
   });
 
-function createAutocompleteStyles(colors) {
+function createSuggestionsListStyle(
+  colors,
+  { placement = 'below', maxHeight = SUGGESTIONS_MAX_HEIGHT } = {},
+) {
+  const opensAbove = placement === 'above';
+
   return {
-    container: {
-      flexGrow: 0,
-      zIndex: 1,
-    },
-    textInputContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      height: 45,
-      paddingHorizontal: 16,
-      gap: 10,
-      backgroundColor: 'transparent',
-      borderTopWidth: 0,
-      borderBottomWidth: 0,
-      paddingVertical: 0,
-      margin: 0,
-    },
-    textInput: {
-      flex: 1,
-      height: 45,
-      margin: 0,
-      padding: 0,
-      fontSize: 15,
-      fontFamily: FONT_FAMILY.regular,
-      color: colors.text,
-      backgroundColor: 'transparent',
-    },
-    listView: {
-      // Render the results above the input so the keyboard never hides them.
-      position: 'absolute',
-      bottom: '100%',
-      left: 0,
-      right: 0,
-      marginBottom: 4,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.input,
-      maxHeight: 220,
-      marginHorizontal: 0,
-      borderRadius: INPUT_RADIUS,
-      overflow: 'hidden',
-      zIndex: 30,
-      elevation: 30,
-      shadowColor: colors.shadow,
-      shadowOpacity: 0.12,
-      shadowRadius: 12,
-      shadowOffset: { width: 0, height: -4 },
-    },
-    row: {
-      backgroundColor: colors.input,
-      paddingHorizontal: 12,
-      paddingVertical: 10,
-      minHeight: 52,
-    },
-    separator: {
-      height: StyleSheet.hairlineWidth,
-      backgroundColor: colors.border,
-    },
-    description: {
-      fontSize: 15,
-      fontFamily: FONT_FAMILY.regular,
-      color: colors.text,
-    },
-    poweredContainer: {
-      display: 'none',
-    },
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    ...(opensAbove
+      ? {
+          bottom: '100%',
+          marginBottom: SUGGESTIONS_GAP,
+          shadowOffset: { width: 0, height: -4 },
+        }
+      : {
+          top: '100%',
+          marginTop: SUGGESTIONS_GAP,
+          shadowOffset: { width: 0, height: 4 },
+        }),
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.input,
+    maxHeight,
+    marginHorizontal: 0,
+    borderRadius: INPUT_RADIUS,
+    overflow: 'hidden',
+    zIndex: SUGGESTIONS_Z_INDEX,
+    elevation: SUGGESTIONS_Z_INDEX,
+    shadowColor: colors.shadow,
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
   };
 }
 
@@ -721,6 +787,7 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
   value,
   onChange,
   onBlur,
+  onFocusChange,
   placeholder,
   startIcon,
   name,
@@ -728,8 +795,17 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
   styles,
   colors,
 }) {
-  const autocompleteStyles = useMemo(() => createAutocompleteStyles(colors), [colors]);
+  const [suggestionsLayout, setSuggestionsLayout] = useState({
+    placement: 'below',
+    maxHeight: SUGGESTIONS_MAX_HEIGHT,
+  });
+  const suggestionsListStyle = useMemo(
+    () => createSuggestionsListStyle(colors, suggestionsLayout),
+    [colors, suggestionsLayout],
+  );
   const rowStyles = useMemo(() => createRowStyles(colors), [colors]);
+  const [inputText, setInputText] = useState(value ?? '');
+  const [predictions, setPredictions] = useState([]);
   const [isFocused, setIsFocused] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [confirmDraft, setConfirmDraft] = useState('');
@@ -737,14 +813,14 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
   const [apartmentNumber, setApartmentNumber] = useState('');
   const [houseNumber, setHouseNumber] = useState('');
   const [isLocalizing, setIsLocalizing] = useState(false);
-  const [autocompleteKey, setAutocompleteKey] = useState(0);
-  const placesRef = useRef(null);
+  const [isFetchingDetails, setIsFetchingDetails] = useState(false);
+  const inputRef = useRef(null);
   const inputContainerRef = useRef(null);
-  // Start unset so the first effect always pushes the form value into
-  // GooglePlacesAutocomplete (needed when this field mounts after reset,
-  // e.g. notificationAddress shown only once addresses differ).
-  const syncedValueRef = useRef(undefined);
-  const pendingAddressTextRef = useRef(null);
+  const keyboardTopRef = useRef(null);
+  const layoutTimeoutsRef = useRef([]);
+  const blurTimeoutRef = useRef(null);
+  const predictionRequestRef = useRef(0);
+  const syncedValueRef = useRef(value ?? '');
   const localizationRequestRef = useRef(0);
   const confirmDraftRef = useRef('');
   const baseAddressRef = useRef('');
@@ -753,31 +829,125 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
   const unitFieldsRef = useRef({ building: '', apartment: '', house: '' });
   const { onInputFocus, onInputBlur } = useEnsureInputVisible(inputContainerRef);
 
+  const clearLayoutTimeouts = useCallback(() => {
+    layoutTimeoutsRef.current.forEach(clearTimeout);
+    layoutTimeoutsRef.current = [];
+  }, []);
+
+  const clearBlurTimeout = useCallback(() => {
+    if (blurTimeoutRef.current != null) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
+    }
+  }, []);
+
+  const updateSuggestionsLayout = useCallback(() => {
+    const node = inputContainerRef.current;
+    if (!node || typeof node.measureInWindow !== 'function') {
+      return;
+    }
+
+    node.measureInWindow((_x, y, _width, height) => {
+      if (y == null || height == null) {
+        return;
+      }
+
+      const next = resolveSuggestionsLayout({
+        y,
+        height,
+        windowHeight: Dimensions.get('window').height,
+        keyboardTop: keyboardTopRef.current,
+      });
+
+      setSuggestionsLayout((prev) =>
+        prev.placement === next.placement && prev.maxHeight === next.maxHeight
+          ? prev
+          : next,
+      );
+    });
+  }, []);
+
+  const scheduleSuggestionsLayoutUpdate = useCallback(() => {
+    clearLayoutTimeouts();
+    requestAnimationFrame(updateSuggestionsLayout);
+    [120, 280].forEach((delayMs) => {
+      const timeoutId = setTimeout(updateSuggestionsLayout, delayMs);
+      layoutTimeoutsRef.current.push(timeoutId);
+    });
+  }, [clearLayoutTimeouts, updateSuggestionsLayout]);
+
+  useEffect(() => {
+    const handleKeyboardShow = (event) => {
+      keyboardTopRef.current = event?.endCoordinates?.screenY ?? null;
+      updateSuggestionsLayout();
+    };
+    const handleKeyboardHide = () => {
+      keyboardTopRef.current = null;
+      updateSuggestionsLayout();
+    };
+
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, handleKeyboardShow);
+    const hideSub = Keyboard.addListener(hideEvent, handleKeyboardHide);
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+      clearLayoutTimeouts();
+      clearBlurTimeout();
+    };
+  }, [clearBlurTimeout, clearLayoutTimeouts, updateSuggestionsLayout]);
+
   useEffect(() => {
     const nextValue = value ?? '';
     if (nextValue !== syncedValueRef.current) {
-      placesRef.current?.setAddressText(nextValue);
       syncedValueRef.current = nextValue;
+      setInputText(nextValue);
     }
   }, [value]);
 
   useEffect(() => {
-    if (pendingAddressTextRef.current == null) {
-      return;
+    if (!isFocused) {
+      setPredictions([]);
+      return undefined;
     }
 
-    const nextText = pendingAddressTextRef.current;
-    pendingAddressTextRef.current = null;
-    placesRef.current?.setAddressText(nextText);
-    placesRef.current?.blur();
-  }, [autocompleteKey]);
+    const query = inputText.trim();
+    if (query.length < MIN_QUERY_LENGTH) {
+      setPredictions([]);
+      return undefined;
+    }
+
+    const requestId = ++predictionRequestRef.current;
+    const timeoutId = setTimeout(() => {
+      fetchPlacePredictions(query)
+        .then((nextPredictions) => {
+          if (requestId !== predictionRequestRef.current) {
+            return;
+          }
+          setPredictions(nextPredictions);
+          scheduleSuggestionsLayoutUpdate();
+        })
+        .catch((error) => {
+          if (requestId !== predictionRequestRef.current) {
+            return;
+          }
+          setPredictions([]);
+          console.warn(`[FormAddressField:${name}]`, error?.message || error);
+        });
+    }, SUGGESTIONS_DEBOUNCE_MS);
+
+    return () => clearTimeout(timeoutId);
+  }, [inputText, isFocused, name, scheduleSuggestionsLayoutUpdate]);
 
   const hideSuggestionList = useCallback((addressText) => {
     const nextText =
       typeof addressText === 'string' ? addressText : syncedValueRef.current;
-    pendingAddressTextRef.current = nextText;
-    placesRef.current?.blur();
-    setAutocompleteKey((key) => key + 1);
+    syncedValueRef.current = nextText ?? '';
+    setInputText(nextText ?? '');
+    setPredictions([]);
+    inputRef.current?.blur();
   }, []);
 
   const applyComposedDraft = useCallback((baseAddress, units) => {
@@ -901,16 +1071,31 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
     [applyComposedDraft],
   );
 
-  const handlePress = useCallback(
-    (data, details = null) => {
-      const address = buildDetailedAddress(data, details);
+  const handlePredictionPress = useCallback(
+    async (prediction) => {
+      clearBlurTimeout();
+      setPredictions([]);
+      setIsFocused(false);
+      onFocusChange?.(false);
+      inputRef.current?.blur();
+
+      // Keep the current form value until the user confirms in the modal.
+      setInputText(syncedValueRef.current ?? '');
+
+      setIsFetchingDetails(true);
+      let details = null;
+      try {
+        if (prediction?.place_id) {
+          details = await fetchPlaceDetails(prediction.place_id);
+        }
+      } catch (error) {
+        console.warn(`[FormAddressField:${name}]`, error?.message || error);
+      } finally {
+        setIsFetchingDetails(false);
+      }
+
+      const address = buildDetailedAddress(prediction, details);
       const normalized = normalizeSelectedAddress(address);
-
-      // The library auto-fills the input on press — restore the previous
-      // value until the user confirms in the modal.
-      placesRef.current?.setAddressText(syncedValueRef.current);
-      placesRef.current?.blur();
-
       openConfirmModal(address);
 
       if (!LATIN_SCRIPT_REGEX.test(address) && !LATIN_SCRIPT_REGEX.test(normalized.address)) {
@@ -921,14 +1106,13 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
       setIsLocalizing(true);
 
       fetchArmenianAddress({
-        placeId: details?.place_id ?? data?.place_id,
+        placeId: details?.place_id ?? prediction?.place_id,
         location: details?.geometry?.location,
       })
         .then((localized) => {
           const isStale =
             !localized ||
             requestId !== localizationRequestRef.current ||
-            // User already edited the base address in the modal.
             baseAddressRef.current !== initialNormalizedAddressRef.current;
           if (isStale) {
             return;
@@ -971,47 +1155,60 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
           }
         });
     },
-    [applyComposedDraft, openConfirmModal],
+    [applyComposedDraft, clearBlurTimeout, name, onFocusChange, openConfirmModal],
   );
 
-  const handleFail = useCallback(
-    (message) => {
-      console.warn(`[FormAddressField:${name}]`, message);
+  const handleChangeText = useCallback(
+    (text) => {
+      syncedValueRef.current = text;
+      setInputText(text);
+      onChange(text);
     },
-    [name],
+    [onChange],
   );
 
-  const textInputProps = useMemo(
-    () => ({
-      onChangeText: (text) => {
-        syncedValueRef.current = text;
-        onChange(text);
-      },
-      onFocus: () => {
-        setIsFocused(true);
-        onInputFocus();
-      },
-      onBlur: () => {
-        setIsFocused(false);
-        onInputBlur();
-        onBlur();
-      },
-      placeholderTextColor: colors.textDisabled,
-      autoCorrect: false,
-    }),
-    [onChange, onBlur, onInputFocus, onInputBlur, colors.textDisabled],
-  );
+  const handleClearText = useCallback(() => {
+    clearBlurTimeout();
+    syncedValueRef.current = '';
+    setInputText('');
+    setPredictions([]);
+    onChange('');
+    inputRef.current?.focus();
+  }, [clearBlurTimeout, onChange]);
 
-  const renderRow = useCallback(
-    (data) => renderSuggestionRow(data, rowStyles, colors),
-    [rowStyles, colors],
-  );
+  const handleFocus = useCallback(() => {
+    clearBlurTimeout();
+    setIsFocused(true);
+    onFocusChange?.(true);
+    onInputFocus();
+    scheduleSuggestionsLayoutUpdate();
+  }, [
+    clearBlurTimeout,
+    onFocusChange,
+    onInputFocus,
+    scheduleSuggestionsLayoutUpdate,
+  ]);
 
-  const renderLeftButton = useCallback(
-    () => (startIcon ? <View style={styles.inputIcon}>{startIcon}</View> : null),
-    [startIcon, styles.inputIcon],
-  );
+  const handleBlur = useCallback(() => {
+    clearBlurTimeout();
+    // Delay so a suggestion press can register before the list unmounts.
+    blurTimeoutRef.current = setTimeout(() => {
+      setIsFocused(false);
+      setPredictions([]);
+      onFocusChange?.(false);
+      clearLayoutTimeouts();
+      onInputBlur();
+      onBlur();
+    }, 180);
+  }, [
+    clearBlurTimeout,
+    clearLayoutTimeouts,
+    onBlur,
+    onFocusChange,
+    onInputBlur,
+  ]);
 
+  const showSuggestions = isFocused && predictions.length > 0;
   const canConfirmAddress =
     !confirmDraftError && !unitFieldErrors.building && !unitFieldErrors.apartment;
 
@@ -1022,27 +1219,60 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
       style={[styles.field, isFocused && styles.fieldFocused]}
     >
       <View style={[styles.autocompleteWrapper, hasError && styles.inputError]}>
-        <GooglePlacesAutocomplete
-          key={autocompleteKey}
-          ref={placesRef}
-          placeholder={placeholder}
-          minLength={MIN_QUERY_LENGTH}
-          debounce={300}
-          enablePoweredByContainer={false}
-          fetchDetails={true}
-          GooglePlacesDetailsQuery={PLACES_DETAILS_QUERY}
-          listViewDisplayed="auto"
-          keyboardShouldPersistTaps="always"
-          disableScroll
-          query={PLACES_QUERY}
-          onPress={handlePress}
-          onFail={handleFail}
-          textInputProps={textInputProps}
-          renderRow={renderRow}
-          renderLeftButton={renderLeftButton}
-          styles={autocompleteStyles}
-        />
+        <View style={styles.inputRow}>
+          {startIcon ? <View style={styles.inputIcon}>{startIcon}</View> : null}
+          <TextInput
+            ref={inputRef}
+            value={inputText}
+            onChangeText={handleChangeText}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            placeholder={placeholder}
+            placeholderTextColor={colors.textDisabled}
+            autoCorrect={false}
+            style={styles.textInput}
+          />
+          {inputText ? (
+            <Pressable
+              onPress={handleClearText}
+              hitSlop={8}
+              style={styles.clearButton}
+              accessibilityRole="button"
+              accessibilityLabel="Մաքրել"
+            >
+              <CloseIcon width={15} height={15} fill={colors.textSecondary} />
+            </Pressable>
+          ) : null}
+        </View>
+
+        {showSuggestions ? (
+          <ScrollView
+            style={suggestionsListStyle}
+            keyboardShouldPersistTaps="always"
+            nestedScrollEnabled
+            showsVerticalScrollIndicator={false}
+          >
+            {predictions.map((prediction, index) => (
+              <View key={prediction.place_id || `${prediction.description}-${index}`}>
+                {index > 0 ? <View style={styles.suggestionSeparator} /> : null}
+                <Pressable
+                  onPress={() => handlePredictionPress(prediction)}
+                  style={styles.suggestionRow}
+                  accessibilityRole="button"
+                >
+                  {renderSuggestionRow(prediction, rowStyles, colors)}
+                </Pressable>
+              </View>
+            ))}
+          </ScrollView>
+        ) : null}
       </View>
+
+      {isFetchingDetails ? (
+        <View style={styles.loaderRow}>
+          <ActivityIndicator color={colors.icons} />
+        </View>
+      ) : null}
 
       <Modal
         visible={confirmVisible}
@@ -1057,7 +1287,6 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
           <Pressable style={styles.confirmBackdrop} onPress={closeConfirmModal}>
             <Pressable style={styles.confirmSheet} onPress={() => {}}>
               <Text style={styles.confirmTitle}>Հաստատել հասցեն</Text>
-
 
               <View
                 style={[
@@ -1078,7 +1307,6 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
               {confirmDraftError ? (
                 <Text style={styles.confirmValidationError}>{confirmDraftError}</Text>
               ) : null}
-
 
               <View style={styles.unitFieldsRow}>
                 <View style={styles.unitField}>
@@ -1140,8 +1368,6 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
                 </View>
               </View>
 
- 
-
               {isLocalizing ? (
                 <View style={styles.loaderRow}>
                   <ActivityIndicator color={colors.icons} />
@@ -1179,6 +1405,7 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
   );
 });
 
+
 export function FormAddressField({
   control,
   name,
@@ -1187,18 +1414,29 @@ export function FormAddressField({
   rules,
   startIcon,
   labelVariant = 'h6',
+  onFocusChange,
 }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  const [isFocused, setIsFocused] = useState(false);
+
+  const handleFocusChange = useCallback(
+    (focused) => {
+      setIsFocused(focused);
+      onFocusChange?.(focused);
+    },
+    [onFocusChange],
+  );
 
   const renderField = useCallback(
     ({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
-      <View style={styles.container}>
+      <View style={[styles.container, isFocused && styles.containerFocused]}>
         {label ? <Typography variant={labelVariant}>{label}</Typography> : null}
         <AddressAutocompleteInput
           value={value}
           onChange={onChange}
           onBlur={onBlur}
+          onFocusChange={handleFocusChange}
           placeholder={placeholder}
           startIcon={startIcon}
           name={name}
@@ -1209,7 +1447,17 @@ export function FormAddressField({
         {error?.message ? <Text style={styles.errorText}>{error.message}</Text> : null}
       </View>
     ),
-    [styles, colors, label, labelVariant, placeholder, startIcon, name],
+    [
+      styles,
+      colors,
+      label,
+      labelVariant,
+      placeholder,
+      startIcon,
+      name,
+      isFocused,
+      handleFocusChange,
+    ],
   );
 
   return <Controller control={control} name={name} rules={rules} render={renderField} />;

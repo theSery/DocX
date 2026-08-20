@@ -6,7 +6,8 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated';
 import MainHeader from './MainHeader';
-import { useThemedStyles } from '../../hooks';
+import FavoritesButton from '../buttons/FavoritesButton';
+import { useAuthSession, useThemedStyles } from '../../hooks';
 import { SearchComponent } from '../titleComponents/SearchComponent';
 import { CachedImage } from '../image';
 import { Typography } from '../typography';
@@ -88,6 +89,7 @@ const HeaderTitleBlock = ({ styles, title, subtitle, iconUrl }) => {
 const StaticHomeStackHeader = ({
   styles,
   onPress,
+  onFavoritesPress,
   title,
   subtitle,
   showSearch,
@@ -107,7 +109,15 @@ const StaticHomeStackHeader = ({
   >
     <View style={styles.collapsible}>
       <View style={styles.headerRow}>
-        <MainHeader onPress={onPress} isHome={true}/>
+        <MainHeader
+          onPress={onPress}
+          isHome={true}
+          rightAction={
+            onFavoritesPress ? (
+              <FavoritesButton onPress={onFavoritesPress} />
+            ) : null
+          }
+        />
       </View>
       <HeaderTitleBlock
         styles={styles}
@@ -127,6 +137,7 @@ const StaticHomeStackHeader = ({
 const CollapsibleHomeStackHeader = ({
   styles,
   onPress,
+  onFavoritesPress,
   title,
   subtitle,
   showSearch,
@@ -182,14 +193,22 @@ const CollapsibleHomeStackHeader = ({
         style={[styles.titleLayer, animatedTitleStyle]}
       >
         <View style={styles.headerRow}>
-          <MainHeader onPress={onPress} isHome={true}/>
+          <MainHeader
+            onPress={onPress}
+            isHome={true}
+            rightAction={
+              onFavoritesPress ? (
+                <FavoritesButton onPress={onFavoritesPress} />
+              ) : null
+            }
+          />
         </View>
         {(title || subtitle) && (
           <View style={styles.titleContainer}>
             {title ? (
               <Typography
                 variant="h2"
-                style={[styles.loginTitle, { fontSize: 16, letterSpacing: 0 }]}
+                style={[styles.loginTitle, { fontSize: 16, letterSpacing: 0, lineHeight: 20 }]}
                 numberOfLines={2}
               >
                 {title}
@@ -214,6 +233,7 @@ const CollapsibleHomeStackHeader = ({
 
 const HomeStackHeader = ({
   onPress,
+  onFavoritesPress,
   title,
   subtitle,
   showSearch = true,
@@ -222,13 +242,16 @@ const HomeStackHeader = ({
   route,
 }) => {
   const styles = useThemedStyles(createStyles);
+  const { isAuthenticated } = useAuthSession();
   const searchScope = resolveSearchScope(route);
+  const favoritesPress = isAuthenticated ? onFavoritesPress : undefined;
 
   if (!collapsible) {
     return (
       <StaticHomeStackHeader
         styles={styles}
         onPress={onPress}
+        onFavoritesPress={favoritesPress}
         title={title}
         subtitle={subtitle}
         showSearch={showSearch}
@@ -242,6 +265,7 @@ const HomeStackHeader = ({
     <CollapsibleHomeStackHeader
       styles={styles}
       onPress={onPress}
+      onFavoritesPress={favoritesPress}
       title={title}
       subtitle={subtitle}
       showSearch={showSearch}

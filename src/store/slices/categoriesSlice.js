@@ -54,6 +54,7 @@ export const fetchCategoryHierarchy = createAsyncThunk(
         limit,
         signal,
       });
+
       return parseCategoryHierarchyResponse(response.data, page, limit);
     } catch (error) {
       console.log('error:', error);

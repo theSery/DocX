@@ -107,22 +107,30 @@ export function SubCategoryScreen({ route, navigation }) {
     };
   });
 
-  const navigateToFillInDetails = (template) => {
-
+  const navigateToFillInDetails = (template, category) => {
     navigation.navigate('FillInDetails', {
       templateId: template.id,
       templateForm: template.form,
       templateSolution: template.solution,
+      templateFactGroups: template.factGroups,
+      templateName: template.name,
+      categoryName: category?.name,
     });
   };
 
-  const onChooseTemplate = (template) => {
+  const onChooseTemplate = (template, category) => {
+    const categoryIconUrl = category.iconUrl || iconUrl;
     showGlobalSheet({
-      content: resolveImageSource(iconUrl) ?? { uri: iconUrl },
-      message: title,
+      content: resolveImageSource(categoryIconUrl) ?? { uri: categoryIconUrl },
+      message: category.name,
       description: template.name,
+      contentImageStyle: { width: 56, height: 56 },
+      messageStyle: { fontSize: 14, lineHeight: 20 },
       actions: [
-        { label: template.relatedAction, onPress: () => navigateToFillInDetails(template) },
+        {
+          label: template.relatedAction,
+          onPress: () => navigateToFillInDetails(template, category),
+        },
         { label: 'Փակել', destructive: true },
       ],
     });
@@ -189,7 +197,7 @@ export function SubCategoryScreen({ route, navigation }) {
                       <ArrowSvg width={14} height={14} fill={palette.white} />
                     }
                     title={template.name}
-                    onPress={() => onChooseTemplate(template)}
+                    onPress={() => onChooseTemplate(template, category)}
                   />
                 ))
               ) : (
@@ -253,7 +261,7 @@ const createStyles = colors =>
       width: 50,
       height: 50,
       resizeMode: 'contain',
-      backgroundColor: colors.cardSelected,
+      backgroundColor: palette.skyBlue,
       padding: 10,
       borderRadius: 16,
     },

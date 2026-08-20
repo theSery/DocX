@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, Platform, StyleSheet, TextInput, View } from 'react-native';
 import { useEffect, useRef } from 'react';
 
 import { FONT_FAMILY } from '../../../../theme';
@@ -13,6 +13,7 @@ export function OtpInputRowCode({
   focusedIndex,
   onFocusIndex,
   length = DEFAULT_OTP_LENGTH,
+  style,
 }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
@@ -25,6 +26,20 @@ export function OtpInputRowCode({
     }
     inputRefs.current[focusedIndex]?.focus();
   }, [focusedIndex]);
+
+  useEffect(() => {
+    const isComplete =
+      Array.isArray(digits) &&
+      digits.length === otpLength &&
+      digits.every(Boolean);
+
+    if (!isComplete) {
+      return;
+    }
+
+    inputRefs.current.forEach(ref => ref?.blur());
+    Keyboard.dismiss();
+  }, [digits, otpLength]);
 
   const handleChange = (text, index) => {
     const cleaned = text.replace(/\D/g, '');
@@ -53,7 +68,7 @@ export function OtpInputRowCode({
   };
 
   return (
-    <View style={styles.otpRow}>
+    <View style={[styles.otpRow, style]}>
       {digits.map((digit, index) => {
         const isFocused = focusedIndex === index;
         const isEmpty = !digit;

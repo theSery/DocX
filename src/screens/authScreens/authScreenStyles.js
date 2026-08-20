@@ -5,6 +5,7 @@ export function createAuthScreenStyles(colors) {
     screen: {
       flex: 1,
       backgroundColor: colors.background,
+      // backgroundColor: 'red',
     },
     content: {
       flex: 1,

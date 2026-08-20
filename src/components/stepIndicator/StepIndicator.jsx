@@ -41,7 +41,8 @@ const createStyles = colors =>
       flexDirection: 'row',
       alignItems: 'flex-start',
       paddingHorizontal: 10,
-      paddingVertical: 16,
+      // paddingVertical: 16,
+      marginTop: 10,
       backgroundColor: colors.background,
       gap: 10,
     },
@@ -60,14 +61,14 @@ const createStyles = colors =>
       height: 8,
       borderRadius: 14,
       opacity: 0.4,
-      backgroundColor: colors.mainBlue,
+      backgroundColor: colors.icons,
     },
     circleActive: {
       opacity: 1,
-      backgroundColor: colors.mainBlue,
+      backgroundColor: colors.icons,
     },
     circleCompleted: {
       opacity: 1,
-      backgroundColor: colors.mainBlue,
+      backgroundColor: colors.icons,
     },
   });

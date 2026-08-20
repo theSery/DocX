@@ -194,6 +194,6 @@ export function FillAct({ control, variables = [] }) {
 const styles = StyleSheet.create({
   container: {
     gap: 20,
-    paddingTop: 8,
+    paddingTop: 16,
   },
 });

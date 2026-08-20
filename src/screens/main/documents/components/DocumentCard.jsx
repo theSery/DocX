@@ -9,17 +9,15 @@ import DotsVerticalSvg from '../../../../components/icons/DotsVerticalSvg';
 import DownloadSvg from '../../../../components/icons/DownloadSvg';
 import MailIconSvg from '../../../../components/icons/MailIconSvg';
 import SendSvg from '../../../../components/icons/SendSvg';
-import SignatureSvg from '../../../../components/icons/SignatureSvg';
 import StarOutlineSvg from '../../../../components/icons/StarOutlineSvg';
 import TrashSvg from '../../../../components/icons/TrashSvg';
 import { complaintsApi } from '../../../../api';
 import { FONT_FAMILY } from '../../../../theme';
 import { useFileDownload, useThemedStyles, useTheme, useToast } from '../../../../hooks';
-import {
-  addRecommendedDocument,
-  removeRecommendedDocument,
-} from '../../../../utils/recommendedDocumentsStorage';
+import { removeRecommendedDocument } from '../../../../utils/recommendedDocumentsStorage';
 import EyeIconSvg from '../../../../components/icons/EyeIconSvg';
+import { AttachedDocumentsSheet } from './AttachedDocumentsSheet';
+import { SendEmailSheet } from './SendEmailSheet';
 
 const STATUS_CONFIG = {
   draft: { label: 'Սևագիր', colorKey: 'error' },
@@ -31,7 +29,7 @@ export function DocumentCard({
   document,
   index = 0,
   onDeleted,
-  onRecommendedChange,
+  onSent,
 }) {
   const navigation = useNavigation();
   const styles = useThemedStyles(createStyles);
@@ -39,11 +37,15 @@ export function DocumentCard({
   const { showToast } = useToast();
   const { downloadRemoteFile } = useFileDownload();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSendEmailOpen, setIsSendEmailOpen] = useState(false);
+  const [isAttachedDocsOpen, setIsAttachedDocsOpen] = useState(false);
   const status = STATUS_CONFIG[document.status] ?? STATUS_CONFIG.draft;
-  const canSend = document.status === 'signed';
   const isRecommended = Boolean(document.recommended);
+  const hasAttachedDocuments =
+    document.hasAttachment ||
+    (Array.isArray(document.attachedDocuments) &&
+      document.attachedDocuments.length > 0);
   const iconColor = colors.icons;
-  const disabledIconColor = colors.textDisabled;
 
   const handleDelete = useCallback(async () => {
     try {
@@ -62,28 +64,6 @@ export function DocumentCard({
       });
     }
   }, [document.id, onDeleted, showToast]);
-
-  const handleToggleRecommended = useCallback(async () => {
-    try {
-      const nextRecommendedIds = isRecommended
-        ? await removeRecommendedDocument(document.id)
-        : await addRecommendedDocument(document.id);
-
-      onRecommendedChange?.(nextRecommendedIds);
-      showToast({
-        title: isRecommended
-          ? 'Հեռացվեց նախընտրելիից'
-          : 'Նշվեց որպես նախընտրելի',
-        type: 'success',
-      });
-    } catch (error) {
-      showToast({
-        title: 'Գործողությունը ձախողվեց',
-        body: error?.message ?? 'Անհայտ սխալ, փորձեք կրկին',
-        type: 'error',
-      });
-    }
-  }, [document.id, isRecommended, onRecommendedChange, showToast]);
 
   const handleSign = useCallback(() => {
     navigation.navigate('DocumentSign', {
@@ -109,6 +89,22 @@ export function DocumentCard({
     });
   }, [document.organization, document.sendDate, document.title, handleDelete]);
 
+  const handleOpenSendEmail = useCallback(() => {
+    setIsSendEmailOpen(true);
+  }, []);
+
+  const handleCloseSendEmail = useCallback(() => {
+    setIsSendEmailOpen(false);
+  }, []);
+
+  const handleOpenAttachedDocuments = useCallback(() => {
+    setIsAttachedDocsOpen(true);
+  }, []);
+
+  const handleCloseAttachedDocuments = useCallback(() => {
+    setIsAttachedDocsOpen(false);
+  }, []);
+
   const handleMenuPress = useCallback(() => {
     setIsMenuOpen(true);
 
@@ -123,39 +119,41 @@ export function DocumentCard({
         },
         {
           label: 'Դիտել ֆայլը',
-                icon: (
-                  <EyeIconSvg width={20} height={20} fill={iconColor} visible />
-                ),
+          icon: (
+            <EyeIconSvg width={20} height={20} fill={iconColor} visible />
+          ),
           onPress: handleSign,
         },
+        ...(hasAttachedDocuments
+          ? [
+              {
+                label: 'Դիտել կցված փաստաթղթերը',
+                icon: <AttachSvg width={20} height={20} fill={iconColor} />,
+                onPress: handleOpenAttachedDocuments,
+              },
+            ]
+          : []),
         {
           label: 'Ներբեռնել',
           icon: <DownloadSvg width={20} height={20} fill={iconColor} />,
           onPress: handleDownload,
         },
         {
-          label: isRecommended ? 'Հեռացնել նախընտրելից' : 'Նշել որպես նախընտրելի',
-          icon: <StarOutlineSvg width={20} height={20} fill={isRecommended ? disabledIconColor  : iconColor} />,
-          onPress: handleToggleRecommended,
-        },
-        {
-          label: `Ուղարկել ՀՀ ${document.organization}`,
+          label: `Ուղարկել էլ. հասցեի`,
           icon: (
-            <SendSvg width={20} height={20} fill={canSend ? iconColor : disabledIconColor} />
+            <SendSvg width={20} height={20} fill={iconColor} />
           ),
-          disabled: !canSend,
+          onPress: handleOpenSendEmail,
         },
       ],
     });
   }, [
-    canSend,
-    document.organization,
     handleDownload,
+    handleOpenAttachedDocuments,
+    handleOpenSendEmail,
     handleSign,
-    handleToggleRecommended,
+    hasAttachedDocuments,
     iconColor,
-    disabledIconColor,
-    isRecommended,
     showDeleteConfirmation,
   ]);
 
@@ -164,55 +162,76 @@ export function DocumentCard({
       index={index}
       style={[styles.cardShadow, isMenuOpen && styles.cardShadowSelected]}
     >
-      <View style={[styles.card, isMenuOpen && styles.cardSelected]}>
-      <View style={styles.headerRow}>
-        <Typography variant="h6" tone="secondary" style={styles.date}>
-          {document.sendDate}
-        </Typography>
-        <View style={styles.headerActions}>
-          {isRecommended ? (
-            <View style={styles.recommendedIcon}>
-              <StarOutlineSvg width={18} height={17} fill={colors.icons} />
+      {isSendEmailOpen ? (
+        <SendEmailSheet
+          visible={isSendEmailOpen}
+          documentId={document.id}
+          documentTitle={document.title}
+          attachedDocuments={document.attachedDocuments}
+          onClose={handleCloseSendEmail}
+          onSent={onSent}
+        />
+      ) : null}
+      {isAttachedDocsOpen ? (
+        <AttachedDocumentsSheet
+          visible={isAttachedDocsOpen}
+          attachedDocuments={document.attachedDocuments}
+          onClose={handleCloseAttachedDocuments}
+        />
+      ) : null}
+      <TouchableOpacity
+        activeOpacity={0.85}
+        style={[styles.card, isMenuOpen && styles.cardSelected]}
+        onPress={handleMenuPress}
+      >
+        <View style={styles.headerRow}>
+          <Typography variant="h6" tone="secondary" style={styles.date}>
+            {document.sendDate}
+          </Typography>
+          <View style={styles.headerActions}>
+            {isRecommended ? (
+              <View style={styles.recommendedIcon}>
+                <StarOutlineSvg width={18} height={17} fill={colors.icons} />
+              </View>
+            ) : null}
+            <View style={[styles.statusBadge, { backgroundColor: colors[status.colorKey] }]}>
+              <Typography variant="h6" tone="onDark" style={styles.statusText}>
+                {status.label}
+              </Typography>
             </View>
-          ) : null}
-          <View style={[styles.statusBadge, { backgroundColor: colors[status.colorKey] }]}>
-            <Typography variant="h6" tone="onDark" style={styles.statusText}>
-              {status.label}
+          </View>
+        </View>
+
+        <View style={styles.titleRow}>
+          <Typography variant="h4" style={styles.title} numberOfLines={2}>
+            {document.title}
+          </Typography>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={[styles.menuButton, isMenuOpen && styles.menuButtonActive]}
+            onPress={handleMenuPress}
+          >
+            <DotsVerticalSvg fill={colors.icons} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.footerRow}>
+          <View style={styles.organizationBadge}>
+            <MailIconSvg width={14} height={11} fill={colors.buttonTextOnPrimary} />
+            <Typography variant="h6" tone="onDark" style={styles.organizationText} numberOfLines={1}>
+              {document.organization}
             </Typography>
           </View>
+
+          {document.hasAttachment ? (
+            <View style={styles.attachIcon}>
+              <AttachSvg fill={colors.icons} />
+            </View>
+          ) : (
+            <View style={styles.attachPlaceholder} />
+          )}
         </View>
-      </View>
-
-      <View style={styles.titleRow}>
-        <Typography variant="h4" style={styles.title} numberOfLines={2}>
-          {document.title}
-        </Typography>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          style={[styles.menuButton, isMenuOpen && styles.menuButtonActive]}
-          onPress={handleMenuPress}
-        >
-          <DotsVerticalSvg fill={colors.icons} />
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.footerRow}>
-        <View style={styles.organizationBadge}>
-          <MailIconSvg width={14} height={11} fill={colors.buttonTextOnPrimary} />
-          <Typography variant="h6" tone="onDark" style={styles.organizationText} numberOfLines={1}>
-            {document.organization}
-          </Typography>
-        </View>
-
-        {document.hasAttachment ? (
-          <View style={styles.attachIcon}>
-            <AttachSvg fill={colors.icons} />
-          </View>
-        ) : (
-          <View style={styles.attachPlaceholder} />
-        )}
-      </View>
-      </View>
+      </TouchableOpacity>
     </StaggeredAnimatedView>
   );
 }
@@ -239,7 +258,8 @@ const createStyles = colors =>
     },
     card: {
       borderRadius: 24,
-      backgroundColor: colors.background,
+      // backgroundColor: colors.background,
+      backgroundColor: colors.pureWhite,
       borderColor: colors.borderSubtle,
       borderWidth: 1,
       paddingHorizontal: 16,

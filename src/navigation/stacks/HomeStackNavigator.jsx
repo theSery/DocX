@@ -1,17 +1,23 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   CompletePersonalDataScreen,
+
   DocumentCreateScreen,
+  FavoritesScreen,
   FillInDetailsScreen,
   HomeScreen,
   SubCategoryScreen,
 } from '../../screens/main/home';
 import { useStackScreenOptions, useThemedFocusStatusBar } from '../../hooks';
 import HomeStackHeader from '../../components/headers/HomeStackHeader';
+import MainHeader from '../../components/headers/MainHeader';
 import { CategoryScreen } from '../../screens/main/home/CategoryScreen';
 import { HomeStackHeaderScrollProvider } from '../../context/HomeStackHeaderScrollContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 import { animation } from '../constants';
+import { ConfirmPhoneCodeScreenHome } from '../../screens/main/home/ConfirmPhoneCodeScreenHome';
+import { ConfirmEmailCodeScreen } from '../../screens/main/account';
 
 const Home = createNativeStackNavigator();
 
@@ -43,6 +49,7 @@ const nestedScreenOptionsWithHeader = (
   header: ({ navigation, route, options }) => (
     <HomeStackHeader
       onPress={options.isMainHeader ? undefined : () => navigation.goBack()}
+      onFavoritesPress={() => navigation.navigate('Favorites')}
       title={options.title}
       subtitle={options.headerSubtitle}
       showSearch={options.headerShowSearch}
@@ -91,7 +98,7 @@ export function HomeStackNavigator() {
             options={({ route }) =>
               nestedScreenOptionsWithHeader(nestedScreenOptions, {
                 title: route.params?.title ?? '',
-                subtitle: route.params?.subtitle ?? '',
+                // subtitle: route.params?.subtitle ?? '',
                 collapsible: true,
               })
             }
@@ -111,9 +118,45 @@ export function HomeStackNavigator() {
             }}
           />
           <Home.Screen
+            name="ConfirmPhoneCodeScreenHome"
+            component={ConfirmPhoneCodeScreenHome}
+            options={{
+              headerShown: true,
+              header: ({ navigation }) => (
+                <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+                  <MainHeader onPress={() => navigation.goBack()} />
+                </View>
+              ),
+            }}
+          />
+          <Home.Screen
+            name="ConfirmEmailCode"
+            component={ConfirmEmailCodeScreen}
+            options={{
+              headerShown: true,
+              header: ({ navigation }) => (
+                <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+                  <MainHeader onPress={() => navigation.goBack()} />
+                </View>
+              ),
+            }}
+          />
+          <Home.Screen
             name="DocumentCreate"
             component={DocumentCreateScreen}
             options={{ headerShown: false }}
+          />
+          <Home.Screen
+            name="Favorites"
+            component={FavoritesScreen}
+            options={{
+              headerShown: true,
+              header: ({ navigation }) => (
+                <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+                  <MainHeader onPress={() => navigation.goBack()} />
+                </View>
+              ),
+            }}
           />
         </Home.Navigator>
       </HomeStackHeaderScrollProvider>

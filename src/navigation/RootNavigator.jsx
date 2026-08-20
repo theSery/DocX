@@ -21,6 +21,8 @@ import { ResetPinNavigator } from './AuthStacks/ResetPinNavigator';
 
 const Stack = createNativeStackNavigator();
 
+const CATEGORIES_PAGE = { page: 1, limit: 10 };
+
 function resolveInitialRoute(hasCompletedOnboarding, startupRoute) {
   if (!hasCompletedOnboarding) {
     return 'Onboarding';
@@ -33,6 +35,26 @@ function resolveInitialRoute(hasCompletedOnboarding, startupRoute) {
   return 'Main';
 }
 
+function BootstrapLoadingScreen() {
+  return (
+    <GradientBackground isLight={false}>
+      <LottieAnimation
+        source={require('../assets/lottie/Law.json')}
+        autoPlay
+        loop
+        style={{
+          width: 150,
+          height: 150,
+          position: 'absolute',
+          bottom: 30,
+          left: 30,
+        }}
+      />
+      <LogoIcon width={140} height={140} />
+    </GradientBackground>
+  );
+}
+
 export function RootNavigator() {
   const { isReady, hasCompletedOnboarding } = useAuth();
   const { isSplashDone, startupRoute } = useSplash();
@@ -40,11 +62,12 @@ export function RootNavigator() {
   const dispatch = useAppDispatch();
   const categories = useAppSelector(selectCategories);
   const categoriesStatus = useAppSelector(selectCategoriesStatus);
+
   const [criticalIconsReady, setCriticalIconsReady] = useState(false);
 
   useEffect(() => {
     if (categoriesStatus === 'idle') {
-      dispatch(fetchCategoryHierarchy({ page: 1, limit: 10 }));
+      dispatch(fetchCategoryHierarchy(CATEGORIES_PAGE));
     }
   }, [dispatch, categoriesStatus]);
 
@@ -75,35 +98,21 @@ export function RootNavigator() {
     };
   }, [categoriesStatus, categories]);
 
-  const isBootstrapping =
+  const isCategoriesBootstrapping =
     categoriesStatus === 'idle' ||
     categoriesStatus === 'loading' ||
     (categoriesStatus === 'succeeded' && !criticalIconsReady);
 
+  const isAppLoading = !isSplashDone || !isReady || isCategoriesBootstrapping;
+
   useEffect(() => {
-    if (!isSplashDone || !isReady || isBootstrapping) {
+    if (isAppLoading) {
       StatusBar.setBarStyle('light-content', true);
     }
-  }, [isSplashDone, isReady, isBootstrapping]);
+  }, [isAppLoading]);
 
-  if (!isSplashDone || !isReady || isBootstrapping) {
-    return (
-      <GradientBackground isLight={false}>
-        <LottieAnimation
-          source={require('../assets/lottie/Law.json')}
-          autoPlay
-          loop
-          style={{
-            width: 150,
-            height: 150,
-            position: 'absolute',
-            bottom: 30,
-            left: 30,
-          }}
-        />
-        <LogoIcon width={140} height={140} />
-      </GradientBackground>
-    );
+  if (isAppLoading) {
+    return <BootstrapLoadingScreen />;
   }
 
   return (

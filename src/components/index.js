@@ -9,7 +9,11 @@ export {
   getStaggeredEnterProps,
 } from './animation';
 export { CheckBox } from './checkbox';
-export { DocumentLoadingOverlay } from './DocumentLoadingOverlay';
+export { ConfirmPhoneCodeForm } from './ConfirmPhoneCodeForm';
+export {
+  DocumentLoadingOverlay,
+  DocumentLoadingOverlayProvider,
+} from './DocumentLoadingOverlay';
 export { RadioButton, RadioGroup } from './radioButton';
 export { Switch } from './switch';
 

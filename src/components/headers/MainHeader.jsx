@@ -5,7 +5,7 @@ import darkLogo from '../../assets/images/darkLogo.webp';
 import whiteLogo from '../../assets/images/whiteLogo.webp';
 import { useTheme, useThemedStyles } from '../../hooks';
 
-const MainHeader = ({ onPress, isHome = false }) => {
+const MainHeader = ({ onPress, isHome = false, rightAction = null }) => {
   const styles = useThemedStyles(createStyles);
   const { isDarkMode } = useTheme();
 
@@ -20,10 +20,11 @@ const MainHeader = ({ onPress, isHome = false }) => {
         <Image
           source={isDarkMode ? whiteLogo : darkLogo}
           style={styles.logo}
-          resizeMode="contain"
+          resizeMode="cover"
         />
       </View>
       <View style={styles.side}>
+        {rightAction}
       </View>
     </View>
   );
@@ -48,8 +49,9 @@ const createStyles = () =>
     },
     logo: {
       width: '100%',
-      height: 40,
+      height: 45,
       maxWidth: 180,
+      minWidth: 140,
     },
     sideButton: {
       width: 4,

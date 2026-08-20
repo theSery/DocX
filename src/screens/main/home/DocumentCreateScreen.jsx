@@ -3,7 +3,6 @@ import {
   Alert,
   Pressable,
   StyleSheet,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import AuthButton from '../../../components/buttons/AuthButton';
@@ -28,9 +27,18 @@ import {
   DocumentLoadingOverlay,
 } from '../../../components/DocumentLoadingOverlay';
 import { AnimatedView } from '../../../components/animation';
-import { useAppSelector } from '../../../store';
+import { useAppDispatch, useAppSelector } from '../../../store';
 import { selectDocumentFill } from '../../../store/slices/documentFillSlice';
-import { selectPersonalData } from '../../../store/slices/personalDataSlice';
+import {
+  selectHasNotificationAddress,
+  selectPersonalData,
+} from '../../../store/slices/personalDataSlice';
+import {
+  fetchPersonalDocuments,
+  removePersonalDocument,
+  selectPersonalDocuments,
+  selectPersonalDocumentsStatus,
+} from '../../../store/slices/personalDocumentsSlice';
 import {
   useFileDownload,
   useTheme,
@@ -41,6 +49,8 @@ import { palette } from '../../../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import MainHeader from '../../../components/headers/MainHeader';
 import SendSvg from '../../../components/icons/SendSvg';
+import { SolutionAttachmentsSheet } from './components/SolutionAttachmentsSheet';
+import { useSolutionAttachmentUpload } from './hooks/useSolutionAttachmentUpload';
 
 /** Fixed loading + document generation duration for this screen only. */
 const DOCUMENT_CREATE_LOADING_DURATION = 7000;
@@ -49,15 +59,58 @@ const DOCUMENT_REVEAL_SWAP_DELAY_MS = Math.round(
   DOCUMENT_LOADING_OVERLAY_FADE_OUT_MS * 0.55,
 );
 
+function resolveComplaintRecipient(solution) {
+  const lawyerEmail = solution?.lawyerEmail ?? null;
+  const addressee = solution?.addressee ?? null;
+
+  if (lawyerEmail == null) {
+    return {
+      recipientType: 'addressee',
+      addresseeEmail: addressee?.email ?? '',
+    };
+  }
+
+  if (addressee == null) {
+    return {
+      recipientType: 'lawyer',
+      addresseeEmail: lawyerEmail?.email ?? '',
+    };
+  }
+
+  return {
+    recipientType: 'addressee',
+    addresseeEmail: addressee?.email ?? '',
+  };
+}
+
+function resolveSolutionAttachedDocumentIds(solution) {
+  return (solution?.solutionAttachments ?? [])
+    .map(
+      attachment =>
+        attachment?.attachedDocument?.id ?? attachment?.attachedDocumentId,
+    )
+    .filter(id => id != null);
+}
+
 export function DocumentCreateScreen({ route, navigation }) {
 
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { showToast } = useToast();
+  const dispatch = useAppDispatch();
   const { isDownloading, shareGeneratedPdf } = useFileDownload();
   const personalData = useAppSelector(selectPersonalData);
+  const hasNotificationAddress = useAppSelector(selectHasNotificationAddress);
   const documentFill = useAppSelector(selectDocumentFill);
-  const { templateText = '', templateName = 'document', templateId, templateSolution } = route.params ?? {};
+  const personalDocuments = useAppSelector(selectPersonalDocuments);
+  const personalDocumentsStatus = useAppSelector(selectPersonalDocumentsStatus);
+  const {
+    templateText = '',
+    templateName = 'document',
+    templateId,
+    templateSolution,
+    categoryName,
+  } = route.params ?? {};
   const [hasTypingFinished, setHasTypingFinished] = useState(false);
   const [isTypingWebViewReady, setIsTypingWebViewReady] = useState(false);
   const [isAddingSignature, setIsAddingSignature] = useState(false);
@@ -65,8 +118,278 @@ export function DocumentCreateScreen({ route, navigation }) {
   const [signatureImageSrc, setSignatureImageSrc] = useState(null);
   const [showLoadingOverlay, setShowLoadingOverlay] = useState(true);
   const [loadingQuote, setLoadingQuote] = useState(getNextDocumentLoadingQuote);
+  const [isAttachmentsSheetVisible, setIsAttachmentsSheetVisible] =
+    useState(false);
+  const [uploadedAttachmentIds, setUploadedAttachmentIds] = useState(
+    () => new Set(),
+  );
+  /** Local display overrides from My Files (never written to personalDocuments). */
+  const [attachmentFileOverrides, setAttachmentFileOverrides] = useState(
+    () => ({}),
+  );
+  /** Slots the user cleared; ignore store matches until a new file is chosen. */
+  const [clearedAttachmentIds, setClearedAttachmentIds] = useState(
+    () => new Set(),
+  );
+
+  const markAttachmentFilled = useCallback(attachedDocumentId => {
+    if (attachedDocumentId == null) {
+      return;
+    }
+
+    const key = String(attachedDocumentId);
+    setUploadedAttachmentIds(prev => {
+      const next = new Set(prev);
+      next.add(key);
+      return next;
+    });
+    setClearedAttachmentIds(prev => {
+      if (!prev.has(key)) {
+        return prev;
+      }
+      const next = new Set(prev);
+      next.delete(key);
+      return next;
+    });
+  }, []);
+
+  const handleAttachmentUploaded = useCallback(
+    attachedDocumentId => {
+      if (attachedDocumentId == null) {
+        return;
+      }
+
+      const key = String(attachedDocumentId);
+      // Gallery/Files upload syncs via personalDocuments refresh — drop local override.
+      setAttachmentFileOverrides(prev => {
+        if (!(key in prev)) {
+          return prev;
+        }
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+      markAttachmentFilled(attachedDocumentId);
+    },
+    [markAttachmentFilled],
+  );
+
+  /**
+   * Link an existing My Files document to a solution slot for display only.
+   * Does not upload, duplicate, or mutate personalDocuments.
+   */
+  const handlePickFromMyFiles = useCallback(
+    (row, personalDocument) => {
+      const attachedDocumentId = row?.attachedDocumentId;
+      const fileUrl =
+        personalDocument?.documentUrl || personalDocument?.downloadUrl;
+      const sourceId = personalDocument?.fileId ?? personalDocument?.id;
+
+      if (attachedDocumentId == null || !fileUrl) {
+        showToast({
+          title: 'Ֆայլի հղում չի գտնվել',
+          type: 'error',
+        });
+        return;
+      }
+
+      const current = row?.personalDocument;
+      const currentId = current?.fileId ?? current?.id;
+      const currentUrl = current?.documentUrl || current?.downloadUrl;
+      const isDuplicate =
+        (sourceId != null &&
+          currentId != null &&
+          String(sourceId) === String(currentId)) ||
+        (fileUrl && currentUrl && String(fileUrl) === String(currentUrl));
+
+      if (isDuplicate) {
+        return;
+      }
+
+      const key = String(attachedDocumentId);
+
+      setAttachmentFileOverrides(prev => ({
+        ...prev,
+        [key]: {
+          id: personalDocument.id,
+          fileId: sourceId,
+          documentUrl: personalDocument.documentUrl ?? null,
+          downloadUrl: personalDocument.downloadUrl ?? null,
+          isUploaded: true,
+          selectionSource: 'myFiles',
+          // Keep the solution attachment title on the row; do not adopt this name.
+          documentName: row.name,
+        },
+      }));
+
+      markAttachmentFilled(attachedDocumentId);
+    },
+    [markAttachmentFilled, showToast],
+  );
+
+  const deleteReplacedPersonalDocument = useCallback(
+    async personalDocumentId => {
+      if (personalDocumentId == null) {
+        return;
+      }
+
+      try {
+        await personalDocumentsApi.deletePersonalDocument(personalDocumentId);
+        dispatch(removePersonalDocument(personalDocumentId));
+      } catch (error) {
+        console.error(
+          '[DocumentCreate] failed to delete replaced personal document',
+          error,
+        );
+      }
+    },
+    [dispatch],
+  );
+
+  const handleRemoveAttachment = useCallback(
+    async row => {
+      const attachedDocumentId = row?.attachedDocumentId;
+      if (attachedDocumentId == null) {
+        return;
+      }
+
+      // Remove only for non-default attachments.
+      if (row?.isDefault) {
+        return;
+      }
+
+      const key = String(attachedDocumentId);
+      const doc = row?.personalDocument;
+      const shouldDeleteFromStore =
+        row?.selectionSource !== 'myFiles' && doc?.id != null;
+
+      if (shouldDeleteFromStore) {
+        await deleteReplacedPersonalDocument(doc.id);
+        // Keep store list in sync after delete.
+        dispatch(fetchPersonalDocuments({ page: 1, limit: 100 }));
+      }
+
+      setAttachmentFileOverrides(prev => {
+        if (!(key in prev)) {
+          return prev;
+        }
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+
+      setUploadedAttachmentIds(prev => {
+        if (!prev.has(key)) {
+          return prev;
+        }
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+
+      setClearedAttachmentIds(prev => {
+        const next = new Set(prev);
+        next.add(key);
+        return next;
+      });
+    },
+    [deleteReplacedPersonalDocument, dispatch],
+  );
+
+  const resolveReplacePersonalDocumentId = useCallback(row => {
+    if (row?.isDefault || row?.selectionSource === 'myFiles') {
+      return null;
+    }
+
+    if (!row?.isUploaded) {
+      return null;
+    }
+
+    return row?.personalDocument?.id ?? null;
+  }, []);
+
+  const { pickFromGallery, pickFromFiles, isUploading } =
+    useSolutionAttachmentUpload({
+      onUploaded: handleAttachmentUploaded,
+    });
+
+  const handlePickFromGallery = useCallback(
+    row => {
+      pickFromGallery({
+        ...row,
+        replacePersonalDocumentId: resolveReplacePersonalDocumentId(row),
+      });
+    },
+    [pickFromGallery, resolveReplacePersonalDocumentId],
+  );
+
+  const handlePickFromFiles = useCallback(
+    row => {
+      pickFromFiles({
+        ...row,
+        replacePersonalDocumentId: resolveReplacePersonalDocumentId(row),
+      });
+    },
+    [pickFromFiles, resolveReplacePersonalDocumentId],
+  );
 
   const userId = personalData?.id ?? personalData?.userId;
+
+  const solutionAttachments = useMemo(
+    () => templateSolution?.solutionAttachments ?? [],
+    [templateSolution?.solutionAttachments],
+  );
+
+  const attachmentRows = useMemo(() => {
+    return solutionAttachments.map((attachment, index) => {
+      const attachedDocumentId =
+        attachment?.attachedDocumentId ?? attachment?.attachedDocument?.id;
+      const key = String(attachedDocumentId);
+      const name =
+        attachment?.attachedDocument?.name ??
+        attachment?.name ??
+        `Կցորդ ${index + 1}`;
+
+      const wasCleared = clearedAttachmentIds.has(key);
+      const override = attachmentFileOverrides[key] ?? null;
+
+      const storeDocumentForSlot =
+        personalDocuments.find(
+          item =>
+            String(item.attachedDocumentId) === String(attachedDocumentId),
+        ) ??
+        personalDocuments.find(item => item.documentName === name) ??
+        null;
+
+      // Slot defaultness comes from the personal-document slot, not My Files picks.
+      const isDefault = Boolean(storeDocumentForSlot?.isDefault);
+      const storeDocument = wasCleared ? null : storeDocumentForSlot;
+      const personalDocument = override ?? storeDocument;
+
+      const isUploaded =
+        !wasCleared &&
+        (Boolean(personalDocument?.isUploaded) ||
+          Boolean(personalDocument?.documentUrl) ||
+          uploadedAttachmentIds.has(key));
+
+      return {
+        key: String(attachment?.id ?? attachedDocumentId ?? index),
+        attachedDocumentId,
+        name,
+        isUploaded,
+        isDefault,
+        canRemove: isUploaded && !isDefault,
+        personalDocument,
+        selectionSource: override?.selectionSource ?? null,
+      };
+    });
+  }, [
+    attachmentFileOverrides,
+    clearedAttachmentIds,
+    personalDocuments,
+    solutionAttachments,
+    uploadedAttachmentIds,
+  ]);
 
   const serialNumber = useMemo(
     () => generateComplaintSerialNumber(userId),
@@ -77,10 +400,16 @@ export function DocumentCreateScreen({ route, navigation }) {
     () =>
       buildFilledTemplateBodyHtml(
         templateText,
-        { personalData, documentFill },
+        { personalData, documentFill, hasNotificationAddress },
         { signatureImageSrc: signatureImageSrc ?? undefined },
       ),
-    [templateText, personalData, documentFill, signatureImageSrc],
+    [
+      templateText,
+      personalData,
+      documentFill,
+      hasNotificationAddress,
+      signatureImageSrc,
+    ],
   );
 
   const bodyHtmlWithSerial = useMemo(
@@ -98,14 +427,22 @@ export function DocumentCreateScreen({ route, navigation }) {
       buildFilledTemplateBodyHtml(templateText, {
         personalData,
         documentFill,
+        hasNotificationAddress,
       }),
-    [templateText, personalData, documentFill],
+    [templateText, personalData, documentFill, hasNotificationAddress],
   );
 
   const typingSourceKey = useMemo(
-    () => `${templateText}:${JSON.stringify(documentFill)}:${JSON.stringify(personalData)}`,
-    [templateText, documentFill, personalData],
+    () =>
+      `${templateText}:${JSON.stringify(documentFill)}:${JSON.stringify(personalData)}:${hasNotificationAddress}`,
+    [templateText, documentFill, personalData, hasNotificationAddress],
   );
+
+  useEffect(() => {
+    if (personalDocumentsStatus === 'idle') {
+      dispatch(fetchPersonalDocuments({ page: 1, limit: 100 }));
+    }
+  }, [dispatch, personalDocumentsStatus]);
 
   useEffect(() => {
     setHasTypingFinished(false);
@@ -178,21 +515,19 @@ export function DocumentCreateScreen({ route, navigation }) {
         return;
       }
 
-      const attachedDocuments = (templateSolution?.solutionAttachments ?? [])
-        .map(attachment => attachment?.attachedDocumentId ?? attachment?.attachedDocument?.id)
-        .filter(id => id != null);
+      const { recipientType, addresseeEmail } =
+        resolveComplaintRecipient(templateSolution);
+      const attachedDocuments =
+        resolveSolutionAttachedDocumentIds(templateSolution);
 
       try {
         const response = await complaintsApi.sendComplaint(complaintId, {
-          recipientType: 'email',
-          recipientEmail: templateSolution?.addressee?.email ?? '',
-          addresseeEmail: personalData?.email ?? '',
+          recipientType,
+          recipientEmail: personalData?.email ?? '',
+          addresseeEmail,
           attachedDocuments,
         });
-        console.log(
-          `[testSendComplaint] POST /complaints/${complaintId}/send`,
-          response.data,
-        );
+
       } catch (error) {
         console.log(
           `[testSendComplaint] POST /complaints/${complaintId}/send error`,
@@ -203,7 +538,7 @@ export function DocumentCreateScreen({ route, navigation }) {
     [personalData?.email, templateSolution],
   );
 
-  const handleSubmitComplaint = useCallback(async () => {
+  const submitComplaint = useCallback(async () => {
     if (!templateId) {
       showToast({
         title: 'Սխալ',
@@ -252,16 +587,22 @@ export function DocumentCreateScreen({ route, navigation }) {
         console.log(refreshError, 'personal documents refresh error');
       }
 
+      setIsAttachmentsSheetVisible(false);
+
       navigation.reset({
         index: 0,
         routes: [{ name: 'HomeMain' }],
       });
       navigation.navigate('Documents', {
         screen: 'DocumentsMain',
-        params: { refreshedAt: Date.now() },
+        params: {
+          refreshedAt: Date.now(),
+          favoriteTemplateId: templateId,
+          categoryName,
+        },
       });
     } catch (error) {
-      console.log(error, 'error');
+
       const message =
         error?.message ??
         (error instanceof Error
@@ -279,6 +620,7 @@ export function DocumentCreateScreen({ route, navigation }) {
   }, [
     templateId,
     templateName,
+    categoryName,
     bodyHtmlWithSerial,
     documentHtml,
     userId,
@@ -286,7 +628,23 @@ export function DocumentCreateScreen({ route, navigation }) {
     showToast,
     testSendComplaint,
   ]);
-  console.log(signatureImageSrc, 'signatureImageSrc');
+
+  const [hasConfirmedAttachments, setHasConfirmedAttachments] = useState(false);
+
+  const handleConfirmAttachments = useCallback(() => {
+    setHasConfirmedAttachments(true);
+    setIsAttachmentsSheetVisible(false);
+  }, []);
+
+  const handleSubmitComplaint = useCallback(() => {
+    if (solutionAttachments.length > 0 && !hasConfirmedAttachments) {
+      setIsAttachmentsSheetVisible(true);
+      return;
+    }
+
+    return submitComplaint();
+  }, [hasConfirmedAttachments, solutionAttachments.length, submitComplaint]);
+
   const isActionDisabled =
     !hasTypingFinished ||
     isDownloading ||
@@ -322,13 +680,7 @@ export function DocumentCreateScreen({ route, navigation }) {
             delay={80}
             style={styles.actionRow}
           >
-            <Pressable
-              onPress={handleAddSignature}
-              disabled={isActionDisabled}
-              style={styles.topButton}
-            >
-              <SignatureSvg width={25} height={25} fill={colors.icons} />
-            </Pressable>
+
             <Pressable
               onPress={handleDownloadPdf}
               disabled={isActionDisabled}
@@ -341,12 +693,24 @@ export function DocumentCreateScreen({ route, navigation }) {
         <View style={[styles.actionBar, { bottom: TAB_BAR_BOTTOM_OFFSET, flexDirection: 'column' }]}>
 
           <AuthButton
-            title={templateSolution?.name ?? 'Ուղարկել'}
-            onPress={handleSubmitComplaint}
-            isLoading={isSubmittingComplaint}
-            disabled={isActionDisabled || !signatureImageSrc}
+            title={
+              signatureImageSrc
+                ? (`Ուղարկել ${templateSolution?.addressee?.name}` ?? 'Ուղարկել')
+                : 'Ստորագրություն'
+            }
+            onPress={
+              signatureImageSrc ? handleSubmitComplaint : handleAddSignature
+            }
+            isLoading={
+              signatureImageSrc ? isSubmittingComplaint : isAddingSignature
+            }
+            disabled={isActionDisabled}
             endIcon={
-              <SendSvg width={20} height={20} fill={palette.white} />
+              signatureImageSrc ? (
+                <SendSvg width={20} height={20} fill={palette.white} />
+              ) : (
+                <SignatureSvg width={25} height={25} fill={palette.white} />
+              )
             }
             style={styles.rowButton}
           />
@@ -359,6 +723,18 @@ export function DocumentCreateScreen({ route, navigation }) {
         visible={showLoadingOverlay}
         quote={loadingQuote}
       />
+
+      <SolutionAttachmentsSheet
+        visible={isAttachmentsSheetVisible}
+        attachments={attachmentRows}
+        onClose={() => setIsAttachmentsSheetVisible(false)}
+        onPickFromGallery={handlePickFromGallery}
+        onPickFromFiles={handlePickFromFiles}
+        onPickFromMyFiles={handlePickFromMyFiles}
+        onRemoveAttachment={handleRemoveAttachment}
+        onConfirm={handleConfirmAttachments}
+        isUploading={isUploading}
+      />
     </View>
   );
 }
@@ -368,12 +744,13 @@ function createStyles(colors) {
   return StyleSheet.create({
     root: {
       flex: 1,
+      paddingHorizontal: 10,
     },
     screen: {
       flex: 1,
       // paddingTop: 1,
       paddingBottom: TAB_BAR_BOTTOM_OFFSET + 60,
-      paddingHorizontal: 10,
+  
     },
     previewShadow: {
       flex: 1,

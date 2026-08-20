@@ -24,6 +24,8 @@ export function useAuthSession() {
         setUserFlags({
           hasSignature: Boolean(data?.hasSignature),
           isPhoneVerified: Boolean(data?.isPhoneVerified),
+          isEmailVerified: Boolean(data?.isEmailVerified),
+          hasNotificationAddress: Boolean(data?.hasNotificationAddress),
         }),
       );
     } catch {
@@ -34,25 +36,25 @@ export function useAuthSession() {
     completeAuthToMain();
   }, [dispatch, setIsSign, setIsFaceID]);
 
-  const logout = useCallback(async () => {
-    try {
-      await authApi.logout();
-    } catch (error) {
-      showToast({
-        title: 'Ելք ձախողվեց',
-        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
-        type: 'error',
-      });
-    } finally {
-      await clearUserCredentials();
-      await clearAuthTokens();
-   
-      // dispatch(resetCategories());
-      await setIsSign(false);
-      await setIsFaceID(false);
-      resetToMain();
-      dispatch(resetPersonalData());
+  const logout = useCallback(async ({ skipApi = false } = {}) => {
+    if (!skipApi) {
+      try {
+        await authApi.logout();
+      } catch (error) {
+        showToast({
+          title: 'Ելք ձախողվեց',
+          body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+          type: 'error',
+        });
+      }
     }
+
+    await clearUserCredentials();
+    await clearAuthTokens();
+    await setIsSign(false);
+    await setIsFaceID(false);
+    resetToMain();
+    dispatch(resetPersonalData());
   }, [dispatch, setIsSign, setIsFaceID, showToast]);
 
   const completeReauth = useCallback(async () => {

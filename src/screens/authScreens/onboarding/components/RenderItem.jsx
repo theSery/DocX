@@ -5,8 +5,7 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated';
 import { Typography } from '../../../../components/typography';
-import foldersImage from '../../../../assets/images/folders.webp';
-import darkLogo from '../../../../assets/images/darkLogo.webp'
+import darkLogo from '../../../../assets/images/darkLogo.webp';
 import { AnimatedView } from '../../../../components';
 
 export function RenderItem({ index, x, item }) {
@@ -29,17 +28,29 @@ export function RenderItem({ index, x, item }) {
     };
   });
 
-
-
   return (
-    <AnimatedView     animation="fadeIn"
-    duration={300} style={[styles.itemContainer, {width: SCREEN_WIDTH}]}>
+    <AnimatedView
+      animation="fadeIn"
+      duration={300}
+      style={[styles.itemContainer, { width: SCREEN_WIDTH }]}
+    >
       <Image source={darkLogo} style={styles.logo} />
 
       <Animated.View style={imageAnimationStyle}>
-        <Image source={foldersImage} style={styles.image} />
+        <Image source={item.image} style={styles.image} />
       </Animated.View>
-      <Typography variant="h4" style={[styles.itemText, { color: '#002340', fontFamily: 'Poppins-Regular', letterSpacing: 2.4}]}>
+      <Typography
+        variant="h4"
+        style={[
+          styles.itemText,
+          {
+            color: '#002340',
+            fontFamily: 'Poppins-Regular',
+            letterSpacing: 2.4,
+            fontSize: 20,
+          },
+        ]}
+      >
         {item.text}
       </Typography>
     </AnimatedView>
@@ -50,20 +61,21 @@ const styles = StyleSheet.create({
   itemContainer: {
     flex: 1,
     width: '100%',
-    height: '70%',
+    height: '80%',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
     // paddingBottom: 24,
   },
   image: {
-    width: 280,
-    height: 250,
+    width: 200,
+    height: 400,
   },
   itemText: {
     textAlign: 'center',
     marginBottom: 10,
-    marginHorizontal: 20,
+    marginHorizontal: 50,
+    // backgroundColor: 'red',
   },
   logo: {
     height: 58,

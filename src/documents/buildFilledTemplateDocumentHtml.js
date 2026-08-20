@@ -6,6 +6,7 @@ import { fillTemplateText, injectSignatureAtPlaceholder } from './fillTemplateTe
  * @param {{
  *   personalData?: Record<string, unknown> | null;
  *   documentFill?: Record<string, unknown>;
+ *   hasNotificationAddress?: boolean;
  * }} sources
  * @param {{ signatureImageSrc?: string }} [options]
  */
@@ -24,6 +25,7 @@ export function buildFilledTemplateBodyHtml(templateText, sources, options = {})
  * @param {{
  *   personalData?: Record<string, unknown> | null;
  *   documentFill?: Record<string, unknown>;
+ *   hasNotificationAddress?: boolean;
  * }} sources
  * @param {{ signatureImageSrc?: string }} [options]
  */

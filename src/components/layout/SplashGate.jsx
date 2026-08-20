@@ -26,18 +26,22 @@ async function resolveStartupRoute(wasSignedIn) {
   }
 
   try {
+    // TEMP: simulate unauthorized to force Face ID route
+    // throw Object.assign(new Error('Unauthorized'), { status: 401 });
+
     const { data } = await userApi.getMe();
+    console.log('data', data);
     store.dispatch(
       setUserFlags({
         hasSignature: Boolean(data?.hasSignature),
         isPhoneVerified: Boolean(data?.isPhoneVerified),
+        isEmailVerified: Boolean(data?.isEmailVerified),
+        hasNotificationAddress: Boolean(data?.hasNotificationAddress),
       }),
     );
-    const {data: templates} = await userApi.getTemplates();
-    const { data: variables } = await userApi.getVariables();
-    console.log('data', data);
-    console.log('templates', templates);
-    console.log('variables', variables);
+    // const {data: templates} = await userApi.getTemplates();
+    // const { data: variables } = await userApi.getVariables();
+
     return 'main';
   } catch (error) {
     if (error?.status === 401) {

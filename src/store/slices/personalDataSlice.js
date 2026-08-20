@@ -20,6 +20,9 @@ const initialState = {
   data: null,
   hasSignature: false,
   isPhoneVerified: false,
+  isEmailVerified: false,
+  hasNotificationAddress: false,
+  lastVerifiedPhoneNumber: null,
   status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
   error: null,
 };
@@ -54,16 +57,36 @@ const personalDataSlice = createSlice({
   reducers: {
     resetPersonalData: () => initialState,
     setUserFlags: (state, action) => {
-      const { hasSignature, isPhoneVerified } = action.payload ?? {};
+      const {
+        hasSignature,
+        isPhoneVerified,
+        isEmailVerified,
+        hasNotificationAddress,
+      } = action.payload ?? {};
       if (typeof hasSignature === 'boolean') {
         state.hasSignature = hasSignature;
       }
       if (typeof isPhoneVerified === 'boolean') {
         state.isPhoneVerified = isPhoneVerified;
+        if (!isPhoneVerified) {
+          state.lastVerifiedPhoneNumber = null;
+        }
+      }
+      if (typeof isEmailVerified === 'boolean') {
+        state.isEmailVerified = isEmailVerified;
+      }
+      if (typeof hasNotificationAddress === 'boolean') {
+        state.hasNotificationAddress = hasNotificationAddress;
       }
     },
     setHasSignature: (state, action) => {
       state.hasSignature = Boolean(action.payload);
+    },
+    setPhoneVerified: (state, action) => {
+      state.isPhoneVerified = true;
+      if (typeof action.payload === 'string') {
+        state.lastVerifiedPhoneNumber = action.payload;
+      }
     },
   },
   extraReducers: builder => {
@@ -121,13 +144,23 @@ const personalDataSlice = createSlice({
   },
 });
 
-export const { resetPersonalData, setUserFlags, setHasSignature } =
-  personalDataSlice.actions;
+export const {
+  resetPersonalData,
+  setUserFlags,
+  setHasSignature,
+  setPhoneVerified,
+} = personalDataSlice.actions;
 
 export const selectPersonalData = state => state.personalData.data;
 export const selectPersonalDataStatus = state => state.personalData.status;
 export const selectPersonalDataError = state => state.personalData.error;
 export const selectHasSignature = state => state.personalData.hasSignature;
 export const selectIsPhoneVerified = state => state.personalData.isPhoneVerified;
+export const selectIsEmailVerified = state =>
+  state.personalData.isEmailVerified;
+export const selectHasNotificationAddress = state =>
+  state.personalData.hasNotificationAddress;
+export const selectLastVerifiedPhoneNumber = state =>
+  state.personalData.lastVerifiedPhoneNumber;
 
 export default personalDataSlice.reducer;

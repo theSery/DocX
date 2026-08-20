@@ -29,7 +29,7 @@ export function FillDates({
     : rawSelected != null
       ? [rawSelected]
       : [];
-  const facts = factGroup?.factGroupFacts ?? [];
+  const facts = factGroup?.facts ?? [];
   const radioFactGroups = factGroup?.radioFactGroups ?? [];
 
   const handleShowFactDescription = fact => {
@@ -48,7 +48,7 @@ export function FillDates({
   return (
     <View style={styles.container}>
       <View style={styles.grid}>
-        {facts.map(({ fact }) => {
+        {facts.map(fact => {
           const isSelected = selectedFactIds.includes(fact.id);
           const showInfoBadge = hasFactInfo(fact);
 
@@ -118,7 +118,7 @@ export function FillDates({
 const createStyles = colors =>
   StyleSheet.create({
     container: {
-      paddingTop: 8,
+      paddingTop: 16,
       gap: 16,
     },
     grid: {
@@ -152,7 +152,7 @@ const createStyles = colors =>
       width: 32,
       height: 32,
       borderRadius: 50,
-      backgroundColor: colors.icons,
+      backgroundColor: colors.border,
       alignItems: 'center',
       justifyContent: 'center',
     },
