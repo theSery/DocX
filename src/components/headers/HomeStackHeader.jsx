@@ -100,6 +100,7 @@ const StaticHomeStackHeader = ({
     style={[
       styles.container,
       {
+    
         height: showSearch
           ? HOME_STACK_HEADER_EXPANDED_HEIGHT
           : HOME_STACK_HEADER_EXPANDED_HEIGHT +
@@ -187,12 +188,12 @@ const CollapsibleHomeStackHeader = ({
   });
 
   return (
-    <Animated.View style={[styles.container, animatedContainerStyle]}>
+    <Animated.View style={[styles.container, animatedContainerStyle, ]}>
       <Animated.View
         pointerEvents="box-none"
-        style={[styles.titleLayer, animatedTitleStyle]}
+        style={[styles.titleLayer, animatedTitleStyle, ]}
       >
-        <View style={styles.headerRow}>
+        <View style={[styles.headerRow, { marginBottom: 5}]}>
           <MainHeader
             onPress={onPress}
             isHome={true}
@@ -208,7 +209,7 @@ const CollapsibleHomeStackHeader = ({
             {title ? (
               <Typography
                 variant="h2"
-                style={[styles.loginTitle, { fontSize: 16, letterSpacing: 0, lineHeight: 20 }]}
+                style={[styles.loginTitle, { fontSize: 16, letterSpacing: 0, lineHeight: 20, marginBottom: 5 }]}
                 numberOfLines={2}
               >
                 {title}

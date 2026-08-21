@@ -1,27 +1,16 @@
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, {
-  Extrapolation,
-  FadeIn,
-  interpolate,
-  useAnimatedRef,
-  useAnimatedStyle,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedRef } from 'react-native-reanimated';
 
 import { SPACING } from './components/CategoriesList';
 import { Accordion } from '../../../components/accordion';
-import { CachedImage, useCachedImageSource } from '../../../components/image';
-import {
-  getHomeStackHeaderCollapseProgress,
-  getHomeStackHeaderHeight,
-} from '../../../components/headers/homeStackHeaderAnimation';
+import { CachedImage } from '../../../components/image';
 import {
   HOME_STACK_HEADER_COLLAPSED_HEIGHT,
   HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
-  HOME_STACK_HEADER_EXPANDED_HEIGHT,
 } from '../../../components/headers/stackHeaderConstants';
 import { TAB_BAR_HEIGHT, TOP_HEADER_HEIGHT, WIDTH } from '../../../utils/dimensions';
-import { FONT_FAMILY, palette } from '../../../theme';
+import { palette } from '../../../theme';
 import { Typography } from '../../../components/typography/Typography';
 import AuthButton from '../../../components/buttons/AuthButton';
 import { useHomeStackHeaderScrollHandler, useThemedStyles } from '../../../hooks';
@@ -59,53 +48,10 @@ export function SubCategoryScreen({ route, navigation }) {
   const { onScroll, onScrollViewLayout, onContentSizeChange } =
     useHomeStackHeaderScrollHandler(canCollapse);
 
-  const { scrollY, collapseScrollEnd, collapseEnabled } =
-    useHomeStackHeaderScroll();
+  const { scrollY } = useHomeStackHeaderScroll();
   const scrollRef = useAnimatedRef();
   const insets = useSafeAreaInsets();
   const scrollBottomPadding = insets.bottom + TAB_BAR_HEIGHT + 24;
-  const headerIconSource = useCachedImageSource(iconUrl);
-
-  const categoryIconStyle = useAnimatedStyle(() => {
-    const progress = getHomeStackHeaderCollapseProgress(
-      scrollY.value,
-      collapseScrollEnd.value,
-      collapseEnabled.value,
-    );
-    const headerHeight = getHomeStackHeaderHeight(progress, true);
-    return {
-      // Transform tracks scroll on the UI thread without layout jumps from `top`.
-      transform: [
-        { translateY: headerHeight - HOME_STACK_HEADER_EXPANDED_HEIGHT },
-      ],
-      opacity: interpolate(
-        progress,
-        [0, 0.4, 0.8, 1],
-        [1, 0.7, 0.2, 0],
-        Extrapolation.CLAMP,
-      ),
-    };
-  });
-
-  const categoryTextStyle = useAnimatedStyle(() => {
-    const progress = getHomeStackHeaderCollapseProgress(
-      scrollY.value,
-      collapseScrollEnd.value,
-      collapseEnabled.value,
-    );
-    const headerHeight = getHomeStackHeaderHeight(progress, true);
-    return {
-      transform: [
-        { translateY: headerHeight - HOME_STACK_HEADER_EXPANDED_HEIGHT },
-      ],
-      opacity: interpolate(
-        progress,
-        [0, 0.4, 0.8, 1],
-        [1, 0.7, 0.2, 0],
-        Extrapolation.CLAMP,
-      ),
-    };
-  });
 
   const navigateToFillInDetails = (template, category) => {
     navigation.navigate('FillInDetails', {
@@ -137,17 +83,6 @@ export function SubCategoryScreen({ route, navigation }) {
   };
   return (
     <View style={styles.screen}>
-      <Animated.View entering={FadeIn.duration(400)}>
-        <Animated.Image
-          source={headerIconSource}
-          style={[styles.categoryItemImageIcon, categoryIconStyle]}
-        />
-      </Animated.View>
-      <Animated.View entering={FadeIn.duration(400)}>
-        <Animated.Text style={[styles.categoryItemText, categoryTextStyle]}>
-          {item.name}
-        </Animated.Text>
-      </Animated.View>
       <View style={styles.bg}>
         <Animated.ScrollView
           ref={scrollRef}
@@ -222,31 +157,6 @@ const createStyles = colors =>
     scrollView: {
       flex: 1,
     },
-    categoryItemText: {
-      fontSize: 16,
-      fontFamily: FONT_FAMILY.medium,
-      color: colors.text,
-      width: '60%',
-      left: 80,
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginTop: 20,
-      top: HOME_STACK_HEADER_EXPANDED_HEIGHT - 120,
-      zIndex: 1000,
-      position: 'absolute',
-      right: 0,
-    },
-    categoryItemImageIcon: {
-      width: 46,
-      height: 46,
-      borderRadius: 10,
-      overflow: 'hidden',
-      resizeMode: 'cover',
-      position: 'absolute',
-      left: 20,
-      top: HOME_STACK_HEADER_EXPANDED_HEIGHT - 105,
-      zIndex: 1000,
-    },
     bg: {
       position: 'absolute',
       left: 0,
@@ -264,21 +174,6 @@ const createStyles = colors =>
       backgroundColor: palette.skyBlue,
       padding: 10,
       borderRadius: 16,
-    },
-    bgCategoryItem: {
-      height: 40,
-      resizeMode: 'contain',
-      borderRadius: 10,
-      backgroundColor: colors.background,
-      position: 'absolute',
-      width: '100%',
-      top: -110,
-      zIndex: 500,
-    },
-    headerBackground: {
-      ...StyleSheet.absoluteFill,
-      backgroundColor: colors.background,
-      height: TOP_HEADER_HEIGHT + 32,
     },
     subCategoryName: {
       letterSpacing: 0.4,

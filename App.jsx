@@ -51,10 +51,10 @@ function App() {
             <AuthProvider>
               <SplashGate>
                 <GlobalSheetProvider>
-                  <DocumentLoadingOverlayProvider>
+                  {/* <DocumentLoadingOverlayProvider> */}
                     <AppNavigation />
                     <AppToast />
-                  </DocumentLoadingOverlayProvider>
+                  {/* </DocumentLoadingOverlayProvider> */}
                 </GlobalSheetProvider>
               </SplashGate>
             </AuthProvider>

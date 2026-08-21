@@ -19,7 +19,7 @@ import {
   AUTH_BUTTON_HEIGHT,
   TAB_BAR_BOTTOM_OFFSET,
 } from '../../../utils/dimensions';
-import { palette } from '../../../theme';
+import { FONT_FAMILY, palette } from '../../../theme';
 import {
   fetchPersonalData,
   selectHasNotificationAddress,
@@ -403,7 +403,7 @@ export function FillInDetailsScreen({ navigation, route }) {
           <Typography
             variant="h2"
             style={styles.headerTitle}
-            numberOfLines={1}
+            // numberOfLines={1}
           >
             {headerContent.title}
           </Typography>
@@ -478,23 +478,26 @@ const createStyles = colors =>
     },
     list: {
       flex: 1,
+      marginTop: 5,
     },
     contentContainer: {
       padding: 10,
       paddingBottom: TAB_BAR_BOTTOM_OFFSET + AUTH_BUTTON_HEIGHT + 30,
     },
     headerTitle: {
-      fontSize: 16,
+      fontSize: 14,
+      fontFamily: FONT_FAMILY.bold,
+      lineHeight: 24,
+      marginBottom: 5,
     },
     headerSubtitle: {
       fontSize: 14,
- 
-    
     },
     footerButton: {
       position: 'absolute',
       left: 10,
       right: 10,
+ 
     },
     stepContent: {
       gap: 16,

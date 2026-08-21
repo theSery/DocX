@@ -22,7 +22,7 @@ import LogoIcon from './icons/LogoIcon';
 import { Typography } from './typography';
 import { citat } from '../data/citat';
 import { useTheme } from '../hooks';
-import { colors, FONT_FAMILY } from '../theme';
+import { colors, FONT_FAMILY, palette } from '../theme';
 import { TAB_BAR_BOTTOM_OFFSET } from '../utils/dimensions';
 
 /** Keep in sync with DocumentCreateScreen reveal timing. */
@@ -194,8 +194,8 @@ function DocumentLoadingOverlayView({
   visible,
   quote,
 }) {
-  const { isDarkMode } = useTheme();
-  const blurType = isDarkMode ? 'dark' : 'light';
+  // const { isDarkMode } = useTheme();
+  const blurType =  'light';
   const [mounted, setMounted] = useState(visible);
   const opacity = useSharedValue(visible ? 1 : 0);
   const contentTranslateY = useSharedValue(0);
@@ -270,19 +270,19 @@ function DocumentLoadingOverlayView({
       <View style={styles.overlayTint} />
       <Animated.View style={[styles.overlayContent, contentStyle]}>
         <AnimatedView animation="fadeInDown" duration={600} style={styles.logoContainer}>
-          <LogoIcon width={72} height={72} fill={colors.mainBlue}/>
+          <LogoIcon width={72} height={72} fill={palette.white}/>
         </AnimatedView>
 
         {quoteText ? (
-          <AnimatedView animation="fadeIn" delay={350} duration={600}>
-            <Typography variant="h4" tone="onDark" style={[styles.quote, { color: colors.mainBlue }]}>
+          <AnimatedView animation="fadeIn" delay={350} duration={600} style={styles.quoteContainer}>
+            <Typography variant="h4" style={[styles.quote, { color: palette.white }]}>
               {quoteText}
             </Typography>
             {quoteAutor ? (
               <Typography
                 variant="h5"
                 tone="onDark"
-                style={[styles.quoteAutor, { color: colors.mainBlue }]}
+                style={[styles.quoteAutor, { color: palette.white }]}
               >
                 {quoteAutor}
               </Typography>
@@ -341,13 +341,20 @@ const styles = StyleSheet.create({
   },
   quote: {
     textAlign: 'center',
-    fontStyle: 'italic',
-    fontSize: 18,
-    fontFamily: FONT_FAMILY.black,
+
+    fontSize: 20,
+    fontFamily: FONT_FAMILY.bold,
   },
   quoteAutor: {
-    marginTop: 12,
+    marginTop: 16,
     textAlign: 'center',
-    fontFamily: FONT_FAMILY.semiBold,
+    fontFamily: FONT_FAMILY.bold,
+  },
+  quoteContainer: {
+    marginBottom: 24,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+
   },
 });

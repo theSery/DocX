@@ -54,10 +54,9 @@ import { useSolutionAttachmentUpload } from './hooks/useSolutionAttachmentUpload
 
 /** Fixed loading + document generation duration for this screen only. */
 const DOCUMENT_CREATE_LOADING_DURATION = 7000;
-/** Swap to the final document after the overlay has mostly faded away. */
-const DOCUMENT_REVEAL_SWAP_DELAY_MS = Math.round(
-  DOCUMENT_LOADING_OVERLAY_FADE_OUT_MS * 0.55,
-);
+/** Reveal the preview after BlurView has fully unmounted so it does not stay blank. */
+const DOCUMENT_REVEAL_SWAP_DELAY_MS =
+  DOCUMENT_LOADING_OVERLAY_FADE_OUT_MS + 50;
 
 function resolveComplaintRecipient(solution) {
   const lawyerEmail = solution?.lawyerEmail ?? null;
@@ -453,7 +452,7 @@ export function DocumentCreateScreen({ route, navigation }) {
 
   // Start the fixed 7s clock only after the typing WebView has loaded,
   // so generation + overlay always run the full duration together.
-  // Fade the overlay first, then swap to the final document mid-fade.
+  // Swap to the final document after the overlay BlurView has unmounted.
   useEffect(() => {
     if (!isTypingWebViewReady || hasTypingFinished) {
       return undefined;
@@ -655,10 +654,17 @@ export function DocumentCreateScreen({ route, navigation }) {
     <View style={styles.root}>
       <MainHeader onPress={() => navigation.goBack()} />
       <View style={styles.screen}>
-        <View style={styles.previewShadow}>
-          <View style={styles.previewContainer}>
+        <View style={styles.previewShadow} collapsable={false}>
+          <View
+            key={
+              hasTypingFinished
+                ? `final-${documentHtml.length}`
+                : `typing-${typingSourceKey}`
+            }
+            style={styles.previewContainer}
+            collapsable={false}
+          >
             <WebView
-              key={hasTypingFinished ? `final-${documentHtml.length}` : `typing-${typingSourceKey}`}
               originWhitelist={['*']}
               source={previewWebViewSource}
               style={styles.webview}
