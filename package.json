@@ -5,6 +5,7 @@
   "scripts": {
     "check-env": "node scripts/check-env.js",
     "android": "npm run check-env && react-native run-android",
+    "build:aab": "cd android && ./gradlew bundleRelease",
     "ios": "npm run check-env && react-native run-ios",
     "lint": "eslint .",
     "start": "npm run check-env && react-native start",
