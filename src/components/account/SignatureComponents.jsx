@@ -17,7 +17,7 @@ import {
   useImage,
 } from '@shopify/react-native-skia';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { launchGallery } from '../../utils/launchGallery';
 import GradientButton from '../buttons/GradientButton';
 import { signatureApi } from '../../api';
 import { Typography } from '../typography';
@@ -216,7 +216,7 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveS
   }, [showToast]);
 
   const openImageLibrary = useCallback(() => {
-    launchImageLibrary(
+    launchGallery(
       {
         mediaType: 'photo',
         selectionLimit: 1,

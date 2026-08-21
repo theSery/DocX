@@ -6,7 +6,7 @@ import {
   pick,
   types,
 } from '@react-native-documents/picker';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { launchGallery } from '../../../../utils/launchGallery';
 
 import { personalDocumentsApi } from '../../../../api';
 import { showGlobalSheet } from '../../../../components/GlobalSheet';
@@ -109,7 +109,7 @@ export function usePersonalDocumentCard({ document, onDeleted, onUploaded }) {
   );
 
   const openImageLibrary = useCallback(() => {
-    launchImageLibrary(
+    launchGallery(
       {
         mediaType: 'photo',
         selectionLimit: 1,
