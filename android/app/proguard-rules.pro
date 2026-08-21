@@ -11,3 +11,6 @@
 
 # @shopify/react-native-skia
 -keep class com.shopify.reactnative.skia.** { *; }
+
+# Optional JPX decoder referenced by PdfBox (react-native-html-to-pdf)
+-dontwarn com.gemalto.jp2.JP2Decoder

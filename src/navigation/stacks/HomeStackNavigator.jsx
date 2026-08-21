@@ -98,7 +98,7 @@ export function HomeStackNavigator() {
             options={({ route }) =>
               nestedScreenOptionsWithHeader(nestedScreenOptions, {
                 title: route.params?.title ?? '',
-                // subtitle: route.params?.subtitle ?? '',
+                subtitle: route.params?.subtitle ?? '',
                 collapsible: true,
               })
             }

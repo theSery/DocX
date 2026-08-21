@@ -329,7 +329,7 @@ const createStyles = colors =>
       width: 50,
       height: 50,
       resizeMode: 'contain',
-      backgroundColor: colors.cardSelected,
+      backgroundColor: palette.skyBlue,
       padding: 10,
       borderRadius: 16,
     },
@@ -338,6 +338,7 @@ const createStyles = colors =>
     },
     subCategoryIconWrap: {
       marginRight: 12,
+      
     },
     subCategoryTextWrap: {
       flex: 1,

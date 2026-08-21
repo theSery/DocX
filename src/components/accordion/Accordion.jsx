@@ -221,14 +221,14 @@ export function Accordion({
             : undefined;
 
         return (
-          <AnimatedView
+          <View
             key={key}
-            animation={resolvedAnimation}
-            animationConfig={animationConfig}
-            onLayout={onItemLayout}
+            // animation={resolvedAnimation}
+            // animationConfig={animationConfig}
+            // onLayout={onItemLayout}
           >
             {accordionItem}
-          </AnimatedView>
+          </View>
         );
       })}
     </View>

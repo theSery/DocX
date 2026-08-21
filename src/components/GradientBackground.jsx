@@ -1,9 +1,24 @@
 import { useId, useMemo } from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
+import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
+import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import { gradients } from '../theme/tokens';
 import { HEADER_BOTTOM_RADIUS } from './gradientConstants';
 import { useTheme } from '../hooks/useTheme';
+
+const isAndroid = Platform.OS === 'android';
+
+/**
+ * Bottom-only rounded rect. Android cannot keep overflow+borderRadius through
+ * makeImageFromView / clipToOutline during the circular theme reveal, so the
+ * curve has to live in the drawn pixels. iOS clips the View reliably.
+ */
+function roundedBottomRectPath(width, height, radius) {
+  const r = Math.min(Math.max(0, radius), width / 2, height / 2);
+  if (r === 0) {
+    return `M0 0H${width}V${height}H0Z`;
+  }
+  return `M0 0H${width}V${height - r}A${r} ${r} 0 0 1 ${width - r} ${height}H${r}A${r} ${r} 0 0 1 0 ${height - r}Z`;
+}
 
 /**
  * SVG gradient so circular theme snapshots include this view.
@@ -58,6 +73,10 @@ export default function GradientBackground({
     : gradientWidth != null || isAccountScreen
       ? finalGradientHeight
       : height;
+  const androidFillPath = useMemo(
+    () => roundedBottomRectPath(width, finalGradientHeight, cornerRadius),
+    [width, finalGradientHeight, cornerRadius],
+  );
 
   return (
     <View style={styles.container}>
@@ -68,7 +87,6 @@ export default function GradientBackground({
           {
             width,
             height: finalGradientHeight,
-            backgroundColor: startColor,
             ...(roundAllCorners
               ? { borderRadius: cornerRadius }
               : {
@@ -76,6 +94,7 @@ export default function GradientBackground({
                   borderBottomRightRadius: cornerRadius,
                 }),
           },
+          !isAndroid && { backgroundColor: startColor },
         ]}
       >
         <Svg width={width} height={finalGradientHeight} pointerEvents="none">
@@ -92,7 +111,21 @@ export default function GradientBackground({
               <Stop offset="1" stopColor={endColor} />
             </LinearGradient>
           </Defs>
-          <Rect width={width} height={finalGradientHeight} fill={`url(#${gradientId})`} />
+          {isAndroid ? (
+            roundAllCorners ? (
+              <Rect
+                width={width}
+                height={finalGradientHeight}
+                rx={cornerRadius}
+                ry={cornerRadius}
+                fill={`url(#${gradientId})`}
+              />
+            ) : (
+              <Path d={androidFillPath} fill={`url(#${gradientId})`} />
+            )
+          ) : (
+            <Rect width={width} height={finalGradientHeight} fill={`url(#${gradientId})`} />
+          )}
         </Svg>
       </View>
       <View style={[styles.content, !centered && styles.contentFill]}>{children}</View>
@@ -116,6 +149,8 @@ const styles = StyleSheet.create({
   gradient: {
     borderBottomLeftRadius: HEADER_BOTTOM_RADIUS,
     borderBottomRightRadius: HEADER_BOTTOM_RADIUS,
-    overflow: 'hidden',
+    // iOS: clip children to the radii. Android drops overflow+radius in
+    // makeImageFromView snapshots, so rounding is drawn into the SVG instead.
+    overflow: isAndroid ? 'visible' : 'hidden',
   },
 });

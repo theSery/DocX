@@ -5,7 +5,7 @@ import {
   pick,
   types,
 } from '@react-native-documents/picker';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { launchGallery } from '../../../../utils/launchGallery';
 import RNFS from 'react-native-fs';
 
 import { filesApi, personalDocumentsApi } from '../../../../api';
@@ -249,7 +249,7 @@ export function useSolutionAttachmentUpload({ onUploaded } = {}) {
     row => {
       const attachment = toUploadTarget(row);
 
-      launchImageLibrary(
+      launchGallery(
         {
           mediaType: 'photo',
           selectionLimit: 1,

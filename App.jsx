@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as ReduxProvider } from 'react-redux';
@@ -51,10 +51,17 @@ function App() {
             <AuthProvider>
               <SplashGate>
                 <GlobalSheetProvider>
-                  <DocumentLoadingOverlayProvider>
-                    <AppNavigation />
-                    <AppToast />
-                  </DocumentLoadingOverlayProvider>
+                  {Platform.OS === 'ios' ? (
+                    <DocumentLoadingOverlayProvider>
+                      <AppNavigation />
+                      <AppToast />
+                    </DocumentLoadingOverlayProvider>
+                  ) : (
+                    <>
+                      <AppNavigation />
+                      <AppToast />
+                    </>
+                  )}
                 </GlobalSheetProvider>
               </SplashGate>
             </AuthProvider>
