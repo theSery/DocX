@@ -52,12 +52,6 @@ const SETTLE = {
   treeRepaint: Platform.OS === 'android' ? 2 : 1,
 };
 
-// iOS paints overlay2's Circle in the same commit it mounts. If `transition`
-// is still 1 from a previous reveal, the circle appears at full radius first
-// (instant theme swap), then the animation runs. Zero the radius before mount
-// and give Skia a couple of frames to paint the clipped circle at r=0.
-const IOS_OVERLAY2_SETTLE_FRAMES = 3;
-
 const getSystemScheme = () =>
   Appearance.getColorScheme() === ColorScheme.DARK ? ColorScheme.DARK : ColorScheme.LIGHT;
 
@@ -128,16 +122,18 @@ export function useColorSchemeContext() {
       const previousScheme = colorScheme;
 
       try {
-        dispatch({
-          ...buildState({ colorScheme: previousScheme, active: true }),
-          statusBarStyle: transitionStatusBarStyle,
-        });
-
         const r = Math.max(...corners.map(corner => dist(corner, { x, y })));
         circle.value = { x, y, r };
-        // iOS: zero before overlay2 mounts so the Circle never paints at full r.
+
         if (Platform.OS === 'ios') {
+          // Collapse before any overlay2 paint. Skipping the extra `active`
+          // dispatch keeps the first snapshot on the tap frame.
           transition.value = 0;
+        } else {
+          dispatch({
+            ...buildState({ colorScheme: previousScheme, active: true }),
+            statusBarStyle: transitionStatusBarStyle,
+          });
         }
 
         // 1. Snapshot the current (old) theme
@@ -166,9 +162,9 @@ export function useColorSchemeContext() {
         const overlay2 = await makeImageFromView(ref);
 
         if (Platform.OS === 'ios') {
-          // Must zero before overlay2 mounts: iOS draws the Circle in the same
-          // frame it appears. Leaving transition at 1 shows the full new theme
-          // instantly, then the reveal animation starts afterward.
+          // Clip circle is already mounted at r=0 with overlay1. Attach the
+          // new-theme shader and start the reveal on the same turn — no extra
+          // settle frames (those were the tap-to-animation delay).
           transition.value = 0;
           dispatch({
             ...buildState({ colorScheme: nextScheme, active: true }),
@@ -176,7 +172,6 @@ export function useColorSchemeContext() {
             overlay2,
             statusBarStyle: transitionStatusBarStyle,
           });
-          await waitFrames(IOS_OVERLAY2_SETTLE_FRAMES);
           transition.value = withTiming(1, { duration: TRANSITION_MS });
         } else {
           dispatch({
@@ -255,8 +250,20 @@ export function ColorSchemeProvider({ children }) {
   // Keep Android DayNight dialogs (e.g. DateTimePicker) in sync with the
   // in-app scheme. Activity is not recreated because uiMode is in configChanges.
   useEffect(() => {
+    if (Platform.OS === 'ios') {
+      return;
+    }
     Appearance.setColorScheme(colorScheme);
   }, [colorScheme]);
+
+  // iOS: defer native appearance until the reveal is done so trait updates
+  // don't stall makeImageFromView / the first animation frame.
+  useEffect(() => {
+    if (Platform.OS !== 'ios' || active) {
+      return;
+    }
+    Appearance.setColorScheme(colorScheme);
+  }, [active, colorScheme]);
 
   // Freeze Android status-bar chrome while overlays cover the UI, otherwise
   // StatusBar.backgroundColor jumps with the under-overlay theme swap.
@@ -319,7 +326,21 @@ export function ColorSchemeProvider({ children }) {
       <View style={styles.overlay} pointerEvents="none">
         <Canvas style={StyleSheet.absoluteFill}>
           <Image image={overlay1} x={0} y={0} width={width} height={height} />
-          {overlay2 ? (
+          {Platform.OS === 'ios' && overlay1 ? (
+            // Keep the clip circle mounted at r=0 so overlay2 never mounts at full radius.
+            <Circle c={circle} r={revealRadius} color={overlay2 ? 'white' : 'transparent'}>
+              {overlay2 ? (
+                <ImageShader
+                  image={overlay2}
+                  x={0}
+                  y={0}
+                  width={width}
+                  height={height}
+                  fit="cover"
+                />
+              ) : null}
+            </Circle>
+          ) : overlay2 ? (
             <Circle c={circle} r={revealRadius}>
               <ImageShader image={overlay2} x={0} y={0} width={width} height={height} fit="cover" />
             </Circle>

@@ -2035,7 +2035,7 @@ PODS:
     - React-perflogger (= 0.85.3)
     - React-utils (= 0.85.3)
     - ReactNativeDependencies
-  - ReactNativeBlur (4.7.1):
+  - ReactNativeBlur (6.0.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2834,7 +2834,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 25c9c516839be2c5e3d3344f95dc7da5f7e63fc2
   ReactCodegen: c8f81e6c6f762dcf442a6203a1fb58f7dafc8014
   ReactCommon: 7dfc3250793bf36cf221096ff59e1179e13eef7f
-  ReactNativeBlur: b28d491a4950d5a8b30789a954c323271addf7ce
+  ReactNativeBlur: 9cdbcca3eba11063302238e5e27427e88a624c2e
   ReactNativeDependencies: 74cb6cf66e9e2c70585da937cc8fee28a75db704
   RNCClipboard: 715fa7c6c8366f17d00f05a439ee7488f390fa5f
   RNDateTimePicker: 7b2738f1e595f83c14580a11c476872755c5befc

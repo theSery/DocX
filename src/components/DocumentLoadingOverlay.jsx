@@ -262,7 +262,7 @@ function DocumentLoadingOverlayView({
         style={StyleSheet.absoluteFill}
         blurType={blurType}
         blurAmount={20}
-        reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.72)"
+        reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.52)"
         {...(Platform.OS === 'android' && {
           overlayColor: 'rgba(0, 0, 0, 0.35)',
         })}

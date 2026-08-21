@@ -503,7 +503,7 @@ const createStyles = colors =>
       gap: 16,
     },
     headerTextBlock: {
-      height: 80,
+      height: 92,
 justifyContent: 'flex-start',  
 alignItems: 'flex-start',  
   },
