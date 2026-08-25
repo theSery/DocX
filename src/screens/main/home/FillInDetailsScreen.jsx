@@ -487,8 +487,8 @@ const createStyles = colors =>
     headerTitle: {
       fontSize: 14,
       fontFamily: FONT_FAMILY.bold,
-      lineHeight: 24,
-      marginBottom: 5,
+      // lineHeight: 24,
+      // marginBottom: 5,
     },
     headerSubtitle: {
       fontSize: 14,
@@ -503,7 +503,7 @@ const createStyles = colors =>
       gap: 16,
     },
     headerTextBlock: {
-      height: 70,
+      height: 60,
       justifyContent: 'flex-start',
       alignItems: 'flex-start',
     },

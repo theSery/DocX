@@ -63,8 +63,61 @@ export function resolveAttachedDocumentIds(attachedDocuments) {
     .filter(id => id != null);
 }
 
+export function resolveAttachedDocuments(attachedDocuments) {
+  if (!Array.isArray(attachedDocuments)) {
+    return [];
+  }
+
+  return attachedDocuments.filter(item => item != null && item !== '');
+}
+
+function matchesAttachedReference(doc, attachedIds) {
+  return [doc?.attachedDocumentId, doc?.id, doc?.fileId].some(
+    value => value != null && attachedIds.has(String(value)),
+  );
+}
+
+export function buildSendAttachedDocuments(files) {
+  return (files ?? [])
+    .map(file => ({
+      id: file?.fileId ?? file?.id,
+      documentName:
+        file?.documentName ?? file?.fileName ?? file?.name ?? '',
+    }))
+    .filter(doc => doc.id != null);
+}
+
+export function resolveSendAttachedDocuments(attachedReferences, personalDocuments) {
+  const objectPayload = buildSendAttachedDocuments(
+    (attachedReferences ?? []).filter(item => typeof item === 'object' && item != null),
+  ).filter(doc => doc.documentName);
+
+  if (objectPayload.length > 0) {
+    return objectPayload;
+  }
+
+  const attachedIds = new Set(
+    resolveAttachedDocumentIds(attachedReferences).map(String),
+  );
+
+  if (attachedIds.size === 0) {
+    return [];
+  }
+
+  const matchedFiles = (personalDocuments ?? []).filter(doc => {
+    const isUploaded =
+      Boolean(doc?.isUploaded) ||
+      Boolean(doc?.documentUrl) ||
+      Boolean(doc?.downloadUrl);
+
+    return isUploaded && matchesAttachedReference(doc, attachedIds);
+  });
+
+  return buildSendAttachedDocuments(matchedFiles);
+}
+
 export function mapComplaintToDocument(complaint) {
-  const attachedDocuments = resolveAttachedDocumentIds(
+  const attachedDocuments = resolveAttachedDocuments(
     complaint.attachedDocuments,
   );
 

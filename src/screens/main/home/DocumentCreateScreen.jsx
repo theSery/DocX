@@ -82,15 +82,6 @@ function resolveComplaintRecipient(solution) {
   };
 }
 
-function resolveSolutionAttachedDocumentIds(solution) {
-  return (solution?.solutionAttachments ?? [])
-    .map(
-      attachment =>
-        attachment?.attachedDocument?.id ?? attachment?.attachedDocumentId,
-    )
-    .filter(id => id != null);
-}
-
 export function DocumentCreateScreen({ route, navigation }) {
 
   const styles = useThemedStyles(createStyles);
@@ -171,59 +162,6 @@ export function DocumentCreateScreen({ route, navigation }) {
       markAttachmentFilled(attachedDocumentId);
     },
     [markAttachmentFilled],
-  );
-
-  /**
-   * Link an existing My Files document to a solution slot for display only.
-   * Does not upload, duplicate, or mutate personalDocuments.
-   */
-  const handlePickFromMyFiles = useCallback(
-    (row, personalDocument) => {
-      const attachedDocumentId = row?.attachedDocumentId;
-      const fileUrl =
-        personalDocument?.documentUrl || personalDocument?.downloadUrl;
-      const sourceId = personalDocument?.fileId ?? personalDocument?.id;
-
-      if (attachedDocumentId == null || !fileUrl) {
-        showToast({
-          title: 'Ֆայլի հղում չի գտնվել',
-          type: 'error',
-        });
-        return;
-      }
-
-      const current = row?.personalDocument;
-      const currentId = current?.fileId ?? current?.id;
-      const currentUrl = current?.documentUrl || current?.downloadUrl;
-      const isDuplicate =
-        (sourceId != null &&
-          currentId != null &&
-          String(sourceId) === String(currentId)) ||
-        (fileUrl && currentUrl && String(fileUrl) === String(currentUrl));
-
-      if (isDuplicate) {
-        return;
-      }
-
-      const key = String(attachedDocumentId);
-
-      setAttachmentFileOverrides(prev => ({
-        ...prev,
-        [key]: {
-          id: personalDocument.id,
-          fileId: sourceId,
-          documentUrl: personalDocument.documentUrl ?? null,
-          downloadUrl: personalDocument.downloadUrl ?? null,
-          isUploaded: true,
-          selectionSource: 'myFiles',
-          // Keep the solution attachment title on the row; do not adopt this name.
-          documentName: row.name,
-        },
-      }));
-
-      markAttachmentFilled(attachedDocumentId);
-    },
-    [markAttachmentFilled, showToast],
   );
 
   const deleteReplacedPersonalDocument = useCallback(
@@ -511,30 +449,50 @@ export function DocumentCreateScreen({ route, navigation }) {
     async complaintId => {
       if (!complaintId) {
         console.log('[testSendComplaint] Missing complaint id, skipping send');
-        return;
+        showToast({
+          title: 'Սխալ',
+          body: 'Չհաջողվեց ուղարկել փաստաթուղթը։',
+          type: 'error',
+        });
+        return false;
       }
 
       const { recipientType, addresseeEmail } =
         resolveComplaintRecipient(templateSolution);
-      const attachedDocuments =
-        resolveSolutionAttachedDocumentIds(templateSolution);
+
+      const attachedDocuments = attachmentRows
+        .filter(row => row.isUploaded)
+        .map(row => {
+          const file = row.personalDocument;
+          return {
+            id: file?.fileId,
+            documentName: file?.documentName ?? row.name,
+          };
+        })
+        .filter(doc => doc.id != null);
 
       try {
-        const response = await complaintsApi.sendComplaint(complaintId, {
+        await complaintsApi.sendComplaint(complaintId, {
           recipientType,
           recipientEmail: personalData?.email ?? '',
           addresseeEmail,
           attachedDocuments,
         });
-
+        return true;
       } catch (error) {
         console.log(
           `[testSendComplaint] POST /complaints/${complaintId}/send error`,
           error,
         );
+        showToast({
+          title: 'Սխալ',
+          body: 'Չհաջողվեց ուղարկել փաստաթուղթը։',
+          type: 'error',
+        });
+        return false;
       }
     },
-    [personalData?.email, templateSolution],
+    [attachmentRows, personalData?.email, showToast, templateSolution],
   );
 
   const submitComplaint = useCallback(async () => {
@@ -558,7 +516,7 @@ export function DocumentCreateScreen({ route, navigation }) {
 
       const pdf = await generateDocumentPdf({
         documentHtml,
-        fileName: `docx_${templateName.replace(/\s+/g, '_')}_${Date.now()}`,
+        fileName: templateName,
       });
 
       const createResponse = await complaintsApi.createComplaint({
@@ -572,8 +530,11 @@ export function DocumentCreateScreen({ route, navigation }) {
 
       const createdComplaintId =
         createResponse.data?.data?.id ?? createResponse.data?.id;
-      console.log('[submitComplaint] createdComplaintId uuuuuuuu', createdComplaintId);
-      await testSendComplaint(createdComplaintId);
+
+      const sent = await testSendComplaint(createdComplaintId);
+      if (!sent) {
+        return;
+      }
 
       showToast({
         title: 'Հաջողություն',
@@ -737,7 +698,6 @@ export function DocumentCreateScreen({ route, navigation }) {
         onClose={() => setIsAttachmentsSheetVisible(false)}
         onPickFromGallery={handlePickFromGallery}
         onPickFromFiles={handlePickFromFiles}
-        onPickFromMyFiles={handlePickFromMyFiles}
         onRemoveAttachment={handleRemoveAttachment}
         onConfirm={handleConfirmAttachments}
         isUploading={isUploading}

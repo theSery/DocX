@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 
-import { complaintsApi } from '../../../../api';
+import { complaintsApi, personalDocumentsApi } from '../../../../api';
 import { Typography } from '../../../../components';
 import GradientButton from '../../../../components/buttons/GradientButton';
 import { getAndroidKeyboardOverlayInset } from '../../../../components/form/formKeyboard';
@@ -20,7 +20,7 @@ import { useAppSelector } from '../../../../store';
 import { selectPersonalData } from '../../../../store/slices/personalDataSlice';
 import { FONT_FAMILY } from '../../../../theme';
 import { EMAIL_PATTERN } from '../../../../utils/patterns';
-import { resolveAttachedDocumentIds } from '../utils/mapComplaintToDocument';
+import { resolveSendAttachedDocuments } from '../utils/mapComplaintToDocument';
 
 const SHEET_PADDING_BOTTOM = 32;
 
@@ -126,19 +126,33 @@ export function SendEmailSheet({
     Keyboard.dismiss();
 
     try {
-      let attachedDocuments = resolveAttachedDocumentIds(attachedDocumentIds);
+      let attachedReferences = attachedDocumentIds;
 
-      if (attachedDocuments.length === 0) {
+      if (!Array.isArray(attachedReferences) || attachedReferences.length === 0) {
         try {
           const response = await complaintsApi.getComplaint(documentId);
           const complaint = unwrapComplaint(response);
-          attachedDocuments = resolveAttachedDocumentIds(
-            complaint?.attachedDocuments,
-          );
+          attachedReferences = complaint?.attachedDocuments ?? [];
         } catch {
-          attachedDocuments = [];
+          attachedReferences = [];
         }
       }
+
+      let personalDocuments = [];
+      try {
+        const response = await personalDocumentsApi.getPersonalDocuments({
+          page: 1,
+          limit: 100,
+        });
+        personalDocuments = response?.data?.data ?? response?.data ?? [];
+      } catch {
+        personalDocuments = [];
+      }
+
+      const attachedDocuments = resolveSendAttachedDocuments(
+        attachedReferences,
+        personalDocuments,
+      );
 
       await complaintsApi.sendComplaint(documentId, {
         recipientType: 'email',

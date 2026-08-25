@@ -70,7 +70,7 @@ export function DocumentsScreen({ route, navigation }) {
   const pagination = useAppSelector(selectComplaintsPagination);
   const appliedFilters = useAppSelector(selectComplaintsFilters);
   const isFetching = useAppSelector(selectComplaintsIsFetching);
-
+console.log('[DocumentsScreen] items', items);
   const [activeFilterId, setActiveFilterId] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
@@ -313,7 +313,7 @@ export function DocumentsScreen({ route, navigation }) {
     styles.retryButton,
     styles.stateText,
   ]);
-
+  console.log('[DocumentsScreen] items', sortedDocuments);
   return (
     <View style={styles.screen}>
       <View style={styles.header}>

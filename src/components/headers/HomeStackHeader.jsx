@@ -18,8 +18,6 @@ import {
   getHomeStackHeaderHeight,
 } from './homeStackHeaderAnimation';
 import {
-  HOME_STACK_HEADER_COLLAPSE_DISTANCE,
-  HOME_STACK_HEADER_COLLAPSED_HEIGHT,
   HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
   HOME_STACK_HEADER_EXPANDED_HEIGHT,
 } from './stackHeaderConstants';
@@ -78,7 +76,7 @@ const HeaderTitleBlock = ({ styles, title, subtitle, iconUrl }) => {
         </Typography>
       ) : null}
       {subtitle ? (
-        <Typography variant="h6" tone="secondary" style={{ letterSpacing: 0.4 }}>
+        <Typography variant="h6" tone="secondary" numberOfLines={2}  style={{ letterSpacing: 0.4 }}>
           {subtitle}
         </Typography>
       ) : null}
@@ -205,18 +203,18 @@ const CollapsibleHomeStackHeader = ({
           />
         </View>
         {(title || subtitle) && (
-          <View style={styles.titleContainer}>
+          <View style={[styles.titleContainer, { marginTop: 5 }]}>
             {title ? (
               <Typography
                 variant="h2"
-                style={[styles.loginTitle, { fontSize: 16, letterSpacing: 0, lineHeight: 20, marginBottom: 5 }]}
+                style={[styles.loginTitle, { fontSize: 14, letterSpacing: 0, lineHeight: 20, marginBottom: 3 }]}
                 numberOfLines={2}
               >
                 {title}
               </Typography>
             ) : null}
             {subtitle ? (
-              <Typography variant="h6" tone="secondary" style={{ letterSpacing: 0.4 }} >
+              <Typography variant="h6" tone="secondary" numberOfLines={2} ellipsizeMode="tail" style={{ letterSpacing: 0.4, fontSize: 12 }} >
                 {subtitle}
               </Typography>
             ) : null}
@@ -330,6 +328,7 @@ const createStyles = colors =>
     },
     loginTitle: {
       letterSpacing: 2,
+      // fontSize: 14,
     },
     searchWrap: {
       paddingTop: 8,

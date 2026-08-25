@@ -35,6 +35,7 @@ export function DocumentCard({
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { showToast } = useToast();
+  console.log('[DocumentCard] document', document);
   const { downloadRemoteFile } = useFileDownload();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSendEmailOpen, setIsSendEmailOpen] = useState(false);
@@ -156,7 +157,7 @@ export function DocumentCard({
     iconColor,
     showDeleteConfirmation,
   ]);
-
+// console.log('[DocumentCard] document', document);
   return (
     <StaggeredAnimatedView
       index={index}

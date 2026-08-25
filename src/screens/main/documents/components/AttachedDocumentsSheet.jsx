@@ -16,14 +16,7 @@ import AttachSvg from '../../../../components/icons/AttachSvg';
 import CloseSvg from '../../../../components/icons/CloseSvg';
 import EyeIconSvg from '../../../../components/icons/EyeIconSvg';
 import { useTheme, useThemedStyles } from '../../../../hooks';
-import { useAppDispatch, useAppSelector } from '../../../../store';
-import {
-  fetchPersonalDocuments,
-  selectPersonalDocuments,
-  selectPersonalDocumentsStatus,
-} from '../../../../store/slices/personalDocumentsSlice';
 import { FONT_FAMILY, palette } from '../../../../theme';
-import { mapPersonalDocumentToFile } from '../../files/utils/mapPersonalDocumentToFile';
 
 const PREVIEW_LOAD_TIMEOUT_MS = 8000;
 
@@ -47,14 +40,26 @@ function isImageUrl(fileUrl) {
   return /\.(png|jpe?g|gif|webp|bmp)(\?|$)/i.test(String(fileUrl || ''));
 }
 
-function matchesAttachedIds(doc, attachedIds) {
-  if (!attachedIds.size) {
-    return false;
+function normalizeAttachedDocument(item) {
+  if (item == null || item === '') {
+    return null;
   }
 
-  return [doc?.attachedDocumentId, doc?.id, doc?.fileId].some(
-    value => value != null && attachedIds.has(String(value)),
-  );
+  if (typeof item === 'object') {
+    return {
+      id: item.id ?? item.attachedDocumentId ?? item.fileId,
+      fileName:
+        item.fileName ?? item.documentName ?? item.name ?? 'Փաստաթուղթ',
+      fileUrl:
+        item.fileUrl ?? item.documentUrl ?? item.downloadUrl ?? null,
+    };
+  }
+
+  return {
+    id: item,
+    fileName: 'Փաստաթուղթ',
+    fileUrl: null,
+  };
 }
 
 export function AttachedDocumentsSheet({
@@ -64,44 +69,31 @@ export function AttachedDocumentsSheet({
 }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
-  const dispatch = useAppDispatch();
-  const personalDocuments = useAppSelector(selectPersonalDocuments);
-  const status = useAppSelector(selectPersonalDocumentsStatus);
 
   const [previewFile, setPreviewFile] = useState(null);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
-  const attachedIds = useMemo(
-    () => new Set((attachedDocuments ?? []).map(id => String(id))),
+  const attachedFiles = useMemo(
+    () =>
+      (attachedDocuments ?? [])
+        .map(normalizeAttachedDocument)
+        .filter(file => file != null),
     [attachedDocuments],
   );
 
-  const matchedFiles = useMemo(
-    () =>
-      (personalDocuments ?? [])
-        .filter(doc => matchesAttachedIds(doc, attachedIds))
-        .map(mapPersonalDocumentToFile),
-    [attachedIds, personalDocuments],
-  );
-
-  const previewUrl =
-    previewFile?.documentUrl || previewFile?.downloadUrl || null;
+  const previewUrl = previewFile?.fileUrl ?? null;
   const previewSource = useMemo(
     () => buildFilePreviewSource(previewUrl),
     [previewUrl],
   );
   const previewIsImage = isImageUrl(previewUrl);
-  const isLoadingFiles = status === 'loading' || status === 'idle';
 
   useEffect(() => {
     if (!visible) {
       setPreviewFile(null);
       setIsPreviewLoading(false);
-      return;
     }
-
-    dispatch(fetchPersonalDocuments({ page: 1, limit: 100 }));
-  }, [dispatch, visible]);
+  }, [visible]);
 
   useEffect(() => {
     if (!visible || !previewFile || !previewSource || !isPreviewLoading) {
@@ -134,7 +126,7 @@ export function AttachedDocumentsSheet({
   }, [handleClose, handleClosePreview, previewFile]);
 
   const handleSelectFile = useCallback(file => {
-    const nextUrl = file?.documentUrl || file?.downloadUrl || null;
+    const nextUrl = file?.fileUrl ?? null;
     setIsPreviewLoading(Boolean(nextUrl));
     setPreviewFile(file);
   }, []);
@@ -152,7 +144,7 @@ export function AttachedDocumentsSheet({
           <View style={styles.header}>
             <Typography variant="h4" style={styles.title} numberOfLines={2}>
               {previewFile
-                ? previewFile.title
+                ? previewFile.fileName
                 : 'Դիտել կցված փաստաթղթերը'}
             </Typography>
             <Pressable
@@ -207,11 +199,7 @@ export function AttachedDocumentsSheet({
                   </View>
                 ) : null}
               </View>
-            ) : isLoadingFiles ? (
-              <View style={styles.emptyState}>
-                <ActivityIndicator size="large" color={colors.primary} />
-              </View>
-            ) : matchedFiles.length === 0 ? (
+            ) : attachedFiles.length === 0 ? (
               <View style={styles.emptyState}>
                 <Typography variant="h5" tone="secondary" style={styles.emptyText}>
                   Կցված ֆայլեր չեն գտնվել
@@ -224,11 +212,11 @@ export function AttachedDocumentsSheet({
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
               >
-                {matchedFiles.map(file => (
+                {attachedFiles.map(file => (
                   <Pressable
-                    key={file.id}
+                    key={String(file.id)}
                     accessibilityRole="button"
-                    accessibilityLabel={file.title}
+                    accessibilityLabel={file.fileName}
                     onPress={() => handleSelectFile(file)}
                     style={({ pressed }) => [
                       styles.fileRow,
@@ -243,7 +231,7 @@ export function AttachedDocumentsSheet({
                       style={styles.fileTitle}
                       numberOfLines={2}
                     >
-                      {file.title || 'Փաստաթուղթ'}
+                      {file.fileName}
                     </Typography>
                     <EyeIconSvg
                       width={20}
