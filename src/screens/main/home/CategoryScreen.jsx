@@ -73,6 +73,7 @@ const createStyles = colors =>
   StyleSheet.create({
     screen: {
       flex: 1,
+      
     },
     scrollView: {
       flex: 1,
@@ -81,7 +82,7 @@ const createStyles = colors =>
       position: 'absolute',
       left: 0,
       right: 0,
-      top: LIST_PANEL_TOP,
+      top: LIST_PANEL_TOP - 20,
       bottom: 0,
       width: WIDTH,
       paddingHorizontal: SPACING,
@@ -108,17 +109,21 @@ const createStyles = colors =>
       borderRadius: 16,
     },
     subCategoryName: {
-      letterSpacing: 0.4,
+      // letterSpacing: 0.4,
     },
     subCategoryIconWrap: {
-      width: '20%',
+      width: '10%',
+      // backgroundColor: 'blue',
     },
     subCategoryTextWrap: {
-      width: '60%',
+      width: '75%',
+      // backgroundColor: 'green',
+      paddingLeft: 10,
     },
     subCategoryArrowWrap: {
-      width: '20%',
+      width: '10%',
       alignItems: 'flex-end',
       paddingRight: 10,
+      // backgroundColor: 'red',
     },
   });

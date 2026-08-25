@@ -73,11 +73,11 @@ export function SubCategoryScreen({ route, navigation }) {
       contentImageStyle: { width: 56, height: 56 },
       messageStyle: { fontSize: 14, lineHeight: 20 },
       actions: [
+        { label: 'Փակել', destructive: true },
         {
           label: template.relatedAction,
           onPress: () => navigateToFillInDetails(template, category),
         },
-        { label: 'Փակել', destructive: true },
       ],
     });
   };
@@ -161,7 +161,7 @@ const createStyles = colors =>
       position: 'absolute',
       left: 0,
       right: 0,
-      top: LIST_PANEL_TOP,
+      top: LIST_PANEL_TOP - 20,
       bottom: 0,
       width: WIDTH,
       paddingHorizontal: SPACING,

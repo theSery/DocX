@@ -403,18 +403,18 @@ export function FillInDetailsScreen({ navigation, route }) {
           <Typography
             variant="h2"
             style={styles.headerTitle}
-            // numberOfLines={1}
+          // numberOfLines={1}
           >
             {headerContent.title}
           </Typography>
-          <Typography
+          {/* <Typography
             variant="h6"
             tone="secondary"
             style={styles.headerSubtitle}
             numberOfLines={2}
           >
             {headerContent.subtitle}
-          </Typography>
+          </Typography> */}
         </View>
         <StepIndicator
           steps={steps}
@@ -430,7 +430,7 @@ export function FillInDetailsScreen({ navigation, route }) {
       headerContent,
       styles.headerTextBlock,
       styles.headerTitle,
-      styles.headerSubtitle,
+      // styles.headerSubtitle,
     ],
   );
   return (
@@ -497,14 +497,14 @@ const createStyles = colors =>
       position: 'absolute',
       left: 10,
       right: 10,
- 
+
     },
     stepContent: {
       gap: 16,
     },
     headerTextBlock: {
-      height: 92,
-justifyContent: 'flex-start',  
-alignItems: 'flex-start',  
-  },
+      height: 70,
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+    },
   });

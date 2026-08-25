@@ -216,7 +216,7 @@ const CollapsibleHomeStackHeader = ({
               </Typography>
             ) : null}
             {subtitle ? (
-              <Typography variant="h6" tone="secondary" style={{ letterSpacing: 0.4 }} numberOfLines={1} ellipsizeMode="tail">
+              <Typography variant="h6" tone="secondary" style={{ letterSpacing: 0.4 }} >
                 {subtitle}
               </Typography>
             ) : null}
@@ -306,7 +306,7 @@ const createStyles = colors =>
       paddingTop: 10,
     },
     titleContainer: {
-      marginTop: 10,
+      // marginTop: 10,
     },
     titleWithIconRow: {
       marginTop: 10,
@@ -319,7 +319,7 @@ const createStyles = colors =>
       height: 46,
       borderRadius: 10,
       overflow: 'hidden',
-      resizeMode: 'cover',
+      resizeMode: 'contain',
     },
     titleWithIcon: {
       flex: 1,

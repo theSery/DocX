@@ -288,17 +288,25 @@ export function RegistrationPhoneNumber({ onSwitchToMail }) {
   const { colors } = useTheme();
   const { showToast } = useToast();
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [submitError, setSubmitError] = useState('');
   const {
     control,
     handleSubmit,
+    watch,
     formState: { isSubmitting },
   } = useForm({
     defaultValues: { phone: '' },
     mode: 'onBlur',
   });
   const isLoading = isSubmitting;
+  const phoneValue = watch('phone');
+
+  useEffect(() => {
+    setSubmitError('');
+  }, [phoneValue]);
 
   const onSubmit = handleSubmit(async values => {
+    setSubmitError('');
     try {
       const response = await authApi.sendPhoneOtp({
         phoneNumber: values.phone,
@@ -314,11 +322,7 @@ export function RegistrationPhoneNumber({ onSwitchToMail }) {
       });
     } catch (error) {
       console.log('Send phone OTP error:', error);
-      showToast({
-        title: 'Ուղարկումը ձախողվեց',
-        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
-        type: 'error',
-      });
+      setSubmitError(error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։');
     }
   });
 
@@ -358,6 +362,9 @@ export function RegistrationPhoneNumber({ onSwitchToMail }) {
             },
           }}
         />
+        {submitError ? (
+          <Typography style={styles.errorText}>{submitError}</Typography>
+        ) : null}
       </>
 
       <View style={{ flex: 1, justifyContent: 'flex-end' }}>
@@ -383,6 +390,12 @@ const createStyles = colors =>
       letterSpacing: 1.2,
       textAlign: 'center',
       marginBottom: 20,
+    },
+    errorText: {
+      fontSize: 12,
+      fontFamily: FONT_FAMILY.regular,
+      color: colors.error,
+      marginTop: 4,
     },
     otpSubtitle: {
       fontSize: 13,

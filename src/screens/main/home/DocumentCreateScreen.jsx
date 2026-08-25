@@ -572,6 +572,7 @@ export function DocumentCreateScreen({ route, navigation }) {
 
       const createdComplaintId =
         createResponse.data?.data?.id ?? createResponse.data?.id;
+      console.log('[submitComplaint] createdComplaintId uuuuuuuu', createdComplaintId);
       await testSendComplaint(createdComplaintId);
 
       showToast({

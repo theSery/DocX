@@ -50,7 +50,7 @@ export const complaintsApi = {
       attachedDocuments,
     };
 
-    console.log('[sendComplaint]', payload);
+    console.log('[sendComplaint]', id, payload);
 
     return axiosClient.post(`/complaints/${id}/send`, payload);
   },
