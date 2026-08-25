@@ -63,7 +63,7 @@ export function FillDates({
               ]}
             >
               <View style={styles.factButtonContent}>
-                <Typography variant="h5" numberOfLines={2} style={styles.factButtonText}>
+                <Typography variant="h5" style={styles.factButtonText}>
                   {fact.name}
                 </Typography>
                 {showInfoBadge ? (

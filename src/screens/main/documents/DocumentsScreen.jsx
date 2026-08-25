@@ -35,6 +35,19 @@ import { sortDocumentsWithRecommended } from './utils/sortDocumentsWithRecommend
 
 const PAGE_LIMIT = 10;
 
+function parseFavoriteTemplateIds(payload) {
+  const raw = payload?.data ?? payload;
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+  return raw
+    .map(value =>
+      typeof value === 'object' ? value?.id ?? value?.templateId : value,
+    )
+    .filter(id => id != null)
+    .map(Number);
+}
+
 function areFiltersEqual(current, applied) {
   return (
     current.searchTerm === applied.searchTerm &&
@@ -149,40 +162,52 @@ export function DocumentsScreen({ route, navigation }) {
       categoryName: undefined,
     });
 
-    showGlobalSheet({
-      message: categoryName || 'Ձևանմուշ',
-      description: 'Ցանկանո՞ւմ եք պահպանել այս ձևանմուշը որպես ընտրյալ։',
-      actions: [
-        {
-          label: 'Այո',
-          onPress: async () => {
-            try {
-              await favoriteTemplatesApi.addFavoriteTemplate({ templateId });
-              showToast({
-                title: 'Հաջողություն',
-                body: 'Ձևանմուշը ավելացվել է ընտրյալներին։',
-                type: 'success',
-              });
-            } catch (error) {
-              showToast({
-                title: 'Սխալ',
-                body:
-                  error?.message ??
-                  'Չհաջողվեց ավելացնել ձևանմուշը ընտրյալներին։',
-                type: 'error',
-              });
-            }
+    (async () => {
+      let alreadyFavorite = false;
+
+      try {
+        const response = await favoriteTemplatesApi.getFavoriteTemplateIds();
+        const payload = response?.data ?? response;
+        const favoriteIds = parseFavoriteTemplateIds(payload);
+        alreadyFavorite = favoriteIds.includes(Number(templateId));
+      } catch {
+        alreadyFavorite = false;
+      }
+
+      if (alreadyFavorite) {
+        return;
+      }
+
+      showGlobalSheet({
+        message: categoryName || 'Ձևանմուշ',
+        description: 'Ցանկանո՞ւմ եք պահպանել այս ձևանմուշը որպես ընտրյալ։',
+        actions: [
+          {
+            label: 'Այո',
+            onPress: async () => {
+              try {
+                await favoriteTemplatesApi.addFavoriteTemplate({ templateId });
+                showToast({
+                  title: 'Հաջողություն',
+                  body: 'Ձևանմուշը ավելացվել է ընտրյալներին։',
+                  type: 'success',
+                });
+              } catch (error) {
+                showToast({
+                  title: 'Սխալ',
+                  body:
+                    error?.message ??
+                    'Չհաջողվեց ավելացնել ձևանմուշը ընտրյալներին։',
+                  type: 'error',
+                });
+              }
+            },
           },
-        },
-        { label: 'Ոչ', destructive: true },
-      ],
-    });
-  }, [
-    favoriteTemplateId,
-    favoriteCategoryName,
-    navigation,
-    showToast,
-  ]);
+          { label: 'Ոչ', destructive: true },
+        ],
+      });
+    })();
+  }, [favoriteTemplateId, favoriteCategoryName, navigation, showToast]);
 
   const handleDateRangeChange = useCallback(range => {
     setDateRange(current => {

@@ -81,9 +81,9 @@ function getDocumentStyles() {
     .section p { margin: 0 0 8pt; text-align: justify; }
     strong { font-weight: 700; }
     .signature {
-      max-width: 150px;
+      max-width: 250px;
       height: auto;
-      max-height: 80px;
+      max-height: 165px;
       width: auto;
       object-fit: contain;
     }
