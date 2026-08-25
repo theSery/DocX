@@ -10,7 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Typography } from '../../../components';
 import SadIcon from '../../../components/icons/SadIcon';
-import { useThemedStyles, useTheme } from '../../../hooks';
+import { useThemedStyles, useTheme, useToast } from '../../../hooks';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   fetchPersonalDocuments,
@@ -32,6 +32,7 @@ const PAGE_LIMIT = 100;
 export function FilesMainScreen() {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  const { showToast } = useToast();
   const insets = useSafeAreaInsets();
   const dispatch = useAppDispatch();
 
@@ -55,7 +56,7 @@ export function FilesMainScreen() {
   const { page, lastPage, total } = pagination;
 
   const fetchFiles = useCallback(
-    (pageToLoad, { append = false } = {}) => {
+    (pageToLoad, { append = false } = {}) =>
       dispatch(
         fetchPersonalDocuments({
           page: pageToLoad,
@@ -63,8 +64,7 @@ export function FilesMainScreen() {
           searchTerm,
           append,
         }),
-      );
-    },
+      ),
     [dispatch, searchTerm],
   );
 
@@ -134,16 +134,24 @@ export function FilesMainScreen() {
   }, [fetchFiles]);
 
   const handleFileDeleted = useCallback(
-    (deletedId, { isDefault = false } = {}) => {
+    async (deletedId, { isDefault = false } = {}) => {
       // Default slots are reset by the API (not permanently removed), so refetch.
       if (isDefault) {
-        fetchFiles(1);
+        try {
+          await fetchFiles(1).unwrap();
+        } catch (err) {
+          showToast({
+            title: 'Սխալ',
+            body: err?.message ?? 'Չհաջողվեց թարմացնել ֆայլերը',
+            type: 'error',
+          });
+        }
         return;
       }
 
       dispatch(removePersonalDocument(deletedId));
     },
-    [dispatch, fetchFiles],
+    [dispatch, fetchFiles, showToast],
   );
 
   const handleFileUploaded = useCallback(() => {

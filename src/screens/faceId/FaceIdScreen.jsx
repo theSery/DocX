@@ -482,8 +482,8 @@ const createStyles = colors =>
       alignItems: 'center',
       justifyContent: 'flex-start',
       width: '100%',
-      marginBottom: 20,
-      marginTop: 20,
+      // marginBottom: 20,
+      // marginTop: 20,
     },
     formContainer: {
       width: '100%',

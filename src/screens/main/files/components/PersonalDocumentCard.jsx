@@ -270,7 +270,8 @@ const createStyles = colors =>
       gap: 12,
     },
     attachIcon: {
-      width: 24,
+      // width: 2,
+      width: '20%',
       alignItems: 'center',
       justifyContent: 'center',
 
@@ -282,7 +283,8 @@ const createStyles = colors =>
       paddingHorizontal: 12,
       paddingVertical: 8,
       borderRadius: 10,
-      width: '40%',
+      // width: '80%',
+      justifyContent: 'flex-end',
     },
     actionButtonText: {
       fontFamily: FONT_FAMILY.regular,
@@ -293,12 +295,12 @@ const createStyles = colors =>
 
       alignItems: 'center',
     
-      flex: 1,
+      // flex: 1,
     },
     actionButtonIcon: {
       flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+      // alignItems: 'center',
+      justifyContent: 'flex-end',
       gap: 10,
       
     },
