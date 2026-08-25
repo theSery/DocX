@@ -23,6 +23,28 @@ function isNonEmptyString(value) {
   return Boolean(value?.trim());
 }
 
+export function getMaximumBirthDate() {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 18);
+  date.setHours(23, 59, 59, 999);
+  return date;
+}
+
+export const BIRTH_DATE_RULES = {
+  required: 'Ծննդյան ամսաթիվը պարտադիր է',
+  validate: value => {
+    if (!(value instanceof Date)) {
+      return 'Ծննդյան ամսաթիվը պարտադիր է';
+    }
+
+    const maximumBirthDate = getMaximumBirthDate();
+    return (
+      value <= maximumBirthDate ||
+      'Դուք պետք է լինեք առնվազն 18 տարեկան'
+    );
+  },
+};
+
 export function isPersonalDataCompleteForTemplate(data) {
   if (!data) {
     return false;

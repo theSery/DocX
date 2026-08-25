@@ -49,7 +49,7 @@ const createStyles = () =>
     },
     logo: {
       width: '100%',
-      height: 45,
+      height: 43,
       maxWidth: 180,
       minWidth: 140,
     },

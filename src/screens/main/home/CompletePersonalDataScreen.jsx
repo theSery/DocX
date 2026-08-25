@@ -29,7 +29,11 @@ import {
   EMAIL_PATTERN,
   PHONE_NUMBER_PATTERN,
 } from '../../../utils/patterns';
-import { getIncompletePersonalDataFields } from '../../../utils/personalDataValidation';
+import {
+  BIRTH_DATE_RULES,
+  getIncompletePersonalDataFields,
+  getMaximumBirthDate,
+} from '../../../utils/personalDataValidation';
 import { authApi, smsApi, userApi } from '../../../api';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
@@ -92,18 +96,7 @@ const FIELD_CONFIGS = colors => ({
     label: 'Ծննդյան ամսաթիվ *',
     startIcon: <CalendarSvg width={20} height={20} fill={colors.icons} />,
     placeholder: 'ՕՕ / ԱԱ / ՏՏՏՏ',
-    rules: {
-      required: 'Ծննդյան ամսաթիվը պարտադիր է',
-      validate: value => {
-        if (!(value instanceof Date)) {
-          return 'Ծննդյան ամսաթիվը պարտադիր է';
-        }
-
-        const today = new Date();
-        today.setHours(23, 59, 59, 999);
-        return value <= today || 'Ծննդյան ամսաթիվը չի կարող լինել ապագայում';
-      },
-    },
+    rules: BIRTH_DATE_RULES,
   },
   phoneNumber: {
     label: 'Հեռախոսահամար',
@@ -608,9 +601,11 @@ export function CompletePersonalDataScreen({ navigation, route }) {
           placeholder={placeholder}
           rules={config.rules}
           maximumDate={
-            field === 'birthday' || field === 'dateOfIssue'
-              ? new Date()
-              : undefined
+            field === 'birthday'
+              ? getMaximumBirthDate()
+              : field === 'dateOfIssue'
+                ? new Date()
+                : undefined
           }
         />
       );

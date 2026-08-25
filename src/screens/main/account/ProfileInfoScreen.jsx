@@ -35,19 +35,10 @@ import {
 import { authApi, smsApi } from '../../../api';
 import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 import { startSmsResendCooldown } from '../../../utils/smsResendCooldown';
-
-const BIRTH_DATE_RULES = {
-  required: 'Ծննդյան ամսաթիվը պարտադիր է',
-  validate: value => {
-    if (!(value instanceof Date)) {
-      return 'Ծննդյան ամսաթիվը պարտադիր է';
-    }
-
-    const today = new Date();
-    today.setHours(23, 59, 59, 999);
-    return value <= today || 'Ծննդյան ամսաթիվը չի կարող լինել ապագայում';
-  },
-};
+import {
+  BIRTH_DATE_RULES,
+  getMaximumBirthDate,
+} from '../../../utils/personalDataValidation';
 
 const CONTACT_INFO_FIELDS = [
   {
@@ -375,7 +366,7 @@ export function ProfileInfoScreen() {
             name="birthDate"
             label="Ծննդյան ամսաթիվ *"
             rules={BIRTH_DATE_RULES}
-            maximumDate={new Date()}
+            maximumDate={getMaximumBirthDate()}
             startIcon={
               <CalendarSvg width={20} height={20} fill={colors.icons} />
             }

@@ -1,9 +1,11 @@
+import { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { RadioButton, RadioGroup, Typography } from '../../../../../components';
 import { showInfoSheet } from '../../../../../components/GlobalSheet';
 import InfoSvg from '../../../../../components/icons/InfoSvg';
 import { useThemedStyles } from '../../../../../hooks';
 import { palette } from '../../../../../theme';
+import { sortBySequence } from '../../../../../utils/templateFactGroups';
 
 const DEFAULT_FACT_INFO_VIDEO_URL =
   'https://youtu.be/7_mQR-7QAQY?si=-er5ZoAIe-UHCgjb';
@@ -29,8 +31,18 @@ export function FillDates({
     : rawSelected != null
       ? [rawSelected]
       : [];
-  const facts = factGroup?.facts ?? [];
-  const radioFactGroups = factGroup?.radioFactGroups ?? [];
+  const facts = useMemo(
+    () => sortBySequence(factGroup?.facts ?? []),
+    [factGroup?.facts],
+  );
+  const radioFactGroups = useMemo(
+    () =>
+      sortBySequence(factGroup?.radioFactGroups ?? []).map(group => ({
+        ...group,
+        facts: sortBySequence(group.facts ?? []),
+      })),
+    [factGroup?.radioFactGroups],
+  );
 
   const handleShowFactDescription = fact => {
     const description = fact.description?.trim();

@@ -34,7 +34,10 @@ import {
   isPassportDataCompleteForTemplate,
 } from '../../../utils/personalDataValidation';
 import { isDateDataType } from '../../../utils/variableDataTypes';
-import { normalizeTemplateFactGroups } from '../../../utils/templateFactGroups';
+import {
+  normalizeTemplateFactGroups,
+  sortBySequence,
+} from '../../../utils/templateFactGroups';
 
 function buildSteps(templateFactGroups = []) {
   const actStep = { key: 'act', label: 'Մանրամասներ' };
@@ -85,12 +88,8 @@ export function FillInDetailsScreen({ navigation, route }) {
   const [selectedFacts, setSelectedFacts] = useState({});
   const [radioFacts, setRadioFacts] = useState({});
   const [stepError, setStepError] = useState('');
-
   const templateVariables = useMemo(
-    () =>
-      [...(templateForm?.variables ?? [])].sort(
-        (a, b) => (a.sequence ?? 0) - (b.sequence ?? 0),
-      ),
+    () => sortBySequence(templateForm?.variables ?? []),
     [templateForm],
   );
 
@@ -487,7 +486,7 @@ const createStyles = colors =>
     headerTitle: {
       fontSize: 14,
       fontFamily: FONT_FAMILY.bold,
-      // lineHeight: 24,
+      lineHeight: 24,
       // marginBottom: 5,
     },
     headerSubtitle: {

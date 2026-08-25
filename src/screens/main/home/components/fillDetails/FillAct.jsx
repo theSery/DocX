@@ -14,6 +14,7 @@ import {
 } from '../../../../../utils/variableDataTypes';
 import { useAppDispatch } from '../../../../../store';
 import { syncVariableValues } from '../../../../../store/slices/documentFillSlice';
+import { sortBySequence } from '../../../../../utils/templateFactGroups';
 
 const ACT_DATE_FIELD = 'Act_date';
 const ACT_RECEIVE_DATE_FIELD = 'Act_resive_day';
@@ -138,18 +139,22 @@ export function FillAct({ control, variables = [] }) {
   const dispatch = useAppDispatch();
   const { colors } = useTheme();
   const variableValues = useWatch({ control });
-  const linkedDateFields = useMemo(
-    () => resolveLinkedDateFields(variables),
+  const sortedVariables = useMemo(
+    () => sortBySequence(variables),
     [variables],
+  );
+  const linkedDateFields = useMemo(
+    () => resolveLinkedDateFields(sortedVariables),
+    [sortedVariables],
   );
 
   useEffect(() => {
-    dispatch(syncVariableValues({ variables, values: variableValues }));
-  }, [dispatch, variableValues, variables]);
+    dispatch(syncVariableValues({ variables: sortedVariables, values: variableValues }));
+  }, [dispatch, variableValues, sortedVariables]);
 
   return (
     <View style={styles.container}>
-      {variables.map(variable => {
+      {sortedVariables.map(variable => {
         if (isDateDataType(variable.dataType)) {
           const dayOffset = getDayOffset(variable.dataType);
           const today = new Date();

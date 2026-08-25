@@ -69,7 +69,7 @@ const HeaderTitleBlock = ({ styles, title, subtitle, iconUrl }) => {
   }
 
   return (
-    <View style={styles.titleContainer}>
+    <View style={[styles.titleContainer, {marginTop: 5}]}>
       {title ? (
         <Typography variant="h2" style={styles.loginTitle} numberOfLines={2}>
           {title}

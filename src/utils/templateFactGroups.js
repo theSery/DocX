@@ -2,18 +2,39 @@ function bySequence(a, b) {
   return (a?.sequence ?? 0) - (b?.sequence ?? 0);
 }
 
+export function sortBySequence(items = []) {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+
+  return items.slice().sort(bySequence);
+}
+
 // Facts arrive either as plain objects (category hierarchy) or wrapped in a
-// join row as `{ fact }` (template details endpoint).
+// join row as `{ fact, sequence }` (template details endpoint).
+function normalizeFactItem(item) {
+  if (!item) {
+    return null;
+  }
+
+  const fact = item.fact ?? item;
+
+  if (!fact || typeof fact !== 'object') {
+    return null;
+  }
+
+  return {
+    ...fact,
+    sequence: item.sequence ?? fact.sequence ?? 0,
+  };
+}
+
 function normalizeFacts(rawFacts) {
   if (!Array.isArray(rawFacts)) {
     return [];
   }
 
-  return rawFacts
-    .map(item => item?.fact ?? item)
-    .filter(Boolean)
-    .slice()
-    .sort(bySequence);
+  return rawFacts.map(normalizeFactItem).filter(Boolean).sort(bySequence);
 }
 
 function normalizeRadioFactGroups(rawGroups) {
@@ -21,12 +42,16 @@ function normalizeRadioFactGroups(rawGroups) {
     return [];
   }
 
-  return rawGroups.filter(Boolean).map((group, index) => ({
-    id: group.id ?? index,
-    name: group.name ?? '',
-    description: group.description ?? '',
-    facts: normalizeFacts(group.facts ?? group.radioFactGroupFacts),
-  }));
+  return rawGroups
+    .filter(Boolean)
+    .map((group, index) => ({
+      id: group.id ?? index,
+      name: group.name ?? '',
+      description: group.description ?? '',
+      sequence: group.sequence ?? index,
+      facts: normalizeFacts(group.facts ?? group.radioFactGroupFacts),
+    }))
+    .sort(bySequence);
 }
 
 export function normalizeTemplateFactGroups(rawGroups) {
