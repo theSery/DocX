@@ -112,7 +112,7 @@ const createStyles = colors =>
     },
     contentContainer: {
       padding: SPACING,
-marginHorizontal: 5,
+// marginHorizontal: 5,
     },
     categoryItemHeaderRow: {
       flexDirection: 'row',

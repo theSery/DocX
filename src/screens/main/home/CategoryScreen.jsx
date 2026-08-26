@@ -73,7 +73,7 @@ const createStyles = colors =>
   StyleSheet.create({
     screen: {
       flex: 1,
-      
+      paddingHorizontal: 10
     },
     scrollView: {
       flex: 1,

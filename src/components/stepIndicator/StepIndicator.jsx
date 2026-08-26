@@ -40,9 +40,9 @@ const createStyles = colors =>
     container: {
       flexDirection: 'row',
       alignItems: 'flex-start',
-      paddingHorizontal: 10,
+      // paddingHorizontal: 10,
       // paddingVertical: 16,
-      marginTop: 10,
+      // marginTop: 10,
       backgroundColor: colors.background,
       gap: 10,
     },

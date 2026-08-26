@@ -271,7 +271,7 @@ const createStyles = colors =>
     },
     attachIcon: {
       // width: 2,
-      width: '20%',
+      // width: '20%',
       alignItems: 'center',
       justifyContent: 'center',
 

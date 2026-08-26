@@ -282,7 +282,7 @@ const createStyles = colors =>
   StyleSheet.create({
     container: {
       backgroundColor: colors.background,
-      paddingHorizontal: 16,
+      paddingHorizontal: 10,
       zIndex: HEADER_Z_INDEX,
       elevation: HEADER_Z_INDEX,
       // Keep visible so SearchComponent dropdown is not clipped.

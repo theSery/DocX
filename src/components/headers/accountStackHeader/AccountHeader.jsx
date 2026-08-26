@@ -51,7 +51,9 @@ const createStyles = () =>
     },
     titleCompact: {
       color: palette.white,
-      fontSize: 16,
+      fontSize: 20,
+      lineHeight: 24,
+      textAlign: 'center',
     },
   });
 
@@ -98,6 +100,7 @@ const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutBu
           style={[isBackButton ? styles.titleCompact : styles.title, { color: titleColor }]}
         >
           {title}
+
         </Typography>
       </View>
       <View style={[styles.backButtonContainer, {alignItems: 'flex-end',}]}>
