@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated from 'react-native-reanimated';
 
@@ -82,7 +82,7 @@ const createStyles = colors =>
       position: 'absolute',
       left: 0,
       right: 0,
-      top: LIST_PANEL_TOP - 20,
+      top: Platform.OS === 'ios' ? LIST_PANEL_TOP - 20 : LIST_PANEL_TOP,
       bottom: 0,
       width: WIDTH,
       paddingHorizontal: SPACING,
