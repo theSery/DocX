@@ -49,13 +49,15 @@ const createStyles = colors =>
       borderWidth: 1,
       borderTopWidth: 0,
       borderColor: colors.iconAccent,
+      zIndex: SEARCH_Z_INDEX + 1,
+      elevation: SEARCH_Z_INDEX + 1,
+      flexDirection: 'column',
+    },
+    dropdownOverlay: {
       position: 'absolute',
       top: '100%',
       left: 0,
       right: 0,
-      zIndex: SEARCH_Z_INDEX + 1,
-      elevation: SEARCH_Z_INDEX + 1,
-      flexDirection: 'column',
     },
     row: {
       minHeight: ROW_HEIGHT,
@@ -125,17 +127,32 @@ const createStyles = colors =>
     dropdownScroll: {
       flexGrow: 0,
       flexShrink: 1,
-      
+    },
+    dropdownScrollAndroid: {
+      flexGrow: 0,
+      flexShrink: 0,
+    },
+    dropdownClosed: {
+      height: 0,
+      borderWidth: 0,
+      marginTop: 0,
+      elevation: 0,
+      zIndex: 0,
     },
     dropdownScrollContent: {
       flexGrow: 0,
     },
   });
 
-export function SearchComponent({ categoryId, subCategoryId } = {}) {
+export function SearchComponent({
+  categoryId,
+  subCategoryId,
+  onDropdownHeightChange,
+} = {}) {
   const navigation = useNavigation();
   const { isDarkMode, colors } = useTheme();
   const styles = useThemedStyles(createStyles);
+  const isAndroid = Platform.OS === 'android';
   // Scoped search (Category/SubCategory screens) covers a single category,
   // so the collapsible category header adds no value there.
   const showGroupHeaders = categoryId == null;
@@ -266,29 +283,121 @@ export function SearchComponent({ categoryId, subCategoryId } = {}) {
   }, [groupedSearchResults]);
 
   useEffect(() => {
+    if (isAndroid) {
+      return;
+    }
+
     if (!isDropdownOpen || bucket === 'closed') {
       height.value = withTiming(0, ANIMATION);
       return;
     }
 
     height.value = withTiming(dropdownContentHeight, ANIMATION);
-  }, [bucket, dropdownContentHeight, height, isDropdownOpen]);
+  }, [bucket, dropdownContentHeight, height, isAndroid, isDropdownOpen]);
+
+  useEffect(() => {
+    if (!onDropdownHeightChange) {
+      return undefined;
+    }
+
+    onDropdownHeightChange(isDropdownOpen ? dropdownContentHeight : 0);
+  }, [dropdownContentHeight, isDropdownOpen, onDropdownHeightChange]);
+
+  useEffect(() => {
+    if (!onDropdownHeightChange) {
+      return undefined;
+    }
+
+    return () => onDropdownHeightChange(0);
+  }, [onDropdownHeightChange]);
 
   const animatedPanelStyle = useAnimatedStyle(() => ({
     height: height.value,
     opacity: height.value === 0 ? 0 : 1,
   }));
 
+  const scrollViewportHeight =
+    searchResults.length > 0 ? scrollMaxHeight ?? dropdownContentHeight : 0;
+
   const blurType = isDarkMode ? 'dark' : 'light';
   const dropdownSurfaceStyle = {
     backgroundColor: Platform.select({
-      android: isDarkMode ? 'rgba(17,17,29,0.55)' : 'rgba(255,255,255,0.55)',
+      android: isDarkMode ? 'rgba(17,17,29,0.96)' : 'rgba(255,255,255,0.96)',
       default: 'transparent',
     }),
   };
 
+  const resultRows = groupedSearchResults.map(group => {
+    const isExpanded = !showGroupHeaders || expandedGroupIds.has(group.id);
+
+    return (
+      <View key={group.id}>
+        {showGroupHeaders ? (
+          <Pressable
+            onPress={() =>
+              setExpandedGroupIds(prev => toggleExpandedGroupId(prev, group.id))
+            }
+            style={({ pressed }) => [
+              styles.groupHeader,
+              pressed && styles.groupHeaderPressed,
+            ]}
+          >
+            {group.iconUrl ? (
+              <CachedImage source={{ uri: group.iconUrl }} style={styles.titleIcon} />
+            ) : null}
+            <Typography variant="h5" numberOfLines={1} style={styles.groupHeaderText}>
+              {group.name}
+            </Typography>
+            <View style={styles.groupHeaderChevron}>
+              <Chevron
+                width={16}
+                height={16}
+                fill={colors.iconAccent}
+                rotate={isExpanded ? -90 : 90}
+              />
+            </View>
+          </Pressable>
+        ) : null}
+        {isExpanded
+          ? group.results.slice(0, 10).map(result => (
+              <Pressable
+                key={result.id}
+                onPress={() => handleSelect(result)}
+                style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+              >
+                {result.subCategory.iconUrl ? (
+                  <CachedImage
+                    source={{ uri: result.subCategory.iconUrl }}
+                    style={styles.rowIcon}
+                  />
+                ) : null}
+                <Typography variant="h6" numberOfLines={2} style={styles.rowText}>
+                  {result.label}
+                </Typography>
+              </Pressable>
+            ))
+          : null}
+      </View>
+    );
+  });
+
+  const noResultsRow =
+    showNoResults && (!searchResults || searchResults.length === 0) ? (
+      <View style={[styles.row, styles.noResultsRow]}>
+        <SadIcon width={20} height={20} fill={colors.textSecondary} />
+        <Typography
+          variant="h5"
+          tone="secondary"
+          style={[styles.noResultsLabel, styles.rowText]}
+          numberOfLines={1}
+        >
+          {NO_RESULTS_LABEL}
+        </Typography>
+      </View>
+    ) : null;
+
   return (
-    <View style={styles.wrapper}>
+    <View collapsable={!isAndroid} style={styles.wrapper}>
       <SearchField
         value={search}
         onChangeText={setSearch}
@@ -298,99 +407,68 @@ export function SearchComponent({ categoryId, subCategoryId } = {}) {
         startIcon={<SearchIcon width={24} height={24} fill={colors.primary} />}
       />
 
-      <Animated.View
-        style={[styles.dropdown, dropdownSurfaceStyle, animatedPanelStyle]}
-        pointerEvents={bucket === 'closed' ? 'none' : 'auto'}
-      >
-        <BlurView
-          style={StyleSheet.absoluteFill}
-          blurType={blurType}
-          blurAmount={80}
-          reducedTransparencyFallbackColor={colors.background}
-        />
-        {searchResults.length > 0 ? (
-          <ScrollView
-            style={[
-              styles.dropdownScroll,
-              scrollMaxHeight != null && { maxHeight: scrollMaxHeight },
-            ]}
-            contentContainerStyle={styles.dropdownScrollContent}
-            nestedScrollEnabled
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator
-          >
-            {groupedSearchResults.map(group => {
-              const isExpanded =
-                !showGroupHeaders || expandedGroupIds.has(group.id);
-
-              return (
-                <View key={group.id}>
-                  {showGroupHeaders ? (
-                    <Pressable
-                      onPress={() =>
-                        setExpandedGroupIds(prev =>
-                          toggleExpandedGroupId(prev, group.id),
-                        )
-                      }
-                      style={({ pressed }) => [
-                        styles.groupHeader,
-                        pressed && styles.groupHeaderPressed,
-                      ]}
-                    >
-                      {group.iconUrl ? (
-                        <CachedImage source={{ uri: group.iconUrl }} style={styles.titleIcon} />
-                      ) : null}
-                      <Typography variant="h5" numberOfLines={1} style={styles.groupHeaderText}>
-                        {group.name}
-                      </Typography>
-                      <View style={styles.groupHeaderChevron}>
-                        <Chevron
-                          width={16}
-                          height={16}
-                          fill={colors.iconAccent}
-                          rotate={isExpanded ? -90 : 90}
-                        />
-                      </View>
-                    </Pressable>
-                  ) : null}
-                  {isExpanded
-                    ? group.results.slice(0, 10).map(result => (
-                        <Pressable
-                          key={result.id}
-                          onPress={() => handleSelect(result)}
-                          style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-                        >
-                          {result.subCategory.iconUrl ? (
-                            <CachedImage
-                              source={{ uri: result.subCategory.iconUrl }}
-                              style={styles.rowIcon}
-                            />
-                          ) : null}
-                          <Typography variant="h6" numberOfLines={2} style={styles.rowText}>
-                            {result.label}
-                          </Typography>
-                        </Pressable>
-                      ))
-                    : null}
-                </View>
-              );
-            })}
-          </ScrollView>
-        ) : null}
-        {showNoResults && (!searchResults || searchResults.length === 0) ? (
-          <View style={[styles.row, styles.noResultsRow]}>
-            <SadIcon width={20} height={20} fill={colors.textSecondary} />
-            <Typography
-              variant="h5"
-              tone="secondary"
-              style={[styles.noResultsLabel, styles.rowText]}
-              numberOfLines={1}
+      {isAndroid ? (
+        <View
+          collapsable={false}
+          style={[
+            styles.dropdown,
+            dropdownSurfaceStyle,
+            isDropdownOpen
+              ? { height: dropdownContentHeight }
+              : styles.dropdownClosed,
+          ]}
+          pointerEvents={isDropdownOpen ? 'auto' : 'none'}
+        >
+          {searchResults.length > 0 ? (
+            <ScrollView
+              style={[styles.dropdownScrollAndroid, { height: scrollViewportHeight }]}
+              contentContainerStyle={styles.dropdownScrollContent}
+              nestedScrollEnabled
+              keyboardShouldPersistTaps="always"
+              keyboardDismissMode="none"
+              showsVerticalScrollIndicator
+              bounces={false}
+              overScrollMode="never"
+              removeClippedSubviews={false}
             >
-              {NO_RESULTS_LABEL}
-            </Typography>
-          </View>
-        ) : null}
-      </Animated.View>
+              {resultRows}
+            </ScrollView>
+          ) : null}
+          {noResultsRow}
+        </View>
+      ) : (
+        <Animated.View
+          style={[
+            styles.dropdown,
+            styles.dropdownOverlay,
+            dropdownSurfaceStyle,
+            animatedPanelStyle,
+          ]}
+          pointerEvents={bucket === 'closed' ? 'none' : 'auto'}
+        >
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType={blurType}
+            blurAmount={80}
+            reducedTransparencyFallbackColor={colors.background}
+          />
+          {searchResults.length > 0 ? (
+            <ScrollView
+              style={[
+                styles.dropdownScroll,
+                scrollMaxHeight != null && { maxHeight: scrollMaxHeight },
+              ]}
+              contentContainerStyle={styles.dropdownScrollContent}
+              nestedScrollEnabled
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator
+            >
+              {resultRows}
+            </ScrollView>
+          ) : null}
+          {noResultsRow}
+        </Animated.View>
+      )}
     </View>
   );
 }

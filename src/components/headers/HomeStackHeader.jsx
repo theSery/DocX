@@ -1,9 +1,10 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Platform, StyleSheet, View } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
   useAnimatedStyle,
+  useSharedValue,
 } from 'react-native-reanimated';
 import MainHeader from './MainHeader';
 import FavoritesButton from '../buttons/FavoritesButton';
@@ -93,16 +94,17 @@ const StaticHomeStackHeader = ({
   showSearch,
   searchScope,
   iconUrl,
+  extraHeight = 0,
 }) => (
   <View
     style={[
       styles.container,
       {
-    
-        height: showSearch
-          ? HOME_STACK_HEADER_EXPANDED_HEIGHT
-          : HOME_STACK_HEADER_EXPANDED_HEIGHT +
-            HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
+        height:
+          (showSearch
+            ? HOME_STACK_HEADER_EXPANDED_HEIGHT
+            : HOME_STACK_HEADER_EXPANDED_HEIGHT +
+              HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT) + extraHeight,
       },
     ]}
   >
@@ -126,7 +128,7 @@ const StaticHomeStackHeader = ({
       />
     </View>
     {showSearch ? (
-      <View style={styles.searchWrap}>
+      <View collapsable={false} style={styles.searchWrap}>
         <SearchComponent {...searchScope} />
       </View>
     ) : null}
@@ -141,9 +143,15 @@ const CollapsibleHomeStackHeader = ({
   subtitle,
   showSearch,
   searchScope,
+  extraHeight = 0,
 }) => {
   const { scrollY, collapseScrollEnd, collapseEnabled } =
     useHomeStackHeaderScroll();
+  const extraHeightSv = useSharedValue(extraHeight);
+
+  useEffect(() => {
+    extraHeightSv.value = extraHeight;
+  }, [extraHeight, extraHeightSv]);
 
   // Height tracks scroll 1:1. Title exits via opacity + translateY (compositor).
   // Search is bottom-anchored so it rides the height change without sibling
@@ -155,7 +163,7 @@ const CollapsibleHomeStackHeader = ({
       collapseEnabled.value,
     );
     return {
-      height: getHomeStackHeaderHeight(progress, showSearch),
+      height: getHomeStackHeaderHeight(progress, showSearch) + extraHeightSv.value,
     };
   });
 
@@ -186,7 +194,7 @@ const CollapsibleHomeStackHeader = ({
   });
 
   return (
-    <Animated.View style={[styles.container, animatedContainerStyle, ]}>
+    <Animated.View style={[styles.container, animatedContainerStyle]}>
       <Animated.View
         pointerEvents="box-none"
         style={[styles.titleLayer, animatedTitleStyle, ]}
@@ -222,7 +230,10 @@ const CollapsibleHomeStackHeader = ({
         )}
       </Animated.View>
       {showSearch ? (
-        <View style={[styles.searchWrap, styles.searchWrapCollapsed, styles.searchLayer]}>
+        <View
+          collapsable={false}
+          style={[styles.searchWrap, styles.searchWrapCollapsed, styles.searchLayer]}
+        >
           <SearchComponent {...searchScope} />
         </View>
       ) : null}
@@ -244,6 +255,12 @@ const HomeStackHeader = ({
   const { isAuthenticated } = useAuthSession();
   const searchScope = resolveSearchScope(route);
   const favoritesPress = isAuthenticated ? onFavoritesPress : undefined;
+  const [androidDropdownHeight, setAndroidDropdownHeight] = useState(0);
+  const extraHeight = Platform.OS === 'android' ? androidDropdownHeight : 0;
+  const resolvedSearchScope =
+    Platform.OS === 'android'
+      ? { ...searchScope, onDropdownHeightChange: setAndroidDropdownHeight }
+      : searchScope;
 
   if (!collapsible) {
     return (
@@ -254,8 +271,9 @@ const HomeStackHeader = ({
         title={title}
         subtitle={subtitle}
         showSearch={showSearch}
-        searchScope={searchScope}
+        searchScope={resolvedSearchScope}
         iconUrl={iconUrl}
+        extraHeight={extraHeight}
       />
     );
   }
@@ -268,7 +286,8 @@ const HomeStackHeader = ({
       title={title}
       subtitle={subtitle}
       showSearch={showSearch}
-      searchScope={searchScope}
+      searchScope={resolvedSearchScope}
+      extraHeight={extraHeight}
     />
   );
 };

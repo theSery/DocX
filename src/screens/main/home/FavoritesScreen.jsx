@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
 
@@ -264,7 +264,7 @@ export function FavoritesScreen({ navigation }) {
           ref={scrollRef}
           style={styles.scrollView}
           contentContainerStyle={[
-            { paddingBottom: scrollBottomPadding },
+            { paddingBottom: scrollBottomPadding, },
             (isLoading || favoriteItems.length === 0) && styles.scrollContentEmpty,
           ]}
           onScroll={onScroll}
@@ -291,16 +291,17 @@ const createStyles = colors =>
   StyleSheet.create({
     screen: {
       flex: 1,
- 
-      paddingHorizontal: 16,
+
+      // paddingHorizontal: 16,
     },
     scrollView: {
       flex: 1,
-  
-      paddingHorizontal: 16,
+
+      // paddingHorizontal: 16,
     },
     contentContainer: {
-      marginTop: -20,
+      marginTop: -5,
+      marginBottom: -10,
     },
     scrollContentEmpty: {
       flexGrow: 1,
@@ -310,7 +311,7 @@ const createStyles = colors =>
       position: 'absolute',
       left: 0,
       right: 0,
-      top: LIST_PANEL_TOP,
+      top: Platform.OS === 'ios' ? LIST_PANEL_TOP - 30 : 0,
       bottom: 0,
       width: WIDTH,
       paddingHorizontal: SPACING,
