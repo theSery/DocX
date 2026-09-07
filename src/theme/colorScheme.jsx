@@ -20,6 +20,7 @@ import {
 } from 'react';
 import { Appearance, Dimensions, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
+import { setAndroidSystemBars } from '../utils/systemBars';
 import { STORAGE_KEYS } from '../utils/storageKeys';
 import { ColorScheme, isColorScheme } from './constants';
 import { getPalette, lightColors } from './palettes';
@@ -239,7 +240,6 @@ export function ColorSchemeProvider({ children }) {
   const transition = useSharedValue(0);
   const ref = useRef(null);
   const hasHydratedRef = useRef(false);
-  const statusBarBackgroundRef = useRef(getPalette(defaultSystemScheme).background);
   const [{ colorScheme, overlay1, overlay2, active, statusBarStyle }, dispatch] = useReducer(
     colorSchemeReducer,
     defaultContextValue,
@@ -265,15 +265,9 @@ export function ColorSchemeProvider({ children }) {
     Appearance.setColorScheme(colorScheme);
   }, [active, colorScheme]);
 
-  // Freeze Android status-bar chrome while overlays cover the UI, otherwise
-  // StatusBar.backgroundColor jumps with the under-overlay theme swap.
   useEffect(() => {
-    if (!active) {
-      statusBarBackgroundRef.current = colors.background;
-    }
-  }, [active, colors.background]);
-
-  const statusBarBackground = active ? statusBarBackgroundRef.current : colors.background;
+    setAndroidSystemBars(statusBarStyle === 'light');
+  }, [statusBarStyle]);
 
   useEffect(() => {
     let cancelled = false;
@@ -317,8 +311,9 @@ export function ColorSchemeProvider({ children }) {
   return (
     <View style={styles.fill}>
       <StatusBar
+        translucent
+        backgroundColor="transparent"
         barStyle={statusBarStyle === 'light' ? 'light-content' : 'dark-content'}
-        backgroundColor={statusBarBackground}
       />
       <View ref={ref} style={styles.fill} collapsable={false}>
         <ColorSchemeContext.Provider value={value}>{children}</ColorSchemeContext.Provider>

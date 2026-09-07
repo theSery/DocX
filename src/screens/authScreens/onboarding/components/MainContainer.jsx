@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, {
 
   useAnimatedStyle,
@@ -15,7 +15,7 @@ import { AnimatedView } from '../../../../components';
 
 const FADE_DURATION = 300;
 
-export function MainContainer({ handlePress }) {
+export function MainContainer({ handlePress, layout }) {
   const opacity = useSharedValue(0);
 
   useEffect(() => {
@@ -33,20 +33,42 @@ export function MainContainer({ handlePress }) {
 
   return (
     <AnimatedView
-    animation="fadeIn"
-    duration={700}
-    style={styles.container}
-  >
-
-      <Image source={whiteLogo} style={styles.logo} />
-      <Image source={foldersImage} style={styles.image} />
-      <Typography
-        variant="h4"
-        style={{ color: 'white', textAlign: 'center' }}>
+      animation="fadeIn"
+      duration={700}
+      style={[
+        styles.container,
+        layout.compact && layout.contentPaddingBottom > 0
+          ? { paddingBottom: layout.contentPaddingBottom + 12 }
+          : null,
+      ]}
+    >
+      <Image
+        source={whiteLogo}
+        style={layout.compact ? layout.logo : styles.logo}
+        resizeMode={layout.compact ? 'cover' : undefined}
+      />
+      {layout.compact ? (
+        <View style={styles.imageSlot}>
+          <Image
+            source={foldersImage}
+            resizeMode="contain"
+            style={{
+              width: layout.folders.width,
+              height: layout.folders.height,
+              maxHeight: '100%',
+            }}
+          />
+        </View>
+      ) : (
+        <Image source={foldersImage} style={styles.image} />
+      )}
+      <Typography variant="h4" style={styles.copy}>
         Ընդամենը 3 քայլ և Դուք կստեղծեք Ձեր դիմումները, բողոքներն ու այլ
         փաստաթղթերը
       </Typography>
-      <TouchableOpacity style={styles.button} onPress={onPress}>
+      <TouchableOpacity
+        style={[styles.button, { height: layout.buttonHeight }]}
+        onPress={onPress}>
         <Typography variant="h5" style={{ color: palette.mainBlue }}>
           Ինչպե՞ս
         </Typography>
@@ -68,16 +90,28 @@ const styles = StyleSheet.create({
     height: 58,
     width: 250,
   },
+  imageSlot: {
+    flex: 1,
+    width: '100%',
+    minHeight: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
   image: {
     width: 280,
     height: 230,
   },
+  copy: {
+    flexShrink: 0,
+    color: 'white',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
   button: {
     backgroundColor: 'white',
-    padding: 10,
     borderRadius: 16,
     width: '100%',
-    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },

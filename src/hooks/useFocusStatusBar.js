@@ -1,6 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { Platform, StatusBar } from 'react-native';
+import { setAndroidSystemBars } from '../utils/systemBars';
 import { useTheme } from './useTheme';
 
 export function useFocusStatusBar(barStyle, backgroundColor, enabled = true) {
@@ -11,10 +12,12 @@ export function useFocusStatusBar(barStyle, backgroundColor, enabled = true) {
       }
 
       StatusBar.setBarStyle(barStyle, true);
-      // On iOS the status bar is transparent; its color comes from the view
-      // behind it, so setBackgroundColor only exists on Android.
-      if (backgroundColor != null && Platform.OS === 'android') {
-        StatusBar.setBackgroundColor(backgroundColor);
+      // Draw app content behind a transparent status bar. Icon contrast still
+      // follows barStyle; opaque backgroundColor would cover the surface.
+      if (Platform.OS === 'android') {
+        StatusBar.setTranslucent(true);
+        StatusBar.setBackgroundColor('transparent');
+        setAndroidSystemBars(barStyle === 'light-content');
       }
     }, [barStyle, backgroundColor, enabled]),
   );
@@ -49,8 +52,16 @@ export function useTemporaryFocusStatusBar(focusedStyle, restoredStyle) {
   useFocusEffect(
     useCallback(() => {
       StatusBar.setBarStyle(resolvedFocusedStyle, true);
+      if (Platform.OS === 'android') {
+        StatusBar.setTranslucent(true);
+        StatusBar.setBackgroundColor('transparent');
+        setAndroidSystemBars(resolvedFocusedStyle === 'light-content');
+      }
       return () => {
         StatusBar.setBarStyle(resolvedRestoredStyle, true);
+        if (Platform.OS === 'android') {
+          setAndroidSystemBars(resolvedRestoredStyle === 'light-content');
+        }
       };
     }, [resolvedFocusedStyle, resolvedRestoredStyle]),
   );

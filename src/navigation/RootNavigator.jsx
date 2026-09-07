@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StatusBar } from 'react-native';
+import { Platform, StatusBar } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../contexts';
 import { useSplash } from '../components/layout/SplashGate';
@@ -15,7 +15,9 @@ import {
   selectCategories,
   selectCategoriesStatus,
 } from '../store/slices/categoriesSlice';
+import { useResponsiveLayout } from '../hooks';
 import { prefetchCategoryIcons } from '../utils/imageCache';
+import { setAndroidSystemBars } from '../utils/systemBars';
 import { animation } from './constants';
 import { ResetPinNavigator } from './AuthStacks/ResetPinNavigator';
 
@@ -36,6 +38,10 @@ function resolveInitialRoute(hasCompletedOnboarding, startupRoute) {
 }
 
 function BootstrapLoadingScreen() {
+  const layout = useResponsiveLayout();
+  const lottieSize = layout.scaleSize(150);
+  const logoSize = layout.scaleSize(140);
+
   return (
     <GradientBackground isLight={false}>
       <LottieAnimation
@@ -43,14 +49,14 @@ function BootstrapLoadingScreen() {
         autoPlay
         loop
         style={{
-          width: 150,
-          height: 150,
+          width: lottieSize,
+          height: lottieSize,
           position: 'absolute',
-          bottom: 30,
-          left: 30,
+          bottom: layout.compact ? layout.bottomOffset : 30,
+          left: layout.scaleSize(30),
         }}
       />
-      <LogoIcon width={140} height={140} />
+      <LogoIcon width={logoSize} height={logoSize} />
     </GradientBackground>
   );
 }
@@ -108,6 +114,11 @@ export function RootNavigator() {
   useEffect(() => {
     if (isAppLoading) {
       StatusBar.setBarStyle('light-content', true);
+      if (Platform.OS === 'android') {
+        StatusBar.setTranslucent(true);
+        StatusBar.setBackgroundColor('transparent');
+      }
+      setAndroidSystemBars(true);
     }
   }, [isAppLoading]);
 
@@ -117,8 +128,8 @@ export function RootNavigator() {
 
   return (
     <Stack.Navigator
-      initialRouteName={resolveInitialRoute(hasCompletedOnboarding, startupRoute)}
-      // initialRouteName="FaceId"
+      // initialRouteName={resolveInitialRoute(hasCompletedOnboarding, startupRoute)}
+      initialRouteName="Onboarding"
       screenOptions={{ headerShown: false, animation }}>
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       <Stack.Screen name="Main" component={TabNavigator} />

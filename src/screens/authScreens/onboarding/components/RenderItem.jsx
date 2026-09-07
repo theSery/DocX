@@ -8,8 +8,10 @@ import { Typography } from '../../../../components/typography';
 import darkLogo from '../../../../assets/images/darkLogo.webp';
 import { AnimatedView } from '../../../../components';
 
-export function RenderItem({ index, x, item }) {
+export function RenderItem({ index, x, item, layout, slideHeight }) {
   const { width: SCREEN_WIDTH } = useWindowDimensions();
+  const compact = Boolean(layout?.compact);
+  const imageTravel = compact ? layout.slideImage.height * 0.45 : 200;
 
   const imageAnimationStyle = useAnimatedStyle(() => {
     const translateYAnimation = interpolate(
@@ -19,7 +21,7 @@ export function RenderItem({ index, x, item }) {
         index * SCREEN_WIDTH,
         (index + 1) * SCREEN_WIDTH,
       ],
-      [200, 0, -200],
+      [imageTravel, 0, -imageTravel],
       Extrapolation.CLAMP,
     );
 
@@ -32,22 +34,61 @@ export function RenderItem({ index, x, item }) {
     <AnimatedView
       animation="fadeIn"
       duration={300}
-      style={[styles.itemContainer, { width: SCREEN_WIDTH }]}
+      style={[
+        styles.itemContainer,
+        { width: SCREEN_WIDTH },
+        compact && {
+          height: slideHeight || undefined,
+          paddingBottom: layout.controlsReserve,
+        },
+      ]}
     >
-      <Image source={darkLogo} style={styles.logo} />
+      <Image
+        source={darkLogo}
+        style={compact ? layout.logo : styles.logo}
+        resizeMode={compact ? 'contain' : undefined}
+      />
 
-      <Animated.View style={imageAnimationStyle}>
-        <Image source={item.image} style={styles.image} />
-      </Animated.View>
+      {compact ? (
+        <View style={styles.imageSlot}>
+          <Animated.View
+            style={[
+              styles.imageFrame,
+              imageAnimationStyle,
+              {
+                width: layout.slideImage.width,
+                height: layout.slideImage.height,
+                maxWidth: '100%',
+                maxHeight: '100%',
+              },
+            ]}
+          >
+            <Image
+              source={item.image}
+              resizeMode="contain"
+              style={styles.compactImage}
+            />
+          </Animated.View>
+        </View>
+      ) : (
+        <Animated.View style={imageAnimationStyle}>
+          <Image source={item.image} style={styles.image} />
+        </Animated.View>
+      )}
       <Typography
         variant="h4"
         style={[
-          styles.itemText,
+          compact ? styles.compactText : styles.itemText,
+          compact ? layout.itemText : null,
           {
             color: '#002340',
             fontFamily: 'Poppins-Regular',
-            letterSpacing: 2.4,
-            fontSize: 20,
+            ...(compact
+              ? null
+              : {
+                  letterSpacing: 2.4,
+                  fontSize: 20,
+                }),
           },
         ]}
       >
@@ -65,7 +106,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
-    // paddingBottom: 24,
   },
   image: {
     width: 200,
@@ -75,15 +115,37 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 10,
     marginHorizontal: 50,
-    // backgroundColor: 'red',
   },
   logo: {
     height: 58,
     width: 250,
   },
-  circleContainer: {
-    ...StyleSheet.absoluteFill,
+  compactContainer: {
+    flex: 1,
+    width: '100%',
     alignItems: 'center',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+  },
+  imageSlot: {
+    flex: 1,
+    width: '100%',
+    minHeight: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  imageFrame: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  compactImage: {
+    width: '100%',
+    height: '100%',
+  },
+  compactText: {
+    flexShrink: 0,
+    textAlign: 'center',
+    marginBottom: 4,
   },
 });

@@ -19,7 +19,24 @@ class MainActivity : ReactActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
     super.onCreate(savedInstanceState)
+    applyTransparentSystemBars()
     SplashView.showSplashView(this)
+  }
+
+  override fun onResume() {
+    super.onResume()
+    applyTransparentSystemBars()
+  }
+
+  override fun onWindowFocusChanged(hasFocus: Boolean) {
+    super.onWindowFocusChanged(hasFocus)
+    if (hasFocus) {
+      applyTransparentSystemBars()
+    }
+  }
+
+  private fun applyTransparentSystemBars() {
+    SystemBars.apply(window)
   }
 
   /**

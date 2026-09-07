@@ -12,6 +12,11 @@ export { useTheme } from './useTheme';
 export { useThemedStyles } from './useThemedStyles';
 export { useToast } from './useToast';
 export {
+  buildResponsiveLayout,
+  useIsCompactScreen,
+  useResponsiveLayout,
+} from './useResponsiveLayout';
+export {
   useOtpInput,
   extractOtpCode,
   DEFAULT_OTP_LENGTH,

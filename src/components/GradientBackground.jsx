@@ -1,4 +1,4 @@
-import { useId, useMemo } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import { gradients } from '../theme/tokens';
@@ -36,16 +36,23 @@ export default function GradientBackground({
 }) {
   const { width: windowWidth, height } = useWindowDimensions();
   const { isDarkMode } = useTheme();
+  const [frame, setFrame] = useState(null);
   const reactId = useId();
   const gradientId = useMemo(
     () => `grad-bg-${reactId.replace(/[^a-zA-Z0-9_-]/g, '')}`,
     [reactId],
   );
 
-  const width = gradientWidth ?? windowWidth;
-  const cornerRadius = gradientRadius ?? HEADER_BOTTOM_RADIUS;
+  const fillParent = gradientHeight == null || gradientHeight === '100%';
+  const width = gradientWidth ?? frame?.width ?? windowWidth;
+  const cornerRadius =
+    fillParent && gradientRadius == null ? 0 : gradientRadius ?? HEADER_BOTTOM_RADIUS;
   const roundAllCorners = gradientRadius != null;
   const calculateGradientHeight = () => {
+    if (fillParent) {
+      return frame?.height ?? height;
+    }
+
     if (!gradientHeight) return height;
 
     if (typeof gradientHeight === 'string' && gradientHeight.endsWith('%')) {
@@ -70,7 +77,7 @@ export default function GradientBackground({
   const gradientEndX = isAccountDark ? 0 : width;
   const gradientEndY = isAccountDark
     ? finalGradientHeight
-    : gradientWidth != null || isAccountScreen
+    : gradientWidth != null || isAccountScreen || fillParent
       ? finalGradientHeight
       : height;
   const androidFillPath = useMemo(
@@ -78,12 +85,22 @@ export default function GradientBackground({
     [width, finalGradientHeight, cornerRadius],
   );
 
+  const handleLayout = useCallback(event => {
+    const { width: nextWidth, height: nextHeight } = event.nativeEvent.layout;
+    setFrame(current =>
+      current?.width === nextWidth && current?.height === nextHeight
+        ? current
+        : { width: nextWidth, height: nextHeight },
+    );
+  }, []);
+
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onLayout={fillParent ? handleLayout : undefined}>
       <View
         collapsable={false}
         style={[
           styles.gradient,
+          fillParent ? StyleSheet.absoluteFill : null,
           {
             width,
             height: finalGradientHeight,
@@ -94,7 +111,7 @@ export default function GradientBackground({
                   borderBottomRightRadius: cornerRadius,
                 }),
           },
-          !isAndroid && { backgroundColor: startColor },
+          fillParent || !isAndroid ? { backgroundColor: fillParent ? endColor : startColor } : null,
         ]}
       >
         <Svg width={width} height={finalGradientHeight} pointerEvents="none">
