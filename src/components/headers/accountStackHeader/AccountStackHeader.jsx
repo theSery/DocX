@@ -2,9 +2,12 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import UserSvg from '../../icons/UserSvg';
 import PenSvg from '../../icons/PenSvg';
-import { useGlobalStyles, useTheme, useThemedStyles } from '../../../hooks';
+import { useGlobalStyles, useIsCompactScreen, useTheme, useThemedStyles } from '../../../hooks';
 import GradientBackground from '../../GradientBackground';
-import { ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT, ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT } from '../stackHeaderConstants';
+import {
+  getAccountStackHeaderCollapsedHeight,
+  getAccountStackHeaderExpandedHeight,
+} from '../stackHeaderConstants';
 import { Typography } from '../../typography';
 import { palette } from '../../../theme';
 import AccountHeader from './AccountHeader';
@@ -27,11 +30,17 @@ const createStyles = (colors) =>
       justifyContent: 'space-between',
       marginBottom: 20,
     },
+    containerCompact: {
+      marginBottom: 10,
+    },
     accountContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 25,
       width: '100%',
+    },
+    accountContainerCompact: {
+      gap: 16,
     },
     userImageContainer: {
       width: 88,
@@ -40,6 +49,10 @@ const createStyles = (colors) =>
       overflow: 'hidden',
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    userImageContainerCompact: {
+      width: 68,
+      height: 68,
     },
     userImageOverlay: {
       position: 'absolute',
@@ -65,6 +78,11 @@ const createStyles = (colors) =>
     userName: {
       letterSpacing: 1.8,
     },
+    userNameCompact: {
+      fontSize: 16,
+      lineHeight: 22,
+      letterSpacing: 0.8,
+    },
     accountType: {
       fontSize: 8,
       letterSpacing: 1.8,
@@ -82,7 +100,13 @@ const AccountStackHeader = ({
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { isDarkMode } = useTheme();
+  const isCompactScreen = useIsCompactScreen();
   const insets = useSafeAreaInsets();
+  const headerHeight = isMinHeight
+    ? getAccountStackHeaderCollapsedHeight(isCompactScreen)
+    : getAccountStackHeaderExpandedHeight(isCompactScreen);
+  const avatarSize = isCompactScreen ? 68 : 88;
+  const userIconSize = isCompactScreen ? 36 : 45;
   const personalData = useAppSelector(selectPersonalData);
   const name = personalData?.name ?? '';
   const surname = personalData?.surname ?? '';
@@ -91,15 +115,22 @@ const AccountStackHeader = ({
     <View
       collapsable={false}
       style={{
-        height: isMinHeight ? ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT : ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT,
+        height: headerHeight,
         overflow: 'hidden',
       }}>
       <GradientBackground
         isAccountScreen
         centered={false}
-        gradientHeight={isMinHeight ? ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT : ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT}
+        gradientHeight={headerHeight}
       >
-        <View style={[globalStyles.fill, styles.container, { paddingTop: insets.top }]}>
+        <View
+          style={[
+            globalStyles.fill,
+            styles.container,
+            isCompactScreen && styles.containerCompact,
+            { paddingTop: insets.top },
+          ]}
+        >
           <AccountHeader
             onPress={onPress}
             onLogoutPress={onLogoutPress}
@@ -109,19 +140,19 @@ const AccountStackHeader = ({
           />
           {!isMinHeight && (
           <View>
-            <View style={styles.accountContainer}>
-              <View style={styles.userImageContainer}>
+            <View style={[styles.accountContainer, isCompactScreen && styles.accountContainerCompact]}>
+              <View style={[styles.userImageContainer, isCompactScreen && styles.userImageContainerCompact]}>
                 <GradientBackground
                   isLight={!isDarkMode}
                   // isReversed={!isDarkMode}
                   centered
-                  gradientWidth={88}
-                  gradientHeight={88}
-                  gradientRadius={44}
+                  gradientWidth={avatarSize}
+                  gradientHeight={avatarSize}
+                  gradientRadius={avatarSize / 2}
                 >
                   <UserSvg
-                    width={45}
-                    height={45}
+                    width={userIconSize}
+                    height={userIconSize}
                     fill={isDarkMode ? palette.white : palette.mainBlue}
                   />
                 </GradientBackground>
@@ -130,14 +161,22 @@ const AccountStackHeader = ({
                 <Typography
                   variant="h3"
                   tone="onDark"
-                  style={[styles.userName, isDarkMode && { color: palette.mainBlue }]}
+                  style={[
+                    styles.userName,
+                    isCompactScreen && styles.userNameCompact,
+                    isDarkMode && { color: palette.mainBlue },
+                  ]}
                 >
                   {name}
                 </Typography>
                 <Typography
                   variant="h3"
                   tone="onDark"
-                  style={[styles.userName, isDarkMode && { color: palette.mainBlue }]}
+                  style={[
+                    styles.userName,
+                    isCompactScreen && styles.userNameCompact,
+                    isDarkMode && { color: palette.mainBlue },
+                  ]}
                 >
                   {surname}
                 </Typography>

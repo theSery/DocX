@@ -7,6 +7,7 @@ import {
 import { AnimatedView, Typography } from '../../../components';
 import {
   useGlobalStyles,
+  useIsCompactScreen,
   useThemedFocusStatusBar,
   useThemedStyles,
   useTheme,
@@ -88,6 +89,9 @@ const createStyles = (colors) =>
       width: '100%',
       marginTop: 30,
     },
+    contentCompact: {
+      marginTop: 3,
+    },
     balanceContainer: {
       flexDirection: 'row',
       gap: 10,
@@ -163,6 +167,7 @@ const createStyles = (colors) =>
 export function AccountScreen({ navigation }) {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
   const { colors } = useTheme();
   const { showToast } = useToast();
   useThemedFocusStatusBar({ inverted: true });
@@ -207,7 +212,11 @@ export function AccountScreen({ navigation }) {
 
   return (
     <ScrollView style={[globalStyles.screen, styles.screen]}>
-      <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
+      <AnimatedView
+        animation="fadeIn"
+        duration={500}
+        style={[styles.content, isCompactScreen && styles.contentCompact]}
+      >
         <View style={styles.balanceContainer}>
           <View style={styles.balanceRow}>
             {/* <WalletSvg fill={palette.lightGray} width={50} height={50} />
