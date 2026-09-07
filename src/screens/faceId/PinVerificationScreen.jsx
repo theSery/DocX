@@ -12,6 +12,7 @@ import { AuthScreenLayout } from '../../components/layout';
 import {
   useAuthScreenStyles,
   useOtpInput,
+  useResponsiveLayout,
   useTheme,
   useThemedFocusStatusBar,
   useThemedStyles,
@@ -32,22 +33,22 @@ import { FONT_FAMILY, palette } from '../../theme';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function CompletedPinVerification({ otpInputProps, styles }) {
+function CompletedPinVerification({ otpInputProps, styles, iconStyle, otpBoxSize }) {
   return (
     <>
       <AnimatedView animation="fadeIn" style={styles.emailCheckContainer}>
         <Image
           source={emailCheck}
-          style={styles.emailCheckIcon}
-          resizeMode="cover"
+          style={iconStyle}
+          resizeMode="contain"
         />
       </AnimatedView>
-      <OtpInputRowCode {...otpInputProps} />
+      <OtpInputRowCode {...otpInputProps} boxSize={otpBoxSize} />
     </>
   );
 }
 
-function SuccessPinVerification({ styles, colors }) {
+function SuccessPinVerification({ styles, colors, iconStyle, lottieSize }) {
   return (
     <>
       <AnimatedView
@@ -57,8 +58,8 @@ function SuccessPinVerification({ styles, colors }) {
       >
         <Image
           source={openMail}
-          style={styles.emailCheckIcon}
-          resizeMode="cover"
+          style={iconStyle}
+          resizeMode="contain"
         />
         <AnimatedView
           animation="fadeIn"
@@ -71,7 +72,7 @@ function SuccessPinVerification({ styles, colors }) {
             loop={true}
             timing={2000}
             duration={2000}
-            style={{ width: 80, height: 80 }}
+            style={{ width: lottieSize, height: lottieSize }}
           />
         </AnimatedView>
       </AnimatedView>
@@ -93,6 +94,7 @@ function SuccessPinVerification({ styles, colors }) {
 export function PinVerificationScreen({ navigation, route }) {
   const styles = useAuthScreenStyles();
   const localStyles = useThemedStyles(createStyles);
+  const layout = useResponsiveLayout();
   const { colors } = useTheme();
   const { showToast } = useToast();
   useThemedFocusStatusBar();
@@ -246,10 +248,26 @@ export function PinVerificationScreen({ navigation, route }) {
   };
 
   const needsEmailInput = emailResolved && !email.trim();
+  const emailCheckIconStyle = layout.compact
+    ? {
+        width: layout.scaleSize(220),
+        height: layout.scaleSize(248),
+      }
+    : localStyles.emailCheckIcon;
+  const lottieSize = layout.compact ? layout.scaleSize(80) : 80;
+  const otpBoxSize = layout.compact ? 40 : 48;
 
   return (
     <AuthScreenLayout style={[styles.screen]}>
       <MainHeader onPress={() => navigation.goBack()} isHome={true} />
+      <ContentTiltes
+              title={'PIN կոդի վերականգնում'}
+              subtitle={
+                email.trim()
+                  ? `Մուտքագրեք Ձեր (${email.trim()}) էլ-փոստին ուղարկված կոդը`
+                  : 'Մուտքագրեք Ձեր էլ-փոստը և ուղարկված կոդը'
+              }
+            />
       <KeyboardAwareScrollView
         style={localStyles.formArea}
         showsVerticalScrollIndicator={false}
@@ -258,16 +276,8 @@ export function PinVerificationScreen({ navigation, route }) {
         bottomOffset={24}
         contentContainerStyle={localStyles.scrollContent}
       >
-        <View style={localStyles.content}>
+        <View style={[localStyles.content, layout.compact && localStyles.contentCompact]}>
           <View style={localStyles.formContainer}>
-            <ContentTiltes
-              title={'PIN կոդի վերականգնում'}
-              subtitle={
-                email.trim()
-                  ? `Մուտքագրեք Ձեր (${email.trim()}) էլ-փոստին ուղարկված կոդը`
-                  : 'Մուտքագրեք Ձեր էլ-փոստը և ուղարկված կոդը'
-              }
-            />
             {!isSuccess && needsEmailInput && (
               <TextInput
                 value={email}
@@ -279,6 +289,7 @@ export function PinVerificationScreen({ navigation, route }) {
                 autoCorrect={false}
                 style={[
                   localStyles.emailInput,
+                  layout.compact && localStyles.emailInputCompact,
                   {
                     color: colors.icons,
                     borderColor: colors.cardSelected,
@@ -308,11 +319,18 @@ export function PinVerificationScreen({ navigation, route }) {
               </Pressable>
             )}
             {isSuccess ? (
-              <SuccessPinVerification styles={localStyles} colors={colors} />
+              <SuccessPinVerification
+                styles={localStyles}
+                colors={colors}
+                iconStyle={emailCheckIconStyle}
+                lottieSize={lottieSize}
+              />
             ) : (
               <CompletedPinVerification
                 otpInputProps={otpInputProps}
                 styles={localStyles}
+                iconStyle={emailCheckIconStyle}
+                otpBoxSize={otpBoxSize}
               />
             )}
           </View>
@@ -339,6 +357,9 @@ const createStyles = () =>
       width: '100%',
       marginBottom: 20,
     },
+    contentCompact: {
+      marginBottom: 8,
+    },
     formContainer: {
       width: '100%',
     },
@@ -362,7 +383,7 @@ const createStyles = () =>
       width: '100%',
     },
     scrollContent: {
-      flex: 1,
+      flexGrow: 1,
       width: '100%',
     },
     lottieContainer: {
@@ -381,13 +402,18 @@ const createStyles = () =>
     },
     emailInput: {
       width: '100%',
+      height: 45,
       borderWidth: 1,
       borderRadius: 16,
       paddingHorizontal: 16,
-      paddingVertical: 14,
+      paddingVertical: 0,
       fontSize: 16,
       fontFamily: FONT_FAMILY.regular,
       marginBottom: 16,
+    },
+    emailInputCompact: {
+      height: 40,
+      fontSize: 14,
     },
     privacyText: {
       fontSize: 14,

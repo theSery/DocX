@@ -41,7 +41,6 @@ const createStyles = (colors) =>
   subTitle: {
     color: colors.text,
     marginBottom: 30,
-    marginTop: 10,
     letterSpacing: 0.4,
   },
   subTitleCompact: {
