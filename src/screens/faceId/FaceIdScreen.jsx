@@ -4,6 +4,7 @@ import { AuthScreenLayout } from '../../components/layout';
 import {
   useAuthScreenStyles,
   useAuthSession,
+  useIsCompactScreen,
   useThemedFocusStatusBar,
   useThemedStyles,
   useToast,
@@ -52,6 +53,7 @@ function getBiometricLabel(biometryType) {
 export function FaceIdScreen({ navigation, route }) {
   const styles = useAuthScreenStyles();
   const localStyles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
   const { showToast } = useToast();
   useThemedFocusStatusBar();
   const { completeReauth } = useAuthSession();
@@ -452,7 +454,12 @@ export function FaceIdScreen({ navigation, route }) {
             title="Մուտքագրեք PIN"
             subtitle="Մուտք լինելու համար խնդրում ենք մուտքագրել PIN-ը"
           />
-          <View style={localStyles.passcodeContainer}>
+          <View
+            style={[
+              localStyles.passcodeContainer,
+              isCompactScreen && localStyles.passcodeContainerCompact,
+            ]}
+          >
             <Passcode
               key={passcodeResetKey}
               value={passcode}
@@ -525,5 +532,9 @@ const createStyles = colors =>
       width: '100%',
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    passcodeContainerCompact: {
+      flex: 0,
+      marginTop: -8,
     },
   });

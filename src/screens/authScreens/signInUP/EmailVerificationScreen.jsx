@@ -8,6 +8,7 @@ import { AuthScreenLayout } from '../../../components/layout';
 import {
   useAuthScreenStyles,
   useOtpInput,
+  useResponsiveLayout,
   useTheme,
   useThemedFocusStatusBar,
   useThemedStyles,
@@ -24,22 +25,28 @@ import LottieAnimation from '../../../components/animation/LottieAnimation';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import { authApi } from '../../../api';
 
-function CompletedEmailVerification({ otpInputProps, styles }) {
+function CompletedEmailVerification({ otpInputProps, styles, iconStyle, otpBoxSize }) {
   return (
     <>
       <AnimatedView animation="fadeIn" style={styles.emailCheckContainer}>
         <Image
           source={emailCheck}
-          style={styles.emailCheckIcon}
-          resizeMode="cover"
+          style={iconStyle}
+          resizeMode="contain"
         />
       </AnimatedView>
-      <OtpInputRowCode {...otpInputProps} />
+      <OtpInputRowCode {...otpInputProps} boxSize={otpBoxSize} />
     </>
   );
 }
 
-function SuccessEmailVerification({ styles, colors, isResetPassword }) {
+function SuccessEmailVerification({
+  styles,
+  colors,
+  isResetPassword,
+  iconStyle,
+  lottieSize,
+}) {
   return (
     <>
       <AnimatedView
@@ -49,8 +56,8 @@ function SuccessEmailVerification({ styles, colors, isResetPassword }) {
       >
         <Image
           source={openMail}
-          style={styles.emailCheckIcon}
-          resizeMode="cover"
+          style={iconStyle}
+          resizeMode="contain"
         />
         <AnimatedView
           animation="fadeIn"
@@ -63,7 +70,7 @@ function SuccessEmailVerification({ styles, colors, isResetPassword }) {
             loop={true}
             timing={2000}
             duration={2000}
-            style={{ width: 80, height: 80 }}
+            style={{ width: lottieSize, height: lottieSize }}
           />
         </AnimatedView>
       </AnimatedView>
@@ -87,6 +94,7 @@ function SuccessEmailVerification({ styles, colors, isResetPassword }) {
 export function EmailVerificationScreen({ navigation, route }) {
   const styles = useAuthScreenStyles();
   const localStyles = useThemedStyles(createStyles);
+  const layout = useResponsiveLayout();
   const { colors } = useTheme();
   const { showToast } = useToast();
   useThemedFocusStatusBar();
@@ -141,10 +149,22 @@ export function EmailVerificationScreen({ navigation, route }) {
   const successButtonTitle = isResetPassword
     ? 'Վերականգնել գաղտնաբառը'
     : 'Գրանցվել';
+  const emailCheckIconStyle = layout.compact
+    ? {
+        width: layout.scaleSize(220),
+        height: layout.scaleSize(248),
+      }
+    : localStyles.emailCheckIcon;
+  const lottieSize = layout.compact ? layout.scaleSize(80) : 80;
+  const otpBoxSize = layout.compact ? 40 : 48;
 
   return (
     <AuthScreenLayout style={[styles.screen]}>
       <MainHeader onPress={() => navigation.goBack()} />
+      <ContentTiltes
+              title={'Էլ-փոստի հաստատում'}
+              subtitle={`Մուտքագրեք Ձեր (${email}) էլ-փոստին ուղարկված կոդը`}
+            />
       <KeyboardAwareScrollView
         style={localStyles.formArea}
         showsVerticalScrollIndicator={false}
@@ -153,22 +173,23 @@ export function EmailVerificationScreen({ navigation, route }) {
         bottomOffset={24}
         contentContainerStyle={localStyles.scrollContent}
       >
-        <View style={localStyles.content}>
+        <View style={[localStyles.content, layout.compact && localStyles.contentCompact]}>
           <View style={localStyles.formContainer}>
-            <ContentTiltes
-              title={'Էլ-փոստի հաստատում'}
-              subtitle={`Մուտքագրեք Ձեր (${email}) էլ-փոստին ուղարկված կոդը`}
-            />
+
             {isSuccess ? (
               <SuccessEmailVerification
                 styles={localStyles}
                 colors={colors}
                 isResetPassword={isResetPassword}
+                iconStyle={emailCheckIconStyle}
+                lottieSize={lottieSize}
               />
             ) : (
               <CompletedEmailVerification
                 otpInputProps={otpInputProps}
                 styles={localStyles}
+                iconStyle={emailCheckIconStyle}
+                otpBoxSize={otpBoxSize}
               />
             )}
           </View>
@@ -195,6 +216,9 @@ const createStyles = () =>
       width: '100%',
       marginBottom: 20,
     },
+    contentCompact: {
+      marginBottom: 8,
+    },
     formContainer: {
       width: '100%',
     },
@@ -218,7 +242,7 @@ const createStyles = () =>
       width: '100%',
     },
     scrollContent: {
-      flex: 1,
+      flexGrow: 1,
       width: '100%',
     },
     lottieContainer: {

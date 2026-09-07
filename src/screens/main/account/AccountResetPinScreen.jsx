@@ -18,6 +18,7 @@ import { ContentTiltes } from '../../../components/titleComponents/ContentTiltle
 import { authApi, persistAuthResponse } from '../../../api';
 import {
   useGlobalStyles,
+  useIsCompactScreen,
   useOtpInput,
   useTemporaryFocusStatusBar,
   useTheme,
@@ -102,6 +103,7 @@ export function AccountResetPinScreen() {
   const navigation = useNavigation();
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
   const { colors } = useTheme();
   const { showToast } = useToast();
 
@@ -427,7 +429,12 @@ export function AccountResetPinScreen() {
         >
           <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
             <ContentTiltes title={pinTitle} subtitle={pinSubtitle} />
-            <View style={styles.passcodeContainer}>
+            <View
+              style={[
+                styles.passcodeContainer,
+                isCompactScreen && styles.passcodeContainerCompact,
+              ]}
+            >
               <Passcode
                 hasBiometric={false}
                 disabled={isInputLocked || isResetting}
@@ -550,7 +557,10 @@ const createStyles = colors =>
       width: '100%',
       alignItems: 'center',
       justifyContent: 'center',
-   
+    },
+    passcodeContainerCompact: {
+      flex: 0,
+      marginTop: -8,
     },
     otpInputRow: {
       gap: 10,

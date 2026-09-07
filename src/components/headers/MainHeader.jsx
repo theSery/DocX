@@ -3,27 +3,33 @@ import { Image, StyleSheet, View } from 'react-native';
 import BackButton from '../buttons/BackButton';
 import darkLogo from '../../assets/images/darkLogo.webp';
 import whiteLogo from '../../assets/images/whiteLogo.webp';
-import { useTheme, useThemedStyles } from '../../hooks';
+import { useResponsiveLayout, useTheme, useThemedStyles } from '../../hooks';
 
 const MainHeader = ({ onPress, isHome = false, rightAction = null }) => {
   const styles = useThemedStyles(createStyles);
+  const layout = useResponsiveLayout();
   const { isDarkMode } = useTheme();
+  const sideSize = layout.compact ? layout.buttonHeight : 50;
 
   return (
     <View style={styles.container}>
-      <View style={styles.side}>
+      <View style={[styles.side, layout.compact && { width: sideSize }]}>
         {onPress ? (
-             <BackButton onPress={onPress} isHome={isHome} />
+          <BackButton
+            onPress={onPress}
+            isHome={isHome}
+            size={layout.compact ? layout.buttonHeight : 45}
+          />
         ) : null}
       </View>
       <View style={styles.logoContainer}>
         <Image
           source={isDarkMode ? whiteLogo : darkLogo}
-          style={styles.logo}
-          resizeMode="cover"
+          style={layout.compact ? styles.logoCompact : styles.logo}
+          resizeMode={layout.compact ? 'contain' : 'cover'}
         />
       </View>
-      <View style={styles.side}>
+      <View style={[styles.side, layout.compact && { width: sideSize }]}>
         {rightAction}
       </View>
     </View>
@@ -52,6 +58,12 @@ const createStyles = () =>
       height: 43,
       maxWidth: 180,
       minWidth: 140,
+    },
+    logoCompact: {
+      width: '100%',
+      height: 34,
+      maxWidth: 140,
+      minWidth: 110,
     },
     sideButton: {
       width: 4,

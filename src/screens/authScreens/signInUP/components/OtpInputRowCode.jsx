@@ -13,6 +13,7 @@ export function OtpInputRowCode({
   focusedIndex,
   onFocusIndex,
   length = DEFAULT_OTP_LENGTH,
+  boxSize = OTP_BOX_SIZE,
   style,
 }) {
   const styles = useThemedStyles(createStyles);
@@ -76,7 +77,11 @@ export function OtpInputRowCode({
         return (
           <View
             key={index}
-            style={[styles.otpBox, isFocused && styles.otpBoxFocused]}
+            style={[
+              styles.otpBox,
+              { width: boxSize, height: boxSize },
+              isFocused && styles.otpBoxFocused,
+            ]}
           >
             <TextInput
               ref={ref => {

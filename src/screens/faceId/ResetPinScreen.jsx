@@ -4,6 +4,7 @@ import { AuthScreenLayout } from '../../components/layout';
 import {
   useAuthScreenStyles,
   useAuthSession,
+  useIsCompactScreen,
   useThemedFocusStatusBar,
   useThemedStyles,
   useToast,
@@ -23,6 +24,7 @@ export function ResetPinScreen({ navigation, route }) {
   const { email, code } = route.params;
   const styles = useAuthScreenStyles();
   const localStyles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
   const { showToast } = useToast();
   useThemedFocusStatusBar();
   const { completeReauth } = useAuthSession();
@@ -197,7 +199,12 @@ export function ResetPinScreen({ navigation, route }) {
       <View style={localStyles.content}>
         <View style={localStyles.formContainer}>
           <ContentTiltes title={title} subtitle={subtitle} />
-          <View style={localStyles.passcodeContainer}>
+          <View
+            style={[
+              localStyles.passcodeContainer,
+              isCompactScreen && localStyles.passcodeContainerCompact,
+            ]}
+          >
             <Passcode
               hasBiometric={false}
               disabled={isInputLocked || isLoading}
@@ -229,5 +236,9 @@ const createStyles = () =>
       width: '100%',
       alignItems: 'center',
       justifyContent: 'center',
+    },
+    passcodeContainerCompact: {
+      flex: 0,
+      marginTop: -8,
     },
   });

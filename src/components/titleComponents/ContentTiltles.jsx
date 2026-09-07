@@ -1,15 +1,27 @@
 import { StyleSheet } from 'react-native';
 import { Typography } from '../typography';
-import { useThemedStyles } from '../../hooks';
+import { useIsCompactScreen, useThemedStyles } from '../../hooks';
 
 export function ContentTiltes({ title, subtitle, isSearch = false }) {
   const styles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
   return (
     <>
-      <Typography variant="h2" style={styles.loginTitle}>
+      <Typography
+        variant="h2"
+        style={[styles.loginTitle, isCompactScreen && styles.loginTitleCompact]}
+      >
         {title}
       </Typography>
-      <Typography variant="h6" style={[styles.subTitle, isSearch && styles.searchSubTitle]}>
+      <Typography
+        variant="h6"
+        style={[
+          styles.subTitle,
+          isCompactScreen && styles.subTitleCompact,
+          isSearch && styles.searchSubTitle,
+          isSearch && isCompactScreen && styles.searchSubTitleCompact,
+        ]}
+      >
         {subtitle}
       </Typography>
     </>
@@ -22,12 +34,24 @@ const createStyles = (colors) =>
     letterSpacing: 2,
     marginTop: 20,
   },
+  loginTitleCompact: {
+    letterSpacing: 0.9,
+    marginTop: 8,
+  },
   subTitle: {
     color: colors.text,
     marginBottom: 30,
+    marginTop: 10,
     letterSpacing: 0.4,
+  },
+  subTitleCompact: {
+    letterSpacing: 0.3,
+    marginBottom: 16,
   },
   searchSubTitle: {
     marginBottom: -10,
+  },
+  searchSubTitleCompact: {
+    marginBottom: -6,
   },
 });

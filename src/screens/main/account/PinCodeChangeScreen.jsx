@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AnimatedView } from '../../../components';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import { authApi } from '../../../api';
-import { useGlobalStyles, useThemedFocusStatusBar, useThemedStyles, useToast } from '../../../hooks';
+import { useGlobalStyles, useIsCompactScreen, useThemedFocusStatusBar, useThemedStyles, useToast } from '../../../hooks';
 import {
   getStoredPinCode,
   getUserCredentialsWithBiometric,
@@ -59,6 +59,10 @@ const createStyles = colors =>
       width: '100%',
       alignItems: 'center',
     },
+    passcodeContainerCompact: {
+      flex: 0,
+      marginTop: -8,
+    },
     footer: {
       flex: 1,
       justifyContent: 'flex-end',
@@ -82,6 +86,7 @@ export function PinCodeChangeScreen() {
   const navigation = useNavigation();
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
   const { showToast } = useToast();
   useThemedFocusStatusBar({ inverted: true });
   const isEmailVerified = useAppSelector(selectIsEmailVerified);
@@ -466,7 +471,12 @@ export function PinCodeChangeScreen() {
             title="PIN կոդի փոփոխություն"
             subtitle={stepContent.subtitle}
           />
-          <View style={styles.passcodeContainer}>
+          <View
+            style={[
+              styles.passcodeContainer,
+              isCompactScreen && styles.passcodeContainerCompact,
+            ]}
+          >
             <Passcode
               hasBiometric={showBiometric}
               disabled={isInputLocked || isLoading}

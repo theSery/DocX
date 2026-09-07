@@ -40,7 +40,11 @@ export function SignInUpScreen() {
             ]}
           >
             <Pressable onPress={resetToMain}>
-              <Image source={backButton} style={styles.image} resizeMode="cover" />
+              <Image
+                source={backButton}
+                style={[styles.image, layout.compact && styles.imageSmall]}
+                resizeMode="cover"
+              />
             </Pressable>
             <Pressable onPress={resetToMain}>
               <Typography
@@ -132,5 +136,9 @@ const createStyles = () =>
       width: 70,
       height: 70,
       marginLeft: -15,
+    },
+    imageSmall: {
+      width: 60,
+      height: 60,
     },
   });
