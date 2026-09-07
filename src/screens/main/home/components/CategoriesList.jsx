@@ -1,6 +1,5 @@
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { BlurView } from '@sbaiahmed1/react-native-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TAB_BAR_HEIGHT } from '../../../../utils/dimensions';
 import ArrowSvg from '../../../../components/icons/ArrowSvg';
@@ -52,19 +51,6 @@ export function CategoriesList({
             index={index}
             style={[globalStyles.cardShadow, styles.categoryItem]}
           >
-            <View style={styles.categoryItemBlurClip}>
-              <BlurView
-                pointerEvents="none"
-                style={StyleSheet.absoluteFill}
-                blurType={isDarkMode ? 'dark' : 'light'}
-                blurAmount={12}
-                reducedTransparencyFallbackColor={
-                  isDarkMode ? 'rgba(17, 17, 29, 0.12)' : 'rgba(255, 255, 255, 0.12)'
-                }
-                {...(Platform.OS === 'android' && {
-                  overlayColor: 'transparent',
-                })}
-              />
             <TouchableOpacity
               style={[
                 styles.categoryItemImage,
@@ -93,14 +79,15 @@ export function CategoriesList({
                 </View>
               </View>
             </TouchableOpacity>
-            </View>
           </StaggeredAnimatedView>
         )}
       />
-      <Image
-        pointerEvents="none"
-        source={require('../../../../assets/images/Femidi.webp')} style={[styles.image, { opacity: isDarkMode ? 1 : 0.4 }]}
-      />
+      {isCompactScreen ? null : (
+        <Image
+          source={require('../../../../assets/images/Femidi.webp')}
+          style={[styles.image, { opacity: isDarkMode ? 1 : 0.4 }]}
+        />
+      )}
     </View>
   );
 }
@@ -113,8 +100,6 @@ const createStyles = colors =>
     },
     list: {
       flex: 1,
-      zIndex: 1,
-      backgroundColor: 'transparent',
     },
     categoryItemImage: {
       flex: 1,
@@ -155,17 +140,10 @@ const createStyles = colors =>
     categoryItem: {
       marginBottom: SPACING,
       borderRadius: 24,
-      backgroundColor: 'transparent',
-    },
-    categoryItemBlurClip: {
-      borderRadius: 24,
-      overflow: 'hidden',
+      backgroundColor: colors.pureWhite,
       borderColor: colors.borderSubtle,
       borderWidth: 1,
       padding: SPACING,
-    },
-    categoryItemTint: {
-      ...StyleSheet.absoluteFill,
     },
     contentContainer: {
       padding: SPACING,
@@ -191,6 +169,6 @@ const createStyles = colors =>
       bottom: 50,
       left: 0,
       right: 0,
-      zIndex: 0,
+      zIndex: -1000,
     },
   });
