@@ -1,5 +1,6 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
+import { BlurView } from '@sbaiahmed1/react-native-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TAB_BAR_HEIGHT } from '../../../../utils/dimensions';
 import ArrowSvg from '../../../../components/icons/ArrowSvg';
@@ -51,8 +52,24 @@ export function CategoriesList({
             index={index}
             style={[globalStyles.cardShadow, styles.categoryItem]}
           >
+            <View style={styles.categoryItemBlurClip}>
+              <BlurView
+                pointerEvents="none"
+                style={StyleSheet.absoluteFill}
+                blurType={isDarkMode ? 'dark' : 'light'}
+                blurAmount={12}
+                reducedTransparencyFallbackColor={
+                  isDarkMode ? 'rgba(17, 17, 29, 0.12)' : 'rgba(255, 255, 255, 0.12)'
+                }
+                {...(Platform.OS === 'android' && {
+                  overlayColor: 'transparent',
+                })}
+              />
             <TouchableOpacity
-              style={styles.categoryItemImage}
+              style={[
+                styles.categoryItemImage,
+                isCompactScreen && styles.categoryItemImageCompact,
+              ]}
               onPress={() => navigation.navigate('Category', { item })}
             >
               <View style={styles.categoryItemHeaderRow}>
@@ -76,13 +93,13 @@ export function CategoriesList({
                 </View>
               </View>
             </TouchableOpacity>
+            </View>
           </StaggeredAnimatedView>
         )}
       />
       <Image
         pointerEvents="none"
-        source={require('../../../../assets/images/Femidi.webp')}
-        style={[styles.image, { opacity: isDarkMode ? 1 : 0.4 }]}
+        source={require('../../../../assets/images/Femidi.webp')} style={[styles.image, { opacity: isDarkMode ? 1 : 0.4 }]}
       />
     </View>
   );
@@ -96,10 +113,15 @@ const createStyles = colors =>
     },
     list: {
       flex: 1,
+      zIndex: 1,
+      backgroundColor: 'transparent',
     },
     categoryItemImage: {
       flex: 1,
       padding: SPACING,
+    },
+    categoryItemImageCompact: {
+      padding: 5,
     },
     categoryItemImageContainer: {
       width: 56,
@@ -107,7 +129,7 @@ const createStyles = colors =>
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: palette.skyBlue,
-      borderRadius: 10,
+      borderRadius: 12,
       marginRight: 10,
 
     },
@@ -133,10 +155,17 @@ const createStyles = colors =>
     categoryItem: {
       marginBottom: SPACING,
       borderRadius: 24,
-      backgroundColor: colors.pureWhite,
+      backgroundColor: 'transparent',
+    },
+    categoryItemBlurClip: {
+      borderRadius: 24,
+      overflow: 'hidden',
       borderColor: colors.borderSubtle,
       borderWidth: 1,
       padding: SPACING,
+    },
+    categoryItemTint: {
+      ...StyleSheet.absoluteFill,
     },
     contentContainer: {
       padding: SPACING,
@@ -162,7 +191,6 @@ const createStyles = colors =>
       bottom: 50,
       left: 0,
       right: 0,
-      // top: 0,
-      zIndex: -1000,
+      zIndex: 0,
     },
   });

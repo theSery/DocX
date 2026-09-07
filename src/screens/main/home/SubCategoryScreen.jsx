@@ -187,7 +187,7 @@ const createStyles = colors =>
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: palette.skyBlue,
-      borderRadius: 10,
+      borderRadius: 12,
       marginRight: 10,
     },
     subCategoryTextWrap: {

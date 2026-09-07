@@ -13,6 +13,7 @@ import Animated, {
 import Chevron from '../icons/Chevron';
 import { useTheme } from '../../hooks/useTheme';
 import { useThemedStyles } from '../../hooks/useThemedStyles';
+import { useIsCompactScreen } from '../../hooks/useResponsiveLayout';
 
 const EXPAND_EASING = Easing.bezier(0.33, 0.01, 0, 1);
 
@@ -54,6 +55,8 @@ function AccordionItemComponent({
 }) {
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
+  const chevronSize = isCompactScreen ? 16 : 20;
 
   const contentHeight = useSharedValue(0);
   const progress = useSharedValue(isOpen ? 1 : 0);
@@ -141,7 +144,7 @@ function AccordionItemComponent({
       >
         <View style={styles.headerContent}>{header}</View>
         <Animated.View style={[styles.chevronWrap, chevronStyle]}>
-          <Chevron width={20} height={20} fill={colors.iconAccent} rotate={90} />
+          <Chevron width={chevronSize} height={chevronSize} fill={colors.iconAccent} rotate={90} />
         </Animated.View>
       </Pressable>
       <Animated.View style={[styles.body, bodyStyle]}>
@@ -163,7 +166,8 @@ const createStyles = colors =>
       borderWidth: 1,
       borderColor: colors.borderSubtle,
       marginBottom: 10,
-      paddingHorizontal: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 5,
       overflow: 'hidden',
       shadowColor: colors.shadow,
       shadowOffset: { width: 0, height: 3 },

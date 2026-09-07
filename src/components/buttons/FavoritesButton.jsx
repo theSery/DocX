@@ -27,8 +27,8 @@ const FavoritesButton = ({ onPress }) => {
         resizeMode="cover"
       >
         <StarOutlineSvg
-          width={19}
-          height={18}
+          width={17}
+          height={16}
           fill={isDarkMode ? '#FFFFFF' : '#01174D'}
         />
       </ImageBackground>
@@ -38,8 +38,8 @@ const FavoritesButton = ({ onPress }) => {
 
 const styles = StyleSheet.create({
   pressable: {
-    width: 45,
-    height: 45,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
