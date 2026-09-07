@@ -18,7 +18,7 @@ import PhoneSvg from '../../../../components/icons/PhoneSvg';
 import bg from '../../../../assets/images/bg.webp';
 import { OtpInputRowCode } from './OtpInputRowCode';
 import { authApi, persistAuthResponse, smsApi } from '../../../../api';
-import { useAuthSession, useOtpInput, useTheme, useThemedStyles, useToast } from '../../../../hooks';
+import { useAuthSession, useIsCompactScreen, useOtpInput, useTheme, useThemedStyles, useToast } from '../../../../hooks';
 import { saveUserCredentials } from '../../../../utils/secureStorage';
 import { PASSWORD_STRENGTH_RULE } from '../../../../utils/patterns';
 import {
@@ -57,10 +57,12 @@ function OrDivider() {
 
 function OutlineButton({ title, onPress, icon }) {
   const styles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
   return (
     <Pressable
       style={({ pressed }) => [
         styles.outlineButton,
+        isCompactScreen && styles.outlineButtonCompact,
         pressed && styles.buttonPressed,
         { justifyContent: 'center' },
       ]}
@@ -287,7 +289,7 @@ function MailLogin({ handleTabPress, isResetPassword, onForgotPassword }) {
   return (
     <View style={styles.formColumn}>
       <View>
-        <View style={{ marginBottom: 0 }}>
+        <View style={{ marginBottom: 20 }}>
           <FormField
             control={control}
             name="email"
@@ -317,7 +319,7 @@ function MailLogin({ handleTabPress, isResetPassword, onForgotPassword }) {
             }}
           />
           <Pressable style={styles.forgotLink} hitSlop={8} onPress={onForgotPassword}>
-            <Typography style={styles.forgotLinkText}>
+            <Typography scaleOnCompact={false} style={styles.forgotLinkText}>
               Մոռացե՞լ եք գաղտնաբառը
             </Typography>
           </Pressable>
@@ -778,7 +780,7 @@ function PhoneLogin({ handleTabPress, onForgotPassword, onResetComplete }) {
           hitSlop={8}
           onPress={handleForgotPassword}
         >
-          <Typography style={styles.forgotLinkText}>
+          <Typography scaleOnCompact={false} style={styles.forgotLinkText}>
             Մոռացե՞լ եք գաղտնաբառը
           </Typography>
         </Pressable>
@@ -1049,6 +1051,9 @@ const createStyles = colors =>
     flexDirection: 'row',
     gap: 10,
     paddingHorizontal: 16,
+  },
+  outlineButtonCompact: {
+    height: 40,
   },
   outlineButtonText: {
     // width: '80%',

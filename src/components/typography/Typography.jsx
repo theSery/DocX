@@ -35,6 +35,7 @@ export function Typography({
   style,
   children,
   accessibilityRole,
+  scaleOnCompact = true,
   ...textProps
 }) {
   const { colors } = useTheme();
@@ -51,7 +52,7 @@ export function Typography({
       accessibilityRole={resolvedAccessibilityRole}
       style={[
         baseStyle,
-        isCompactScreen ? compactFontSizeStyle(baseStyle) : null,
+        isCompactScreen && scaleOnCompact ? compactFontSizeStyle(baseStyle) : null,
       ]}
       {...textProps}
     >

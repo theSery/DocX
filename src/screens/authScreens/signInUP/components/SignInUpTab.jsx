@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Canvas, Path, Skia } from '@shopify/react-native-skia';
 import { useForm } from 'react-hook-form';
 import { useNavigation } from '@react-navigation/native';
@@ -12,9 +13,8 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { AUTH_SCREEN_HORIZONTAL_PADDING } from '../../../../components/layout/authLayoutConstants';
 import { FONT_FAMILY } from '../../../../theme';
-import { FormField, FormScrollView, Typography } from '../../../../components';
+import { FormField, Typography } from '../../../../components';
 import { LoginTabs } from './LoginTabs';
 import { RegistrationPhoneNumber } from './RegistrationPhoneNumber';
 import { RegistrationPrivacyText } from './RegistrationPrivacyText';
@@ -22,7 +22,6 @@ import LockIconSbg from '../../../../components/icons/LockIconSbg';
 import PhoneSvg from '../../../../components/icons/PhoneSvg';
 import AuthButton from '../../../../components/buttons/AuthButton';
 import { authApi } from '../../../../api';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useThemedStyles, useToast } from '../../../../hooks';
 import { PASSWORD_STRENGTH_RULE } from '../../../../utils/patterns';
 
@@ -327,16 +326,7 @@ export function SignInUpTab({ onPhoneLogin }) {
         </Pressable>
       </View>
 
-      <FormScrollView
-        style={styles.formArea}
-        showsVerticalScrollIndicator={false}
-        nestedScrollEnabled
-        bottomOffset={32}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingBottom: insets.bottom + 16 },
-        ]}
-      >
+      <View style={[styles.formArea, { paddingBottom: insets.bottom + 16 }]}>
         <View style={styles.formsStack}>
           {tabIndex === 0 ? (
             <Animated.View
@@ -365,7 +355,7 @@ export function SignInUpTab({ onPhoneLogin }) {
             </Animated.View>
           )}
         </View>
-      </FormScrollView>
+      </View>
     </View>
   );
 }
@@ -374,8 +364,7 @@ const createStyles = colors =>
   StyleSheet.create({
   container: {
     flex: 1,
-    height: '100%',
-    marginHorizontal: -AUTH_SCREEN_HORIZONTAL_PADDING,
+    width: '100%',
   },
   tabRow: {
     flexDirection: 'row',
@@ -393,11 +382,8 @@ const createStyles = colors =>
     letterSpacing: 2,
   },
   formArea: {
-    flex: 1,
-    zIndex: 1,
-  },
-  scrollContent: {
     flexGrow: 1,
+    zIndex: 1,
     paddingHorizontal: CONTENT_PADDING,
     paddingTop: 8,
   },

@@ -1,21 +1,19 @@
 import { Image, Pressable, StyleSheet, View } from 'react-native';
-import { useKeyboardState } from 'react-native-keyboard-controller';
-import { AuthScreenLayout, KeyboardAvoidingView } from '../../../components/layout';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { AuthScreenLayout } from '../../../components/layout';
+import { AUTH_SCREEN_HORIZONTAL_PADDING } from '../../../components/layout/authLayoutConstants';
 import { AnimatedView, Typography } from '../../../components';
 import whiteLogo from '../../../assets/images/whiteLogo.webp';
 import darkLogo from '../../../assets/images/darkLogo.webp';
 import backButton from '../../../assets/images/backButton.webp';
 import { SignInUpTab } from './components/SignInUpTab';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { resetToMain } from '../../../navigation/navigationRef';
 import { useResponsiveLayout, useTheme, useThemedFocusStatusBar, useThemedStyles } from '../../../hooks';
 
 export function SignInUpScreen() {
-  const insets = useSafeAreaInsets();
   const styles = useThemedStyles(createStyles);
   const layout = useResponsiveLayout();
   const { isDarkMode, colors } = useTheme();
-  const isKeyboardVisible = useKeyboardState(state => state.isVisible);
   useThemedFocusStatusBar({ inverted: true });
 
   return (
@@ -26,13 +24,19 @@ export function SignInUpScreen() {
       gradientHeight={'100%'}
       contentStyle={styles.screen}
     >
-      <KeyboardAvoidingView style={styles.keyboardView}>
+      <KeyboardAwareScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        showsVerticalScrollIndicator={false}
+        bottomOffset={24}
+      >
         <View style={styles.headerContainer}>
           <View
             style={[
               styles.headerContent,
               layout.compact && styles.headerContentSmall,
-              isKeyboardVisible && !layout.compact && styles.headerContentCompact,
             ]}
           >
             <Pressable onPress={resetToMain}>
@@ -66,14 +70,12 @@ export function SignInUpScreen() {
         <View
           style={[
             styles.tabsSection,
-            { marginBottom: -insets.bottom },
             layout.compact && styles.tabsSectionSmall,
-            isKeyboardVisible && !layout.compact && styles.tabsSectionCompact,
           ]}
         >
           <SignInUpTab />
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </AuthScreenLayout>
   );
 }
@@ -82,16 +84,20 @@ const createStyles = () =>
   StyleSheet.create({
     screen: {
       flex: 1,
-      justifyContent: 'flex-start',
-      alignItems: 'stretch',
+      width: '100%',
+      paddingHorizontal: 0,
+      paddingBottom: 0,
+    },
+    scroll: {
+      flex: 1,
       width: '100%',
     },
-    keyboardView: {
-      flex: 1,
+    scrollContent: {
+      flexGrow: 1,
       width: '100%',
     },
     tabsSection: {
-      flex: 1,
+      flexGrow: 1,
       width: '100%',
       marginTop: '20%',
     },
@@ -102,6 +108,7 @@ const createStyles = () =>
       width: '100%',
       justifyContent: 'space-between',
       alignItems: 'center',
+      paddingHorizontal: AUTH_SCREEN_HORIZONTAL_PADDING,
     },
     logoContainer: {
       alignItems: 'center',
@@ -120,12 +127,6 @@ const createStyles = () =>
     },
     headerContentSmall: {
       marginBottom: '0%',
-    },
-    headerContentCompact: {
-      marginBottom: 8,
-    },
-    tabsSectionCompact: {
-      marginTop: 8,
     },
     image: {
       width: 70,
