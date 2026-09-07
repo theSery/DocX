@@ -1,4 +1,5 @@
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { AnimatedView, Typography } from '../../../../components';
 import AuthButton from '../../../../components/buttons/AuthButton';
 import { ContentTiltes } from '../../../../components/titleComponents/ContentTiltles';
@@ -137,12 +138,12 @@ export function ConfirmPhoneCodeContent({ phoneNumber, onConfirmed }) {
 
   return (
     <View style={styles.body}>
-      <ScrollView
+      <KeyboardAwareScrollView
         style={styles.scroll}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
-        automaticallyAdjustKeyboardInsets
+        bottomOffset={24}
         contentContainerStyle={styles.contentContainer}
       >
         <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
@@ -167,7 +168,7 @@ export function ConfirmPhoneCodeContent({ phoneNumber, onConfirmed }) {
             </Pressable>
           </View>
         </AnimatedView>
-      </ScrollView>
+      </KeyboardAwareScrollView>
       <View style={[styles.footer, { paddingBottom: TAB_BAR_BOTTOM_OFFSET }]}>
         <AuthButton
           title="Հաստատել հեռախոսահամարը"

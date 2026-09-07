@@ -115,6 +115,10 @@ export function Passcode({
     [value],
   );
 
+  if (passcode.length < length) {
+    isCompletingRef.current = false;
+  }
+
   useEffect(() => {
     if (passcode.length < length) {
       isCompletingRef.current = false;

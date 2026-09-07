@@ -59,6 +59,7 @@ export function FaceIdScreen({ navigation, route }) {
   const nextScreen = route.params?.nextScreen;
   const isUnlockOnly = Boolean(nextScreen);
   const [passcode, setPasscode] = useState([]);
+  const [passcodeResetKey, setPasscodeResetKey] = useState(0);
   const [isPinVerifying, setIsPinVerifying] = useState(false);
   const [biometricLabel, setBiometricLabel] = useState('Face ID / Touch ID');
 
@@ -123,6 +124,12 @@ export function FaceIdScreen({ navigation, route }) {
     [clearFillAnimation, sleep],
   );
 
+  const clearPasscode = useCallback(() => {
+    clearFillAnimation();
+    setPasscode([]);
+    setPasscodeResetKey(key => key + 1);
+  }, [clearFillAnimation]);
+
   const claimAuthSuccess = useCallback(() => {
     if (hasCompletedAuthRef.current) {
       return false;
@@ -155,6 +162,7 @@ export function FaceIdScreen({ navigation, route }) {
       } catch (error) {
         // Allow the other method (PIN / Face ID) to retry after login failure.
         hasCompletedAuthRef.current = false;
+        clearPasscode();
         console.log('[FaceId] Login failed:', error?.message ?? error);
         showToast({
           title: 'Մուտքը ձախողվեց',
@@ -163,7 +171,7 @@ export function FaceIdScreen({ navigation, route }) {
         });
       }
     },
-    [completeAuthentication, showToast],
+    [clearPasscode, completeAuthentication, showToast],
   );
 
   const finishVerifiedAuth = useCallback(
@@ -305,13 +313,13 @@ export function FaceIdScreen({ navigation, route }) {
   }, [clearFillAnimation]);
 
   const showInvalidPin = useCallback(() => {
-    setPasscode([]);
+    clearPasscode();
     showToast({
       title: 'PIN-ը սխալ է',
       body: 'Փորձեք կրկին։',
       type: 'error',
     });
-  }, [showToast]);
+  }, [clearPasscode, showToast]);
 
   const handlePasscodeChange = useCallback(next => {
     // Keep keypad usable while Face ID runs; lock only during auto-fill animation.
@@ -420,7 +428,7 @@ export function FaceIdScreen({ navigation, route }) {
       }
 
       console.log('[FaceId] PIN verification failed:', error?.message ?? error);
-      setPasscode([]);
+      clearPasscode();
       showToast({
         title: 'PIN-ը սխալ է',
         body: error?.message || 'Փորձեք կրկին։',
@@ -446,6 +454,7 @@ export function FaceIdScreen({ navigation, route }) {
           />
           <View style={localStyles.passcodeContainer}>
             <Passcode
+              key={passcodeResetKey}
               value={passcode}
               onChange={handlePasscodeChange}
               onComplete={handlePinComplete}

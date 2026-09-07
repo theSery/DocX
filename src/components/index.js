@@ -24,6 +24,7 @@ export {
   FormFlatList,
   FormScrollView,
 } from './form';
+export { KeyboardAvoidingView } from './keyboard';
 export { CachedImage, useCachedImageSource } from './image';
 export { AuthScreenLayout, SplashGate } from './layout';
 export { ColorSchemeToggle } from './theme';

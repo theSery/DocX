@@ -4,7 +4,6 @@ import {
   ActivityIndicator,
   Dimensions,
   Keyboard,
-  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
@@ -14,14 +13,13 @@ import {
   TextInput,
   View,
 } from 'react-native';
-
+import { KeyboardAvoidingView } from '../keyboard';
 import { Typography } from '../typography';
 import { FONT_FAMILY } from '../../theme';
 import { useTheme, useThemedStyles } from '../../hooks';
 import { ENV } from '../../config/env';
 import LocationSvg from '../icons/LocationSvg';
 import CloseIcon from '../icons/CloseIcon';
-import { useEnsureInputVisible } from './formKeyboard';
 import {
   ARMENIAN_ADDRESS_RULES,
   hasNonArmenianLetters,
@@ -827,8 +825,6 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
   const initialNormalizedAddressRef = useRef('');
   const initialBuildingRef = useRef('');
   const unitFieldsRef = useRef({ building: '', apartment: '', house: '' });
-  const { onInputFocus, onInputBlur } = useEnsureInputVisible(inputContainerRef);
-
   const clearLayoutTimeouts = useCallback(() => {
     layoutTimeoutsRef.current.forEach(clearTimeout);
     layoutTimeoutsRef.current = [];
@@ -1180,14 +1176,8 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
     clearBlurTimeout();
     setIsFocused(true);
     onFocusChange?.(true);
-    onInputFocus();
     scheduleSuggestionsLayoutUpdate();
-  }, [
-    clearBlurTimeout,
-    onFocusChange,
-    onInputFocus,
-    scheduleSuggestionsLayoutUpdate,
-  ]);
+  }, [clearBlurTimeout, onFocusChange, scheduleSuggestionsLayoutUpdate]);
 
   const handleBlur = useCallback(() => {
     clearBlurTimeout();
@@ -1197,16 +1187,9 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
       setPredictions([]);
       onFocusChange?.(false);
       clearLayoutTimeouts();
-      onInputBlur();
       onBlur();
     }, 180);
-  }, [
-    clearBlurTimeout,
-    clearLayoutTimeouts,
-    onBlur,
-    onFocusChange,
-    onInputBlur,
-  ]);
+  }, [clearBlurTimeout, clearLayoutTimeouts, onBlur, onFocusChange]);
 
   const showSuggestions = isFocused && predictions.length > 0;
   const canConfirmAddress =
@@ -1282,7 +1265,8 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
       >
         <KeyboardAvoidingView
           style={styles.confirmKeyboardView}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior="padding"
+          automaticOffset
         >
           <Pressable style={styles.confirmBackdrop} onPress={closeConfirmModal}>
             <Pressable style={styles.confirmSheet} onPress={() => {}}>

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Controller } from 'react-hook-form';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
@@ -7,7 +7,6 @@ import { FONT_FAMILY } from '../../theme';
 import { useTheme, useThemedStyles } from '../../hooks';
 import EyeIconSvg from '../icons/EyeIconSvg';
 import CloseIcon from '../icons/CloseIcon';
-import { useEnsureInputVisible } from './formKeyboard';
 
 const INPUT_RADIUS = 16;
 const ARMENIA_PHONE_PREFIX = '+374 ';
@@ -126,8 +125,6 @@ export function FormField({
   const isPhoneField = name === 'phone' || name === 'phoneNumber';
   const [isSecureVisible, setIsSecureVisible] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const inputContainerRef = useRef(null);
-  const { onInputFocus, onInputBlur } = useEnsureInputVisible(inputContainerRef);
 
   const showDefaultEyeToggle = secureTextEntry && endButton == null;
   const isMasked = secureTextEntry && !isSecureVisible;
@@ -153,8 +150,6 @@ export function FormField({
           <View style={{ gap: isSearch ? 0 : 8 }}>
             {label ? <Typography variant={labelVariant}>{label}</Typography> : null}
             <View
-              ref={inputContainerRef}
-              collapsable={false}
               style={[
                 styles.inputRow,
                 isSearch && styles.inputRowSearch,
@@ -173,13 +168,11 @@ export function FormField({
                   if (isSearch) {
                     setIsFocused(true);
                   }
-                  onInputFocus();
                 }}
                 onBlur={() => {
                   if (isSearch) {
                     setIsFocused(false);
                   }
-                  onInputBlur();
                   onBlur();
                 }}
                 autoCapitalize={autoCapitalize}

@@ -1,9 +1,9 @@
 import {
   Image,
-  ScrollView,
   StyleSheet,
   View,
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { AuthScreenLayout } from '../../../components/layout';
 import {
   useAuthScreenStyles,
@@ -145,12 +145,12 @@ export function EmailVerificationScreen({ navigation, route }) {
   return (
     <AuthScreenLayout style={[styles.screen]}>
       <MainHeader onPress={() => navigation.goBack()} />
-      <ScrollView
+      <KeyboardAwareScrollView
         style={localStyles.formArea}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
-        automaticallyAdjustKeyboardInsets
+        bottomOffset={24}
         contentContainerStyle={localStyles.scrollContent}
       >
         <View style={localStyles.content}>
@@ -181,7 +181,7 @@ export function EmailVerificationScreen({ navigation, route }) {
             />
           </View>
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </AuthScreenLayout>
   );
 }

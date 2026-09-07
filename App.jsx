@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { Platform, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { KeyboardController, KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as ReduxProvider } from 'react-redux';
 import {
@@ -39,35 +40,45 @@ function App() {
     clearCredentialsIfReinstalled().finally(() => setCredentialsChecked(true));
   }, []);
 
+  useEffect(() => {
+    if (!credentialsChecked) {
+      return;
+    }
+    // Preload after launch so the keyboard does not flash during splash.
+    KeyboardController.preload();
+  }, [credentialsChecked]);
+
   if (!credentialsChecked) {
     return null;
   }
 
   return (
     <GestureHandlerRootView style={styles.root}>
-      <ReduxProvider store={store}>
-        <ColorSchemeProvider>
-          <SafeAreaProvider>
-            <AuthProvider>
-              <SplashGate>
-                <GlobalSheetProvider>
-                  {Platform.OS === 'ios' ? (
-                    <DocumentLoadingOverlayProvider>
-                      <AppNavigation />
-                      <AppToast />
-                    </DocumentLoadingOverlayProvider>
-                  ) : (
-                    <>
-                      <AppNavigation />
-                      <AppToast />
-                    </>
-                  )}
-                </GlobalSheetProvider>
-              </SplashGate>
-            </AuthProvider>
-          </SafeAreaProvider>
-        </ColorSchemeProvider>
-      </ReduxProvider>
+      <KeyboardProvider preload={false}>
+        <ReduxProvider store={store}>
+          <ColorSchemeProvider>
+            <SafeAreaProvider>
+              <AuthProvider>
+                <SplashGate>
+                  <GlobalSheetProvider>
+                    {Platform.OS === 'ios' ? (
+                      <DocumentLoadingOverlayProvider>
+                        <AppNavigation />
+                        <AppToast />
+                      </DocumentLoadingOverlayProvider>
+                    ) : (
+                      <>
+                        <AppNavigation />
+                        <AppToast />
+                      </>
+                    )}
+                  </GlobalSheetProvider>
+                </SplashGate>
+              </AuthProvider>
+            </SafeAreaProvider>
+          </ColorSchemeProvider>
+        </ReduxProvider>
+      </KeyboardProvider>
     </GestureHandlerRootView>
   );
 }

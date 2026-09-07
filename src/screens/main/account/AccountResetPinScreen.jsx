@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { AnimatedView, Typography } from '../../../components';
 import AuthButton from '../../../components/buttons/AuthButton';
 import LottieAnimation from '../../../components/animation/LottieAnimation';
@@ -443,12 +444,12 @@ export function AccountResetPinScreen() {
 
   return (
     <View style={[globalStyles.screen, styles.screen]}>
-      <ScrollView
+      <KeyboardAwareScrollView
         style={styles.scroll}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
-        automaticallyAdjustKeyboardInsets
+        bottomOffset={24}
         contentContainerStyle={styles.scrollContent}
       >
         <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
@@ -508,7 +509,7 @@ export function AccountResetPinScreen() {
             />
           )}
         </AnimatedView>
-      </ScrollView>
+      </KeyboardAwareScrollView>
       <View style={[styles.footer, { paddingBottom: TAB_BAR_BOTTOM_OFFSET + 20}]}>
         <AuthButton
           title={isSuccess ? 'Սահմանել նոր PIN' : 'Հաստատել կոդը'}

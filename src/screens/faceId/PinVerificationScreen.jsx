@@ -2,12 +2,12 @@ import {
   ActivityIndicator,
   Image,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { AuthScreenLayout } from '../../components/layout';
 import {
   useAuthScreenStyles,
@@ -250,12 +250,12 @@ export function PinVerificationScreen({ navigation, route }) {
   return (
     <AuthScreenLayout style={[styles.screen]}>
       <MainHeader onPress={() => navigation.goBack()} isHome={true} />
-      <ScrollView
+      <KeyboardAwareScrollView
         style={localStyles.formArea}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
-        automaticallyAdjustKeyboardInsets
+        bottomOffset={24}
         contentContainerStyle={localStyles.scrollContent}
       >
         <View style={localStyles.content}>
@@ -325,7 +325,7 @@ export function PinVerificationScreen({ navigation, route }) {
             />
           </View>
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </AuthScreenLayout>
   );
 }
