@@ -6,14 +6,18 @@ import { SPACING } from './components/CategoriesList';
 import { Accordion } from '../../../components/accordion';
 import { CachedImage } from '../../../components/image';
 import {
+  getHomeStackHeaderCollapsibleHeight,
   HOME_STACK_HEADER_COLLAPSED_HEIGHT,
-  HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
 } from '../../../components/headers/stackHeaderConstants';
 import { TAB_BAR_HEIGHT, TOP_HEADER_HEIGHT, WIDTH } from '../../../utils/dimensions';
 import { palette } from '../../../theme';
 import { Typography } from '../../../components/typography/Typography';
 import AuthButton from '../../../components/buttons/AuthButton';
-import { useHomeStackHeaderScrollHandler, useThemedStyles } from '../../../hooks';
+import {
+  useHomeStackHeaderScrollHandler,
+  useIsCompactScreen,
+  useThemedStyles,
+} from '../../../hooks';
 import { useHomeStackHeaderScroll } from '../../../context/HomeStackHeaderScrollContext';
 import { useEffect } from 'react';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
@@ -39,6 +43,8 @@ export function SubCategoryScreen({ route, navigation }) {
     subCategoryId,
   } = route.params;
   const styles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
+  const headerCollapsibleHeight = getHomeStackHeaderCollapsibleHeight(isCompactScreen);
   const canCollapse =
     (Array.isArray(item) ? item.length : 0) > COLLAPSE_ITEM_THRESHOLD;
 
@@ -88,7 +94,7 @@ export function SubCategoryScreen({ route, navigation }) {
           ref={scrollRef}
           style={styles.scrollView}
           contentContainerStyle={{
-            paddingTop: HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
+            paddingTop: headerCollapsibleHeight,
             paddingBottom: scrollBottomPadding,
           }}
           onScroll={onScroll}
@@ -104,7 +110,7 @@ export function SubCategoryScreen({ route, navigation }) {
             openRequestId={openRequestId ?? null}
             scrollRef={scrollRef}
             scrollOffset={scrollY}
-            scrollIntoViewOffset={HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT}
+            scrollIntoViewOffset={headerCollapsibleHeight}
             staggeredEnter
             renderHeader={category => (
               <>
@@ -168,18 +174,21 @@ const createStyles = colors =>
       overflow: 'hidden',
     },
     subCategoryIcon: {
-      width: 50,
-      height: 50,
+      width: 32,
+      height: 32,
       resizeMode: 'contain',
-      backgroundColor: palette.skyBlue,
-      padding: 10,
-      borderRadius: 16,
     },
     subCategoryName: {
       letterSpacing: 0.4,
     },
     subCategoryIconWrap: {
-      marginRight: 12,
+      width: 56,
+      height: 56,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: palette.skyBlue,
+      borderRadius: 10,
+      marginRight: 10,
     },
     subCategoryTextWrap: {
       flex: 1,

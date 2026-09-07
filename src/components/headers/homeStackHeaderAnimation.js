@@ -27,11 +27,15 @@ export function getHomeStackHeaderCollapseProgress(
 }
 
 /** Header height for a given collapse progress (0 = expanded, 1 = collapsed). */
-export function getHomeStackHeaderHeight(progress, showSearch = true) {
+export function getHomeStackHeaderHeight(
+  progress,
+  showSearch = true,
+  expandedHeight = HOME_STACK_HEADER_EXPANDED_HEIGHT,
+) {
   'worklet';
   const expanded = showSearch
-    ? HOME_STACK_HEADER_EXPANDED_HEIGHT
-    : HOME_STACK_HEADER_EXPANDED_HEIGHT - HOME_STACK_HEADER_COLLAPSED_HEIGHT;
+    ? expandedHeight
+    : expandedHeight - HOME_STACK_HEADER_COLLAPSED_HEIGHT;
   const collapsed = showSearch ? HOME_STACK_HEADER_COLLAPSED_HEIGHT : 0;
   return interpolate(progress, [0, 1], [expanded, collapsed], Extrapolation.CLAMP);
 }

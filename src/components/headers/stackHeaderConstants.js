@@ -1,4 +1,5 @@
 export const HOME_STACK_HEADER_EXPANDED_HEIGHT = 180;
+export const HOME_STACK_HEADER_EXPANDED_HEIGHT_COMPACT = 160;
 export const HOME_STACK_HEADER_COLLAPSED_HEIGHT = 56;
 export const ACCOUNT_STACK_HEADER_EXPANDED_HEIGHT = 250;
 export const ACCOUNT_STACK_HEADER_COLLAPSED_HEIGHT = 130;
@@ -20,6 +21,19 @@ export const HOME_STACK_HEADER_COLLAPSE_SCROLL_END =
 
 export const HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT =
   HOME_STACK_HEADER_EXPANDED_HEIGHT - HOME_STACK_HEADER_COLLAPSED_HEIGHT;
+
+export function getHomeStackHeaderExpandedHeight(isCompactScreen) {
+  return isCompactScreen
+    ? HOME_STACK_HEADER_EXPANDED_HEIGHT_COMPACT
+    : HOME_STACK_HEADER_EXPANDED_HEIGHT;
+}
+
+export function getHomeStackHeaderCollapsibleHeight(isCompactScreen) {
+  return (
+    getHomeStackHeaderExpandedHeight(isCompactScreen) -
+    HOME_STACK_HEADER_COLLAPSED_HEIGHT
+  );
+}
 
 /** Kept for callers that previously tuned follow duration; collapse is 1:1 now. */
 export const HOME_STACK_HEADER_COLLAPSE_ANIMATION = {

@@ -8,7 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import MainHeader from './MainHeader';
 import FavoritesButton from '../buttons/FavoritesButton';
-import { useAuthSession, useThemedStyles } from '../../hooks';
+import { useAuthSession, useIsCompactScreen, useThemedStyles } from '../../hooks';
 import { SearchComponent } from '../titleComponents/SearchComponent';
 import { CachedImage } from '../image';
 import { Typography } from '../typography';
@@ -19,6 +19,8 @@ import {
   getHomeStackHeaderHeight,
 } from './homeStackHeaderAnimation';
 import {
+  getHomeStackHeaderCollapsibleHeight,
+  getHomeStackHeaderExpandedHeight,
   HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
   HOME_STACK_HEADER_EXPANDED_HEIGHT,
 } from './stackHeaderConstants';
@@ -95,6 +97,8 @@ const StaticHomeStackHeader = ({
   searchScope,
   iconUrl,
   extraHeight = 0,
+  expandedHeight = HOME_STACK_HEADER_EXPANDED_HEIGHT,
+  collapsibleHeight = HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
 }) => (
   <View
     style={[
@@ -102,9 +106,8 @@ const StaticHomeStackHeader = ({
       {
         height:
           (showSearch
-            ? HOME_STACK_HEADER_EXPANDED_HEIGHT
-            : HOME_STACK_HEADER_EXPANDED_HEIGHT +
-              HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT) + extraHeight,
+            ? expandedHeight
+            : expandedHeight + collapsibleHeight) + extraHeight,
       },
     ]}
   >
@@ -144,6 +147,8 @@ const CollapsibleHomeStackHeader = ({
   showSearch,
   searchScope,
   extraHeight = 0,
+  expandedHeight = HOME_STACK_HEADER_EXPANDED_HEIGHT,
+  collapsibleHeight = HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
 }) => {
   const { scrollY, collapseScrollEnd, collapseEnabled } =
     useHomeStackHeaderScroll();
@@ -163,7 +168,9 @@ const CollapsibleHomeStackHeader = ({
       collapseEnabled.value,
     );
     return {
-      height: getHomeStackHeaderHeight(progress, showSearch) + extraHeightSv.value,
+      height:
+        getHomeStackHeaderHeight(progress, showSearch, expandedHeight) +
+        extraHeightSv.value,
     };
   });
 
@@ -185,7 +192,7 @@ const CollapsibleHomeStackHeader = ({
           translateY: interpolate(
             progress,
             [0, 1],
-            [0, -HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT * 0.35],
+            [0, -collapsibleHeight * 0.35],
             Extrapolation.CLAMP,
           ),
         },
@@ -252,6 +259,9 @@ const HomeStackHeader = ({
   route,
 }) => {
   const styles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
+  const expandedHeight = getHomeStackHeaderExpandedHeight(isCompactScreen);
+  const collapsibleHeight = getHomeStackHeaderCollapsibleHeight(isCompactScreen);
   const { isAuthenticated } = useAuthSession();
   const searchScope = resolveSearchScope(route);
   const favoritesPress = isAuthenticated ? onFavoritesPress : undefined;
@@ -274,6 +284,8 @@ const HomeStackHeader = ({
         searchScope={resolvedSearchScope}
         iconUrl={iconUrl}
         extraHeight={extraHeight}
+        expandedHeight={expandedHeight}
+        collapsibleHeight={collapsibleHeight}
       />
     );
   }
@@ -288,6 +300,8 @@ const HomeStackHeader = ({
       showSearch={showSearch}
       searchScope={resolvedSearchScope}
       extraHeight={extraHeight}
+      expandedHeight={expandedHeight}
+      collapsibleHeight={collapsibleHeight}
     />
   );
 };

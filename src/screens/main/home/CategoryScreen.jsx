@@ -8,7 +8,7 @@ import { CachedImage } from '../../../components/image';
 import { TAB_BAR_HEIGHT, TOP_HEADER_HEIGHT, WIDTH } from '../../../utils/dimensions';
 import { Typography } from '../../../components/typography/Typography';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
-import { useGlobalStyles, useHomeStackHeaderScrollHandler, useThemedStyles, useTheme } from '../../../hooks';
+import { useGlobalStyles, useHomeStackHeaderScrollHandler, useIsCompactScreen, useThemedStyles, useTheme } from '../../../hooks';
 import { palette } from '../../../theme';
 
 const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
@@ -18,6 +18,8 @@ export function CategoryScreen({ navigation, route }) {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  const isCompactScreen = useIsCompactScreen();
+  const arrowSize = isCompactScreen ? 16 : 20;
   const { onScroll, onScrollViewLayout, onContentSizeChange } =
     useHomeStackHeaderScrollHandler();
   const insets = useSafeAreaInsets();
@@ -57,7 +59,7 @@ export function CategoryScreen({ navigation, route }) {
                   </Typography>
                 </View>
                 <View style={styles.subCategoryArrowWrap}>
-                  <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
+                  <ArrowSvg width={arrowSize} height={arrowSize} fill={colors.iconAccent} />
                 </View>
               </TouchableOpacity>
             </StaggeredAnimatedView>
@@ -101,23 +103,24 @@ const createStyles = colors =>
       borderColor: colors.borderSubtle,
     },
     subCategoryIcon: {
-      width: 50,
-      height: 50,
+      width: 32,
+      height: 32,
       resizeMode: 'contain',
-      backgroundColor: palette.skyBlue,
-      padding: 10,
-      borderRadius: 16,
     },
     subCategoryName: {
       // letterSpacing: 0.4,
     },
     subCategoryIconWrap: {
-      width: '10%',
-      // backgroundColor: 'blue',
+      width: 56,
+      height: 56,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: palette.skyBlue,
+      borderRadius: 10,
+      marginRight: 10,
     },
     subCategoryTextWrap: {
-      width: '75%',
-      // backgroundColor: 'green',
+      flex: 1,
       paddingLeft: 10,
     },
     subCategoryArrowWrap: {
