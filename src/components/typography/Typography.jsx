@@ -9,6 +9,7 @@ import {
 
 const HEADER_VARIANTS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
 const SMALL_SCREEN_FONT_DELTA = 2;
+const SMALL_SCREEN_LETTER_SPACING_DELTA = 0.3;
 
 /**
  * @param {import('react-native').TextProps & {
@@ -60,11 +61,17 @@ export function Typography({
 }
 
 function compactFontSizeStyle(style) {
-  const fontSize = StyleSheet.flatten(style)?.fontSize;
+  const flattened = StyleSheet.flatten(style);
+  const compactStyle = {};
 
-  if (typeof fontSize !== 'number') {
-    return null;
+  if (typeof flattened?.fontSize === 'number') {
+    compactStyle.fontSize = flattened.fontSize - SMALL_SCREEN_FONT_DELTA;
   }
 
-  return { fontSize: fontSize - SMALL_SCREEN_FONT_DELTA };
+  if (typeof flattened?.letterSpacing === 'number') {
+    compactStyle.letterSpacing =
+      flattened.letterSpacing - SMALL_SCREEN_LETTER_SPACING_DELTA;
+  }
+
+  return Object.keys(compactStyle).length ? compactStyle : null;
 }

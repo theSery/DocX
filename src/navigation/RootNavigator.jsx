@@ -128,8 +128,8 @@ export function RootNavigator() {
 
   return (
     <Stack.Navigator
-      // initialRouteName={resolveInitialRoute(hasCompletedOnboarding, startupRoute)}
-      initialRouteName="Onboarding"
+      initialRouteName={resolveInitialRoute(hasCompletedOnboarding, startupRoute)}
+      // initialRouteName="Onboarding"
       screenOptions={{ headerShown: false, animation }}>
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       <Stack.Screen name="Main" component={TabNavigator} />

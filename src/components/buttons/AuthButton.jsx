@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { Typography } from '../typography';
 import GradientButton from './GradientButton';
 import { FONT_FAMILY, palette } from '../../theme';
+import { useIsCompactScreen } from '../../hooks/useResponsiveLayout';
 
 export default function AuthButton({
   title,
@@ -16,12 +17,14 @@ export default function AuthButton({
   isLight = false,
   titleStyle = {},
 }) {
+  const isCompactScreen = useIsCompactScreen();
   const isDisabled = disabled ?? isLoading;
   const hasEndIcon = Boolean(endIcon);
   const hasStartIcon = Boolean(startIcon);
   const loaderColor = isLight ? palette.mainBlue : palette.white;
   const textStyle = [
     styles.primaryButtonText,
+    !isCompactScreen && styles.primaryButtonLetterSpacing,
     isLight && styles.lightButtonText,
     titleStyle,
   ];
@@ -32,6 +35,7 @@ export default function AuthButton({
       disabled={isDisabled}
       style={({ pressed }) => [
         styles.primaryButton,
+        isCompactScreen && styles.primaryButtonCompact,
         { borderRadius },
         style,
         isDisabled && styles.primaryButtonDisabled,
@@ -39,7 +43,7 @@ export default function AuthButton({
       ]}
     >
       <GradientButton
-        height={45}
+        height={isCompactScreen ? 40 : 45}
         isLight={isLight}
         childrenStyle={hasEndIcon ? styles.gradientContentWithEndIcon : undefined}
       >
@@ -81,6 +85,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 8,
   },
+  primaryButtonCompact: {
+    height: 40,
+  },
   primaryButtonDisabled: {
     opacity: 0.6,
   },
@@ -111,6 +118,8 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     fontFamily: FONT_FAMILY.regular,
     color: palette.white,
+  },
+  primaryButtonLetterSpacing: {
     letterSpacing: 1.2,
   },
   lightButtonText: {

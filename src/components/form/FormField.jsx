@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Typography } from '../typography';
 import { FONT_FAMILY } from '../../theme';
-import { useTheme, useThemedStyles } from '../../hooks';
+import { useIsCompactScreen, useTheme, useThemedStyles } from '../../hooks';
 import EyeIconSvg from '../icons/EyeIconSvg';
 import CloseIcon from '../icons/CloseIcon';
 
@@ -58,6 +58,9 @@ const createStyles = colors =>
       backgroundColor: colors.input,
       paddingHorizontal: 16,
       gap: 10,
+    },
+    inputRowCompact: {
+      height: 40,
     },
     inputRowSearch: {
       backgroundColor: colors.pureWhite,
@@ -118,6 +121,7 @@ export function FormField({
   editable = true,
 }) {
   const styles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
   const { colors } = useTheme();
   const resolvedKeyboardType =
     keyboardType ??
@@ -152,6 +156,7 @@ export function FormField({
             <View
               style={[
                 styles.inputRow,
+                isCompactScreen && styles.inputRowCompact,
                 isSearch && styles.inputRowSearch,
                 isSearch && isFocused && styles.inputRowSearchFocused,
                 error && styles.inputError,
