@@ -26,7 +26,7 @@ export function CategoriesList({
   const { colors, isDarkMode } = useTheme();
   const isCompactScreen = useIsCompactScreen();
   const insets = useSafeAreaInsets();
-  const arrowSize = isCompactScreen ? 16 : 20;
+  const arrowSize = isCompactScreen ? 14 : 16;
   const { onScroll, onScrollViewLayout, onContentSizeChange } =
     useHomeStackHeaderScrollHandler(collapsibleHeader);
   const scrollBottomPadding = insets.bottom + TAB_BAR_HEIGHT + 24;
@@ -119,11 +119,11 @@ const createStyles = colors =>
 
     },
     categoryItemText: {
-      fontSize: 16,
+      fontSize: 15,
       fontFamily: FONT_FAMILY.medium,
       color: colors.text,
       letterSpacing: 0.9,
-      width: '75%',
+      width: '72%',
     },
     categoryItemTextCompact: {
       fontSize: 14,

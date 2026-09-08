@@ -1,5 +1,6 @@
 import { Fragment, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { KeyboardToolbar } from 'react-native-keyboard-controller';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemedStyles, useTheme, useToast } from '../../../hooks';
@@ -822,6 +823,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
       <FormScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
+        bottomOffset={62}
         contentContainerStyle={[
           styles.contentContainer,
           { paddingBottom: insets.bottom + 32 },
@@ -917,6 +919,11 @@ export function CompletePersonalDataScreen({ navigation, route }) {
         </AnimatedView>
         </DropdownHost>
       </FormScrollView>
+      <KeyboardToolbar>
+        <KeyboardToolbar.Prev />
+        <KeyboardToolbar.Next />
+        <KeyboardToolbar.Done text="Փակել" />
+      </KeyboardToolbar>
     </View>
   );
 }

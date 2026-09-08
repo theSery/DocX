@@ -19,7 +19,7 @@ export function CategoryScreen({ navigation, route }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const isCompactScreen = useIsCompactScreen();
-  const arrowSize = isCompactScreen ? 16 : 20;
+  const arrowSize = isCompactScreen ? 14 : 16;
   const { onScroll, onScrollViewLayout, onContentSizeChange } =
     useHomeStackHeaderScrollHandler();
   const insets = useSafeAreaInsets();

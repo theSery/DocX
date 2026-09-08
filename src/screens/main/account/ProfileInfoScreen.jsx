@@ -1,6 +1,10 @@
 import { Fragment, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import {
+  KeyboardAwareScrollView,
+  KeyboardToolbar,
+} from 'react-native-keyboard-controller';
 import { useGlobalStyles, useThemedFocusStatusBar, useThemedStyles, useTheme, useToast } from '../../../hooks';
 import {
   AnimatedView,
@@ -8,7 +12,6 @@ import {
   DropdownHost,
   FormDateField,
   FormField,
-  FormScrollView,
   Typography,
 } from '../../../components';
 import { countries } from '../../../data/countries';
@@ -369,9 +372,13 @@ export function ProfileInfoScreen() {
   });
 
   return (
-    <FormScrollView
+    <>
+    <KeyboardAwareScrollView
       style={[globalStyles.screen, styles.screen]}
       showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag"
+      bottomOffset={62}
       contentContainerStyle={styles.contentContainer}
     >
       <DropdownHost style={styles.dropdownHost}>
@@ -523,6 +530,12 @@ export function ProfileInfoScreen() {
         style={{ marginBottom: TAB_BAR_BOTTOM_OFFSET, marginTop: !showPhoneVerificationUi ? 30 : 10 }}
       />
       </DropdownHost>
-    </FormScrollView>
+    </KeyboardAwareScrollView>
+    <KeyboardToolbar>
+      <KeyboardToolbar.Prev />
+      <KeyboardToolbar.Next />
+      <KeyboardToolbar.Done text="Փակել" />
+    </KeyboardToolbar>
+    </>
   );
 }

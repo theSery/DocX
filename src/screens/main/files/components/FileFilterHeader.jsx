@@ -5,13 +5,14 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { FormField, Typography } from '../../../../components';
 import SearchIcon from '../../../../components/icons/SearchIcon';
 import UploadSvg from '../../../../components/icons/UploadSvg';
-import { useTheme, useThemedStyles } from '../../../../hooks';
+import { useIsCompactScreen, useTheme, useThemedStyles } from '../../../../hooks';
 import { delay } from '../../../../utils/delay';
 import { SEARCH_DEBOUNCE_MS } from '../../../../utils/searchUtils';
 import { useFileUpload } from '../hooks';
 
 export function FileFilterHeader({ onSearchChange, total, onFileUploaded }) {
   const styles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
   const { colors } = useTheme();
   const { control } = useForm({
     defaultValues: { search: '' },
@@ -39,7 +40,7 @@ export function FileFilterHeader({ onSearchChange, total, onFileUploaded }) {
   }, [search, onSearchChange]);
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, isCompactScreen && styles.wrapperCompact]}>
       {uploadSheet}
       <View>
         <Typography variant="h2" style={styles.title}>
@@ -73,6 +74,10 @@ const createStyles = colors =>
   StyleSheet.create({
     wrapper: {
       marginVertical: 14,
+    },
+    wrapperCompact: {
+      marginVertical: 0,
+      marginTop: 5,
     },
     title: {
       letterSpacing: 2,

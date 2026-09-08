@@ -74,7 +74,7 @@ export function CheckBox({ checked = false, onChange, label, disabled = false, s
         {checked ? <CheckMark color={colors.buttonTextOnPrimary} /> : null}
       </View>
       {label ? (
-        <Typography variant="h6" tone="secondary" style={styles.label}>
+        <Typography variant="h6" style={styles.label}>
           {label}
         </Typography>
       ) : null}

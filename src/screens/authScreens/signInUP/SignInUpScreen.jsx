@@ -1,5 +1,8 @@
 import { Image, Pressable, StyleSheet, View } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import {
+  KeyboardAwareScrollView,
+  KeyboardToolbar,
+} from 'react-native-keyboard-controller';
 import { AuthScreenLayout } from '../../../components/layout';
 import { AUTH_SCREEN_HORIZONTAL_PADDING } from '../../../components/layout/authLayoutConstants';
 import { AnimatedView, Typography } from '../../../components';
@@ -30,7 +33,7 @@ export function SignInUpScreen() {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}
-        bottomOffset={24}
+        bottomOffset={62}
       >
         <View style={styles.headerContainer}>
           <View
@@ -80,6 +83,11 @@ export function SignInUpScreen() {
           <SignInUpTab />
         </View>
       </KeyboardAwareScrollView>
+      <KeyboardToolbar>
+        <KeyboardToolbar.Prev />
+        <KeyboardToolbar.Next />
+        <KeyboardToolbar.Done text="Փակել" />
+      </KeyboardToolbar>
     </AuthScreenLayout>
   );
 }

@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import {
+  KeyboardAwareScrollView,
+  KeyboardToolbar,
+} from 'react-native-keyboard-controller';
 import { useGlobalStyles, useThemedFocusStatusBar, useThemedStyles, useTheme, useToast } from '../../../hooks';
 import {
   AnimatedView,
@@ -8,7 +12,6 @@ import {
   FormAddressField,
   FormDateField,
   FormField,
-  FormScrollView,
   Typography,
 } from '../../../components';
 import { useForm } from 'react-hook-form';
@@ -310,9 +313,13 @@ export function PassportInfoScreen() {
   });
 
   return (
-    <FormScrollView
+    <>
+    <KeyboardAwareScrollView
       style={[globalStyles.screen, styles.screen]}
       showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag"
+      bottomOffset={62}
       contentContainerStyle={styles.contentContainer}
     >
       <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
@@ -429,6 +436,12 @@ export function PassportInfoScreen() {
         isLoading={isLoading}
         style={{ marginBottom: TAB_BAR_BOTTOM_OFFSET }}
       />
-    </FormScrollView>
+    </KeyboardAwareScrollView>
+    <KeyboardToolbar>
+      <KeyboardToolbar.Prev />
+      <KeyboardToolbar.Next />
+      <KeyboardToolbar.Done text="Փակել" />
+    </KeyboardToolbar>
+    </>
   );
 }

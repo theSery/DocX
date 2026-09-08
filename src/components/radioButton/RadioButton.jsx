@@ -88,7 +88,7 @@ export function RadioButton({
         {isSelected ? <View style={styles.radioInner} /> : null}
       </View>
       {label ? (
-        <Typography variant="h6" tone="secondary" style={styles.label}>
+        <Typography variant="h6"  style={styles.label}>
           {label}
         </Typography>
       ) : null}
