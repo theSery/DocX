@@ -14,7 +14,7 @@ import {
 import { countries } from '../../../data/countries';
 import { notificationMethods } from '../../../data/notificationMethods';
 import NotificationMethodSvg from '../../../components/icons/NotificationMethodSvg';
-import { useForm, useWatch } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import CitizenshipSvg from '../../../components/icons/CitizenshipSvg';
 import MailIconSvg from '../../../components/icons/MailIconSvg';
 import UserSvg from '../../../components/icons/UserSvg';
@@ -78,7 +78,7 @@ const CONTACT_INFO_FIELDS = [
     rules: ARMENIAN_NAME_RULES,
   },
   {
-    name: 'middleName',
+    name: 'patronymic',
     label: 'Հայրանուն *',
     Icon: UserSvg,
     placeholder: 'Ձեր Հայրանուն',
@@ -147,19 +147,43 @@ const EMPTY_FORM_VALUES = {
   email: '',
   name: '',
   lastName: '',
-  middleName: '',
+  patronymic: '',
   phone: '',
   birthDate: null,
+  citizenship: '',
+  notificationMethod: '',
 };
+
+function toCitizenshipValue(country) {
+  return country?.nameEn?.trim().toLowerCase() ?? '';
+}
+
+function findCountryByCitizenship(value) {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = String(value).trim().toLowerCase();
+  return (
+    countries.find(country => toCitizenshipValue(country) === normalized) ??
+    null
+  );
+}
+
+function isArmenianCitizenship(value) {
+  return findCountryByCitizenship(value)?.nameEn === 'Armenia';
+}
 
 function mapPersonalDataToFormValues(data) {
   return {
     email: data.email ?? '',
     name: data.name ?? '',
     lastName: data.surname ?? '',
-    middleName: data.patronymic ?? '',
+    patronymic: data.patronymic ?? '',
     phone: data.phoneNumber ?? '',
     birthDate: data.birthday ? new Date(data.birthday) : null,
+    citizenship: data.citizenship ?? '',
+    notificationMethod: data.notificationMethod ?? '',
   };
 }
 
@@ -167,10 +191,14 @@ function mapFormValuesToPersonalData(values) {
   return {
     name: values.name,
     surname: values.lastName,
-    patronymic: values.middleName,
+    patronymic: isArmenianCitizenship(values.citizenship)
+      ? values.patronymic
+      : null,
     phoneNumber: values.phone,
     birthday:
       values.birthDate instanceof Date ? values.birthDate.toISOString() : null,
+    citizenship: values.citizenship,
+    notificationMethod: values.notificationMethod,
   };
 }
 
@@ -212,6 +240,16 @@ export function ProfileInfoScreen() {
 
   const watchedEmail = useWatch({ control, name: 'email' }) ?? '';
   const watchedPhone = useWatch({ control, name: 'phone' }) ?? '';
+  const watchedCitizenship = useWatch({ control, name: 'citizenship' }) ?? '';
+  const watchedNotificationMethod =
+    useWatch({ control, name: 'notificationMethod' }) ?? '';
+  const hasSelectedCitizenship = Boolean(
+    findCountryByCitizenship(watchedCitizenship),
+  );
+  const isArmenianCitizen = isArmenianCitizenship(watchedCitizenship);
+  const contactInfoFields = CONTACT_INFO_FIELDS.filter(
+    field => field.name !== 'patronymic' || isArmenianCitizen,
+  );
   const storedPhone = personalData?.phoneNumber ?? '';
   const isPhoneChanged = watchedPhone !== storedPhone;
   const isChangedPhoneVerified =
@@ -220,7 +258,10 @@ export function ProfileInfoScreen() {
   const showPhoneVerificationUi =
     !isPhoneVerified || (isPhoneChanged && !isChangedPhoneVerified);
   const isSaveDisabled =
-    isSubmitting || (isPhoneChanged && !isChangedPhoneVerified);
+    isSubmitting ||
+    (isPhoneChanged && !isChangedPhoneVerified) ||
+    !hasSelectedCitizenship ||
+    !watchedNotificationMethod;
 
   useEffect(() => {
     if (personalDataStatus !== 'succeeded' || !personalData) {
@@ -296,6 +337,10 @@ export function ProfileInfoScreen() {
   };
 
   const onSubmit = handleSubmit(async data => {
+    if (!findCountryByCitizenship(data.citizenship)) {
+      return;
+    }
+
     try {
       const response = await dispatch(
         updatePersonalData(mapFormValuesToPersonalData(data)),
@@ -335,27 +380,51 @@ export function ProfileInfoScreen() {
           Անձնական տվյալներ
         </Typography>
         <View style={styles.formFieldContainer}>
-          <Dropdown
-            items={countries}
-            label="Քաղաքացիություն *"
-            placeholder="Քաղաքացիություն"
-            startIcon={
-              <CitizenshipSvg width={20} height={20} fill={colors.icons} />
-            }
-            getItemLabel={country => country.nameHy}
-            getItemSecondaryLabel={country => country.nameEn}
-            getItemFlag={country => country.flagSvg}
+          <Controller
+            control={control}
+            name="citizenship"
+            rules={{ required: 'Քաղաքացիությունը պարտադիր է' }}
+            render={({ field: { value, onChange }, fieldState: { error } }) => (
+              <Dropdown
+                items={countries}
+                value={findCountryByCitizenship(value)?.id ?? null}
+                onChange={country => onChange(toCitizenshipValue(country))}
+                label="Քաղաքացիություն *"
+                placeholder="Քաղաքացիություն"
+                startIcon={
+                  <CitizenshipSvg width={20} height={20} fill={colors.icons} />
+                }
+                getItemLabel={country => country.nameHy}
+                getItemSecondaryLabel={country => country.nameEn}
+                getItemFlag={country => country.flagSvg}
+                error={error?.message}
+              />
+            )}
           />
-          <Dropdown
-            items={notificationMethods}
-            label="Ծանուցման եղանակ *"
-            placeholder="Ծանուցման եղանակ"
-            startIcon={
-              <NotificationMethodSvg width={20} height={20} fill={colors.icons} />
-            }
-            getItemLabel={method => method.nameHy}
+          <Controller
+            control={control}
+            name="notificationMethod"
+            rules={{ required: 'Ծանուցման եղանակը պարտադիր է' }}
+            render={({ field: { value, onChange }, fieldState: { error } }) => (
+              <Dropdown
+                items={notificationMethods}
+                value={value || null}
+                onChange={method => onChange(method.id)}
+                label="Ծանուցման եղանակ *"
+                placeholder="Ծանուցման եղանակ"
+                startIcon={
+                  <NotificationMethodSvg
+                    width={20}
+                    height={20}
+                    fill={colors.icons}
+                  />
+                }
+                getItemLabel={method => method.nameHy}
+                error={error?.message}
+              />
+            )}
           />
-          {CONTACT_INFO_FIELDS.map(field => (
+          {contactInfoFields.map(field => (
             <Fragment key={field.name}>
               <FormField
                 control={control}
@@ -441,9 +510,15 @@ export function ProfileInfoScreen() {
         </Pressable>
       ) : null}
       <AuthButton
-        disabled={isSaveDisabled}
+        disabled={isSaveDisabled || !hasSelectedCitizenship}
         title={'Պահպանել'}
-        onPress={onSubmit}
+        onPress={() => {
+          if (!hasSelectedCitizenship) {
+            trigger('citizenship');
+            return;
+          }
+          onSubmit();
+        }}
         isLoading={isLoading}
         style={{ marginBottom: TAB_BAR_BOTTOM_OFFSET, marginTop: !showPhoneVerificationUi ? 30 : 10 }}
       />

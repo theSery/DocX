@@ -1,3 +1,5 @@
+import { countries } from '../data/countries';
+import { notificationMethods } from '../data/notificationMethods';
 import {
   ARMENIAN_ADDRESS_PATTERN,
   ARMENIAN_LETTERS_PATTERN,
@@ -21,6 +23,34 @@ function isValidPhoneNumber(value) {
 
 function isNonEmptyString(value) {
   return Boolean(value?.trim());
+}
+
+export function toCitizenshipValue(country) {
+  return country?.nameEn?.trim().toLowerCase() ?? '';
+}
+
+export function findCountryByCitizenship(value) {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = String(value).trim().toLowerCase();
+  return (
+    countries.find(country => toCitizenshipValue(country) === normalized) ??
+    null
+  );
+}
+
+export function isArmenianCitizenship(value) {
+  return findCountryByCitizenship(value)?.nameEn === 'Armenia';
+}
+
+function isValidCitizenship(value) {
+  return Boolean(findCountryByCitizenship(value));
+}
+
+function isValidNotificationMethod(value) {
+  return notificationMethods.some(method => method.id === value);
 }
 
 export function getMaximumBirthDate() {
@@ -51,9 +81,12 @@ export function isPersonalDataCompleteForTemplate(data) {
   }
 
   return (
+    isValidCitizenship(data.citizenship) &&
+    isValidNotificationMethod(data.notificationMethod) &&
     isValidArmenianName(data.name) &&
     isValidArmenianName(data.surname) &&
-    isValidArmenianName(data.patronymic) &&
+    (!isArmenianCitizenship(data.citizenship) ||
+      isValidArmenianName(data.patronymic)) &&
     Boolean(data.birthday) &&
     isValidPhoneNumber(data.phoneNumber)
   );
@@ -87,9 +120,12 @@ export function isPassportDataCompleteForTemplate(
 }
 
 export const PERSONAL_DATA_FIELD_VALIDATORS = {
+  citizenship: isValidCitizenship,
+  notificationMethod: isValidNotificationMethod,
   name: isValidArmenianName,
   surname: isValidArmenianName,
-  patronymic: isValidArmenianName,
+  patronymic: (value, data) =>
+    !isArmenianCitizenship(data?.citizenship) || isValidArmenianName(value),
   birthday: value => Boolean(value),
   phoneNumber: isValidPhoneNumber,
   passportSeries: isNonEmptyString,
@@ -103,7 +139,7 @@ export const PERSONAL_DATA_FIELD_VALIDATORS = {
 
 export function getIncompletePersonalDataFields(data) {
   return Object.entries(PERSONAL_DATA_FIELD_VALIDATORS)
-    .filter(([field, isValid]) => !isValid(data?.[field]))
+    .filter(([field, isValid]) => !isValid(data?.[field], data))
     .map(([field]) => field);
 }
 
@@ -111,7 +147,7 @@ export const PROFILE_INFO_FIELD_NAMES = [
   'email',
   'name',
   'lastName',
-  'middleName',
+  'patronymic',
   'birthDate',
   'phone',
 ];

@@ -1,11 +1,13 @@
 import { Fragment, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { useForm, useWatch } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemedStyles, useTheme, useToast } from '../../../hooks';
 import {
   AnimatedView,
   CheckBox,
+  Dropdown,
+  DropdownHost,
   FormAddressField,
   FormDateField,
   FormField,
@@ -22,6 +24,10 @@ import PasportSvg from '../../../components/icons/PasportSvg';
 import PasporFromSvg from '../../../components/icons/PasporFromSvg';
 import CodeSvg from '../../../components/icons/CodeSvg';
 import AddressSvg from '../../../components/icons/AddressSvg';
+import CitizenshipSvg from '../../../components/icons/CitizenshipSvg';
+import NotificationMethodSvg from '../../../components/icons/NotificationMethodSvg';
+import { countries } from '../../../data/countries';
+import { notificationMethods } from '../../../data/notificationMethods';
 import { FONT_FAMILY } from '../../../theme';
 import {
   ARMENIAN_ADDRESS_RULES,
@@ -31,8 +37,11 @@ import {
 } from '../../../utils/patterns';
 import {
   BIRTH_DATE_RULES,
+  findCountryByCitizenship,
   getIncompletePersonalDataFields,
   getMaximumBirthDate,
+  isArmenianCitizenship,
+  toCitizenshipValue,
 } from '../../../utils/personalDataValidation';
 import { authApi, smsApi, userApi } from '../../../api';
 import { useAppDispatch, useAppSelector } from '../../../store';
@@ -48,8 +57,25 @@ import {
 } from '../../../store/slices/personalDataSlice';
 import { startSmsResendCooldown } from '../../../utils/smsResendCooldown';
 
-const PROFILE_STORE_FIELDS = ['name', 'surname', 'patronymic', 'birthday', 'phoneNumber'];
-const PROFILE_DISPLAY_FIELDS = ['email', ...PROFILE_STORE_FIELDS];
+const PROFILE_STORE_FIELDS = [
+  'citizenship',
+  'notificationMethod',
+  'name',
+  'surname',
+  'patronymic',
+  'birthday',
+  'phoneNumber',
+];
+const PROFILE_DISPLAY_FIELDS = [
+  'citizenship',
+  'notificationMethod',
+  'email',
+  'name',
+  'surname',
+  'patronymic',
+  'birthday',
+  'phoneNumber',
+];
 const PASSPORT_STORE_FIELDS = [
   'passportSeries',
   'fromWhom',
@@ -60,6 +86,22 @@ const PASSPORT_STORE_FIELDS = [
 ];
 
 const FIELD_CONFIGS = colors => ({
+  citizenship: {
+    type: 'dropdown',
+    label: 'Քաղաքացիություն *',
+    startIcon: <CitizenshipSvg width={20} height={20} fill={colors.icons} />,
+    placeholder: 'Քաղաքացիություն',
+    rules: { required: 'Քաղաքացիությունը պարտադիր է' },
+  },
+  notificationMethod: {
+    type: 'dropdown',
+    label: 'Ծանուցման եղանակ *',
+    startIcon: (
+      <NotificationMethodSvg width={20} height={20} fill={colors.icons} />
+    ),
+    placeholder: 'Ծանուցման եղանակ',
+    rules: { required: 'Ծանուցման եղանակը պարտադիր է' },
+  },
   email: {
     label: 'Էլ.-փոստ *',
     startIcon: <MailIconSvg width={20} height={20} fill={colors.icons} />,
@@ -241,6 +283,14 @@ function toPayloadValue(field, value) {
   return value ?? '';
 }
 
+function resolveCitizenship(missingFields, formValues, personalData) {
+  if (missingFields.includes('citizenship')) {
+    return formValues.citizenship ?? '';
+  }
+
+  return personalData?.citizenship ?? '';
+}
+
 function buildPayload(
   missingFields,
   formValues,
@@ -249,6 +299,8 @@ function buildPayload(
 ) {
   const includeProfile = missingFields.some(field => PROFILE_STORE_FIELDS.includes(field));
   const includePassport = missingFields.some(field => PASSPORT_STORE_FIELDS.includes(field));
+  const citizenship = resolveCitizenship(missingFields, formValues, personalData);
+  const isArmenianCitizen = isArmenianCitizenship(citizenship);
 
   const groups = [
     ...(includeProfile ? PROFILE_STORE_FIELDS : []),
@@ -260,7 +312,11 @@ function buildPayload(
       missingFields.includes(field) ||
       (addressFieldsMissing && field === 'registrationAddress') ||
       // Only submit notificationAddress from the form when that field is visible.
-      (addressFieldsMissing && addressesDiffer && field === 'notificationAddress');
+      (addressFieldsMissing && addressesDiffer && field === 'notificationAddress') ||
+      // Patronymic can appear after Armenia is selected, even if it was not missing at mount.
+      (field === 'patronymic' &&
+        isArmenianCitizen &&
+        Object.prototype.hasOwnProperty.call(formValues, 'patronymic'));
 
     if (
       field === 'notificationAddress' &&
@@ -268,6 +324,11 @@ function buildPayload(
       !addressesDiffer
     ) {
       payload[field] = null;
+      return payload;
+    }
+
+    if (field === 'patronymic' && !isArmenianCitizen) {
+      payload.patronymic = null;
       return payload;
     }
 
@@ -410,6 +471,37 @@ export function CompletePersonalDataScreen({ navigation, route }) {
 
   const watchedEmail = useWatch({ control, name: 'email' }) ?? '';
   const watchedPhone = useWatch({ control, name: 'phoneNumber' }) ?? '';
+  const watchedCitizenship = useWatch({ control, name: 'citizenship' }) ?? '';
+  const watchedNotificationMethod =
+    useWatch({ control, name: 'notificationMethod' }) ?? '';
+  const showCitizenshipField = missingFields.includes('citizenship');
+  const showNotificationMethodField = missingFields.includes('notificationMethod');
+  const effectiveCitizenship = showCitizenshipField
+    ? watchedCitizenship
+    : personalData?.citizenship;
+  const isArmenianCitizen = isArmenianCitizenship(effectiveCitizenship);
+  const hasSelectedCitizenship = showCitizenshipField
+    ? Boolean(findCountryByCitizenship(watchedCitizenship))
+    : true;
+  const hasSelectedNotificationMethod = showNotificationMethodField
+    ? Boolean(watchedNotificationMethod)
+    : true;
+  const visibleProfileFields = useMemo(() => {
+    const fields = missingProfileFields.filter(
+      field => field !== 'patronymic' || isArmenianCitizen,
+    );
+
+    if (
+      isArmenianCitizen &&
+      !fields.includes('patronymic') &&
+      !String(personalData?.patronymic ?? '').trim()
+    ) {
+      const surnameIndex = fields.indexOf('surname');
+      fields.splice(surnameIndex >= 0 ? surnameIndex + 1 : fields.length, 0, 'patronymic');
+    }
+
+    return fields;
+  }, [isArmenianCitizen, missingProfileFields, personalData?.patronymic]);
   const storedPhone = personalData?.phoneNumber ?? '';
   const isPhoneChanged = showPhoneField && watchedPhone !== storedPhone;
   const isChangedPhoneVerified =
@@ -422,7 +514,9 @@ export function CompletePersonalDataScreen({ navigation, route }) {
     isSubmitting ||
     !isPhoneVerified ||
     !isEmailVerified ||
-    (showPhoneField && isPhoneChanged && !isChangedPhoneVerified);
+    (showPhoneField && isPhoneChanged && !isChangedPhoneVerified) ||
+    !hasSelectedCitizenship ||
+    !hasSelectedNotificationMethod;
 
   const handleSendEmailCode = async () => {
     const isEmailValid = await trigger('email');
@@ -504,6 +598,16 @@ export function CompletePersonalDataScreen({ navigation, route }) {
 
     if (!isEmailVerified) {
       setSubmitError('Էլ.-փոստը պետք է հաստատված լինի');
+      return;
+    }
+
+    if (showCitizenshipField && !findCountryByCitizenship(formValues.citizenship)) {
+      trigger('citizenship');
+      return;
+    }
+
+    if (showNotificationMethodField && !formValues.notificationMethod) {
+      trigger('notificationMethod');
       return;
     }
 
@@ -590,6 +694,54 @@ export function CompletePersonalDataScreen({ navigation, route }) {
     const config = fieldConfigs[field];
     const placeholder = fieldPlaceholders[field] ?? config.placeholder;
 
+    if (config.type === 'dropdown') {
+      if (field === 'citizenship') {
+        return (
+          <Controller
+            key={field}
+            control={control}
+            name={field}
+            rules={config.rules}
+            render={({ field: { value, onChange }, fieldState: { error } }) => (
+              <Dropdown
+                items={countries}
+                value={findCountryByCitizenship(value)?.id ?? null}
+                onChange={country => onChange(toCitizenshipValue(country))}
+                label={config.label}
+                placeholder={config.placeholder}
+                startIcon={config.startIcon}
+                getItemLabel={country => country.nameHy}
+                getItemSecondaryLabel={country => country.nameEn}
+                getItemFlag={country => country.flagSvg}
+                error={error?.message}
+              />
+            )}
+          />
+        );
+      }
+
+      return (
+        <Controller
+          key={field}
+          control={control}
+          name={field}
+          rules={config.rules}
+          render={({ field: { value, onChange }, fieldState: { error } }) => (
+            <Dropdown
+              items={notificationMethods}
+              value={value || null}
+              onChange={method => onChange(method.id)}
+              label={config.label}
+              placeholder={config.placeholder}
+              startIcon={config.startIcon}
+              getItemLabel={method => method.nameHy}
+              error={error?.message}
+            />
+          )}
+        />
+      );
+    }
+
     if (config.type === 'date') {
       return (
         <FormDateField
@@ -675,6 +827,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
           { paddingBottom: insets.bottom + 32 },
         ]}
       >
+        <DropdownHost style={styles.dropdownHost}>
         <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
           <Typography variant="h4" style={styles.screenTitle}>
             Լրացրեք բացակայող տվյալները
@@ -683,13 +836,13 @@ export function CompletePersonalDataScreen({ navigation, route }) {
             Փաստաթուղթը կազմելու համար անհրաժեշտ է լրացնել հետևյալ դաշտերը
           </Typography>
 
-          {missingProfileFields.length > 0 && (
+          {visibleProfileFields.length > 0 && (
             <>
               <Typography variant="h5" style={styles.sectionTitle}>
                 Անձնական տվյալներ
               </Typography>
               <View style={styles.formFieldContainer}>
-                {missingProfileFields.map(field => (
+                {visibleProfileFields.map(field => (
                   <Fragment key={field}>
                     {renderField(field)}
                     {field === 'email' && showEmailVerificationUi ? (
@@ -762,6 +915,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
             </Typography>
           ) : null}
         </AnimatedView>
+        </DropdownHost>
       </FormScrollView>
     </View>
   );
@@ -798,6 +952,9 @@ const createStyles = colors =>
     sectionTitle: {
       marginTop: 24,
       letterSpacing: 0.4,
+    },
+    dropdownHost: {
+      width: '100%',
     },
     formFieldContainer: {
       width: '100%',

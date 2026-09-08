@@ -8,7 +8,6 @@ import { useThemedStyles } from '../../hooks/useThemedStyles';
 import { FONT_FAMILY } from '../../theme';
 
 const DROPDOWN_ITEM_KEY = 'dropdown';
-const OPTION_ROW_HEIGHT = 52;
 const INPUT_RADIUS = 16;
 const DEFAULT_MAX_BODY_HEIGHT = 240;
 
@@ -141,6 +140,7 @@ export function toFlagImageUri(flagUri) {
  *   getItemFlag?: (item: object) => string | null | undefined;
  *   renderOption?: (item: object, state: { selected: boolean }) => import('react').ReactNode;
  *   maxBodyHeight?: number;
+ *   error?: string;
  *   style?: import('react-native').StyleProp<import('react-native').ViewStyle>;
  * }} props
  */
@@ -159,6 +159,7 @@ export function Dropdown({
   getItemFlag,
   renderOption,
   maxBodyHeight = DEFAULT_MAX_BODY_HEIGHT,
+  error,
   style,
 }) {
   const styles = useThemedStyles(createStyles);
@@ -175,11 +176,6 @@ export function Dropdown({
   const title = selectedItem ? getItemLabel(selectedItem) : placeholder;
   const selectedFlag = selectedItem && getItemFlag ? toFlagImageUri(getItemFlag(selectedItem)) : null;
   const isOpen = openKey != null;
-
-  const listHeight = Math.min(
-    Math.max(items.length, 1) * OPTION_ROW_HEIGHT,
-    maxBodyHeight,
-  );
 
   const close = useCallback(() => {
     setOpenKey(null);
@@ -260,6 +256,7 @@ export function Dropdown({
           styles.accordionItem,
           isCompactScreen && styles.accordionItemCompact,
           itemOpen && styles.accordionItemOpen,
+          error && styles.accordionItemError,
         ]}
         headerStyle={[
           styles.accordionHeader,
@@ -287,61 +284,78 @@ export function Dropdown({
         )}
         renderContent={() => (
           <ScrollView
-            style={{ height: listHeight, maxHeight: maxBodyHeight }}
+            style={{ maxHeight: maxBodyHeight }}
             nestedScrollEnabled
             keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator
+            showsVerticalScrollIndicator={false}
           >
             {items.map((item, index) => {
               const itemKey = keyExtractor(item, index);
               const selected = itemKey === currentKey;
+              const nextSelected =
+                index < items.length - 1 &&
+                keyExtractor(items[index + 1], index + 1) === currentKey;
               const optionLabel = getItemLabel(item);
               const secondaryLabel = getItemSecondaryLabel?.(item);
               const flagUri = getItemFlag ? toFlagImageUri(getItemFlag(item)) : null;
 
               return (
-                <Pressable
-                  key={itemKey}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected }}
-                  accessibilityLabel={optionLabel}
-                  onPress={() => handleSelect(item)}
-                  style={({ pressed }) => [
-                    styles.option,
-                    index < items.length - 1 && styles.optionDivider,
-                    selected && styles.optionSelected,
-                    pressed && styles.optionPressed,
-                  ]}
-                >
-                  {renderOption ? (
-                    renderOption(item, { selected })
-                  ) : (
-                    <>
-                      {flagUri ? (
-                        <Image
-                          source={{ uri: flagUri }}
-                          style={styles.flag}
-                          resizeMode="cover"
-                        />
-                      ) : null}
-                      <View style={styles.optionText}>
-                        <Text numberOfLines={1} style={styles.optionLabel}>
-                          {optionLabel}
-                        </Text>
-                        {secondaryLabel ? (
-                          <Text numberOfLines={1} style={styles.optionSecondaryLabel}>
-                            {secondaryLabel}
-                          </Text>
+                <View key={itemKey}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={optionLabel}
+                    onPress={() => handleSelect(item)}
+                    style={({ pressed }) => [
+                      styles.option,
+                      selected && styles.optionSelected,
+                      pressed && !selected && styles.optionPressed,
+                    ]}
+                  >
+                    {selected ? <View style={styles.optionAccent} /> : null}
+                    {renderOption ? (
+                      renderOption(item, { selected })
+                    ) : (
+                      <>
+                        {flagUri ? (
+                          <Image
+                            source={{ uri: flagUri }}
+                            style={styles.flag}
+                            resizeMode="cover"
+                          />
                         ) : null}
-                      </View>
-                    </>
-                  )}
-                </Pressable>
+                        <View style={styles.optionText}>
+                          <Text
+                            numberOfLines={1}
+                            style={[
+                              styles.optionLabel,
+                              selected && styles.optionLabelSelected,
+                            ]}
+                          >
+                            {optionLabel}
+                          </Text>
+                          {secondaryLabel ? (
+                            <Text
+                              numberOfLines={1}
+                              style={styles.optionSecondaryLabel}
+                            >
+                              {secondaryLabel}
+                            </Text>
+                          ) : null}
+                        </View>
+                      </>
+                    )}
+                  </Pressable>
+                  {index < items.length - 1 && !selected && !nextSelected ? (
+                    <View style={styles.optionDivider} />
+                  ) : null}
+                </View>
               );
             })}
           </ScrollView>
         )}
       />
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
 }
@@ -378,6 +392,15 @@ const createStyles = colors =>
     accordionItemOpen: {
       borderColor: colors.iconAccent,
     },
+    accordionItemError: {
+      borderColor: colors.error,
+    },
+    errorText: {
+      fontSize: 12,
+      fontFamily: FONT_FAMILY.regular,
+      color: colors.error,
+      marginTop: -4,
+    },
     accordionHeader: {
       minHeight: 45,
       paddingVertical: 0,
@@ -386,12 +409,12 @@ const createStyles = colors =>
       minHeight: 40,
     },
     accordionContent: {
-      marginTop: 4,
+      marginTop: 2,
       marginHorizontal: -16,
-      paddingHorizontal: 8,
-      paddingTop: 8,
-      paddingBottom: 8,
-      borderTopWidth: 1,
+      paddingHorizontal: 6,
+      paddingTop: 6,
+      paddingBottom: 6,
+      borderTopWidth: StyleSheet.hairlineWidth,
       borderTopColor: colors.border,
       backgroundColor: colors.pureWhite,
     },
@@ -417,26 +440,34 @@ const createStyles = colors =>
       color: colors.textDisabled,
     },
     option: {
-      height: OPTION_ROW_HEIGHT,
+      minHeight: 44,
       flexDirection: 'row',
       alignItems: 'center',
       gap: 12,
-      paddingHorizontal: 10,
-      borderRadius: 12,
-      borderWidth: 1,
-      borderColor: 'transparent',
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      borderRadius: 10,
+      overflow: 'hidden',
     },
     optionDivider: {
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: colors.border,
-      marginBottom: 2,
+      height: StyleSheet.hairlineWidth,
+      marginHorizontal: 12,
+      backgroundColor: colors.border,
     },
     optionSelected: {
       backgroundColor: colors.cardSelected,
-      borderColor: colors.iconAccent,
     },
     optionPressed: {
       backgroundColor: colors.cardSelected,
+    },
+    optionAccent: {
+      position: 'absolute',
+      left: 0,
+      top: 10,
+      bottom: 10,
+      width: 3,
+      borderRadius: 2,
+      backgroundColor: colors.iconAccent,
     },
     optionText: {
       flex: 1,
@@ -445,6 +476,10 @@ const createStyles = colors =>
       fontSize: 15,
       fontFamily: FONT_FAMILY.regular,
       color: colors.text,
+    },
+    optionLabelSelected: {
+      fontFamily: FONT_FAMILY.medium,
+      color: colors.icons,
     },
     optionSecondaryLabel: {
       marginTop: 1,
