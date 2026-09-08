@@ -14,6 +14,7 @@ import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   resetDocumentFill,
   syncFactSelections,
+  syncOptionSelections,
 } from '../../../store/slices/documentFillSlice';
 import {
   AUTH_BUTTON_HEIGHT,
@@ -47,6 +48,34 @@ function buildSteps(templateFactGroups = []) {
   }));
 
   return [actStep, ...factSteps];
+}
+
+function selectedIdsForGroup(selectionMap, groupId) {
+  const rawSelected = selectionMap?.[groupId];
+
+  if (Array.isArray(rawSelected)) {
+    return rawSelected;
+  }
+
+  return rawSelected != null ? [rawSelected] : [];
+}
+
+function getRequiredOptionGroupErrors(optionGroups, selectedOptions, radioOptions) {
+  return optionGroups.reduce((errors, group, index) => {
+    if (!group?.required || group.type === 'checkbox') {
+      return errors;
+    }
+
+    const groupId = group.id ?? index;
+    const isMissing =
+      group.type === 'radio' ? radioOptions?.[groupId] == null : false;
+
+    if (isMissing) {
+      errors[groupId] = `${group.title} դաշտը պարտադիր է`;
+    }
+
+    return errors;
+  }, {});
 }
 
 function hasAnyFactSelection(templateFactGroups, selectedFacts, radioFacts) {
@@ -87,9 +116,16 @@ export function FillInDetailsScreen({ navigation, route }) {
   const [templateName, setTemplateName] = useState(routeTemplateName ?? '');
   const [selectedFacts, setSelectedFacts] = useState({});
   const [radioFacts, setRadioFacts] = useState({});
+  const [selectedOptions, setSelectedOptions] = useState({});
+  const [radioOptions, setRadioOptions] = useState({});
+  const [optionGroupErrors, setOptionGroupErrors] = useState({});
   const [stepError, setStepError] = useState('');
   const templateVariables = useMemo(
     () => sortBySequence(templateForm?.variables ?? []),
+    [templateForm],
+  );
+  const templateOptionGroups = useMemo(
+    () => sortBySequence(templateForm?.optionGroups ?? []),
     [templateForm],
   );
 
@@ -171,8 +207,22 @@ export function FillInDetailsScreen({ navigation, route }) {
   }, [dispatch, templateFactGroups, selectedFacts, radioFacts]);
 
   useEffect(() => {
+    dispatch(
+      syncOptionSelections({
+        optionGroups: templateOptionGroups,
+        selectedOptions,
+        radioOptions,
+      }),
+    );
+  }, [dispatch, templateOptionGroups, selectedOptions, radioOptions]);
+
+  useEffect(() => {
     setStepError('');
   }, [currentStep, selectedFacts, radioFacts]);
+
+  useEffect(() => {
+    setOptionGroupErrors({});
+  }, [selectedOptions, radioOptions]);
 
   // Apply step change after direction so the outgoing view gets the correct exit animation.
   useLayoutEffect(() => {
@@ -212,11 +262,25 @@ export function FillInDetailsScreen({ navigation, route }) {
     [currentStep, stepDirection],
   );
 
+  const continueFromActStep = useCallback(() => {
+    const errors = getRequiredOptionGroupErrors(
+      templateOptionGroups,
+      selectedOptions,
+      radioOptions,
+    );
+
+    if (Object.keys(errors).length > 0) {
+      setOptionGroupErrors(errors);
+      return;
+    }
+
+    setOptionGroupErrors({});
+    goToStep(currentStep + 1, 1);
+  }, [currentStep, goToStep, radioOptions, selectedOptions, templateOptionGroups]);
+
   const handleNext = useCallback(async () => {
     if (currentStep === 0) {
-      handleSubmit(() => {
-        goToStep(currentStep + 1, 1);
-      })();
+      handleSubmit(continueFromActStep)();
       return;
     }
 
@@ -278,6 +342,7 @@ export function FillInDetailsScreen({ navigation, route }) {
     goToStep(currentStep + 1, 1);
   }, [
     goToStep,
+    continueFromActStep,
     isAuthenticated,
     openAuth,
     currentStep,
@@ -315,6 +380,18 @@ export function FillInDetailsScreen({ navigation, route }) {
       // Moving forward from the first step requires the form to be valid.
       if (currentStep === 0) {
         handleSubmit(() => {
+          const errors = getRequiredOptionGroupErrors(
+            templateOptionGroups,
+            selectedOptions,
+            radioOptions,
+          );
+
+          if (Object.keys(errors).length > 0) {
+            setOptionGroupErrors(errors);
+            return;
+          }
+
+          setOptionGroupErrors({});
           goToStep(stepIndex, direction);
         })();
         return;
@@ -322,7 +399,14 @@ export function FillInDetailsScreen({ navigation, route }) {
 
       goToStep(stepIndex, direction);
     },
-    [currentStep, goToStep, handleSubmit],
+    [
+      currentStep,
+      goToStep,
+      handleSubmit,
+      radioOptions,
+      selectedOptions,
+      templateOptionGroups,
+    ],
   );
 
   const handleBack = useCallback(() => {
@@ -333,6 +417,29 @@ export function FillInDetailsScreen({ navigation, route }) {
 
     navigation.goBack();
   }, [currentStep, goToStep, navigation]);
+
+  const handleSelectOption = useCallback((option, groupId) => {
+    if (!groupId) {
+      return;
+    }
+
+    setSelectedOptions(prev => {
+      const selectedIds = selectedIdsForGroup(prev, groupId);
+      const isSelected = selectedIds.includes(option.id);
+
+      if (isSelected) {
+        return {
+          ...prev,
+          [groupId]: selectedIds.filter(id => id !== option.id),
+        };
+      }
+
+      return {
+        ...prev,
+        [groupId]: [...selectedIds, option.id],
+      };
+    });
+  }, []);
 
   const handleSelectFact = useCallback((fact, groupId) => {
     if (!groupId) {
@@ -376,7 +483,18 @@ export function FillInDetailsScreen({ navigation, route }) {
 
   const renderStepContent = () => {
     if (currentStep === 0) {
-      return <FillAct control={control} variables={templateVariables} />;
+      return (
+        <FillAct
+          control={control}
+          variables={templateVariables}
+          optionGroups={templateOptionGroups}
+          selectedOptions={selectedOptions}
+          onSelectOption={handleSelectOption}
+          setRadioOptions={setRadioOptions}
+          radioOptions={radioOptions}
+          optionGroupErrors={optionGroupErrors}
+        />
+      );
     }
 
     if (currentFactGroup) {
@@ -430,7 +548,15 @@ export function FillInDetailsScreen({ navigation, route }) {
         <FormFlatList
           style={styles.list}
           data={listData}
-          extraData={[currentStep, stepDirection, radioFacts, selectedFacts]}
+          extraData={[
+            currentStep,
+            stepDirection,
+            radioFacts,
+            selectedFacts,
+            radioOptions,
+            selectedOptions,
+            optionGroupErrors,
+          ]}
           keyExtractor={item => item.key}
           ListHeaderComponent={ListHeaderComponent}
           showsVerticalScrollIndicator={false}

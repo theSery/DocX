@@ -11,7 +11,7 @@ const SIGNATURE_DATE_SPAN_PATTERN =
 const SIGN_SPAN_PATTERN =
   /<span\b[^>]*\bdata-label="sign"[^>]*>[\s\S]*?<\/span>/gi;
 
-const HTML_VARIABLES = new Set(['past', 'hodvac', 'text2']);
+const HTML_VARIABLES = new Set(['past', 'hodvac', 'text2', 'attached_documents']);
 
 // Their default text must never be shown; they are kept as empty anchors so
 // injectSignatureAtPlaceholder can place the signature image and date later.
@@ -105,6 +105,26 @@ function buildNumberedHtmlList(items) {
 }
 
 /**
+ * @param {{ id?: number; name?: string }[]} attachedDocuments
+ */
+function buildAttachedDocumentsHtml(attachedDocuments) {
+  if (!attachedDocuments?.length) {
+    return '';
+  }
+
+  return attachedDocuments
+    .map((document, index) => `${index + 1}."${escapeHtml(document.name)}"`)
+    .join('<br/>');
+}
+
+/**
+ * @param {unknown} value
+ */
+function isEmptyVariableValue(value) {
+  return value == null || (typeof value === 'string' && value.trim() === '');
+}
+
+/**
  * @param {string[]} items
  */
 function joinHtmlBlocks(items) {
@@ -150,6 +170,7 @@ function mapPersonalDataToVariables(personalData, hasNotificationAddress) {
  * @param {{
  *   variableValues?: Record<string, unknown>;
  *   variableDataTypes?: Record<string, string>;
+ *   attachedDocuments?: { id?: number; name?: string }[];
  *   past?: string[];
  *   text2?: string[];
  *   articles?: string[];
@@ -169,6 +190,7 @@ function mapDocumentFillToVariables(documentFill = {}) {
 
   return {
     ...configuredVariables,
+    attached_documents: buildAttachedDocumentsHtml(documentFill.attachedDocuments),
     past: buildNumberedHtmlList(documentFill.past),
     hodvac: [analyticalHtml, articlesHtml].filter(Boolean).join(''),
     text2: analyticalHtml,
@@ -202,6 +224,7 @@ export function injectSignatureAtPlaceholder(templateText, imageSrc) {
  *   documentFill?: {
  *     variableValues?: Record<string, unknown>;
  *     variableDataTypes?: Record<string, string>;
+ *     attachedDocuments?: { id?: number; name?: string }[];
  *     past?: string[];
  *     text2?: string[];
  *     articles?: string[];
@@ -235,16 +258,16 @@ export function fillTemplateText(
       return `<span data-label="${label}"></span>`;
     }
 
-    if (!(label in variables)) {
-      return match;
+    if (!(label in variables) || isEmptyVariableValue(variables[label])) {
+      return '';
     }
 
     const value = variables[label];
 
     if (HTML_VARIABLES.has(label)) {
-      return value || '';
+      return value;
     }
 
-    return escapeHtml(String(value ?? ''));
+    return escapeHtml(String(value));
   });
 }

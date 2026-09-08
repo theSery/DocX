@@ -18,14 +18,16 @@ import FilesSvg from '../components/icons/FilesSvg';
 import HomeSvg from '../components/icons/HomeSvg';
 import UserSvg from '../components/icons/UserSvg';
 import { Typography } from '../components/typography';
-import { useAuthSession, useTheme } from '../hooks';
+import { useAuthSession, useIsCompactScreen, useTheme } from '../hooks';
 import { FONT_FAMILY, palette } from '../theme';
 import { PUBLIC_TAB_ROUTE_NAMES } from './tabConstants';
 
 const TAB_BAR_CONTENT_HEIGHT = 64;
+const TAB_BAR_CONTENT_HEIGHT_COMPACT = 54;
 const PILL_WIDTH = 64;
 const PILL_HEIGHT = 32;
 const ICON_SIZE = 22;
+const ICON_SIZE_COMPACT = 18;
 
 const SPRING_CONFIG = {
   damping: 18,
@@ -65,6 +67,7 @@ function TabItem({
   onLongPress,
   contentColor,
   iconActiveColor,
+  iconSize,
 }) {
   const Icon = ROUTE_ICONS[route.name];
   const { options } = descriptor;
@@ -111,8 +114,8 @@ function TabItem({
         <Animated.View style={[styles.iconWrapper, iconAnimatedStyle]}>
           {Icon ? (
             <Icon
-              width={ICON_SIZE}
-              height={ICON_SIZE}
+              width={iconSize}
+              height={iconSize}
               fill={isFocused ? iconActiveColor : contentColor}
             />
           ) : null}
@@ -136,6 +139,11 @@ function TabItem({
  */
 export function TabBar({ state, descriptors, navigation, insets }) {
   const { colors, isDarkMode } = useTheme();
+  const isCompactScreen = useIsCompactScreen();
+  const tabBarContentHeight = isCompactScreen
+    ? TAB_BAR_CONTENT_HEIGHT_COMPACT
+    : TAB_BAR_CONTENT_HEIGHT;
+  const iconSize = isCompactScreen ? ICON_SIZE_COMPACT : ICON_SIZE;
   const { buildHref } = useLinkBuilder();
   const { isAuthenticated, openAuth } = useAuthSession();
 
@@ -183,7 +191,7 @@ export function TabBar({ state, descriptors, navigation, insets }) {
         <View
           onLayout={handleTrackLayout}
           collapsable={false}
-          style={styles.track}
+          style={[styles.track, { height: tabBarContentHeight }]}
           accessibilityRole="tablist">
           {itemWidth > 0 ? (
             <Animated.View
@@ -251,6 +259,7 @@ export function TabBar({ state, descriptors, navigation, insets }) {
                   onLongPress={onLongPress}
                   contentColor={ui.content}
                   iconActiveColor={ui.iconActive}
+                  iconSize={iconSize}
                 />
               </NavigationProvider>
             );

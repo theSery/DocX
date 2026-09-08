@@ -327,19 +327,21 @@ const createStyles = colors =>
       textAlign: 'center',
     },
     subCategoryIcon: {
-      width: 50,
-      height: 50,
+      width: 32,
+      height: 32,
       resizeMode: 'contain',
-      backgroundColor: palette.skyBlue,
-      padding: 10,
-      borderRadius: 16,
     },
     subCategoryName: {
       letterSpacing: 0.4,
     },
     subCategoryIconWrap: {
-      marginRight: 12,
-      
+      width: 56,
+      height: 56,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: palette.skyBlue,
+      borderRadius: 12,
+      marginRight: 10,
     },
     subCategoryTextWrap: {
       flex: 1,

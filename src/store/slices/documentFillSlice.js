@@ -4,9 +4,11 @@ import { isDateDataType } from '../../utils/variableDataTypes';
 const initialState = {
   variableValues: {},
   variableDataTypes: {},
+  attachedDocuments: [],
   past: [],
   text2: [],
   articles: [],
+  formOptions: [],
 };
 
 function toSerializableDate(value) {
@@ -71,6 +73,80 @@ function collectSelectedFacts(templateFactGroups, selectedFacts, radioFacts) {
   return facts;
 }
 
+function selectedIdsFromMap(selectionMap, groupId) {
+  const rawSelected = selectionMap?.[groupId];
+
+  if (Array.isArray(rawSelected)) {
+    return rawSelected;
+  }
+
+  return rawSelected != null ? [rawSelected] : [];
+}
+
+function collectSelectedOptions(optionGroups, selectedOptions, radioOptions) {
+  const options = [];
+
+  optionGroups.forEach((group, index) => {
+    const groupId = group?.id ?? index;
+
+    if (group?.type === 'checkbox') {
+      const selectedIds = selectedIdsFromMap(selectedOptions, groupId);
+
+      group?.options?.forEach(option => {
+        if (selectedIds.includes(option.id)) {
+          options.push(option);
+        }
+      });
+      return;
+    }
+
+    if (group?.type === 'radio') {
+      const selectedId = radioOptions?.[groupId];
+
+      if (selectedId == null) {
+        return;
+      }
+
+      const option = group?.options?.find(item => item.id === selectedId);
+
+      if (option) {
+        options.push(option);
+      }
+    }
+  });
+
+  return options;
+}
+
+function collectVariableAttachedDocuments(variables = []) {
+  const attachedDocuments = [];
+  const seen = new Set();
+
+  variables.forEach(variable => {
+    (variable?.attachedDocuments ?? []).forEach(document => {
+      const name = typeof document?.name === 'string' ? document.name.trim() : '';
+
+      if (!name) {
+        return;
+      }
+
+      const key = document?.id ?? name;
+
+      if (seen.has(key)) {
+        return;
+      }
+
+      seen.add(key);
+      attachedDocuments.push({
+        id: document.id,
+        name,
+      });
+    });
+  });
+
+  return attachedDocuments;
+}
+
 function buildFactArrays(facts) {
   return {
     past: facts.map(fact => fact.factualText).filter(Boolean),
@@ -89,6 +165,7 @@ const documentFillSlice = createSlice({
       reducer: (state, action) => {
         state.variableValues = action.payload.variableValues;
         state.variableDataTypes = action.payload.variableDataTypes;
+        state.attachedDocuments = action.payload.attachedDocuments;
       },
       prepare: ({ variables = [], values = {} }) => {
         const variableValues = {};
@@ -110,9 +187,20 @@ const documentFillSlice = createSlice({
           payload: {
             variableValues,
             variableDataTypes,
+            attachedDocuments: collectVariableAttachedDocuments(variables),
           },
         };
       },
+    },
+    syncOptionSelections: (state, action) => {
+      const { optionGroups = [], selectedOptions = {}, radioOptions = {} } =
+        action.payload;
+
+      state.formOptions = collectSelectedOptions(
+        optionGroups,
+        selectedOptions,
+        radioOptions,
+      );
     },
     syncFactSelections: (state, action) => {
       const { templateFactGroups = [], selectedFacts = {}, radioFacts = {} } =
@@ -132,8 +220,12 @@ const documentFillSlice = createSlice({
   },
 });
 
-export const { syncVariableValues, syncFactSelections, resetDocumentFill } =
-  documentFillSlice.actions;
+export const {
+  syncVariableValues,
+  syncOptionSelections,
+  syncFactSelections,
+  resetDocumentFill,
+} = documentFillSlice.actions;
 
 export const selectDocumentFill = state => state.documentFill;
 

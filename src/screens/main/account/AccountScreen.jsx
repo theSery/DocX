@@ -4,6 +4,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AnimatedView, Typography } from '../../../components';
 import {
   useGlobalStyles,
@@ -26,6 +27,7 @@ import TrashSvg from '../../../components/icons/TrashSvg';
 import PinCodeSvg from '../../../components/icons/PinCodeSvg';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
 import { accountApi } from '../../../api';
+import { TAB_BAR_HEIGHT } from '../../../utils/dimensions';
 
 const ACCOUNT_MENU = [
   {
@@ -162,12 +164,16 @@ const createStyles = (colors) =>
       marginTop: 20,
       fontSize: 8,
     },
+    scrollContent: {
+      flexGrow: 1,
+    },
   });
 
 export function AccountScreen({ navigation }) {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const isCompactScreen = useIsCompactScreen();
+  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { showToast } = useToast();
   useThemedFocusStatusBar({ inverted: true });
@@ -211,7 +217,15 @@ export function AccountScreen({ navigation }) {
   };
 
   return (
-    <ScrollView style={[globalStyles.screen, styles.screen]}>
+    <ScrollView
+      style={[globalStyles.screen, styles.screen]}
+      contentContainerStyle={[
+        styles.scrollContent,
+        { paddingBottom: insets.bottom + TAB_BAR_HEIGHT + 24 },
+      ]}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+    >
       <AnimatedView
         animation="fadeIn"
         duration={500}

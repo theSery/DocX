@@ -37,15 +37,17 @@ export const FormScrollView = forwardRef(function FormScrollView(
   );
 });
 
-const KeyboardAwareListScroll = forwardRef(function KeyboardAwareListScroll(props, ref) {
+// VirtualizedList calls renderScrollComponent(props) as a function, then
+// attaches the list ref with cloneElement. A forwardRef component is an object
+// in React 19 and cannot be invoked that way.
+function KeyboardAwareListScroll(props) {
   return (
     <KeyboardAwareScrollView
       {...props}
-      ref={ref}
       bottomOffset={props.bottomOffset ?? KEYBOARD_BOTTOM_OFFSET}
     />
   );
-});
+}
 
 /**
  * Drop-in FlatList for multi-step / long forms with the same keyboard behavior.
