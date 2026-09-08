@@ -4,12 +4,18 @@ import { useNavigation } from '@react-navigation/native';
 import { useGlobalStyles, useThemedFocusStatusBar, useThemedStyles, useTheme, useToast } from '../../../hooks';
 import {
   AnimatedView,
+  Dropdown,
+  DropdownHost,
   FormDateField,
   FormField,
   FormScrollView,
   Typography,
 } from '../../../components';
+import { countries } from '../../../data/countries';
+import { notificationMethods } from '../../../data/notificationMethods';
+import NotificationMethodSvg from '../../../components/icons/NotificationMethodSvg';
 import { useForm, useWatch } from 'react-hook-form';
+import CitizenshipSvg from '../../../components/icons/CitizenshipSvg';
 import MailIconSvg from '../../../components/icons/MailIconSvg';
 import UserSvg from '../../../components/icons/UserSvg';
 import { FONT_FAMILY, palette } from '../../../theme';
@@ -100,6 +106,9 @@ const createStyles = colors =>
     },
     screenTitle: {
       letterSpacing: 0.9,
+    },
+    dropdownHost: {
+      width: '100%',
     },
     formFieldContainer: {
       width: '100%',
@@ -320,11 +329,32 @@ export function ProfileInfoScreen() {
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.contentContainer}
     >
+      <DropdownHost style={styles.dropdownHost}>
       <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
         <Typography variant="h4" style={styles.screenTitle}>
           Անձնական տվյալներ
         </Typography>
         <View style={styles.formFieldContainer}>
+          <Dropdown
+            items={countries}
+            label="Քաղաքացիություն *"
+            placeholder="Քաղաքացիություն"
+            startIcon={
+              <CitizenshipSvg width={20} height={20} fill={colors.icons} />
+            }
+            getItemLabel={country => country.nameHy}
+            getItemSecondaryLabel={country => country.nameEn}
+            getItemFlag={country => country.flagSvg}
+          />
+          <Dropdown
+            items={notificationMethods}
+            label="Ծանուցման եղանակ *"
+            placeholder="Ծանուցման եղանակ"
+            startIcon={
+              <NotificationMethodSvg width={20} height={20} fill={colors.icons} />
+            }
+            getItemLabel={method => method.nameHy}
+          />
           {CONTACT_INFO_FIELDS.map(field => (
             <Fragment key={field.name}>
               <FormField
@@ -417,6 +447,7 @@ export function ProfileInfoScreen() {
         isLoading={isLoading}
         style={{ marginBottom: TAB_BAR_BOTTOM_OFFSET, marginTop: !showPhoneVerificationUi ? 30 : 10 }}
       />
+      </DropdownHost>
     </FormScrollView>
   );
 }

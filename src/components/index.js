@@ -1,4 +1,5 @@
 export { Accordion, AccordionItem } from './accordion';
+export { Dropdown, DropdownHost, dismissOpenDropdowns } from './dropdown';
 export {
   AnimatedView,
   StaggeredAnimatedView,

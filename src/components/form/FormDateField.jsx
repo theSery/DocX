@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 
+import { dismissOpenDropdowns } from '../dropdown';
 import { Typography } from '../typography';
 import { FONT_FAMILY } from '../../theme';
 import { useTheme, useThemedStyles } from '../../hooks';
@@ -133,6 +134,7 @@ export function FormDateField({
         const isPlaceholder = !selectedDate;
 
         const openPicker = () => {
+          dismissOpenDropdowns();
           Keyboard.dismiss();
           const initialDate = clampDate(
             selectedDate ?? new Date(),

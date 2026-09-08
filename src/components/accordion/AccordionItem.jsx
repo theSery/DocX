@@ -36,6 +36,7 @@ const EXPAND_EASING = Easing.bezier(0.33, 0.01, 0, 1);
  *   scrollRef?: import('react-native-reanimated').AnimatedRef<any>;
  *   scrollOffset?: import('react-native-reanimated').SharedValue<number>;
  *   style?: import('react-native').StyleProp<import('react-native').ViewStyle>;
+ *   headerStyle?: import('react-native').StyleProp<import('react-native').ViewStyle>;
  *   contentStyle?: import('react-native').StyleProp<import('react-native').ViewStyle>;
  * }} props
  */
@@ -51,6 +52,7 @@ function AccordionItemComponent({
   scrollRef,
   scrollOffset,
   style,
+  headerStyle,
   contentStyle,
 }) {
   const { colors } = useTheme();
@@ -140,7 +142,7 @@ function AccordionItemComponent({
         accessibilityRole="button"
         accessibilityState={{ expanded: isOpen }}
         onPress={handlePress}
-        style={styles.header}
+        style={[styles.header, headerStyle]}
       >
         <View style={styles.headerContent}>{header}</View>
         <Animated.View style={[styles.chevronWrap, chevronStyle]}>

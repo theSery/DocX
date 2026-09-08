@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Controller } from 'react-hook-form';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { dismissOpenDropdowns } from '../dropdown';
 import { Typography } from '../typography';
 import { FONT_FAMILY } from '../../theme';
 import { useIsCompactScreen, useTheme, useThemedStyles } from '../../hooks';
@@ -170,6 +171,7 @@ export function FormField({
                 value={displayValue}
                 onChangeText={isPhoneField ? handlePhoneChange : onChange}
                 onFocus={() => {
+                  dismissOpenDropdowns();
                   if (isSearch) {
                     setIsFocused(true);
                   }

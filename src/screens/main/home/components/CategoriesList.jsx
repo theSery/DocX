@@ -103,7 +103,7 @@ const createStyles = colors =>
     },
     categoryItemImage: {
       flex: 1,
-      padding: SPACING,
+      // padding: SPACING,
     },
     categoryItemImageCompact: {
       padding: 5,
