@@ -213,6 +213,7 @@ export function FillInDetailsScreen({ navigation, route }) {
         selectedOptions,
         radioOptions,
         solutionAttachments: templateSolution?.solutionAttachments ?? [],
+        variables: templateVariables,
       }),
     );
   }, [
@@ -221,6 +222,7 @@ export function FillInDetailsScreen({ navigation, route }) {
     selectedOptions,
     templateOptionGroups,
     templateSolution?.solutionAttachments,
+    templateVariables,
   ]);
 
   useEffect(() => {

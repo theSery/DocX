@@ -142,6 +142,15 @@ function getAttachedDocumentUploadable(document) {
   return false;
 }
 
+function getAttachedDocumentId(document) {
+  const id =
+    document?.attachedDocument?.id ??
+    document?.attachedDocumentId ??
+    document?.id;
+
+  return id == null || id === '' ? undefined : id;
+}
+
 function uniqueAttachedDocuments(documents = []) {
   const attachedDocuments = [];
   const seen = new Set();
@@ -153,11 +162,8 @@ function uniqueAttachedDocuments(documents = []) {
       return;
     }
 
-    const id =
-      document?.attachedDocument?.id ??
-      document?.attachedDocumentId ??
-      document?.id;
-    const key = id ?? name;
+    const id = getAttachedDocumentId(document);
+    const key = id != null ? `id:${String(id)}` : `name:${name}`;
 
     if (seen.has(key)) {
       return;
@@ -183,14 +189,19 @@ function collectVariableAttachedDocuments(variables = []) {
 function collectFormAttachedDocuments({
   solutionAttachments = [],
   selectedOptions = [],
+  variables = [],
 } = {}) {
   const optionAttachedDocuments = selectedOptions.flatMap(
     option => option?.attachedDocuments ?? [],
+  );
+  const variableAttachedDocuments = variables.flatMap(
+    variable => variable?.attachedDocuments ?? [],
   );
 
   return uniqueAttachedDocuments([
     ...solutionAttachments,
     ...optionAttachedDocuments,
+    ...variableAttachedDocuments,
   ]);
 }
 
@@ -245,6 +256,7 @@ const documentFillSlice = createSlice({
         selectedOptions = {},
         radioOptions = {},
         solutionAttachments = [],
+        variables = [],
       } = action.payload;
       const selectedOptionItems = collectSelectedOptions(
         optionGroups,
@@ -256,6 +268,7 @@ const documentFillSlice = createSlice({
       state.formAttachedDocuments = collectFormAttachedDocuments({
         solutionAttachments,
         selectedOptions: selectedOptionItems,
+        variables,
       });
     },
     syncFactSelections: (state, action) => {

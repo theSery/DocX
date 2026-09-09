@@ -125,7 +125,7 @@ export function DocumentCreateScreen({ route, navigation }) {
   const [clearedAttachmentIds, setClearedAttachmentIds] = useState(
     () => new Set(),
   );
-
+console.log('formAttachedDocuments: personalData personalData', personalData);
   const markAttachmentFilled = useCallback(attachedDocumentId => {
     if (attachedDocumentId == null) {
       return;

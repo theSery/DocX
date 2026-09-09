@@ -277,6 +277,7 @@ export function FillAct({
         selectedOptions,
         radioOptions,
         solutionAttachments,
+        variables: sortedVariables,
       }),
     );
   }, [
@@ -285,6 +286,7 @@ export function FillAct({
     selectedOptions,
     solutionAttachments,
     sortedOptionGroups,
+    sortedVariables,
   ]);
 
   return (

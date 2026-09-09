@@ -1,3 +1,5 @@
+import { notificationMethods } from '../data/notificationMethods';
+import { findCountryByCitizenship } from '../utils/personalDataValidation';
 import { escapeHtml } from './escapeHtml';
 import { formatDocumentDate, formatDocumentDateTime } from './formatDocumentDate';
 import { isDateDataType } from '../utils/variableDataTypes';
@@ -21,6 +23,8 @@ const REGISTRATION_ADDRESS_LABEL = 'Հաշվառման հասցե՝';
 const NOTIFICATION_ADDRESS_LABEL = 'Ծանուցման հասցե՝';
 const REGISTRATION_ADDRESS_DATA_LABEL = 'userRegistrationAddress';
 const NOTIFICATION_ADDRESS_DATA_LABEL = 'userNotificationAddress';
+const PATRONYMIC_LABEL = 'Հայրանունը՝';
+const PATRONYMIC_DATA_LABELS = ['userPatronymic', 'userPatronymics'];
 
 /**
  * @param {string} value
@@ -77,6 +81,32 @@ function applyNotificationAddressVisibility(html, hasNotificationAddress) {
     label: NOTIFICATION_ADDRESS_LABEL,
     dataLabel: NOTIFICATION_ADDRESS_DATA_LABEL,
   });
+}
+
+/**
+ * @param {unknown} value
+ */
+function hasPatronymicValue(value) {
+  return typeof value === 'string' && value.trim() !== '';
+}
+
+/**
+ * @param {string} html
+ * @param {Record<string, unknown> | null | undefined} personalData
+ */
+function applyPatronymicVisibility(html, personalData) {
+  if (hasPatronymicValue(personalData?.patronymic)) {
+    return html;
+  }
+
+  return PATRONYMIC_DATA_LABELS.reduce(
+    (nextHtml, dataLabel) =>
+      stripUnusedAddressLine(nextHtml, {
+        label: PATRONYMIC_LABEL,
+        dataLabel,
+      }),
+    html,
+  );
 }
 
 /**
@@ -137,7 +167,8 @@ function mergeAttachedDocuments(...lists) {
         document?.attachedDocument?.id ??
         document?.attachedDocumentId ??
         document?.id;
-      const key = id ?? name;
+      const key =
+        id != null && id !== '' ? `id:${String(id)}` : `name:${name}`;
 
       if (seen.has(key)) {
         return;
@@ -188,6 +219,27 @@ function joinHtmlBlocks(items) {
 }
 
 /**
+ * @param {unknown} value
+ */
+function getCitizenshipDisplayName(value) {
+  return findCountryByCitizenship(value)?.nameHy ?? '';
+}
+
+/**
+ * @param {unknown} value
+ */
+function getNotificationMethodDisplayName(value) {
+  if (!value) {
+    return '';
+  }
+
+  const normalized = String(value).trim().toLowerCase();
+  return (
+    notificationMethods.find(method => method.id === normalized)?.nameHy ?? ''
+  );
+}
+
+/**
  * @param {Record<string, unknown> | null | undefined} personalData
  * @param {boolean} hasNotificationAddress
  */
@@ -207,6 +259,10 @@ function mapPersonalDataToVariables(personalData, hasNotificationAddress) {
     userDateOfIssue: dateOfIssue,
     userDataOfIssue: dateOfIssue,
     userFromWhom: personalData.fromWhom ?? '',
+    userCitizenship: getCitizenshipDisplayName(personalData.citizenship),
+    userNotificationMethod: getNotificationMethodDisplayName(
+      personalData.notificationMethod,
+    ),
     userRegistrationAddress: hasNotificationAddress
       ? ''
       : (personalData.registrationAddress ?? ''),
@@ -240,14 +296,11 @@ function mapDocumentFillToVariables(documentFill = {}) {
         : value ?? '',
     ]),
   );
-  const attachedDocuments = mergeAttachedDocuments(
-    documentFill.formAttachedDocuments,
-    documentFill.attachedDocuments,
-  );
-
   return {
     ...configuredVariables,
-    attached_documents: buildAttachedDocumentsHtml(attachedDocuments),
+    attached_documents: buildAttachedDocumentsHtml(
+      documentFill.formAttachedDocuments,
+    ),
     past: buildNumberedHtmlList(documentFill.past),
     hodvac: [analyticalHtml, articlesHtml].filter(Boolean).join(''),
     text2: analyticalHtml,
@@ -301,9 +354,9 @@ export function fillTemplateText(
   const showNotificationAddress = Boolean(
     hasNotificationAddress ?? personalData?.hasNotificationAddress,
   );
-  const templateWithVisibleAddress = applyNotificationAddressVisibility(
-    templateText,
-    showNotificationAddress,
+  const templateWithVisibleFields = applyPatronymicVisibility(
+    applyNotificationAddressVisibility(templateText, showNotificationAddress),
+    personalData,
   );
 
   const variables = {
@@ -311,7 +364,7 @@ export function fillTemplateText(
     ...mapDocumentFillToVariables(documentFill),
   };
 
-  return templateWithVisibleAddress.replace(VARIABLE_SPAN_PATTERN, (match, label) => {
+  return templateWithVisibleFields.replace(VARIABLE_SPAN_PATTERN, (match, label) => {
     if (SIGNATURE_PLACEHOLDER_LABELS.has(label)) {
       return `<span data-label="${label}"></span>`;
     }
