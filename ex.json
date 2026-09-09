@@ -3,17 +3,17 @@
         {
             "id": 16,
             "name": "Պարեկային ծառայողի կազմած ակտեր",
-            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1768915418288-Policeman.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=a942648d84666ccc8d9c16e855325feeefce8137c400b1065acdf00dae0044af&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1788871616916-siren.svg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=588806d8c8976cbb4fa31aa5566e9909937514fb944763c4969f6c1b9d721d87&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
             "subCategories": [
                 {
                     "id": 34,
                     "name": "Վարորդի պարտականություններ",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775501461664-driver.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=5b97f86d9745fcd13bf5829b3486b46c5aecaa94950f02d6e53a753c1fac4ed2&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775501461664-driver.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=405a1ed6b4bc2dfd2b63d06a64191c56658cd87135bf9e5655960a44ad5f8fff&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 35,
                             "name": "Չամրակապված Տ/Մ վարելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1769432129686-seatbelt.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=425ca2229fcc112d84131001c1eccfccc9127b0e39913396a69b7d10af596eae&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1769432129686-seatbelt.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=f292d9a78389b415a97a38ca056c73e229d191e0313ea4579d149f6e36d88fa1&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [
                                 "ռեմեն",
                                 "chamrakapvac",
@@ -132,14 +132,14 @@
                                                     "description": "",
                                                     "facts": [
                                                         {
-                                                            "id": 22,
-                                                            "name": "Ես չեմ ստորագրել արձանագրությունը",
-                                                            "description": "Արձանագրությունը չստորագրելը ևս անհամաձայնությունն արտահայտելու միջոց է"
-                                                        },
-                                                        {
                                                             "id": 32,
                                                             "name": "Ստորագրել եմ արձանագրությունը, որպեսզի ակտի օրինակը ինձ տրամադրվեր",
                                                             "description": "Միայն արձանագրությունը ստորագրելը չի կարող մեկնաբանվել խախտում կատարած անձի կողմից մեղքի ընդունում"
+                                                        },
+                                                        {
+                                                            "id": 22,
+                                                            "name": "Ես չեմ ստորագրել արձանագրությունը",
+                                                            "description": "Արձանագրությունը չստորագրելը ևս անհամաձայնությունն արտահայտելու միջոց է"
                                                         }
                                                     ]
                                                 }
@@ -199,7 +199,7 @@
                         {
                             "id": 4,
                             "name": "Չամրակապված ուղևոր փոխադրելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921963924-seatbelt.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=ea92154bcc7f3512097810cb598fc55ba9a923f4dbc60c13838c8e2caf380384&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921963924-seatbelt.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=de65a825783a85a336bf57d13a40790ca775b1a383971dd4179a1ca498624b03&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -380,7 +380,7 @@
                         {
                             "id": 36,
                             "name": "Հեռախոսակապից օգտվելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1769432114399-phone-call.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=965c99293a4659755eb4e82eaee371c13c6bf75a20e6a389455e24412f436358&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1769432114399-phone-call.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=23f396b80536df5330c4f078557b1b70f0d6555e6812d145286212f6c128360e&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [
                                 "ogtvel",
                                 "հեռախոս",
@@ -566,7 +566,7 @@
                         {
                             "id": 5,
                             "name": "(ՎԻՎՕ հոդ. 135.2, 1-ին մաս) Տրանսպորտային միջոցի վարորդի կողմից մեքենայի ընթացքի ժամանակ ծխախոտային արտադրատեսակ կամ դրա փոխարինիչ օգտագործել",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768922054674-no-smoking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=8c11d43ea00112912c6db708381f00fac1ed1383a0af56d2b2c919f4087b9d84&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768922054674-no-smoking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=816c67784627efd99ef9d22fed23884236104e9aa46d98ac24c3395309f2d219&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -680,14 +680,14 @@
                                                     "description": "",
                                                     "facts": [
                                                         {
-                                                            "id": 22,
-                                                            "name": "Ես չեմ ստորագրել արձանագրությունը",
-                                                            "description": "Արձանագրությունը չստորագրելը ևս անհամաձայնությունն արտահայտելու միջոց է"
-                                                        },
-                                                        {
                                                             "id": 32,
                                                             "name": "Ստորագրել եմ արձանագրությունը, որպեսզի ակտի օրինակը ինձ տրամադրվեր",
                                                             "description": "Միայն արձանագրությունը ստորագրելը չի կարող մեկնաբանվել խախտում կատարած անձի կողմից մեղքի ընդունում"
+                                                        },
+                                                        {
+                                                            "id": 22,
+                                                            "name": "Ես չեմ ստորագրել արձանագրությունը",
+                                                            "description": "Արձանագրությունը չստորագրելը ևս անհամաձայնությունն արտահայտելու միջոց է"
                                                         }
                                                     ]
                                                 }
@@ -749,12 +749,12 @@
                 {
                     "id": 33,
                     "name": "Կանգառի և կայանման կանոններ",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768921634760-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=261a01759e080c93f9673f57c1b00bf2220842ed5c0bc7afb4249df4440d0633&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768921634760-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=5a431674493e971d26e0f2874d291d9ad89015ff4c4aa0fe20dceaf1fae1e490&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 17,
                             "name": "(ՎԻՎՕ հոդ. 124, 22-րդ մաս) Տ/Մ կայանելը, եթե այլ վարորդներ ստիպված կանգ են առել կամ փոխել ուղղությունը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921692928-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=f9091890dde116339f1049fd84f430c83b5b15771ed3d70b85e56b393fc7b2fc&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921692928-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=0bf0738333fb3f48f4c125813bf3281a5fc612427762440944cd2ad6f2b51485&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -941,7 +941,7 @@
                         {
                             "id": 12,
                             "name": "(ՎԻՎՕ հոդ. 124, 26-րդ մաս) Հետիոտնային անցման վրա կայանելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921751851-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=fef97a2974aa360ee196a8ad62d9f89ac0c8943807fcfe268e34536bfcc05a72&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921751851-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=6d452c9e6e70b50a690075f2d407bb9d7c573f6d34229c82886f326ecc8c60ea&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -1133,7 +1133,7 @@
                         {
                             "id": 14,
                             "name": "(ՎԻՎՕ հոդ. 124, 25-րդ մաս) Երթևեկելի մասի եզրին ոչ զուգահեռ կայանելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921741602-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=e0343c70e1a1badfa5f607809a5bcbdddea73ad2f693c07c58184f6bb685aaa1&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921741602-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=f845b0dde69b30e074ce96c8ea4afa7fd06b0e3631f96165f4f1c6a94cbfa947&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -1276,7 +1276,7 @@
                         {
                             "id": 15,
                             "name": "(ՎԻՎՕ հոդ. 124, 23-րդ մաս) Կանգառի կամ կայանման կանոնները խախտելը, որի հետևանքով Տ/Մ-ը տարհանվել է պահպանվող հատուկ տարածք",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921718088-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=b184e192510d6efa79c84520d430574c63d77e1b2c3c2cf195d1980b594cb00e&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921718088-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=04b028a3480d3e147536a6ba517e060c0efdb360670e9a641b79de837c10df99&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -1419,7 +1419,7 @@
                         {
                             "id": 16,
                             "name": "(ՎԻՎՕ հոդ. 124, 23-րդ մաս) Տ/Մ-ը կանգնեցնելը հաշմանդամների համար նախատեսված վայրում առանց համապատասխան ճանաչման նշանի",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921706292-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=5a02a52cdf6f43515c4e362db0949ea1d425a1404c14a97a7a6665af5079230a&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921706292-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=8c0aa614ff7446b712779836bf9282a58a3b8b617859f0d73aa3d35d54134443&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -1562,7 +1562,7 @@
                         {
                             "id": 18,
                             "name": "(ՎԻՎՕ հոդ. 124, 21-րդ մաս) Կանգառի կամ կայանման կանոնները խախտելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921663144-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=9590457d40293d4b2ef58bb07a34f905226ee47f203bfe6c575584df74c13479&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921663144-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=4829d19b10bc14d43cff023cd3980dbc0448ca379bfa962739f24d388585b8e1&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -1749,7 +1749,7 @@
                         {
                             "id": 54,
                             "name": "(ՎԻՎՕ հոդ. 124, 25-րդ մաս) Ընդհանուր օգտագործման Տ/Մ-ի կանգառի կետի տարածքում կանգառ կատարելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775471723520-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=8ca178a8b4844c6d7dd1db2a089a3e35a2ea3be285daf92f033455f26556c402&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775471723520-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=e005a81ba9f0f5e8b327d8190d9b661c9ccea19cfe4ce6c58830abb8e273e0b8&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -1892,7 +1892,7 @@
                         {
                             "id": 55,
                             "name": "(ՎԻՎՕ հոդ. 124, 27-րդ մաս) Մայթերին կայանելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775502213552-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=1da4f385c745c6a7524e8b69f1a64fd6ce772a714d103da494dc46b809a4525d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775502213552-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=c97779213a8e513efce15020c3dbda5f722f78ed65e57e07198cc96218453a3e&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -2035,7 +2035,7 @@
                         {
                             "id": 56,
                             "name": "(ՎԻՎՕ հոդ. 124, 27-րդ մաս) Մայթերով երթևեկելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775502252208-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=f70797345d44fc5deec39e122e62dce445fc3c52897b4ddccae74762f97e423c&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775502252208-parking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=ea37b7d364d6619920c600b79afe178afcc4fd75318b85a07fd0588afcc5c436&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -2180,12 +2180,12 @@
                 {
                     "id": 35,
                     "name": "Արագության գերազանցում",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768920704452-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=d6ce92a8de8f9ad89c20ab0b3085bd6c1be399e9442786ae1cad343fa82cedb6&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768920704452-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=702df129fc015c84bfb2bbbbe96054081f6d95f7b5fc9a8da64ca5975903d853&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 6,
                             "name": "1-10 կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921831679-speedometer%20%281%29.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=df677839ae5a506bbb53ea52e107a2f926abac58b98c1101c79ee5e3a5d3af32&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921831679-speedometer%20%281%29.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=b3526b7ea1ade27f4e7ddcb1e569b8ef8acd4d465e21ab735ca83155215b9d0b&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -2293,14 +2293,14 @@
                                                     "description": "",
                                                     "facts": [
                                                         {
-                                                            "id": 22,
-                                                            "name": "Ես չեմ ստորագրել արձանագրությունը",
-                                                            "description": "Արձանագրությունը չստորագրելը ևս անհամաձայնությունն արտահայտելու միջոց է"
-                                                        },
-                                                        {
                                                             "id": 32,
                                                             "name": "Ստորագրել եմ արձանագրությունը, որպեսզի ակտի օրինակը ինձ տրամադրվեր",
                                                             "description": "Միայն արձանագրությունը ստորագրելը չի կարող մեկնաբանվել խախտում կատարած անձի կողմից մեղքի ընդունում"
+                                                        },
+                                                        {
+                                                            "id": 22,
+                                                            "name": "Ես չեմ ստորագրել արձանագրությունը",
+                                                            "description": "Արձանագրությունը չստորագրելը ևս անհամաձայնությունն արտահայտելու միջոց է"
                                                         }
                                                     ]
                                                 }
@@ -2360,7 +2360,7 @@
                         {
                             "id": 7,
                             "name": "11-30 կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921819124-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=cbae1c7a3fbce2800ffb0814534be8bec329a5a078d1da2204d88b36aee6e81d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921819124-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=fd3c1279662745f41a5cc2592e24219ba752a229f542cc5fcad19c2db9b8f697&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -2535,7 +2535,7 @@
                         {
                             "id": 8,
                             "name": "31-50 կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921805126-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=6d0698f3db641fe450d0122ab31bc7e2e306ee6103cf590a2d823222d66c3cef&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921805126-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=522759898e08cda9be96c7105cfd61679f7582c7b4f3181ecd459f65ff05a546&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -2710,7 +2710,7 @@
                         {
                             "id": 9,
                             "name": "51-80 կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921784550-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=5d53ac16a0c1fc550357f1d188a859f776e73276aefa07e57be42957d787e463&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921784550-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=1810b426389aa8c4f0e98f9dfbb3efc46687c9f2f44d1f983e35b1abe2929844&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -2885,7 +2885,7 @@
                         {
                             "id": 10,
                             "name": "81+ կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921769048-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=f27e4a4184c561963ce735d46bb98fa86fbd46aa23ed88c3a905a770c142e8d5&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921769048-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=0276d1f912c22de0537ecb97079de17e384e234bb5194f95685f0fe49b18d12d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -3062,7 +3062,7 @@
                 {
                     "id": 41,
                     "name": "Ճանապարհային նշաններ, գծանշումներ",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775501198144-union.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=96af119f41a56ecdf3fc068271b2cd8823403404cd7af7a57db0987f9fbbba4e&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775501198144-union.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=26f198aa4996cb04591f05fc5be19f761ff2422af9514342e1195c2ace96bdf4&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 67,
@@ -3210,7 +3210,7 @@
                         {
                             "id": 44,
                             "name": "(ՎԻՎՕ հոդ․ 124, մաս 2) Հակադիր հոսքերը բաժանող գծանշումների պահանջները չկատարելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771248706493-road.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=eccdb38348de5320093cbed65fd51c10419cb7a223ac4354d8f2143bbbe79ff8&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771248706493-road.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=5f72b002e94de3440e7d647ba7c597188768df6df4425a178b4d370930a1b717&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -3353,7 +3353,7 @@
                         {
                             "id": 48,
                             "name": "(ՎԻՎՕ հոդ․ 124, մաս 9) Երթևեկությունն սկսելու կամ մանևր կատարելու կանոնները խախտելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771398135169-overtake.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=0a6cad163ed5a69729bd2de9e5076e5c7c97a651446ec742a02ef2931303955d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771398135169-overtake.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=b3fbb229a3914818328d8df70bd5863e8f8310fd103a57ab0f41e0dc724eef1f&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -3496,7 +3496,7 @@
                         {
                             "id": 49,
                             "name": "(ՎԻՎՕ հոդ․ 124, մաս 9) Հետընթաց վարման կանոնները խախտելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775502726447-letter-r.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=8dffb0953a7cbba73fc5358933e6853fc8145058377ed19ea4c25c2dcbc18fde&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775502726447-letter-r.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=a7aee650a5371012c38832c87f61caeec4f272e69242fa1cc81cc251ce84e657&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -3639,7 +3639,7 @@
                         {
                             "id": 50,
                             "name": "Բաժանարար գոտին չնախատեսված վայրերում հատելը ձախ շրջադարձ կամ հետադարձ կատարելու եղանակով",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771411645267-no-turn-left.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=22fc836a834fd3f3f9eceef58bcaa1c4d90b21b6252c1c102673c7b811e89a1d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771411645267-no-turn-left.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=898359afa5eb8e4d5b8db06751cfac1337b18b4481960fa420b14fd2f5348988&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -4070,12 +4070,12 @@
                 {
                     "id": 66,
                     "name": "Լուսացույց, Տ/Մ տեղաշարժ",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775500635378-traffic-lights.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=099c6a3c816e15a0996d59d95779bffa1252f1a978834429c55b3ef6f2b99f8a&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775500635378-traffic-lights.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=4c8854e9a574a6a0625844fba65a069fdc14eb4e9feb151fa53fd99b140000d8&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 47,
                             "name": "(ՎԻՎՕ հոդ․ 124, մաս 8) Վազանցի կանոնները խախտելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771397710368-no-overtaking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=3b29e2195bf39ac5ff075d6d3b7af3cc20b1c1d8a0e1151313f14af24c957f29&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771397710368-no-overtaking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=53fe77a002c0a793475f5fa687743c1ff94189b78ac3a660c34192c737f80b35&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -4204,7 +4204,7 @@
                         {
                             "id": 51,
                             "name": "(ՎԻՎՕ հոդ. 124.3, 1-ին մաս) Լուսացույցի արգելող ազդանշանին չենթարկվելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771399035061-traffic-lights.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=59b1d446077181102cc100a07998561882aeb31e76a4e13d8a5ce0aa2ad0be98&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771399035061-traffic-lights.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=6f1d514de2030c668d444e145b9b4280f9b43bf3c07a8e9f278ecc9a4ec80807&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [
                                 "կարմիր",
                                 "լույս",
@@ -4783,12 +4783,12 @@
                 {
                     "id": 67,
                     "name": "Հանրային տրանսպորտի գոտիներ, հետիոտներ",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775500513424-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=38210ee02b098f74565a8150281734b398e87f1fa72c1243daa5bb8ef8795615&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775500513424-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=0e3d6268c9d13a6145e614366b31bacc9d3c1c111fca85fb5cd0b5d635115364&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 46,
                             "name": "(ՎԻՎՕ հոդ․ 124, մաս 6) Հետիոտնային անցումների հատման կանոնները խախտելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771397622414-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=21dbb936b76c7c12e44d5b2e0c92609a494f82bfadf2c9eb97e069d75ca4c7dc&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771397622414-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=70fc50d59b7175f9a70fadbca0e531a976bca659595a90ab07f6e010576db6e5&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -4931,7 +4931,7 @@
                         {
                             "id": 107,
                             "name": "(ՎԻՎՕ հոդ. 131, 1-ին մաս) Հետիոտնի կամ երթևեկության այլ մասնակցի կողմից լուսացույցի կամ կարգավորման ազդանշանին չենթարկվելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256311306-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=8b6a024e927194cf87419f207259c2e9d77f00b2b098ed67a16c4407f289a261&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256311306-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=5fc07b28233063fa31a6a05cccac8d891f8d63857488544ff7c605d1c9de741f&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [
                                 "կարմիր",
                                 "karmir",
@@ -5079,7 +5079,7 @@
                         {
                             "id": 108,
                             "name": "(ՎԻՎՕ հոդ. 131, 1-ին մաս) Հետիոտնի կամ երթևեկության այլ մասնակցի կողմից ճանապարհային նշանի կամ գծանշման պահանջը խախտելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256292514-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=0953aa384c512efeff3d6dba06ec1f69f8d5b51a9f3401053ee8d00db2b6c7b2&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256292514-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=263be650ebe233f98d32ed12ba5d89631f9325374fba804fd13c5553b386262f&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -5222,7 +5222,7 @@
                         {
                             "id": 109,
                             "name": "(ՎԻՎՕ հոդ. 131, 2-րդ մաս) Հետիոտնի կողմից ճանապարհով կամ մայթով շարժվելու կարգը խախտելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256319149-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=c478354d6c53e949487c121d546e82712f3844d20437528f0674fb4be51008b5&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256319149-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=9a01d616db2f5966ae4ed2273236b6f37171444493095b37cdf06808bed062c8&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -5365,7 +5365,7 @@
                         {
                             "id": 110,
                             "name": "(ՎԻՎՕ հոդ. 131, 3-րդ մաս) Հետիոտնի կողմից ճանապարհի երթևեկելի մասը հատելու կարգը խախտելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256273220-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=50053c0a0fa08173b22cccf722216c2bf3e141ae9bd410d03c10da9485da2831&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256273220-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=4d0d0cd7a90f75458ca13372b908ec5924134b75662ecb7f186d98f076f3089d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -5937,7 +5937,7 @@
                         {
                             "id": 116,
                             "name": "(ՎԻՎՕ հոդ. 131, 6-րդ մաս) Հետիոտնի, հեծանվորդի կամ երթևեկության այլ մասնակցի կողմից խախտում կատարել, որը ստեղծել է վթարային իրադրություն",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256334657-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=a7fe956f3ec5c23a6fcce9daf0f944ee7e455b7248ab8fd9825b8309e8ee7382&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256334657-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=e5287d6989ba3c719ab21e7d56f54a13a11ebb288d72c77046e5a64ffc32f50d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -6080,7 +6080,7 @@
                         {
                             "id": 117,
                             "name": "(ՎԻՎՕ հոդ. 131, 6.1-րդ մաս) Հետիոտնի կամ երթևեկության այլ մասնակցի կողմից խախտում կատարել, որի հետևանքով առողջությանը պատճառվել է թեթև վնաս",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256356936-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=9439415037a419fe387fc85f01f47c83995a5d4d20b39eae2b1147004ecf44f3&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776256356936-pedestrians.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=4ca753cca9f193b17445b57c7d06588d33196a8048c92dc892eef3ef5ab7f74d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -6223,7 +6223,7 @@
                         {
                             "id": 140,
                             "name": "(ՎԻՎՕ հոդ. 135.1, 1-ին մաս) Հասարակական տրանսպորտում (օդային, ջրային, վերգետնյա էլեկտրական կամ երկաթուղային) ծխախոտային արտադրատեսակ կամ դրա փոխարինիչ օգտագործելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776274285750-no-smoking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=db520eebd4583a19b862452f5628ad19ac0ea10489927b9e75d2009c9568a127&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776274285750-no-smoking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=0342226578c7bc04833ca36e747d510aefb5b604ee52659d42c2b10eb69b3736&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -6366,7 +6366,7 @@
                         {
                             "id": 141,
                             "name": "(ՎԻՎՕ հոդ. 135.2, 2-րդ մաս) Ընդհանուր օգտագործման տրանսպորտային միջոցում կամ տաքսիում ծխախոտային արտադրատեսակ կամ դրա փոխարինիչ օգտագործելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776274294510-no-smoking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=bc7d81d8f05ad541f59af5f5f38b011a2908e4d08112dfc5559ccfbd2aca842b&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776274294510-no-smoking.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=499248082e48af36fab06a3878bd78011d7171dcca1ab03d1c6ba104315b9bd8&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -6511,12 +6511,12 @@
                 {
                     "id": 55,
                     "name": "Տ/Մ հաշվառման համարանիշ, տեխնիկական վիճակ",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1771236917488-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=8c723769d313e6ed41c07fc3c8e9ae270ab6ed6149344faee1280ac967b63b7b&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1771236917488-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=c6a5144d7bbe8e3fc7282736df21b8a8e9e279872820e682777771d204dfd579&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 41,
                             "name": "(ՎԻՎՕ հոդ. 123.5, 1-ին մաս) Տ/Մ անընթեռնելի կամ ստանդարտին չհամապատասխանող հաշվառման համարանիշով վարելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771244786946-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=8565131df04709edb9b13b1bd7817b82ab0a28f58efafde577d12092604a108f&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771244786946-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=5430679b5e2646b51635f7781c5ff09208a5a3abe5b3a2cdd305617b497fb476&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -6659,7 +6659,7 @@
                         {
                             "id": 42,
                             "name": "(ՎԻՎՕ հոդ. 123.5, 1.1-րդ մաս) Տ/Մ անընթեռնելի կամ ստանդարտին չհամապատասխանող հաշվառման համարանիշով վարելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771244976011-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=92a1ea46e073be804761c1bdb0f34cee98b55c32d99213d29982e33e38d1bf15&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771244976011-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=4a38cb51684ad3d5b47cb88470f6f02cde7ceb852f40f5655dae0241b8b70222&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -6802,7 +6802,7 @@
                         {
                             "id": 43,
                             "name": "(ՎԻՎՕ հոդ. 123.5, 16-րդ մաս) Զույգ հաշվառման համարանիշեր ունեցող Տ/Մ-ը մեկ հաշվառման համարանիշով վարելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771245071267-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=5141b1788bea29e3d07d742faaf8932c98ba514d1fa52b9efe39eb0a93235a83&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1771245071267-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=b8fb12d2732343b5ba10d2881283c269e6c699e8bd8a19ccd6e9af1595f0b29f&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -6945,7 +6945,7 @@
                         {
                             "id": 68,
                             "name": "(ՎԻՎՕ հոդ. 123.5, 2-րդ մաս) Տրանսպորտային միջոցի հաշվառման համարանիշը սահմանված տեղում չփակցնել",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775647638547-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=321d68f31dab901c151f23478140e3caf056a7d00d40ebc3cc9e602ccefe43c5&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775647638547-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=c32829c3e1f776ea0f5597842c298ffce6dd93b79843abc61a80b3e113d2b06d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -7088,7 +7088,7 @@
                         {
                             "id": 71,
                             "name": "(ՎԻՎՕ հոդ. 123.5, 6-րդ մաս) ՃԵԿ-ով նախատեսված դեպքերում հաշվառման համարանիշի թվերի և տառերի կրկնօրինակում չունեցող տրանսպորտային միջոց վարելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775647895272-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=eac320c965abcc157a3d6ae30be62564edab47bff6e9e6e8eb0e195f22c6c7f6&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1775647895272-license-plate.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=a8fd641be12255af5f6fad91ed84d017fabeee7e1c0e71cb1d1b8989c4aeee8c&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -7376,13 +7376,13 @@
                 {
                     "id": 70,
                     "name": "Վարորդական իրավունքից զրկում, կասեցում",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775500900638-drivers-license.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=eedfbe62965218e31932c21740a5c5582e413033dc39d09ba496a24e7a59e0ba&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775500900638-drivers-license.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=57fdb8a9bb0bac68d14d171d08852d758bca70750ff4ae8bb0b8d5c614bc98e7&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": []
                 },
                 {
                     "id": 71,
                     "name": "Այլ իրավախախտումներ",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775649783637-bill.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=2ed52733ce58dd000b05aef9368cb16232bd6690a7ca6f11cee7e6a87f90790f&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1775649783637-bill.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=45f98a4cb8bc85feb99c3703b9da31d935d7445ba237169456337fc5e6abcd9e&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 86,
@@ -7677,17 +7677,17 @@
         {
             "id": 17,
             "name": "Տեսախցիկներով հայտնաբերված ակտեր",
-            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1768914544369-Web%201920%20%C3%A2%C2%80%C2%93%202.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=c7be4dc6dca020d6366ddedfe01b255aecfd4914f7dbb4c61856a5163f084dbe&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1788871582344-cctv.svg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=e2c149b507f4942204f9c68325abc5d6832fa113e20ad7a81f35f935e6bea7aa&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
             "subCategories": [
                 {
                     "id": 39,
                     "name": "Վարչական ակտի հասցեատիրոջ փոփոխություն",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768920432367-arrows.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=d50499f8fd396b6f7151c675fde6b7185ceb5e09cbc0da7ac29e8b97cf9a5733&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768920432367-arrows.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=c901cf77ce2067d2fa2beb8201e18f15ff8af9198b254c88aeee53c201eb12dd&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 30,
                             "name": "Փոփոխել ակտի հասցեատիրոջը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921341058-arrows.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=08d8c65c11b8e6a140d4fe4e2d7031224fbc4ced586fabc026e76bcbf033cb70&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1768921341058-arrows.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=9661e4558f6f4e5e029e467761da69a6e89eac9ecef35ee45398ac5447cd081c&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -7851,12 +7851,12 @@
                 {
                     "id": 38,
                     "name": "Արագաչափեր",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768922149869-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=12bd88fea6f01b520b6534700ddf73e7b92cb45d69d01fffedb00fb1bb5556b9&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768922149869-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=03c40f0bfd29f127b617f8c37ffd8e81fd94164357060537ca52977d407c37cc&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 38,
                             "name": "1-10 կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1769432083787-speedometer%20%281%29.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=a5e922fe026f429153a5147e7627332d92adba3f92208390bc0c32d199a71790&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1769432083787-speedometer%20%281%29.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=05cabe8cd73e7ebc1f2c608f5586694377db8373ee352eb2e8493d63a7a74916&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -7961,7 +7961,7 @@
                         {
                             "id": 39,
                             "name": "11-30 կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1769432096986-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=e852a3cc1deb7f23747cbcf258fc6df2edcf4506b1b262043b063d1557a29b17&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1769432096986-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=899baecf279a6c3f10f10f8da3d43f0686bab1be9db38b319f838068bdad2526&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -8066,7 +8066,7 @@
                         {
                             "id": 143,
                             "name": "31-50 կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776350594052-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=432bf26058632a852dd4cf9a3456c492211e79504a746987c9fcf3eabb2c2b33&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776350594052-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=b76c37b3e0fa9371b66d483be091f076486aca8dce326b2b590118ac275796ae&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -8171,7 +8171,7 @@
                         {
                             "id": 144,
                             "name": "51-80 կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776350621242-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=b35cb79e4c2edb900d48b07a17059fcebc70f4662a9c6ecda7d53f42ab91a740&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776350621242-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=1d02b1e8132b8fbb304cbe4a386b0303f29864df5dbd5ae9cfb08b25f2b5536a&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -8276,7 +8276,7 @@
                         {
                             "id": 145,
                             "name": "81+ կմ/ժ-ով արագությունը գերազանցելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776350651694-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=da5410a2e9eb649e54e5e14715e5972d3ee98c52f6b7851c3dad9bca3b11ad7e&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1776350651694-speedometer.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=d7ec7946a9d565a755d42c91315d0bbbd80f5ba68ac65ac8b539465078751dce&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [],
                             "templates": [
                                 {
@@ -8301,11 +8301,19 @@
                                                         "uploadable": false
                                                     }
                                                 ]
+                                            },
+                                            {
+                                                "id": 74,
+                                                "name": "Act_resive_day_30",
+                                                "description": "Որոշումը ստանալու օր",
+                                                "dataType": "30_day",
+                                                "sequence": 2,
+                                                "attachedDocuments": []
                                             }
                                         ],
                                         "optionGroups": [
                                             {
-                                                "id": 28,
+                                                "id": 30,
                                                 "type": "checkbox",
                                                 "title": "test check",
                                                 "sequence": 1,
@@ -8313,7 +8321,7 @@
                                                 "attachedDocuments": [],
                                                 "options": [
                                                     {
-                                                        "id": 66,
+                                                        "id": 71,
                                                         "value": "test 1",
                                                         "sequence": 1,
                                                         "required": true,
@@ -8326,14 +8334,14 @@
                                                         ]
                                                     },
                                                     {
-                                                        "id": 67,
+                                                        "id": 72,
                                                         "value": "test 2",
                                                         "sequence": 2,
                                                         "required": false,
                                                         "attachedDocuments": []
                                                     },
                                                     {
-                                                        "id": 68,
+                                                        "id": 73,
                                                         "value": "hgfhfg",
                                                         "sequence": 3,
                                                         "required": true,
@@ -8342,32 +8350,61 @@
                                                 ]
                                             },
                                             {
-                                                "id": 29,
+                                                "id": 31,
                                                 "type": "radio",
-                                                "title": "test",
+                                                "title": "test Radiobox headline",
                                                 "sequence": 2,
                                                 "required": true,
                                                 "attachedDocuments": [],
                                                 "options": [
                                                     {
-                                                        "id": 69,
-                                                        "value": "гдфгдф",
+                                                        "id": 74,
+                                                        "value": "гдфгдф cwrferfergferge",
                                                         "sequence": 1,
                                                         "required": false,
                                                         "attachedDocuments": []
                                                     },
                                                     {
-                                                        "id": 70,
-                                                        "value": "гфдгдф",
+                                                        "id": 75,
+                                                        "value": "гфдгдф rfergfege",
                                                         "sequence": 2,
                                                         "required": true,
                                                         "attachedDocuments": [
+                                                            {
+                                                                "id": 6,
+                                                                "name": "Որոշման լուսապատճենը",
+                                                                "uploadable": false
+                                                            },
                                                             {
                                                                 "id": 11,
                                                                 "name": "Տ/Մ վարած անձի անձը հաստատող փաստաթուղթը",
                                                                 "uploadable": false
                                                             }
                                                         ]
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "id": 32,
+                                                "type": "radio",
+                                                "title": "Ոչ պարտադիր ռադիոբոքս",
+                                                "sequence": 3,
+                                                "required": false,
+                                                "attachedDocuments": [],
+                                                "options": [
+                                                    {
+                                                        "id": 76,
+                                                        "value": "Տարբերակ 1",
+                                                        "sequence": 1,
+                                                        "required": true,
+                                                        "attachedDocuments": []
+                                                    },
+                                                    {
+                                                        "id": 77,
+                                                        "value": "Տարբերակ 2",
+                                                        "sequence": 2,
+                                                        "required": false,
+                                                        "attachedDocuments": []
                                                     }
                                                 ]
                                             }
@@ -8424,7 +8461,7 @@
                 {
                     "id": 40,
                     "name": "Խաչմերուկների տեսախցիկներ",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768920171939-intersection.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=8f3586e31bbf5e27e4097c93124b52e985b00f485883aa722c918bd75fdbf063&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1768920171939-intersection.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=dbd389a76573879a38fd995d241210350817083039986aee3ed6925a41b6b934&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": []
                 }
             ]
@@ -8432,17 +8469,17 @@
         {
             "id": 18,
             "name": "Երևանի քաղաքապետարանի ակտեր",
-            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1785321102624-%C3%94%C2%B5%C3%96%C2%80%C3%96%C2%87%C3%95%C2%A1%C3%95%C2%B6%C3%95%C2%AB%20%C3%96%C2%84%C3%95%C2%A1%C3%95%C2%B2%C3%95%C2%A1%C3%96%C2%84%C3%95%C2%A1%C3%95%C2%BA%C3%95%C2%A5%C3%95%C2%BF%C3%95%C2%A1%C3%96%C2%80%C3%95%C2%A1%C3%95%C2%B6.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=f7ad663b0c90f52bd37afe220cc679dd529fb096998b264ea31b06b2d9dfd93c&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1788871942940-yerevan-logo%404x.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=21dea5e2303bd4fabfe42189947743180c755c2340c629ecbb7c28fcdea8d9bd&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
             "subCategories": [
                 {
                     "id": 42,
                     "name": "Ավտոկայանատեղի",
-                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1770057105247-Red%20line.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=ac6a932cfe4fd54f983cb957be66f592cb9be122d378ee6197f2e5b112ba0ac8&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                    "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/sub-categories/1770057105247-Red%20line.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=e52ac4f7bd06e341d458f393da9b1f675a9818ff677ebf73044e619cb040a088&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                     "legalIssues": [
                         {
                             "id": 40,
                             "name": "(ՎԻՎՕ հոդ. 124.7) Համայնքային վճարովի ավտոկայանատեղում կայանելու համար սահմանված վճարը չվճարելը",
-                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1770052393488-Red%20line.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=16b06893e7b265e0ade7a6dbdb160f4f27185d4bf6129c90ca2d245614bb8306&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+                            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/legal-issues/1770052393488-Red%20line.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=817eadb247339c7046455fc571145e2fee10e4f13a5400cf4b9d13e11b95875f&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
                             "tags": [
                                 "պարկինգ",
                                 "կարմիր",
@@ -8644,7 +8681,7 @@
         {
             "id": 20,
             "name": "ՀՀ ՊԵԿ վարչական ակտեր",
-            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1769176251540-%C3%95%C2%8A%C3%94%C2%B5%C3%94%C2%BF.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260907%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260907T230422Z&X-Amz-Expires=3600&X-Amz-Signature=b9c4a335281dfaa02292a841deadbec6bc88e5551af796b981aacf5059b9f10e&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+            "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1788872331830-pek-logo.svg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=39ffc2140623a99810227e983857c1629f6300779074b0a1a8a457ece2c03023&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
             "subCategories": [
                 {
                     "id": 75,
