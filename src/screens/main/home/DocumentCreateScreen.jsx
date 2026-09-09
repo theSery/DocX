@@ -125,7 +125,7 @@ export function DocumentCreateScreen({ route, navigation }) {
   const [clearedAttachmentIds, setClearedAttachmentIds] = useState(
     () => new Set(),
   );
-console.log('formAttachedDocuments: personalData personalData', personalData);
+
   const markAttachmentFilled = useCallback(attachedDocumentId => {
     if (attachedDocumentId == null) {
       return;
@@ -276,15 +276,41 @@ console.log('formAttachedDocuments: personalData personalData', personalData);
 
   const userId = personalData?.id ?? personalData?.userId;
 
-  const solutionAttachments = useMemo(
-    () => templateSolution?.solutionAttachments ?? [],
-    [templateSolution?.solutionAttachments],
-  );
+  const solutionAttachments = useMemo(() => {
+    const documents = Array.isArray(formAttachedDocuments)
+      ? formAttachedDocuments
+      : [];
+    const seenIds = new Set();
+
+    return documents.reduce((attachments, document) => {
+      if (document?.uploadable !== true) {
+        return attachments;
+      }
+
+      const id =
+        document?.id ??
+        document?.attachedDocumentId ??
+        document?.attachedDocument?.id;
+
+      if (id != null) {
+        const key = String(id);
+        if (seenIds.has(key)) {
+          return attachments;
+        }
+        seenIds.add(key);
+      }
+
+      attachments.push(document);
+      return attachments;
+    }, []);
+  }, [formAttachedDocuments]);
 
   const attachmentRows = useMemo(() => {
     return solutionAttachments.map((attachment, index) => {
       const attachedDocumentId =
-        attachment?.attachedDocumentId ?? attachment?.attachedDocument?.id;
+        attachment?.attachedDocumentId ??
+        attachment?.attachedDocument?.id ??
+        attachment?.id;
       const key = String(attachedDocumentId);
       const name =
         attachment?.attachedDocument?.name ??

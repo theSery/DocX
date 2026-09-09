@@ -26,7 +26,7 @@ const MainHeader = ({ onPress, isHome = false, rightAction = null }) => {
         <Image
           source={isDarkMode ? whiteLogo : darkLogo}
           style={layout.compact ? styles.logoCompact : styles.logo}
-          resizeMode={layout.compact ? 'contain' : 'cover'}
+          resizeMode={layout.compact ? 'contain' : 'contain'}
         />
       </View>
       <View style={[styles.side, layout.compact && { width: sideSize }]}>
@@ -55,7 +55,7 @@ const createStyles = () =>
     },
     logo: {
       width: '100%',
-      height: 45,
+      height: 40,
       maxWidth: 180,
       minWidth: 140,
     },

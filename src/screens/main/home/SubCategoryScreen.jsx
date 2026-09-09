@@ -23,6 +23,7 @@ import { useEffect } from 'react';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
 import { resolveImageSource } from '../../../utils/imageCache';
+import StarSvg from '../../../components/icons/StarSvg';
 
 const LIST_PANEL_GAP = TOP_HEADER_HEIGHT * 0.1018;
 // List sits under the collapsed header; expanded space is scroll padding so
@@ -114,7 +115,15 @@ export function SubCategoryScreen({ route, navigation }) {
             staggeredEnter
             renderHeader={category => (
               <>
+                     <View style={{position: 'absolute', top: 0, right: -5}}>
+                  <StarSvg
+          width={17}
+          height={16}
+          fill={'#01174D'}
+        />
+                  </View>
                 <View style={styles.subCategoryIconWrap}>
+           
                   <CachedImage
                     source={{ uri: category.iconUrl || iconUrl }}
                     style={styles.subCategoryIcon}
