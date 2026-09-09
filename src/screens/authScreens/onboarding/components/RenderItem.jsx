@@ -117,8 +117,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 50,
   },
   logo: {
-    height: 58,
-    width: 250,
+    height: 60,
+    width: 245,
   },
   compactContainer: {
     flex: 1,

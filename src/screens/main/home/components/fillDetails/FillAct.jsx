@@ -21,7 +21,10 @@ import {
   isDateDataType,
 } from '../../../../../utils/variableDataTypes';
 import { useAppDispatch } from '../../../../../store';
-import { syncVariableValues } from '../../../../../store/slices/documentFillSlice';
+import {
+  syncOptionSelections,
+  syncVariableValues,
+} from '../../../../../store/slices/documentFillSlice';
 import { sortBySequence } from '../../../../../utils/templateFactGroups';
 
 const ACT_DATE_FIELD = 'Act_date';
@@ -240,11 +243,12 @@ export function FillAct({
   control,
   variables = [],
   optionGroups = [],
-  selectedOptions,
+  selectedOptions = {},
   onSelectOption,
   setRadioOptions,
-  radioOptions,
+  radioOptions = {},
   optionGroupErrors = {},
+  solutionAttachments = [],
 }) {
   const dispatch = useAppDispatch();
   const { colors } = useTheme();
@@ -265,6 +269,23 @@ export function FillAct({
   useEffect(() => {
     dispatch(syncVariableValues({ variables: sortedVariables, values: variableValues }));
   }, [dispatch, variableValues, sortedVariables]);
+
+  useEffect(() => {
+    dispatch(
+      syncOptionSelections({
+        optionGroups: sortedOptionGroups,
+        selectedOptions,
+        radioOptions,
+        solutionAttachments,
+      }),
+    );
+  }, [
+    dispatch,
+    radioOptions,
+    selectedOptions,
+    solutionAttachments,
+    sortedOptionGroups,
+  ]);
 
   return (
     <View style={styles.container}>

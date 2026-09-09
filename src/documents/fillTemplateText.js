@@ -105,15 +105,67 @@ function buildNumberedHtmlList(items) {
 }
 
 /**
+ * @param {unknown} document
+ */
+function getAttachedDocumentName(document) {
+  if (typeof document === 'string') {
+    return document.trim();
+  }
+
+  const nestedName = document?.attachedDocument?.name;
+  const name = typeof nestedName === 'string' ? nestedName : document?.name;
+
+  return typeof name === 'string' ? name.trim() : '';
+}
+
+/**
+ * @param {...({ id?: number; name?: string }[] | undefined)} lists
+ */
+function mergeAttachedDocuments(...lists) {
+  const attachedDocuments = [];
+  const seen = new Set();
+
+  lists.forEach(list => {
+    (list ?? []).forEach(document => {
+      const name = getAttachedDocumentName(document);
+
+      if (!name) {
+        return;
+      }
+
+      const id =
+        document?.attachedDocument?.id ??
+        document?.attachedDocumentId ??
+        document?.id;
+      const key = id ?? name;
+
+      if (seen.has(key)) {
+        return;
+      }
+
+      seen.add(key);
+      attachedDocuments.push({
+        id,
+        name,
+      });
+    });
+  });
+
+  return attachedDocuments;
+}
+
+/**
  * @param {{ id?: number; name?: string }[]} attachedDocuments
  */
 function buildAttachedDocumentsHtml(attachedDocuments) {
-  if (!attachedDocuments?.length) {
+  const namedDocuments = mergeAttachedDocuments(attachedDocuments);
+
+  if (!namedDocuments.length) {
     return '';
   }
 
-  return attachedDocuments
-    .map((document, index) => `${index + 1}."${escapeHtml(document.name)}"`)
+  return namedDocuments
+    .map((document, index) => `${index + 1}. ${escapeHtml(document.name)}`)
     .join('<br/>');
 }
 
@@ -171,6 +223,7 @@ function mapPersonalDataToVariables(personalData, hasNotificationAddress) {
  *   variableValues?: Record<string, unknown>;
  *   variableDataTypes?: Record<string, string>;
  *   attachedDocuments?: { id?: number; name?: string }[];
+ *   formAttachedDocuments?: { id?: number; name?: string }[];
  *   past?: string[];
  *   text2?: string[];
  *   articles?: string[];
@@ -187,10 +240,14 @@ function mapDocumentFillToVariables(documentFill = {}) {
         : value ?? '',
     ]),
   );
+  const attachedDocuments = mergeAttachedDocuments(
+    documentFill.formAttachedDocuments,
+    documentFill.attachedDocuments,
+  );
 
   return {
     ...configuredVariables,
-    attached_documents: buildAttachedDocumentsHtml(documentFill.attachedDocuments),
+    attached_documents: buildAttachedDocumentsHtml(attachedDocuments),
     past: buildNumberedHtmlList(documentFill.past),
     hodvac: [analyticalHtml, articlesHtml].filter(Boolean).join(''),
     text2: analyticalHtml,
@@ -225,6 +282,7 @@ export function injectSignatureAtPlaceholder(templateText, imageSrc) {
  *     variableValues?: Record<string, unknown>;
  *     variableDataTypes?: Record<string, string>;
  *     attachedDocuments?: { id?: number; name?: string }[];
+ *     formAttachedDocuments?: { id?: number; name?: string }[];
  *     past?: string[];
  *     text2?: string[];
  *     articles?: string[];

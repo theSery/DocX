@@ -823,7 +823,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
       <FormScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
-        bottomOffset={62}
+        bottomOffset={20}
         contentContainerStyle={[
           styles.contentContainer,
           { paddingBottom: insets.bottom + 32 },
@@ -919,11 +919,11 @@ export function CompletePersonalDataScreen({ navigation, route }) {
         </AnimatedView>
         </DropdownHost>
       </FormScrollView>
-      <KeyboardToolbar>
+      {/* <KeyboardToolbar>
         <KeyboardToolbar.Prev />
         <KeyboardToolbar.Next />
         <KeyboardToolbar.Done text="Փակել" />
-      </KeyboardToolbar>
+      </KeyboardToolbar> */}
     </View>
   );
 }

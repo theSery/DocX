@@ -5,6 +5,7 @@ const initialState = {
   variableValues: {},
   variableDataTypes: {},
   attachedDocuments: [],
+  formAttachedDocuments: [],
   past: [],
   text2: [],
   articles: [],
@@ -118,33 +119,79 @@ function collectSelectedOptions(optionGroups, selectedOptions, radioOptions) {
   return options;
 }
 
-function collectVariableAttachedDocuments(variables = []) {
+function getAttachedDocumentName(document) {
+  if (typeof document === 'string') {
+    return document.trim();
+  }
+
+  const nestedName = document?.attachedDocument?.name;
+  const name = typeof nestedName === 'string' ? nestedName : document?.name;
+
+  return typeof name === 'string' ? name.trim() : '';
+}
+
+function getAttachedDocumentUploadable(document) {
+  if (typeof document?.uploadable === 'boolean') {
+    return document.uploadable;
+  }
+
+  if (typeof document?.attachedDocument?.uploadable === 'boolean') {
+    return document.attachedDocument.uploadable;
+  }
+
+  return false;
+}
+
+function uniqueAttachedDocuments(documents = []) {
   const attachedDocuments = [];
   const seen = new Set();
 
-  variables.forEach(variable => {
-    (variable?.attachedDocuments ?? []).forEach(document => {
-      const name = typeof document?.name === 'string' ? document.name.trim() : '';
+  documents.forEach(document => {
+    const name = getAttachedDocumentName(document);
 
-      if (!name) {
-        return;
-      }
+    if (!name) {
+      return;
+    }
 
-      const key = document?.id ?? name;
+    const id =
+      document?.attachedDocument?.id ??
+      document?.attachedDocumentId ??
+      document?.id;
+    const key = id ?? name;
 
-      if (seen.has(key)) {
-        return;
-      }
+    if (seen.has(key)) {
+      return;
+    }
 
-      seen.add(key);
-      attachedDocuments.push({
-        id: document.id,
-        name,
-      });
+    seen.add(key);
+    attachedDocuments.push({
+      id,
+      name,
+      uploadable: getAttachedDocumentUploadable(document),
     });
   });
 
   return attachedDocuments;
+}
+
+function collectVariableAttachedDocuments(variables = []) {
+  return uniqueAttachedDocuments(
+    variables.flatMap(variable => variable?.attachedDocuments ?? []),
+  );
+}
+
+function collectFormAttachedDocuments({
+  solutionAttachments = [],
+  selectedOptions = [],
+} = {}) {
+  const optionAttachedDocuments = selectedOptions.flatMap(
+    option => option?.attachedDocuments ?? [],
+  );
+
+  return uniqueAttachedDocuments([
+    ...solutionAttachments,
+    ...optionAttachedDocuments,
+  ]);
 }
 
 function buildFactArrays(facts) {
@@ -193,14 +240,23 @@ const documentFillSlice = createSlice({
       },
     },
     syncOptionSelections: (state, action) => {
-      const { optionGroups = [], selectedOptions = {}, radioOptions = {} } =
-        action.payload;
-
-      state.formOptions = collectSelectedOptions(
+      const {
+        optionGroups = [],
+        selectedOptions = {},
+        radioOptions = {},
+        solutionAttachments = [],
+      } = action.payload;
+      const selectedOptionItems = collectSelectedOptions(
         optionGroups,
         selectedOptions,
         radioOptions,
       );
+
+      state.formOptions = selectedOptionItems;
+      state.formAttachedDocuments = collectFormAttachedDocuments({
+        solutionAttachments,
+        selectedOptions: selectedOptionItems,
+      });
     },
     syncFactSelections: (state, action) => {
       const { templateFactGroups = [], selectedFacts = {}, radioFacts = {} } =
@@ -228,5 +284,8 @@ export const {
 } = documentFillSlice.actions;
 
 export const selectDocumentFill = state => state.documentFill;
+
+export const selectFormAttachedDocuments = state =>
+  state.documentFill.formAttachedDocuments;
 
 export default documentFillSlice.reducer;

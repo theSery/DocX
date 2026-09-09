@@ -87,8 +87,8 @@ const styles = StyleSheet.create({
     paddingBottom: '5%',
   },
   logo: {
-    height: 58,
-    width: 250,
+    height: 60,
+    width: 245,
   },
   imageSlot: {
     flex: 1,

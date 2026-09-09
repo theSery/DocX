@@ -8312,43 +8312,7 @@
                                             }
                                         ],
                                         "optionGroups": [
-                                            {
-                                                "id": 30,
-                                                "type": "checkbox",
-                                                "title": "test check",
-                                                "sequence": 1,
-                                                "required": false,
-                                                "attachedDocuments": [],
-                                                "options": [
-                                                    {
-                                                        "id": 71,
-                                                        "value": "test 1",
-                                                        "sequence": 1,
-                                                        "required": true,
-                                                        "attachedDocuments": [
-                                                            {
-                                                                "id": 11,
-                                                                "name": "Տ/Մ վարած անձի անձը հաստատող փաստաթուղթը",
-                                                                "uploadable": true
-                                                            }
-                                                        ]
-                                                    },
-                                                    {
-                                                        "id": 72,
-                                                        "value": "test 2",
-                                                        "sequence": 2,
-                                                        "required": false,
-                                                        "attachedDocuments": []
-                                                    },
-                                                    {
-                                                        "id": 73,
-                                                        "value": "hgfhfg",
-                                                        "sequence": 3,
-                                                        "required": true,
-                                                        "attachedDocuments": []
-                                                    }
-                                                ]
-                                            },
+                                     
                                             {
                                                 "id": 31,
                                                 "type": "radio",

@@ -28,7 +28,10 @@ import {
 } from '../../../components/DocumentLoadingOverlay';
 import { AnimatedView } from '../../../components/animation';
 import { useAppDispatch, useAppSelector } from '../../../store';
-import { selectDocumentFill } from '../../../store/slices/documentFillSlice';
+import {
+  selectDocumentFill,
+  selectFormAttachedDocuments,
+} from '../../../store/slices/documentFillSlice';
 import {
   selectHasNotificationAddress,
   selectPersonalData,
@@ -92,6 +95,7 @@ export function DocumentCreateScreen({ route, navigation }) {
   const personalData = useAppSelector(selectPersonalData);
   const hasNotificationAddress = useAppSelector(selectHasNotificationAddress);
   const documentFill = useAppSelector(selectDocumentFill);
+  const formAttachedDocuments = useAppSelector(selectFormAttachedDocuments);
   const personalDocuments = useAppSelector(selectPersonalDocuments);
   const personalDocumentsStatus = useAppSelector(selectPersonalDocumentsStatus);
   const {
@@ -380,6 +384,10 @@ export function DocumentCreateScreen({ route, navigation }) {
       dispatch(fetchPersonalDocuments({ page: 1, limit: 100 }));
     }
   }, [dispatch, personalDocumentsStatus]);
+
+  useEffect(() => {
+    console.log('[DocumentCreate] formAttachedDocuments', formAttachedDocuments);
+  }, [formAttachedDocuments]);
 
   useEffect(() => {
     setHasTypingFinished(false);

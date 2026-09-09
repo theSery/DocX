@@ -243,14 +243,7 @@ export function Accordion({
           );
         }
 
-        const animationConfig = itemAnimationConfig
-          ? typeof itemAnimationConfig === 'function'
-            ? itemAnimationConfig(item, index)
-            : itemAnimationConfig
-          : staggeredEnter
-            ? getStaggeredEnterConfig(index)
-            : undefined;
-
+ 
         return (
           <View
             key={key}

@@ -376,9 +376,9 @@ export function ProfileInfoScreen() {
     <KeyboardAwareScrollView
       style={[globalStyles.screen, styles.screen]}
       showsVerticalScrollIndicator={false}
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="on-drag"
-      bottomOffset={62}
+      // keyboardShouldPersistTaps="handled"
+      // keyboardDismissMode="on-drag"
+      bottomOffset={20}
       contentContainerStyle={styles.contentContainer}
     >
       <DropdownHost style={styles.dropdownHost}>
@@ -531,11 +531,11 @@ export function ProfileInfoScreen() {
       />
       </DropdownHost>
     </KeyboardAwareScrollView>
-    <KeyboardToolbar>
+    {/* <KeyboardToolbar>
       <KeyboardToolbar.Prev />
       <KeyboardToolbar.Next />
       <KeyboardToolbar.Done text="Փակել" />
-    </KeyboardToolbar>
+    </KeyboardToolbar> */}
     </>
   );
 }

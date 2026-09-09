@@ -212,9 +212,16 @@ export function FillInDetailsScreen({ navigation, route }) {
         optionGroups: templateOptionGroups,
         selectedOptions,
         radioOptions,
+        solutionAttachments: templateSolution?.solutionAttachments ?? [],
       }),
     );
-  }, [dispatch, templateOptionGroups, selectedOptions, radioOptions]);
+  }, [
+    dispatch,
+    radioOptions,
+    selectedOptions,
+    templateOptionGroups,
+    templateSolution?.solutionAttachments,
+  ]);
 
   useEffect(() => {
     setStepError('');
@@ -493,6 +500,7 @@ export function FillInDetailsScreen({ navigation, route }) {
           setRadioOptions={setRadioOptions}
           radioOptions={radioOptions}
           optionGroupErrors={optionGroupErrors}
+          solutionAttachments={templateSolution?.solutionAttachments ?? []}
         />
       );
     }

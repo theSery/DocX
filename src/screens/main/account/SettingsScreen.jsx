@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { privacyPolicyApi, termsOfUseApi } from '../../../api';
 import { ColorSchemeToggle } from '../../../components/theme';
 import { PrivacyPolicyModal } from '../../../components/account/PrivacyPolicyModal';
@@ -9,6 +9,8 @@ import { AnimatedView, Typography } from '../../../components';
 import ContactUsSvg from '../../../components/icons/ContactUsSvg';
 import PrivacyPolicySvg from '../../../components/icons/PrivacyPolicySvg';
 import TermsSvg from '../../../components/icons/TermsSvg';
+
+const WHATSAPP_CONTACT_URL = 'https://wa.me/message/PUQFRZBB53PPK1';
 
 const LEGAL_DOCUMENTS = {
   privacy: {
@@ -23,7 +25,7 @@ const LEGAL_DOCUMENTS = {
   },
 };
 
-export function SettingsScreen({ navigation }) {
+export function SettingsScreen() {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
@@ -32,6 +34,10 @@ export function SettingsScreen({ navigation }) {
 
   const closeLegalModal = useCallback(() => {
     setActiveLegalDocument(null);
+  }, []);
+
+  const openWhatsApp = useCallback(() => {
+    Linking.openURL(WHATSAPP_CONTACT_URL);
   }, []);
 
   const activeDocument = activeLegalDocument
@@ -64,7 +70,7 @@ export function SettingsScreen({ navigation }) {
             <View style={styles.menuList}>
               <Pressable
                 style={[styles.menuItem]}
-                onPress={() => navigation.navigate('Help')}
+                onPress={openWhatsApp}
               >
                 <View style={styles.menuItemRow}>
                   <ContactUsSvg fill={colors.icons} width={20} height={20} />

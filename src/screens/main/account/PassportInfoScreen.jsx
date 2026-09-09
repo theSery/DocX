@@ -317,9 +317,9 @@ export function PassportInfoScreen() {
     <KeyboardAwareScrollView
       style={[globalStyles.screen, styles.screen]}
       showsVerticalScrollIndicator={false}
-      keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="on-drag"
-      bottomOffset={62}
+      // keyboardShouldPersistTaps="handled"
+      // keyboardDismissMode="on-drag"
+      bottomOffset={20}
       contentContainerStyle={styles.contentContainer}
     >
       <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
@@ -437,11 +437,11 @@ export function PassportInfoScreen() {
         style={{ marginBottom: TAB_BAR_BOTTOM_OFFSET }}
       />
     </KeyboardAwareScrollView>
-    <KeyboardToolbar>
+    {/* <KeyboardToolbar>
       <KeyboardToolbar.Prev />
       <KeyboardToolbar.Next />
       <KeyboardToolbar.Done text="Փակել" />
-    </KeyboardToolbar>
+    </KeyboardToolbar> */}
     </>
   );
 }
