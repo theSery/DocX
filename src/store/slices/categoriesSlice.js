@@ -1,6 +1,16 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { categoriesApi } from '../../api';
 import { normalizeApiError } from '../../api/axiosClient';
+import {
+  applyFavoriteFlags,
+  patchTemplateFavorite,
+} from '../utils/applyFavoriteFlags';
+import {
+  addFavoriteTemplate,
+  fetchFavoriteTemplateIds,
+  removeFavoriteTemplate,
+  resetFavoriteTemplates,
+} from './favoriteTemplatesSlice';
 
 function parseCategoryHierarchyResponse(data, page, limit) {
   const payload = data?.data ?? data;
@@ -47,15 +57,18 @@ const initialState = {
 
 export const fetchCategoryHierarchy = createAsyncThunk(
   'categories/fetchHierarchy',
-  async ({ page = 1, limit = 10 } = {}, { rejectWithValue, signal }) => {
+  async ({ page = 1, limit = 10 } = {}, { getState, rejectWithValue, signal }) => {
     try {
       const response = await categoriesApi.getCategoryHierarchy({
         page,
         limit,
         signal,
       });
-console.log('response:', response.data);
-      return parseCategoryHierarchyResponse(response.data, page, limit);
+
+      const parsed = parseCategoryHierarchyResponse(response.data, page, limit);
+      applyFavoriteFlags(parsed.items, getState().favoriteTemplates.ids);
+
+      return parsed;
     } catch (error) {
       console.log('error:', error);
       return rejectWithValue(toSerializableApiError(error));
@@ -89,6 +102,18 @@ const categoriesSlice = createSlice({
           type: 'unknown',
           message: action.error?.message || 'Failed to load categories',
         };
+      })
+      .addCase(fetchFavoriteTemplateIds.fulfilled, (state, action) => {
+        applyFavoriteFlags(state.items, action.payload);
+      })
+      .addCase(addFavoriteTemplate.fulfilled, (state, action) => {
+        patchTemplateFavorite(state.items, action.payload, true);
+      })
+      .addCase(removeFavoriteTemplate.fulfilled, (state, action) => {
+        patchTemplateFavorite(state.items, action.payload, false);
+      })
+      .addCase(resetFavoriteTemplates, state => {
+        applyFavoriteFlags(state.items, []);
       });
   },
 });

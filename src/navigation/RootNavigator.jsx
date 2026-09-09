@@ -15,6 +15,10 @@ import {
   selectCategories,
   selectCategoriesStatus,
 } from '../store/slices/categoriesSlice';
+import {
+  fetchFavoriteTemplateIds,
+  selectFavoriteTemplatesStatus,
+} from '../store/slices/favoriteTemplatesSlice';
 import { useResponsiveLayout } from '../hooks';
 import { prefetchCategoryIcons } from '../utils/imageCache';
 import { setAndroidSystemBars } from '../utils/systemBars';
@@ -62,12 +66,13 @@ function BootstrapLoadingScreen() {
 }
 
 export function RootNavigator() {
-  const { isReady, hasCompletedOnboarding } = useAuth();
+  const { isReady, hasCompletedOnboarding, isSign } = useAuth();
   const { isSplashDone, startupRoute } = useSplash();
 
   const dispatch = useAppDispatch();
   const categories = useAppSelector(selectCategories);
   const categoriesStatus = useAppSelector(selectCategoriesStatus);
+  const favoritesStatus = useAppSelector(selectFavoriteTemplatesStatus);
 
   const [criticalIconsReady, setCriticalIconsReady] = useState(false);
 
@@ -76,6 +81,16 @@ export function RootNavigator() {
       dispatch(fetchCategoryHierarchy(CATEGORIES_PAGE));
     }
   }, [dispatch, categoriesStatus]);
+
+  useEffect(() => {
+    if (!isReady || !isSign) {
+      return;
+    }
+
+    if (favoritesStatus === 'idle') {
+      dispatch(fetchFavoriteTemplateIds());
+    }
+  }, [dispatch, favoritesStatus, isReady, isSign]);
 
   useEffect(() => {
     if (categoriesStatus === 'failed') {
@@ -109,7 +124,15 @@ export function RootNavigator() {
     categoriesStatus === 'loading' ||
     (categoriesStatus === 'succeeded' && !criticalIconsReady);
 
-  const isAppLoading = !isSplashDone || !isReady || isCategoriesBootstrapping;
+  const isFavoritesBootstrapping =
+    isSign &&
+    (favoritesStatus === 'idle' || favoritesStatus === 'loading');
+
+  const isAppLoading =
+    !isSplashDone ||
+    !isReady ||
+    isCategoriesBootstrapping ||
+    isFavoritesBootstrapping;
 
   useEffect(() => {
     if (isAppLoading) {

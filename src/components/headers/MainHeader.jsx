@@ -18,7 +18,7 @@ const MainHeader = ({ onPress, isHome = false, rightAction = null }) => {
           <BackButton
             onPress={onPress}
             isHome={isHome}
-            size={layout.compact ? layout.buttonHeight : 45}
+            size={layout.compact ? layout.buttonHeight : 40}
           />
         ) : null}
       </View>
@@ -55,9 +55,9 @@ const createStyles = () =>
     },
     logo: {
       width: '100%',
-      height: 40,
-      maxWidth: 180,
-      minWidth: 140,
+      height: 35,
+      // maxWidth: 180,
+      // minWidth: 140,
     },
     logoCompact: {
       width: '100%',

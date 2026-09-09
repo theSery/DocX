@@ -14,6 +14,8 @@ import Chevron from '../icons/Chevron';
 import { useTheme } from '../../hooks/useTheme';
 import { useThemedStyles } from '../../hooks/useThemedStyles';
 import { useIsCompactScreen } from '../../hooks/useResponsiveLayout';
+import StarOutlineSvg from '../icons/StarOutlineSvg';
+import StarSvg from '../icons/StarSvg';
 
 const EXPAND_EASING = Easing.bezier(0.33, 0.01, 0, 1);
 
@@ -38,6 +40,9 @@ const EXPAND_EASING = Easing.bezier(0.33, 0.01, 0, 1);
  *   style?: import('react-native').StyleProp<import('react-native').ViewStyle>;
  *   headerStyle?: import('react-native').StyleProp<import('react-native').ViewStyle>;
  *   contentStyle?: import('react-native').StyleProp<import('react-native').ViewStyle>;
+ *   showFavorite?: boolean;
+ *   isFavorite?: boolean;
+ *   onFavoritePress?: () => void;
  * }} props
  */
 function AccordionItemComponent({
@@ -54,12 +59,15 @@ function AccordionItemComponent({
   style,
   headerStyle,
   contentStyle,
+  showFavorite = false,
+  isFavorite = false,
+  onFavoritePress,
 }) {
   const { colors } = useTheme();
   const styles = useThemedStyles(createStyles);
   const isCompactScreen = useIsCompactScreen();
   const chevronSize = isCompactScreen ? 14 : 16;
-
+  const starSize = isCompactScreen ? 16 : 20;
   const contentHeight = useSharedValue(0);
   const progress = useSharedValue(isOpen ? 1 : 0);
 
@@ -135,20 +143,51 @@ function AccordionItemComponent({
       { rotate: `${interpolate(progress.value, [0, 1], [0, 180])}deg` },
     ],
   }));
-
   return (
     <View style={[styles.item, style]}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityState={{ expanded: isOpen }}
-        onPress={handlePress}
-        style={[styles.header, headerStyle]}
-      >
-        <View style={styles.headerContent}>{header}</View>
-        <Animated.View style={[styles.chevronWrap, chevronStyle]}>
-          <Chevron width={chevronSize} height={chevronSize} fill={colors.iconAccent} rotate={90} />
-        </Animated.View>
-      </Pressable>
+      <View style={[styles.header, headerStyle]}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ expanded: isOpen }}
+          onPress={handlePress}
+          style={styles.headerPressable}
+        >
+          <View style={styles.headerContent}>{header}</View>
+          <Animated.View style={[showFavorite ? styles.chevronWrap : styles.chevronWrapFavorite, chevronStyle]}>
+            <Chevron
+              width={chevronSize}
+              height={chevronSize}
+              fill={colors.iconAccent}
+              rotate={90}
+            />
+          </Animated.View>
+        </Pressable>
+        {showFavorite ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={
+              isFavorite ? 'Remove from favorites' : 'Add to favorites'
+            }
+            onPress={onFavoritePress}
+            hitSlop={8}
+            style={styles.favoriteButton}
+          >
+            {isFavorite ? (
+              <StarSvg
+                width={starSize}
+                height={starSize}
+                fill={colors.iconAccent}
+              />
+            ) : (
+              <StarOutlineSvg
+                width={starSize}
+                height={starSize}
+                fill={colors.iconAccent}
+              />
+            )}
+          </Pressable>
+        ) : null}
+      </View>
       <Animated.View style={[styles.body, bodyStyle]}>
         <View style={styles.bodyInner} onLayout={handleContentLayout}>
           <View style={[styles.content, contentStyle]}>{children}</View>
@@ -183,13 +222,23 @@ const createStyles = colors =>
       justifyContent: 'space-between',
       paddingVertical: 8,
     },
+    headerPressable: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
     headerContent: {
       flex: 1,
       flexDirection: 'row',
       alignItems: 'center',
     },
     chevronWrap: {
-      marginHorizontal: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginLeft: 12,
+      marginRight: 12,
+    },
+    favoriteButton: {
       alignItems: 'center',
       justifyContent: 'center',
     },

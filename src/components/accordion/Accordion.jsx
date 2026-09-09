@@ -60,6 +60,8 @@ function defaultKeyExtractor(item, index) {
  *   staggeredEnter?: boolean;
  *   itemAnimation?: string | import('react-native-reanimated').IEntryExitAnimationBuilder;
  *   itemAnimationConfig?: object | ((item: object, index: number) => object);
+ *   showFavorite?: boolean;
+ *   onFavoritePress?: (item: object) => void;
  * }} props
  */
 export function Accordion({
@@ -82,6 +84,8 @@ export function Accordion({
   staggeredEnter = false,
   itemAnimation,
   itemAnimationConfig,
+  showFavorite = false,
+  onFavoritePress,
 }) {
   const isControlled = controlledOpenKey !== undefined;
   const [openKey, setOpenKey] = useState(
@@ -199,6 +203,11 @@ export function Accordion({
             openingIndex={openingIndex}
             scrollRef={scrollRef}
             scrollOffset={scrollOffset}
+            showFavorite={showFavorite}
+            isFavorite={Boolean(item?.favorite)}
+            onFavoritePress={
+              onFavoritePress ? () => onFavoritePress(item) : undefined
+            }
             style={
               typeof itemStyle === 'function'
                 ? itemStyle(item, { isOpen })

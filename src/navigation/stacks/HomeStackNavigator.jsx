@@ -152,7 +152,7 @@ export function HomeStackNavigator() {
             options={{
               headerShown: true,
               header: ({ navigation }) => (
-                <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+                <View style={{  paddingTop: 10 }}>
                   <MainHeader onPress={() => navigation.goBack()} />
                 </View>
               ),

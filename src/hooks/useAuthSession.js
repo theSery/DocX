@@ -9,6 +9,10 @@ import {
   resetPersonalData,
   setUserFlags,
 } from '../store/slices/personalDataSlice';
+import {
+  fetchFavoriteTemplateIds,
+  resetFavoriteTemplates,
+} from '../store/slices/favoriteTemplatesSlice';
 import { useToast } from './useToast';
 
 export function useAuthSession() {
@@ -18,6 +22,7 @@ export function useAuthSession() {
 
   const login = useCallback(async () => {
     dispatch(fetchPersonalData());
+    dispatch(fetchFavoriteTemplateIds());
     try {
       const { data } = await userApi.getMe();
       dispatch(
@@ -55,6 +60,7 @@ export function useAuthSession() {
     await setIsFaceID(false);
     resetToMain();
     dispatch(resetPersonalData());
+    dispatch(resetFavoriteTemplates());
   }, [dispatch, setIsSign, setIsFaceID, showToast]);
 
   const completeReauth = useCallback(async () => {

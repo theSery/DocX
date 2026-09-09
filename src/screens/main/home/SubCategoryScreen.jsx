@@ -1,4 +1,5 @@
-import { Platform, StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useMemo } from 'react';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
 
@@ -17,21 +18,25 @@ import {
   useHomeStackHeaderScrollHandler,
   useIsCompactScreen,
   useThemedStyles,
+  useToast,
 } from '../../../hooks';
 import { useHomeStackHeaderScroll } from '../../../context/HomeStackHeaderScrollContext';
-import { useEffect } from 'react';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
 import { resolveImageSource } from '../../../utils/imageCache';
-import StarSvg from '../../../components/icons/StarSvg';
+import { useAppDispatch, useAppSelector } from '../../../store';
+import { selectCategories } from '../../../store/slices/categoriesSlice';
+import {
+  addFavoriteTemplate,
+  removeFavoriteTemplate,
+} from '../../../store/slices/favoriteTemplatesSlice';
+import { findLegalIssuesBySubCategory } from '../../../store/utils/applyFavoriteFlags';
 
 const LIST_PANEL_GAP = TOP_HEADER_HEIGHT * 0.1018;
 // List sits under the collapsed header; expanded space is scroll padding so
 // content rises into view as the header height shrinks (no opaque gap).
 const LIST_PANEL_TOP = HOME_STACK_HEADER_COLLAPSED_HEIGHT + LIST_PANEL_GAP;
 const COLLAPSE_ITEM_THRESHOLD = 8;
-
-
 
 export function SubCategoryScreen({ route, navigation }) {
   const {
@@ -41,13 +46,25 @@ export function SubCategoryScreen({ route, navigation }) {
     iconUrl,
     initialOpenKey,
     openRequestId,
+    categoryId,
     subCategoryId,
   } = route.params;
   const styles = useThemedStyles(createStyles);
   const isCompactScreen = useIsCompactScreen();
   const headerCollapsibleHeight = getHomeStackHeaderCollapsibleHeight(isCompactScreen);
+  const dispatch = useAppDispatch();
+  const { showToast } = useToast();
+  const categories = useAppSelector(selectCategories);
+  const legalIssues = useMemo(
+    () =>
+      findLegalIssuesBySubCategory(categories, categoryId, subCategoryId) ??
+      item ??
+      [],
+    [categories, categoryId, item, subCategoryId],
+  );
   const canCollapse =
-    (Array.isArray(item) ? item.length : 0) > COLLAPSE_ITEM_THRESHOLD;
+    (Array.isArray(legalIssues) ? legalIssues.length : 0) >
+    COLLAPSE_ITEM_THRESHOLD;
 
   useEffect(() => {
     navigation.setOptions({ title, subtitle });
@@ -70,6 +87,85 @@ export function SubCategoryScreen({ route, navigation }) {
       categoryName: category?.name,
     });
   };
+
+  const addFavorites = useCallback(
+    async templates => {
+      const templateIds = templates
+        .filter(template => template?.id != null && !template.favorite)
+        .map(template => template.id);
+
+      if (templateIds.length === 0) {
+        return;
+      }
+
+      try {
+        for (const templateId of templateIds) {
+          await dispatch(addFavoriteTemplate({ templateId })).unwrap();
+        }
+        showToast({
+          title: 'Հաջողություն',
+          body: 'Ձևանմուշը ավելացվել է ընտրյալներին։',
+          type: 'success',
+        });
+      } catch (error) {
+        showToast({
+          title: 'Սխալ',
+          body:
+            error?.message ?? 'Չհաջողվեց ավելացնել ձևանմուշը ընտրյալներին։',
+          type: 'error',
+        });
+      }
+    },
+    [dispatch, showToast],
+  );
+
+  const removeFavorites = useCallback(
+    async templates => {
+      const templateIds = templates
+        .filter(template => template?.id != null && template.favorite)
+        .map(template => template.id);
+
+      if (templateIds.length === 0) {
+        return;
+      }
+
+      try {
+        for (const templateId of templateIds) {
+          await dispatch(removeFavoriteTemplate({ templateId })).unwrap();
+        }
+        showToast({
+          title: 'Հաջողություն',
+          body: 'Ձևանմուշը հեռացվել է ընտրյալներից։',
+          type: 'success',
+        });
+      } catch (error) {
+        showToast({
+          title: 'Սխալ',
+          body:
+            error?.message ?? 'Չհաջողվեց հեռացնել ձևանմուշը ընտրյալներից։',
+          type: 'error',
+        });
+      }
+    },
+    [dispatch, showToast],
+  );
+
+  const onFavoritePress = useCallback(
+    legalIssue => {
+      const templates = legalIssue?.templates ?? [];
+      if (templates.length === 0) {
+        return;
+      }
+
+      if (legalIssue.favorite) {
+        removeFavorites(templates);
+        return;
+      }
+
+      addFavorites(templates);
+    },
+    [addFavorites, removeFavorites],
+  );
 
   const onChooseTemplate = (template, category) => {
     const categoryIconUrl = category.iconUrl || iconUrl;
@@ -106,33 +202,27 @@ export function SubCategoryScreen({ route, navigation }) {
         >
           <Accordion
             key={subCategoryId ?? 'subcategory'}
-            items={item}
+            items={legalIssues}
             initialOpenKey={initialOpenKey ?? null}
             openRequestId={openRequestId ?? null}
             scrollRef={scrollRef}
             scrollOffset={scrollY}
             scrollIntoViewOffset={headerCollapsibleHeight}
             staggeredEnter
+            showFavorite
+            onFavoritePress={onFavoritePress}
             renderHeader={category => (
               <>
-                     <View style={{position: 'absolute', top: 0, right: -5}}>
-                  <StarSvg
-          width={17}
-          height={16}
-          fill={'#01174D'}
-        />
-                  </View>
                 <View style={styles.subCategoryIconWrap}>
-           
                   <CachedImage
                     source={{ uri: category.iconUrl || iconUrl }}
                     style={styles.subCategoryIcon}
                   />
                 </View>
                 <View style={styles.subCategoryTextWrap}>
-                  <Typography variant="h5" style={styles.subCategoryName}>
-                    {category.name}
-                  </Typography>
+                  <Text style={styles.subCategoryName}>
+                    {category.name}  
+                  </Text>
                 </View>
               </>
             )}
@@ -189,6 +279,8 @@ const createStyles = colors =>
     },
     subCategoryName: {
       letterSpacing: 0.4,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     subCategoryIconWrap: {
       width: 56,

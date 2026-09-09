@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import categoriesReducer from './slices/categoriesSlice';
 import complaintsReducer from './slices/complaintsSlice';
 import documentFillReducer from './slices/documentFillSlice';
+import favoriteTemplatesReducer from './slices/favoriteTemplatesSlice';
 import personalDataReducer from './slices/personalDataSlice';
 import personalDocumentsReducer from './slices/personalDocumentsSlice';
 
@@ -11,6 +12,7 @@ export const store = configureStore({
     categories: categoriesReducer,
     complaints: complaintsReducer,
     documentFill: documentFillReducer,
+    favoriteTemplates: favoriteTemplatesReducer,
     personalData: personalDataReducer,
     personalDocuments: personalDocumentsReducer,
   },

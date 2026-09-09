@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { favoriteTemplatesApi } from '../../../api';
 import { Typography } from '../../../components';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
 import SadIcon from '../../../components/icons/SadIcon';
@@ -24,6 +23,11 @@ import {
   selectComplaintsPagination,
   selectComplaintsStatus,
 } from '../../../store/slices/complaintsSlice';
+import {
+  addFavoriteTemplate,
+  selectFavoriteTemplateIds,
+  selectFavoriteTemplatesStatus,
+} from '../../../store/slices/favoriteTemplatesSlice';
 import { getRecommendedDocumentIds } from '../../../utils/recommendedDocumentsStorage';
 import { DocumentCard } from './components/DocumentCard';
 import { DocumentFilterChips } from './components/DocumentFilterChips';
@@ -34,19 +38,6 @@ import { TAB_BAR_HEIGHT } from '../../../utils/dimensions';
 import { sortDocumentsWithRecommended } from './utils/sortDocumentsWithRecommended';
 
 const PAGE_LIMIT = 10;
-
-function parseFavoriteTemplateIds(payload) {
-  const raw = payload?.data ?? payload;
-  if (!Array.isArray(raw)) {
-    return [];
-  }
-  return raw
-    .map(value =>
-      typeof value === 'object' ? value?.id ?? value?.templateId : value,
-    )
-    .filter(id => id != null)
-    .map(Number);
-}
 
 function areFiltersEqual(current, applied) {
   return (
@@ -70,6 +61,8 @@ export function DocumentsScreen({ route, navigation }) {
   const pagination = useAppSelector(selectComplaintsPagination);
   const appliedFilters = useAppSelector(selectComplaintsFilters);
   const isFetching = useAppSelector(selectComplaintsIsFetching);
+  const favoriteIds = useAppSelector(selectFavoriteTemplateIds);
+  const favoritesStatus = useAppSelector(selectFavoriteTemplatesStatus);
   const [activeFilterId, setActiveFilterId] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
@@ -153,60 +146,64 @@ export function DocumentsScreen({ route, navigation }) {
       return;
     }
 
+    if (favoritesStatus === 'idle' || favoritesStatus === 'loading') {
+      return;
+    }
+
     const templateId = favoriteTemplateId;
     const categoryName = favoriteCategoryName;
+    const alreadyFavorite = favoriteIds.some(
+      id => Number(id) === Number(templateId),
+    );
 
     navigation.setParams({
       favoriteTemplateId: undefined,
       categoryName: undefined,
     });
 
-    (async () => {
-      let alreadyFavorite = false;
+    if (alreadyFavorite) {
+      return;
+    }
 
-      try {
-        const response = await favoriteTemplatesApi.getFavoriteTemplateIds();
-        const payload = response?.data ?? response;
-        const favoriteIds = parseFavoriteTemplateIds(payload);
-        alreadyFavorite = favoriteIds.includes(Number(templateId));
-      } catch {
-        alreadyFavorite = false;
-      }
-
-      if (alreadyFavorite) {
-        return;
-      }
-
-      showGlobalSheet({
-        message: categoryName || 'Ձևանմուշ',
-        description: 'Ցանկանո՞ւմ եք պահպանել այս ձևանմուշը որպես ընտրյալ։',
-        actions: [
-          {
-            label: 'Այո',
-            onPress: async () => {
-              try {
-                await favoriteTemplatesApi.addFavoriteTemplate({ templateId });
-                showToast({
-                  title: 'Հաջողություն',
-                  body: 'Ձևանմուշը ավելացվել է ընտրյալներին։',
-                  type: 'success',
-                });
-              } catch (error) {
-                showToast({
-                  title: 'Սխալ',
-                  body:
-                    error?.message ??
-                    'Չհաջողվեց ավելացնել ձևանմուշը ընտրյալներին։',
-                  type: 'error',
-                });
-              }
-            },
+    showGlobalSheet({
+      message: categoryName || 'Ձևանմուշ',
+      description: 'Ցանկանո՞ւմ եք պահպանել այս ձևանմուշը որպես ընտրյալ։',
+      actions: [
+        {
+          label: 'Այո',
+          onPress: async () => {
+            try {
+              await dispatch(
+                addFavoriteTemplate({ templateId }),
+              ).unwrap();
+              showToast({
+                title: 'Հաջողություն',
+                body: 'Ձևանմուշը ավելացվել է ընտրյալներին։',
+                type: 'success',
+              });
+            } catch (addError) {
+              showToast({
+                title: 'Սխալ',
+                body:
+                  addError?.message ??
+                  'Չհաջողվեց ավելացնել ձևանմուշը ընտրյալներին։',
+                type: 'error',
+              });
+            }
           },
-          { label: 'Ոչ', destructive: true },
-        ],
-      });
-    })();
-  }, [favoriteTemplateId, favoriteCategoryName, navigation, showToast]);
+        },
+        { label: 'Ոչ', destructive: true },
+      ],
+    });
+  }, [
+    dispatch,
+    favoriteCategoryName,
+    favoriteIds,
+    favoriteTemplateId,
+    favoritesStatus,
+    navigation,
+    showToast,
+  ]);
 
   const handleDateRangeChange = useCallback(range => {
     setDateRange(current => {

@@ -411,9 +411,7 @@ export function DocumentCreateScreen({ route, navigation }) {
     }
   }, [dispatch, personalDocumentsStatus]);
 
-  useEffect(() => {
-    console.log('[DocumentCreate] formAttachedDocuments', formAttachedDocuments);
-  }, [formAttachedDocuments]);
+ 
 
   useEffect(() => {
     setHasTypingFinished(false);
