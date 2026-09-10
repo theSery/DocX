@@ -267,6 +267,7 @@ export function PinVerificationScreen({ navigation, route }) {
                   ? `Մուտքագրեք Ձեր (${email.trim()}) էլ-փոստին ուղարկված կոդը`
                   : 'Մուտքագրեք Ձեր էլ-փոստը և ուղարկված կոդը'
               }
+              isMarginBottom={true}
             />
       <KeyboardAwareScrollView
         style={localStyles.formArea}
@@ -306,15 +307,15 @@ export function PinVerificationScreen({ navigation, route }) {
               >
                 {isSendingOtp ? (
                   <ActivityIndicator
-                    color={palette.mainBlue}
+                    color={palette.skyBlue}
                     style={localStyles.resetPinLoader}
                   />
                 ) : (
-                  <Text style={localStyles.privacyText}>
+                  <Typography style={localStyles.privacyText}>
                     {otpSent
                       ? 'Կրկին ուղարկել կոդը'
                       : 'Ուղարկել կոդը էլ. փոստին'}
-                  </Text>
+                  </Typography>
                 )}
               </Pressable>
             )}
@@ -356,6 +357,7 @@ const createStyles = () =>
       justifyContent: 'center',
       width: '100%',
       marginBottom: 20,
+      paddingHorizontal: 10,
     },
     contentCompact: {
       marginBottom: 8,
@@ -419,7 +421,7 @@ const createStyles = () =>
       fontSize: 14,
       lineHeight: 26,
       fontFamily: FONT_FAMILY.regular,
-      color: palette.mainBlue,
+      // color: palette.mainBlue,
       textAlign: 'center',
       textDecorationLine: 'underline',
     },

@@ -164,6 +164,7 @@ export function EmailVerificationScreen({ navigation, route }) {
       <ContentTiltes
               title={'Էլ-փոստի հաստատում'}
               subtitle={`Մուտքագրեք Ձեր (${email}) էլ-փոստին ուղարկված կոդը`}
+              isMarginBottom={true}
             />
       <KeyboardAwareScrollView
         style={localStyles.formArea}
@@ -215,6 +216,7 @@ const createStyles = () =>
       justifyContent: 'center',
       width: '100%',
       marginBottom: 20,
+      paddingHorizontal: 10,
     },
     contentCompact: {
       marginBottom: 8,

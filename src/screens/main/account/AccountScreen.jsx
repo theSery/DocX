@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -5,7 +6,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AnimatedView, Typography } from '../../../components';
+import { AnimatedView, DocumentLoadingOverlay, Typography } from '../../../components';
 import {
   useGlobalStyles,
   useIsCompactScreen,
@@ -28,6 +29,20 @@ import PinCodeSvg from '../../../components/icons/PinCodeSvg';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
 import { accountApi } from '../../../api';
 import { TAB_BAR_HEIGHT } from '../../../utils/dimensions';
+
+function parseDeletionPreview(response) {
+  const payload = response?.data?.data ?? response?.data ?? {};
+
+  return {
+    filesCount: Number(payload.filesCount) || 0,
+    documentsCount: Number(payload.documentsCount) || 0,
+    complaintsCount: Number(payload.complaintsCount) || 0,
+  };
+}
+
+function buildDeletionDescription({ filesCount, documentsCount, complaintsCount }) {
+  return `Հաշիվը ջնջելով կորցնում եք հասանելիությունը բոլոր տվյալներին, Ձեր կողմից ստեղծված բոլոր փաստաթղթերին։ Կջնջվեն ${filesCount} ֆայլ, ${documentsCount} փաստաթուղթ և ${complaintsCount} բողոք։`;
+}
 
 const ACCOUNT_MENU = [
   {
@@ -176,6 +191,7 @@ export function AccountScreen({ navigation }) {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { showToast } = useToast();
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   useThemedFocusStatusBar({ inverted: true });
 
   const handleDeleteAccountPress = async () => {
@@ -196,16 +212,34 @@ export function AccountScreen({ navigation }) {
     }
   };
 
-  const handleDeleteAccountConfirmPress = () => {
-    showGlobalSheet({
-      message: 'Դուք պատրաստվում եք ջնջել Ձեր հաշիվը',
-      description:
-        'Հաշիվը ջնջելով կորցնում եք հասանելիությունը բոլոր տվյալներին, Ձեր կողմից ստեղծված բոլոր փաստաթղթերին',
-      actions: [
-        { label: 'Ջնջել', destructive: true, onPress: handleDeleteAccountPress },
-        { label: 'Չեղարկել' },
-      ],
-    });
+  const handleDeleteAccountConfirmPress = async () => {
+    if (isPreviewLoading) {
+      return;
+    }
+
+    setIsPreviewLoading(true);
+
+    try {
+      const response = await accountApi.getDeletionPreview();
+      const preview = parseDeletionPreview(response);
+
+      showGlobalSheet({
+        message: 'Դուք պատրաստվում եք ջնջել Ձեր հաշիվը',
+        description: buildDeletionDescription(preview),
+        actions: [
+          { label: 'Ջնջել', destructive: true, onPress: handleDeleteAccountPress },
+          { label: 'Չեղարկել' },
+        ],
+      });
+    } catch (error) {
+      showToast({
+        title: 'Տվյալների բեռնումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    } finally {
+      setIsPreviewLoading(false);
+    }
   };
 
   const navigateToScreen = (screen, { requiresFaceId } = {}) => {
@@ -217,6 +251,7 @@ export function AccountScreen({ navigation }) {
   };
 
   return (
+    <>
     <ScrollView
       style={[globalStyles.screen, styles.screen]}
       contentContainerStyle={[
@@ -313,5 +348,7 @@ export function AccountScreen({ navigation }) {
         </Typography>
       </AnimatedView>
     </ScrollView>
+    <DocumentLoadingOverlay visible={isPreviewLoading} />
+    </>
   );
 }

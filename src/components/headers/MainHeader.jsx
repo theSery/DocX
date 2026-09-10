@@ -42,7 +42,7 @@ const createStyles = () =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-backgroundColor: 'red',
+
     },
     side: {
       // width: 50,

@@ -227,7 +227,7 @@ const createStyles = () =>
       justifyContent: 'flex-start',
       width: '100%',
       marginBottom: 20,
-      marginTop: 20,
+      // marginTop: 20,
     },
     formContainer: {
       width: '100%',
@@ -236,6 +236,7 @@ const createStyles = () =>
       width: '100%',
       alignItems: 'center',
       justifyContent: 'center',
+      paddingHorizontal: 10,
     },
     passcodeContainerCompact: {
       flex: 0,

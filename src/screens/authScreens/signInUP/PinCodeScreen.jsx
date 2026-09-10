@@ -210,6 +210,7 @@ export function PinCodeScreen({ navigation, route }) {
           <ContentTiltes
             title={title}
             subtitle={'Մուտք լինելու համար խնդրում ենք մուտքագրել PIN-ը'}
+            isMarginBottom={true}
           />
           <View
             style={[
@@ -247,6 +248,7 @@ const createStyles = () =>
       flex: 1,
       width: '100%',
       alignItems: 'center',
+      paddingHorizontal: 10,
     },
     passcodeContainerCompact: {
       flex: 0,
