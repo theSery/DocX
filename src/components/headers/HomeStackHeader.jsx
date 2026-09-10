@@ -12,7 +12,7 @@ import { useAuthSession, useIsCompactScreen, useThemedStyles } from '../../hooks
 import { SearchComponent } from '../titleComponents/SearchComponent';
 import { CachedImage } from '../image';
 import { Typography } from '../typography';
-import { FONT_FAMILY } from '../../theme';
+import { FONT_FAMILY, palette } from '../../theme';
 import { useHomeStackHeaderScroll } from '../../context/HomeStackHeaderScrollContext';
 import {
   getHomeStackHeaderCollapseProgress,
@@ -54,10 +54,13 @@ const HeaderTitleBlock = ({ styles, title, subtitle, iconUrl }) => {
   if (iconUrl) {
     return (
       <View style={styles.titleWithIconRow}>
+        <View style={styles.categoryIconWrap}>
         <CachedImage
           source={{ uri: iconUrl }}
           style={styles.categoryIcon}
         />
+        </View>
+   
         {title ? (
           <Typography
             variant="h2"
@@ -346,8 +349,8 @@ const createStyles = colors =>
       gap: 12,
     },
     categoryIcon: {
-      width: 46,
-      height: 46,
+      width: 36,
+      height: 36,
       borderRadius: 10,
       overflow: 'hidden',
       resizeMode: 'contain',
@@ -375,5 +378,14 @@ const createStyles = colors =>
       paddingTop: 8,
       paddingBottom: 4,
       marginTop: 0,
+    },
+    categoryIconWrap: {
+      width: 46,
+      height: 46,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: palette.skyBlue,
+      borderRadius: 12,
+      marginRight: 10,
     },
   });

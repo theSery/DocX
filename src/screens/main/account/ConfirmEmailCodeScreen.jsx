@@ -241,7 +241,7 @@ export function ConfirmEmailCodeScreen() {
           variant="h6"
           style={[styles.subtitle, layout.compact && styles.subtitleCompact]}
         >
-          {/* {`Մուտքագրեք Ձեր (${email}) էլ.-փոստին ուղարկված կոդը`} */}
+          {`Մուտքագրեք Ձեր (${email}) էլ.-փոստին ուղարկված կոդը`}
         </Typography>
         <View style={styles.otpSection}>
           <OtpInputRowCode
