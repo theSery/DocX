@@ -50,13 +50,13 @@ const createStyles = () =>
     },
     title: {
       color: palette.white,
-      fontSize: 24,
+      fontSize: 22,
       lineHeight: 32,
     },
     titleCompact: {
       color: palette.white,
-      fontSize: 20,
-      lineHeight: 24,
+      fontSize: 16,
+      lineHeight: 20,
       textAlign: 'center',
     },
     titleSmall: {
@@ -122,7 +122,7 @@ const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutBu
             { color: titleColor },
           ]}
         >
-          {/* {title} */}
+          {title}
 
         </Typography>
       </View>

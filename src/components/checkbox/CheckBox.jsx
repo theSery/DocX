@@ -5,7 +5,7 @@ import Svg, { Path } from 'react-native-svg';
 import { Typography } from '../typography';
 import { useTheme, useThemedStyles } from '../../hooks';
 
-const BOX_SIZE = 20;
+const BOX_SIZE = 24;
 
 const createStyles = colors =>
   StyleSheet.create({
@@ -13,6 +13,7 @@ const createStyles = colors =>
       flexDirection: 'row',
       alignItems: 'center',
       gap: 10,
+      marginBottom: 5,
     },
     box: {
       width: BOX_SIZE,

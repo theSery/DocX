@@ -362,5 +362,6 @@ const styles = StyleSheet.create({
   },
   optionList: {
     gap: 12,
+    marginTop: 10,
   },
 });

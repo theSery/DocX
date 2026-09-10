@@ -129,13 +129,14 @@ const createStyles = () =>
       flexDirection: 'row',
       // marginBottom: '20%',
       paddingHorizontal: 15,
+      // backgroundColor: 'red',
     },
     headerContentSmall: {
       // marginBottom: '0%',
     },
     image: {
-      width: 70,
-      height: 70,
+      width: 60,
+      height: 60,
       marginLeft: -15,
     },
     imageSmall: {

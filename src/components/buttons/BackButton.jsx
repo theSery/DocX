@@ -35,7 +35,7 @@ const BackButton = ({ onPress, isHome = false, size = 45 }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: 45,
+    // width: 45,
     height: 45,
     borderRadius: 100,
     alignItems: 'center',

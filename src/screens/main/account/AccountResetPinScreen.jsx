@@ -442,7 +442,7 @@ export function AccountResetPinScreen() {
           contentContainerStyle={styles.contentContainer}
         >
           <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
-            <ContentTiltes title={pinTitle} subtitle={pinSubtitle} />
+            <ContentTiltes title={pinTitle} subtitle={pinSubtitle} isMarginBottom={true}/>
             <View
               style={[
                 styles.passcodeContainer,
@@ -481,6 +481,7 @@ export function AccountResetPinScreen() {
                 ? `Մուտքագրեք Ձեր (${email.trim()}) էլ-փոստին ուղարկված կոդը`
                 : 'Մուտքագրեք Ձեր էլ-փոստը և ուղարկված կոդը'
             }
+            isMarginBottom={true}
           />
           {!isSuccess && needsEmailInput && (
             <TextInput
@@ -510,15 +511,15 @@ export function AccountResetPinScreen() {
             >
               {isSendingOtp ? (
                 <ActivityIndicator
-                  color={palette.mainBlue}
+                  color={palette.skyBlue}
                   style={styles.resetPinLoader}
                 />
               ) : (
-                <Text style={styles.privacyText}>
+                <Typography style={styles.privacyText}>
                   {otpSent
                     ? 'Կրկին ուղարկել կոդը'
                     : 'Ուղարկել կոդը էլ. փոստին'}
-                </Text>
+                </Typography>
               )}
             </Pressable>
           )}
@@ -572,13 +573,14 @@ const createStyles = colors =>
     content: {
       width: '100%',
       alignItems: 'center',
-      paddingTop: 20,
+      // paddingTop: 20,
    
     },
     passcodeContainer: {
       width: '100%',
       alignItems: 'center',
       justifyContent: 'center',
+      paddingHorizontal: 20,
     },
     passcodeContainerCompact: {
       flex: 0,
@@ -635,7 +637,7 @@ const createStyles = colors =>
       fontSize: 14,
       lineHeight: 26,
       fontFamily: FONT_FAMILY.regular,
-      color: palette.mainBlue,
+      // color: palette.mainBlue,
       textAlign: 'center',
       textDecorationLine: 'underline',
     },

@@ -51,6 +51,7 @@ const initialState = {
   },
   status: 'idle', // 'idle' | 'loading' | 'loadingMore' | 'succeeded' | 'failed'
   isFetching: false,
+  currentRequestId: null,
   error: null,
 };
 
@@ -95,9 +96,12 @@ export const fetchComplaints = createAsyncThunk(
     }
   },
   {
-    condition: (_, { getState }) => {
-      const { isFetching } = getState().complaints;
-      return !isFetching;
+    condition: (arg, { getState }) => {
+      if (!arg?.append) {
+        return true;
+      }
+
+      return !getState().complaints.isFetching;
     },
   },
 );
@@ -117,6 +121,7 @@ const complaintsSlice = createSlice({
     builder
       .addCase(fetchComplaints.pending, (state, action) => {
         const append = Boolean(action.meta.arg?.append);
+        state.currentRequestId = action.meta.requestId;
         state.isFetching = true;
         state.error = null;
 
@@ -127,6 +132,10 @@ const complaintsSlice = createSlice({
         }
       })
       .addCase(fetchComplaints.fulfilled, (state, action) => {
+        if (state.currentRequestId !== action.meta.requestId) {
+          return;
+        }
+
         const { items, page, limit, total, lastPage, filters, append } =
           action.payload;
 
@@ -135,10 +144,16 @@ const complaintsSlice = createSlice({
         state.filters = filters;
         state.status = 'succeeded';
         state.isFetching = false;
+        state.currentRequestId = null;
         state.error = null;
       })
       .addCase(fetchComplaints.rejected, (state, action) => {
+        if (state.currentRequestId !== action.meta.requestId) {
+          return;
+        }
+
         state.isFetching = false;
+        state.currentRequestId = null;
 
         if (action.payload?.type === 'cancel') {
           if (state.status === 'loading' || state.status === 'loadingMore') {

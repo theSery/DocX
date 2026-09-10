@@ -122,9 +122,9 @@ export function Passcode({
   const styles = useThemedStyles(createStyles);
   const layout = useResponsiveLayout();
   const { colors } = useTheme();
-  const keySize = layout.compact ? 72 : 88;
+  const keySize = layout.compact ? 72 : 80;
   const keyGap = layout.compact ? 16 : 14;
-  const deleteIconSize = layout.compact ? 28 : 34;
+  const deleteIconSize = layout.compact ? 28 : 30;
   const [isCheckingBiometric, setIsCheckingBiometric] = useState(false);
   const isCompletingRef = useRef(false);
   const passcode = useMemo(
@@ -283,11 +283,12 @@ const DOT_SIZE = 14;
 const createStyles = colors =>
   StyleSheet.create({
     container: {
-      marginTop: 20,
+      marginTop: 10,
       width: '100%',
+      paddingHorizontal: 10,
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 52,
+      gap: 36,
     },
     containerCompact: {
       marginTop: 4,
@@ -315,8 +316,8 @@ const createStyles = colors =>
       borderColor: colors.icons,
     },
     keypad: {
-      width: '80%',
-      gap: 34,
+      width: '100%',
+      gap: 30,
     },
     keypadCompact: {
       width: 'auto',
@@ -351,8 +352,8 @@ const createStyles = colors =>
     },
     keyDigit: {
       fontFamily: FONT_FAMILY.semiBold,
-      fontSize: 32,
-      lineHeight: 38,
+      fontSize: 28,
+      lineHeight: 32,
       letterSpacing: 0.5,
       includeFontPadding: false,
     },

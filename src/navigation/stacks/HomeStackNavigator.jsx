@@ -123,7 +123,7 @@ export function HomeStackNavigator() {
             options={{
               headerShown: true,
               header: ({ navigation }) => (
-                <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+                <View style={{ paddingHorizontal: 10, paddingTop: 10 }}>
                   <MainHeader onPress={() => navigation.goBack()} />
                 </View>
               ),
@@ -135,7 +135,7 @@ export function HomeStackNavigator() {
             options={{
               headerShown: true,
               header: ({ navigation }) => (
-                <View style={{ paddingHorizontal: 16, paddingTop: 10 }}>
+                <View style={{ paddingHorizontal: 10, paddingTop: 10 }}>
                   <MainHeader onPress={() => navigation.goBack()} />
                 </View>
               ),
@@ -152,7 +152,7 @@ export function HomeStackNavigator() {
             options={{
               headerShown: true,
               header: ({ navigation }) => (
-                <View style={{  paddingTop: 10 }}>
+                <View style={{paddingHorizontal: 10, paddingVertical: 10 }}>
                   <MainHeader onPress={() => navigation.goBack()} />
                 </View>
               ),

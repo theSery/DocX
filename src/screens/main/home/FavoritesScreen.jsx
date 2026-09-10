@@ -214,6 +214,7 @@ export function FavoritesScreen({ navigation }) {
           <ContentTiltes
             title="Նախընտրածներ"
             subtitle={`Դուք ունեք ${favoriteIds.length} նախընտրած`}
+            isMarginBottom={true}
           />
           </View>
      
@@ -238,7 +239,7 @@ const createStyles = colors =>
     },
     contentContainer: {
       marginTop: -5,
-      marginBottom: -10,
+      // marginBottom: -10,
     },
     scrollContentEmpty: {
       flexGrow: 1,

@@ -532,6 +532,8 @@ const createStyles = colors =>
       width: '100%',
       alignItems: 'center',
       justifyContent: 'center',
+      paddingHorizontal: 10,
+
     },
     passcodeContainerCompact: {
       flex: 0,

@@ -58,6 +58,7 @@ const createStyles = colors =>
     passcodeContainer: {
       width: '100%',
       alignItems: 'center',
+      paddingHorizontal: 20,
     },
     passcodeContainerCompact: {
       flex: 0,
@@ -470,6 +471,7 @@ export function PinCodeChangeScreen() {
           <ContentTiltes
             title="PIN կոդի փոփոխություն"
             subtitle={stepContent.subtitle}
+            isMarginBottom={true}
           />
           <View
             style={[

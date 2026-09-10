@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -37,7 +37,7 @@ import { mapComplaintToDocument } from './utils/mapComplaintToDocument';
 import { TAB_BAR_HEIGHT } from '../../../utils/dimensions';
 import { sortDocumentsWithRecommended } from './utils/sortDocumentsWithRecommended';
 
-const PAGE_LIMIT = 10;
+const PAGE_LIMIT = 100;
 
 function areFiltersEqual(current, applied) {
   return (
@@ -67,6 +67,7 @@ export function DocumentsScreen({ route, navigation }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
   const [recommendedIds, setRecommendedIds] = useState([]);
+  const fetchRequestRef = useRef(null);
 
   const documents = useMemo(
     () => items.map(mapComplaintToDocument),
@@ -94,20 +95,41 @@ export function DocumentsScreen({ route, navigation }) {
   );
 
   const fetchComplaintsPage = useCallback(
-    (pageToLoad, { append = false } = {}) => {
-      dispatch(
+    (pageToLoad, { append = false, recipientType = activeFilterId } = {}) => {
+      if (!append) {
+        fetchRequestRef.current?.abort?.();
+      }
+
+      const request = dispatch(
         fetchComplaints({
           page: pageToLoad,
           limit: PAGE_LIMIT,
           searchTerm,
-          recipientType: activeFilterId,
+          recipientType,
           startDate,
           endDate,
           append,
         }),
       );
+
+      if (!append) {
+        fetchRequestRef.current = request;
+      }
     },
     [activeFilterId, dispatch, endDate, searchTerm, startDate],
+  );
+
+  const handleFilterChange = useCallback(
+    filterId => {
+      setActiveFilterId(current => (current === filterId ? current : filterId));
+
+      if (filterId === activeFilterId) {
+        return;
+      }
+
+      fetchComplaintsPage(1, { recipientType: filterId });
+    },
+    [activeFilterId, fetchComplaintsPage],
   );
 
   useEffect(() => {
@@ -316,7 +338,7 @@ export function DocumentsScreen({ route, navigation }) {
         <DocumentFilterChips
           filters={DOCUMENT_FILTERS}
           activeFilterId={activeFilterId}
-          onFilterChange={setActiveFilterId}
+          onFilterChange={handleFilterChange}
           onDateRangeChange={handleDateRangeChange}
           onSearchChange={handleSearchChange}
           total={total}

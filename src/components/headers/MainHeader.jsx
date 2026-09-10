@@ -42,12 +42,13 @@ const createStyles = () =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-
+backgroundColor: 'red',
     },
     side: {
-      width: 50,
+      // width: 50,
       alignItems: 'center',
       justifyContent: 'center',
+
     },
     logoContainer: {
       flex: 1,
