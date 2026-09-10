@@ -23,7 +23,6 @@ import {
 import { useHomeStackHeaderScroll } from '../../../context/HomeStackHeaderScrollContext';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
 import ArrowSvg from '../../../components/icons/ArrowSvg';
-import { resolveImageSource } from '../../../utils/imageCache';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { selectCategories } from '../../../store/slices/categoriesSlice';
 import {
@@ -170,7 +169,7 @@ export function SubCategoryScreen({ route, navigation }) {
   const onChooseTemplate = (template, category) => {
     const categoryIconUrl = category.iconUrl || iconUrl;
     showGlobalSheet({
-      content: resolveImageSource(categoryIconUrl) ?? { uri: categoryIconUrl },
+      content: { uri: categoryIconUrl },
       message: category.name,
       description: template.name,
       contentImageStyle: { width: 56, height: 56 },

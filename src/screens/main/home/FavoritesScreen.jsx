@@ -27,7 +27,6 @@ import {
 import { collectFavoriteLegalIssues } from '../../../store/utils/applyFavoriteFlags';
 import { palette } from '../../../theme';
 import { TAB_BAR_HEIGHT, TOP_HEADER_HEIGHT, WIDTH } from '../../../utils/dimensions';
-import { resolveImageSource } from '../../../utils/imageCache';
 import { SPACING } from './components/CategoriesList';
 
 const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
@@ -68,7 +67,7 @@ export function FavoritesScreen({ navigation }) {
   const onChooseTemplate = (template, category) => {
     const categoryIconUrl = category.iconUrl;
     showGlobalSheet({
-      content: resolveImageSource(categoryIconUrl) ?? { uri: categoryIconUrl },
+      content: { uri: categoryIconUrl },
       message: category.name,
       description: template.name,
       contentImageStyle: { width: 56, height: 56 },

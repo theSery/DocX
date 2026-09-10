@@ -122,7 +122,7 @@ const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutBu
             { color: titleColor },
           ]}
         >
-          {title}
+          {/* {title} */}
 
         </Typography>
       </View>

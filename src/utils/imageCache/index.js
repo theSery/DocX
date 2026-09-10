@@ -1,9 +1,12 @@
-export { getStableImageKey } from './cacheKey';
+export { getStableImageKey, isSvgUrl } from './cacheKey';
 export { collectIconUrls } from './collectIconUrls';
 export {
   filterUncachedUrls,
+  getCachedSvgXml,
+  getCachedSvgXmlSync,
   getCachedUri,
   getCachedUriSync,
+  loadSvgXml,
   prefetchImage,
   prefetchImages,
   resolveImageSource,

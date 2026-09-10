@@ -1,11 +1,14 @@
 import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
-import { getStableImageKey } from './cacheKey';
+import { getStableImageKey, isSvgUrl } from './cacheKey';
 
 const CACHE_DIR = `${RNFS.CachesDirectoryPath}/docx-icons`;
 
 /** @type {Map<string, string>} stableKey → file URI */
 const memoryCache = new Map();
+
+/** @type {Map<string, string>} stableKey → svg xml */
+const svgXmlMemory = new Map();
 
 /** @type {Map<string, Promise<string | null>>} */
 const inFlight = new Map();
@@ -20,6 +23,52 @@ function toFileUri(path) {
     return path;
   }
   return Platform.OS === 'android' ? `file://${path}` : path;
+}
+
+function toFsPath(fileUri) {
+  if (!fileUri) {
+    return null;
+  }
+  if (fileUri.startsWith('file://')) {
+    return decodeURIComponent(fileUri.slice('file://'.length));
+  }
+  return fileUri;
+}
+
+/**
+ * @param {string} url
+ * @param {string | null} fileUri
+ * @returns {Promise<string | null>}
+ */
+async function hydrateSvgXml(url, fileUri) {
+  const key = getStableImageKey(url);
+  if (!key || !fileUri || !isSvgUrl(url)) {
+    return null;
+  }
+
+  const cached = svgXmlMemory.get(key);
+  if (cached) {
+    return cached;
+  }
+
+  try {
+    const xml = await RNFS.readFile(toFsPath(fileUri), 'utf8');
+    if (typeof xml === 'string' && xml.includes('<svg')) {
+      svgXmlMemory.set(key, xml);
+      return xml;
+    }
+  } catch {
+    // Ignore unreadable files.
+  }
+
+  return null;
+}
+
+function isLocalFileUri(uri) {
+  return (
+    typeof uri === 'string' &&
+    (uri.startsWith('file://') || (uri.startsWith('/') && !uri.startsWith('//')))
+  );
 }
 
 function getLocalPath(key) {
@@ -137,6 +186,7 @@ export async function prefetchImage(url) {
 
       const uri = toFileUri(path);
       memoryCache.set(key, uri);
+      await hydrateSvgXml(url, uri);
       return uri;
     } catch {
       await RNFS.unlink(tempPath).catch(() => {});
@@ -195,6 +245,63 @@ export async function filterUncachedUrls(urls) {
   }
 
   return missing;
+}
+
+/**
+ * Sync SVG xml after a prior prefetch/hydrate.
+ * @param {string | null | undefined} url
+ * @returns {string | null}
+ */
+export function getCachedSvgXmlSync(url) {
+  const key = getStableImageKey(url);
+  if (!key) {
+    return null;
+  }
+  return svgXmlMemory.get(key) ?? null;
+}
+
+/**
+ * Read SVG xml from disk cache when the file is already present.
+ * @param {string | null | undefined} url
+ * @returns {Promise<string | null>}
+ */
+export async function getCachedSvgXml(url) {
+  const sync = getCachedSvgXmlSync(url);
+  if (sync) {
+    return sync;
+  }
+
+  const fileUri = await getCachedUri(url);
+  if (!fileUri) {
+    return null;
+  }
+  return getCachedSvgXmlSync(url) ?? hydrateSvgXml(url, fileUri);
+}
+
+/**
+ * Ensure the SVG is on disk, then return its xml for react-native-svg.
+ * @param {string | null | undefined} url
+ * @returns {Promise<string | null>}
+ */
+export async function loadSvgXml(url) {
+  if (!isSvgUrl(url)) {
+    return null;
+  }
+
+  const existing = await getCachedSvgXml(url);
+  if (existing) {
+    return existing;
+  }
+
+  if (isLocalFileUri(url)) {
+    return hydrateSvgXml(url, url);
+  }
+
+  const downloaded = await prefetchImage(url);
+  if (!downloaded) {
+    return null;
+  }
+  return getCachedSvgXmlSync(url) ?? hydrateSvgXml(url, downloaded);
 }
 
 /**

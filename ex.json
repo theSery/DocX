@@ -4,6 +4,7 @@
             "id": 16,
             "name": "Պարեկային ծառայողի կազմած ակտեր",
             "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1788871616916-siren.svg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=588806d8c8976cbb4fa31aa5566e9909937514fb944763c4969f6c1b9d721d87&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+            
             "subCategories": [
                 {
                     "id": 34,
@@ -7678,6 +7679,7 @@
             "id": 17,
             "name": "Տեսախցիկներով հայտնաբերված ակտեր",
             "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1788871582344-cctv.svg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=e2c149b507f4942204f9c68325abc5d6832fa113e20ad7a81f35f935e6bea7aa&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+           
             "subCategories": [
                 {
                     "id": 39,
@@ -8470,6 +8472,7 @@
             "id": 18,
             "name": "Երևանի քաղաքապետարանի ակտեր",
             "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1788871942940-yerevan-logo%404x.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=21dea5e2303bd4fabfe42189947743180c755c2340c629ecbb7c28fcdea8d9bd&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+            
             "subCategories": [
                 {
                     "id": 42,
@@ -8682,6 +8685,7 @@
             "id": 20,
             "name": "ՀՀ ՊԵԿ վարչական ակտեր",
             "iconUrl": "https://craoc.upcloudobjects.com/docx-bucket/categories/1788872331830-pek-logo.svg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIABA8D8136DEB5CD99%2F20260909%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260909T194359Z&X-Amz-Expires=3600&X-Amz-Signature=39ffc2140623a99810227e983857c1629f6300779074b0a1a8a457ece2c03023&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+           
             "subCategories": [
                 {
                     "id": 75,
