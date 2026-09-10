@@ -122,8 +122,8 @@ export function Passcode({
   const styles = useThemedStyles(createStyles);
   const layout = useResponsiveLayout();
   const { colors } = useTheme();
-  const keySize = layout.compact ? 72 : 80;
-  const keyGap = layout.compact ? 16 : 14;
+  const keySize = layout.compact ? 60 : 80;
+  const keyGap = layout.compact ? 20 : 14;
   const deleteIconSize = layout.compact ? 28 : 30;
   const [isCheckingBiometric, setIsCheckingBiometric] = useState(false);
   const isCompletingRef = useRef(false);

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { templatesApi } from '../../../api';
 import AuthButton from '../../../components/buttons/AuthButton';
@@ -590,7 +590,13 @@ export function FillInDetailsScreen({ navigation, route }) {
         endIcon={
           !isLastStep ? <ArrowSvg width={14} height={14} fill={palette.white} /> : null
         }
-        style={[styles.footerButton, { bottom: TAB_BAR_BOTTOM_OFFSET + 10 }]}
+        style={[
+          styles.footerButton,
+          {
+            bottom:
+              TAB_BAR_BOTTOM_OFFSET + (Platform.OS === 'android' ? -10 : 10),
+          },
+        ]}
       />
     </>
   );

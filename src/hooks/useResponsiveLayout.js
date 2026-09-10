@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export const COMPACT_CONTENT_HEIGHT = 700;
 const LARGE_CONTENT_HEIGHT = COMPACT_CONTENT_HEIGHT;
 const LOGO_WIDTH = 200;
-const LOGO_HEIGHT = 58;
+const LOGO_HEIGHT = 48;
 const SLIDE_IMAGE_WIDTH = 300;
 const SLIDE_IMAGE_HEIGHT = 400;
 const FOLDERS_WIDTH = 280;

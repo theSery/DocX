@@ -377,7 +377,7 @@ const createStyles = colors =>
       backgroundColor: colors.background,
     },
     header: {
-      paddingHorizontal: 16,
+      paddingHorizontal: 10,
       paddingTop: 4,
     },
     list: {

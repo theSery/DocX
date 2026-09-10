@@ -16,7 +16,7 @@ import {
 import { KeyboardAvoidingView } from '../keyboard';
 import { Typography } from '../typography';
 import { FONT_FAMILY } from '../../theme';
-import { useTheme, useThemedStyles } from '../../hooks';
+import { useIsCompactScreen, useTheme, useThemedStyles } from '../../hooks';
 import { ENV } from '../../config/env';
 import LocationSvg from '../icons/LocationSvg';
 import CloseIcon from '../icons/CloseIcon';
@@ -521,6 +521,9 @@ const createStyles = colors =>
       paddingHorizontal: 16,
       gap: 10,
     },
+    inputRowCompact: {
+      height: 40,
+    },
     textInput: {
       flex: 1,
       height: 45,
@@ -530,6 +533,9 @@ const createStyles = colors =>
       fontFamily: FONT_FAMILY.regular,
       color: colors.text,
       backgroundColor: 'transparent',
+    },
+    textInputCompact: {
+      height: 40,
     },
     inputError: {
       borderColor: colors.error,
@@ -793,6 +799,7 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
   styles,
   colors,
 }) {
+  const isCompactScreen = useIsCompactScreen();
   const [suggestionsLayout, setSuggestionsLayout] = useState({
     placement: 'below',
     maxHeight: SUGGESTIONS_MAX_HEIGHT,
@@ -1202,7 +1209,7 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
       style={[styles.field, isFocused && styles.fieldFocused]}
     >
       <View style={[styles.autocompleteWrapper, hasError && styles.inputError]}>
-        <View style={styles.inputRow}>
+        <View style={[styles.inputRow, isCompactScreen && styles.inputRowCompact]}>
           {startIcon ? <View style={styles.inputIcon}>{startIcon}</View> : null}
           <TextInput
             ref={inputRef}
@@ -1213,7 +1220,7 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
             placeholder={placeholder}
             placeholderTextColor={colors.textDisabled}
             autoCorrect={false}
-            style={styles.textInput}
+            style={[styles.textInput, isCompactScreen && styles.textInputCompact]}
           />
           {inputText ? (
             <Pressable

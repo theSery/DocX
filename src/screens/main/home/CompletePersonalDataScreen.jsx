@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { KeyboardToolbar } from 'react-native-keyboard-controller';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useThemedStyles, useTheme, useToast } from '../../../hooks';
+import { useIsCompactScreen, useThemedStyles, useTheme, useToast } from '../../../hooks';
 import {
   AnimatedView,
   CheckBox,
@@ -57,6 +57,7 @@ import {
   updatePersonalData,
 } from '../../../store/slices/personalDataSlice';
 import { startSmsResendCooldown } from '../../../utils/smsResendCooldown';
+import { TAB_BAR_BOTTOM_OFFSET } from '../../../utils/dimensions';
 
 const PROFILE_STORE_FIELDS = [
   'citizenship',
@@ -351,6 +352,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const isCompactScreen = useIsCompactScreen();
   const { showToast } = useToast();
   const dispatch = useAppDispatch();
   const personalData = useAppSelector(selectPersonalData);
@@ -818,10 +820,10 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   };
 
   return (
-    <View style={[styles.screen, { paddingTop: 10, paddingBottom: 10}]}>
+    <View style={[styles.screen, { paddingTop: 10, paddingBottom: 10 }]}>
       <MainHeader onPress={() => navigation.goBack()} />
       <FormScrollView
-        style={styles.scrollView}
+        style={[styles.scrollView, !isCompactScreen && styles.scrollViewLarge]}
         showsVerticalScrollIndicator={false}
         bottomOffset={20}
         contentContainerStyle={[
@@ -909,7 +911,10 @@ export function CompletePersonalDataScreen({ navigation, route }) {
             isLoading={isSubmitting}
             title="Պահպանել և շարունակել"
             onPress={onSubmit}
-            style={styles.submitButton}
+            style={[
+              styles.submitButton,
+              isCompactScreen && { marginBottom: TAB_BAR_BOTTOM_OFFSET },
+            ]}
           />
           {submitError ? (
             <Typography variant="h6" style={styles.submitErrorText}>
@@ -937,6 +942,8 @@ const createStyles = colors =>
     },
     scrollView: {
       flex: 1,
+    },
+    scrollViewLarge: {
       marginTop: 20,
     },
     contentContainer: {

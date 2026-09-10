@@ -68,7 +68,7 @@ export default function AuthButton({
             <View style={styles.endIcon}>{endIcon}</View>
           </View>
         ) : (
-          <Typography variant="h5" style={textStyle}>
+          <Typography variant="h5" style={[textStyle, { width: '90%', textAlign: 'center'}]}>
             {title}
           </Typography>
         )}

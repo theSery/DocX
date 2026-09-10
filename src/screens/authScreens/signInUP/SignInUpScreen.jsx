@@ -117,6 +117,7 @@ const createStyles = () =>
     logoContainer: {
       alignItems: 'center',
       justifyContent: 'center',
+      marginBottom: 10,
     },
     logo: {
       height: 62,

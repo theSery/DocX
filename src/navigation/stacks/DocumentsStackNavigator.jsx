@@ -55,7 +55,7 @@ const createHeaderStyles = colors =>
     container: {
       backgroundColor: colors.background,
       paddingHorizontal: 16,
-      paddingTop: 10,
-      paddingBottom: 8,
+        paddingTop: 5,
+      paddingBottom: 5,
     },
   });

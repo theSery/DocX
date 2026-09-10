@@ -55,7 +55,7 @@ const createStyles = () =>
     },
     titleCompact: {
       color: palette.white,
-      fontSize: 16,
+      fontSize: 18,
       lineHeight: 20,
       textAlign: 'center',
     },
@@ -110,7 +110,7 @@ const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutBu
               />
             </ImageBackground>
           </Pressable>
-        ) : null}
+        ) : <View style={{ width: 45, height: 45 }} />}
       </View>
       <View style={styles.logoContainer}>
         <Typography
@@ -141,7 +141,7 @@ const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutBu
               <LogoutSvg fill={palette.white} width={logoutWidth} height={logoutHeight} />
             </ImageBackground>
           </Pressable>
-        ) : null}
+        ) : <View style={{ width: 45, height: 45 }} />}
       </View>
     </View>
   );

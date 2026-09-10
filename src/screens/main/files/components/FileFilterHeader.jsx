@@ -73,7 +73,7 @@ export function FileFilterHeader({ onSearchChange, total, onFileUploaded }) {
 const createStyles = colors =>
   StyleSheet.create({
     wrapper: {
-      marginVertical: 14,
+      // marginBottom: 14,
     },
     wrapperCompact: {
       marginVertical: 0,

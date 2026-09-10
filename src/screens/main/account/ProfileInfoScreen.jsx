@@ -1,11 +1,11 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   KeyboardAwareScrollView,
   KeyboardToolbar,
 } from 'react-native-keyboard-controller';
-import { useGlobalStyles, useThemedFocusStatusBar, useThemedStyles, useTheme, useToast } from '../../../hooks';
+import { useGlobalStyles, useThemedFocusStatusBar, useTheme, useToast } from '../../../hooks';
 import {
   AnimatedView,
   Dropdown,
@@ -90,12 +90,13 @@ const CONTACT_INFO_FIELDS = [
   },
 ];
 
-const createStyles = colors =>
-  StyleSheet.create({
+const createStyles = isDarkMode => {
+  const accentColor = isDarkMode ? palette.skyBlue : palette.mainBlue;
+
+  return StyleSheet.create({
     screen: {
       flex: 1,
       paddingHorizontal: 16,
-      
     },
     contentContainer: {
       paddingBottom: 32,
@@ -126,12 +127,12 @@ const createStyles = colors =>
       justifyContent: 'center',
       marginTop: 20,
       borderWidth: 1,
-      borderColor: palette.mainBlue,
+      borderColor: accentColor,
       marginBottom: 12,
     },
     primaryButtonText: {
       fontFamily: FONT_FAMILY.regular,
-      color: palette.mainBlue,
+      color: accentColor,
       letterSpacing: 1.2,
     },
     buttonPressed: {
@@ -139,12 +140,13 @@ const createStyles = colors =>
     },
     phoneText: {
       fontFamily: FONT_FAMILY.semiBold,
-      color: palette.mainBlue,
+      color: accentColor,
       letterSpacing: 1.2,
       marginTop: 8,
       fontSize: 12,
     },
   });
+};
 
 const EMPTY_FORM_VALUES = {
   email: '',
@@ -215,8 +217,8 @@ function resolveFormValuesAfterUpdate(submittedValues, apiData) {
 
 export function ProfileInfoScreen() {
   const globalStyles = useGlobalStyles();
-  const styles = useThemedStyles(createStyles);
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
+  const styles = useMemo(() => createStyles(isDarkMode), [isDarkMode]);
   useThemedFocusStatusBar({ inverted: true });
   const navigation = useNavigation();
   const { showToast } = useToast();

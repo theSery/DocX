@@ -337,7 +337,9 @@ const createStyles = colors =>
       bottom: 0,
     },
     headerRow: {
-      paddingTop: 10,
+      paddingTop: 5,
+
+      paddingBottom: 5,
     },
     titleContainer: {
       // marginTop: 10,

@@ -20,7 +20,7 @@ const MainHeader = ({ onPress, isHome = false, rightAction = null }) => {
             isHome={isHome}
             size={layout.compact ? layout.buttonHeight : 40}
           />
-        ) : null}
+        ) : <View style={{ width: 45, height: 45 }} />}
       </View>
       <View style={styles.logoContainer}>
         <Image
@@ -30,7 +30,7 @@ const MainHeader = ({ onPress, isHome = false, rightAction = null }) => {
         />
       </View>
       <View style={[styles.side, layout.compact && { width: sideSize }]}>
-        {rightAction}
+        {rightAction ? rightAction : <View style={{ width: 45, height: 45 }} />}
       </View>
     </View>
   );
