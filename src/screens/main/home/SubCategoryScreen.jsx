@@ -220,9 +220,9 @@ export function SubCategoryScreen({ route, navigation }) {
                   />
                 </View>
                 <View style={styles.subCategoryTextWrap}>
-                  <Text style={styles.subCategoryName}>
+                  <Typography variant="h5" style={styles.subCategoryName}>
                     {category.name}  
-                  </Text>
+                  </Typography>
                 </View>
               </>
             )}

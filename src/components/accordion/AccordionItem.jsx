@@ -67,7 +67,7 @@ function AccordionItemComponent({
   const styles = useThemedStyles(createStyles);
   const isCompactScreen = useIsCompactScreen();
   const chevronSize = isCompactScreen ? 14 : 16;
-  const starSize = isCompactScreen ? 16 : 20;
+  const starSize = isCompactScreen ? 18 : 20;
   const contentHeight = useSharedValue(0);
   const progress = useSharedValue(isOpen ? 1 : 0);
 
