@@ -6,10 +6,19 @@ import MainHeader from '../../../components/headers/MainHeader';
 import { Dropdown, DropdownHost, FormField, FormScrollView } from '../../../components';
 import UserSvg from '../../../components/icons/UserSvg';
 import CitizenshipSvg from '../../../components/icons/CitizenshipSvg';
+import NotificationMethodSvg from '../../../components/icons/NotificationMethodSvg';
 import { countries } from '../../../data/countries';
+import {
+  notificationMethods,
+  toNotificationMethodIds,
+} from '../../../data/notificationMethods';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import AuthButton from '../../../components/buttons/AuthButton';
 import { RegistrationPrivacyText } from './components/RegistrationPrivacyText';
+import {
+  findCountryByCitizenship,
+  toCitizenshipValue,
+} from '../../../utils/personalDataValidation';
 
 const MIN_NAME_LENGTH = 3;
 
@@ -29,10 +38,6 @@ const SURNAME_MIN_LENGTH_RULES = {
   validate: value =>
     hasMinLetterLength(value, 'Ազգանունը պետք է լինի առնվազն 3 տառ'),
 };
-import {
-  findCountryByCitizenship,
-  toCitizenshipValue,
-} from '../../../utils/personalDataValidation';
 
 export function RegistrationScreen({ navigation, route }) {
   const { email, phoneNumber, password } = route.params ?? {};
@@ -46,15 +51,29 @@ export function RegistrationScreen({ navigation, route }) {
     trigger,
     formState: { isSubmitting },
   } = useForm({
-    defaultValues: { name: '', surname: '', citizenship: '' },
+    defaultValues: {
+      name: '',
+      surname: '',
+      citizenship: '',
+      notificationMethod: [],
+    },
     mode: 'onBlur',
   });
   const watchedCitizenship = useWatch({ control, name: 'citizenship' }) ?? '';
+  const watchedNotificationMethod = toNotificationMethodIds(
+    useWatch({ control, name: 'notificationMethod' }),
+  );
   const hasSelectedCitizenship = Boolean(findCountryByCitizenship(watchedCitizenship));
+  const hasSelectedNotificationMethod = watchedNotificationMethod.length > 0;
 
   const onSubmit = handleSubmit(values => {
     if (!findCountryByCitizenship(values.citizenship)) {
       trigger('citizenship');
+      return;
+    }
+
+    if (toNotificationMethodIds(values.notificationMethod).length === 0) {
+      trigger('notificationMethod');
       return;
     }
 
@@ -63,6 +82,7 @@ export function RegistrationScreen({ navigation, route }) {
       surname: values.surname,
       patronymic: null,
       citizenship: values.citizenship,
+      notificationMethod: toNotificationMethodIds(values.notificationMethod),
       email,
       phoneNumber,
       password,
@@ -105,6 +125,34 @@ export function RegistrationScreen({ navigation, route }) {
               )}
             />
             <View style={{ marginTop: 20 }}>
+              <Controller
+                control={control}
+                name="notificationMethod"
+                rules={{ required: 'Ծանուցման եղանակը պարտադիր է' }}
+                render={({ field: { value, onChange }, fieldState: { error } }) => (
+                  <Dropdown
+                    items={notificationMethods}
+                    multiple
+                    value={toNotificationMethodIds(value)}
+                    onChange={methods =>
+                      onChange(methods.map(method => method.id))
+                    }
+                    label="Ծանուցման եղանակ *"
+                    placeholder="Ծանուցման եղանակ"
+                    startIcon={
+                      <NotificationMethodSvg
+                        width={20}
+                        height={20}
+                        fill={colors.icons}
+                      />
+                    }
+                    getItemLabel={method => method.nameHy}
+                    error={error?.message}
+                  />
+                )}
+              />
+            </View>
+            <View style={{ marginTop: 20 }}>
               <FormField
                 control={control}
                 name="name"
@@ -130,7 +178,7 @@ export function RegistrationScreen({ navigation, route }) {
         <View style={{ flex: 1, justifyContent: 'flex-end' }}>
           <RegistrationPrivacyText />
           <AuthButton
-            disabled={!hasSelectedCitizenship}
+            disabled={!hasSelectedCitizenship || !hasSelectedNotificationMethod}
             title="Ստեղծել PIN"
             onPress={onSubmit}
             isLoading={isSubmitting}

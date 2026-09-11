@@ -15,7 +15,10 @@ import {
   Typography,
 } from '../../../components';
 import { countries } from '../../../data/countries';
-import { notificationMethods } from '../../../data/notificationMethods';
+import {
+  notificationMethods,
+  toNotificationMethodIds,
+} from '../../../data/notificationMethods';
 import NotificationMethodSvg from '../../../components/icons/NotificationMethodSvg';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import CitizenshipSvg from '../../../components/icons/CitizenshipSvg';
@@ -156,7 +159,7 @@ const EMPTY_FORM_VALUES = {
   phone: '',
   birthDate: null,
   citizenship: '',
-  notificationMethod: '',
+  notificationMethod: [],
 };
 
 function toCitizenshipValue(country) {
@@ -188,7 +191,7 @@ function mapPersonalDataToFormValues(data) {
     phone: data.phoneNumber ?? '',
     birthDate: data.birthday ? new Date(data.birthday) : null,
     citizenship: data.citizenship ?? '',
-    notificationMethod: data.notificationMethod ?? '',
+    notificationMethod: toNotificationMethodIds(data.notificationMethod),
   };
 }
 
@@ -246,8 +249,9 @@ export function ProfileInfoScreen() {
   const watchedEmail = useWatch({ control, name: 'email' }) ?? '';
   const watchedPhone = useWatch({ control, name: 'phone' }) ?? '';
   const watchedCitizenship = useWatch({ control, name: 'citizenship' }) ?? '';
-  const watchedNotificationMethod =
-    useWatch({ control, name: 'notificationMethod' }) ?? '';
+  const watchedNotificationMethod = toNotificationMethodIds(
+    useWatch({ control, name: 'notificationMethod' }),
+  );
   const hasSelectedCitizenship = Boolean(
     findCountryByCitizenship(watchedCitizenship),
   );
@@ -266,7 +270,7 @@ export function ProfileInfoScreen() {
     isSubmitting ||
     (isPhoneChanged && !isChangedPhoneVerified) ||
     !hasSelectedCitizenship ||
-    !watchedNotificationMethod;
+    watchedNotificationMethod.length === 0;
 
   useEffect(() => {
     if (personalDataStatus !== 'succeeded' || !personalData) {
@@ -372,7 +376,7 @@ export function ProfileInfoScreen() {
       });
     }
   });
-
+console.log(personalData, 'personalData');
   return (
     <>
     <KeyboardAwareScrollView
@@ -417,8 +421,11 @@ export function ProfileInfoScreen() {
             render={({ field: { value, onChange }, fieldState: { error } }) => (
               <Dropdown
                 items={notificationMethods}
-                value={value || null}
-                onChange={method => onChange(method.id)}
+                multiple
+                value={toNotificationMethodIds(value)}
+                onChange={methods =>
+                  onChange(methods.map(method => method.id))
+                }
                 label="Ծանուցման եղանակ *"
                 placeholder="Ծանուցման եղանակ"
                 startIcon={

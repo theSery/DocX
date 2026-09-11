@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Controller } from 'react-hook-form';
+import React, { createContext, useContext, useState } from 'react';
+import { Controller, useFormState } from 'react-hook-form';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { dismissOpenDropdowns } from '../dropdown';
@@ -8,6 +8,8 @@ import { FONT_FAMILY } from '../../theme';
 import { useIsCompactScreen, useTheme, useThemedStyles } from '../../hooks';
 import EyeIconSvg from '../icons/EyeIconSvg';
 import CloseIcon from '../icons/CloseIcon';
+
+export const FormFieldNativeIdContext = createContext(undefined);
 
 const INPUT_RADIUS = 16;
 const ARMENIA_PHONE_PREFIX = '+374 ';
@@ -45,6 +47,16 @@ function localDigitsFromStoredValue(value) {
     return '';
   }
   return value.replace(/^\+374/, '').replace(/\D/g, '').slice(0, LOCAL_PHONE_LENGTH);
+}
+
+function getVisibleError(error, isSubmitted) {
+  if (!error) {
+    return null;
+  }
+  if (error.type === 'required' && !isSubmitted) {
+    return null;
+  }
+  return error;
 }
 
 const createStyles = colors =>
@@ -120,10 +132,13 @@ export function FormField({
   autoCapitalize = 'none',
   labelVariant = 'h6',
   editable = true,
+  nativeID,
 }) {
   const styles = useThemedStyles(createStyles);
   const isCompactScreen = useIsCompactScreen();
   const { colors } = useTheme();
+  const contextNativeID = useContext(FormFieldNativeIdContext);
+  const resolvedNativeID = nativeID ?? contextNativeID;
   const resolvedKeyboardType =
     keyboardType ??
     (name === 'email' ? 'email-address' : name === 'phone' || name === 'phoneNumber' ? 'phone-pad' : 'default');
@@ -133,6 +148,7 @@ export function FormField({
 
   const showDefaultEyeToggle = secureTextEntry && endButton == null;
   const isMasked = secureTextEntry && !isSecureVisible;
+  const { isSubmitted } = useFormState({ control });
 
   return (
     <Controller
@@ -140,6 +156,7 @@ export function FormField({
       name={name}
       rules={rules}
       render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => {
+        const visibleError = getVisibleError(error, isSubmitted);
         const handlePhoneChange = text => {
           const localDigits = extractLocalPhoneDigits(
             text.startsWith('+374') ? text : `${ARMENIA_PHONE_PREFIX}${text}`,
@@ -160,11 +177,12 @@ export function FormField({
                 isCompactScreen && styles.inputRowCompact,
                 isSearch && styles.inputRowSearch,
                 isSearch && isFocused && styles.inputRowSearchFocused,
-                error && styles.inputError,
+                visibleError && styles.inputError,
               ]}
             >
               {startIcon ? <View style={styles.inputIcon}>{startIcon}</View> : null}
               <TextInput
+                nativeID={resolvedNativeID}
                 style={styles.input}
                 placeholder={placeholder}
                 placeholderTextColor={colors.textDisabled}
@@ -219,8 +237,8 @@ export function FormField({
                 </Pressable>
               ) : null}
             </View>
-            {error?.message ? (
-              <Text style={styles.errorText}>{error.message}</Text>
+            {visibleError?.message ? (
+              <Text style={styles.errorText}>{visibleError.message}</Text>
             ) : null}
           </View>
         );

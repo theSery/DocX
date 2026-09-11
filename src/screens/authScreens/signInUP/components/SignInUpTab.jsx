@@ -157,6 +157,8 @@ function RegistrationForm({ onSwitchToPhone }) {
           onPress={onSubmit}
           isLoading={isLoading}
         />
+        
+        
         {/* <View style={styles.dividerRow}>
           <View style={styles.dividerLine} />
           <Typography style={styles.dividerText}>Կամ</Typography>

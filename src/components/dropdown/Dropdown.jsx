@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Accordion } from '../accordion';
+import { CheckBox } from '../checkbox';
 import { Typography } from '../typography/Typography';
 import { useIsCompactScreen } from '../../hooks/useResponsiveLayout';
 import { useThemedStyles } from '../../hooks/useThemedStyles';
@@ -102,6 +103,14 @@ function defaultGetItemLabel(item) {
   return item?.nameHy ?? item?.name ?? item?.label ?? item?.title ?? '';
 }
 
+function toSelectedKeys(value) {
+  if (value == null || value === '') {
+    return [];
+  }
+
+  return Array.isArray(value) ? value : [value];
+}
+
 /**
  * flagcdn SVG URLs do not render in Image; use the matching PNG.
  * @param {string | null | undefined} flagUri
@@ -119,21 +128,24 @@ export function toFlagImageUri(flagUri) {
 }
 
 /**
- * Reusable single-item dropdown built on Accordion.
+ * Reusable dropdown built on Accordion.
  *
  * The trigger is the accordion header. Options render in the accordion body,
- * capped at `maxBodyHeight` and scrolled. Selecting an option updates the
- * title and closes the body. Taps outside the accordion close it when this
- * component is rendered inside `DropdownHost`.
+ * capped at `maxBodyHeight` and scrolled. In single-select mode, choosing an
+ * option updates the title and closes the body. In `multiple` mode, options
+ * render as checkboxes and the header shows selected labels joined by commas.
+ * Taps outside the accordion close it when this component is rendered inside
+ * `DropdownHost`.
  *
  * @param {{
  *   items: Array<object>;
  *   label?: string;
  *   placeholder?: string;
  *   startIcon?: import('react').ReactNode;
- *   value?: string | number | null;
- *   defaultValue?: string | number | null;
- *   onChange?: (item: object | null) => void;
+ *   value?: string | number | Array<string | number> | null;
+ *   defaultValue?: string | number | Array<string | number> | null;
+ *   multiple?: boolean;
+ *   onChange?: (item: object | object[] | null) => void;
  *   keyExtractor?: (item: object, index: number) => string | number;
  *   getItemLabel?: (item: object) => string;
  *   getItemSecondaryLabel?: (item: object) => string | null | undefined;
@@ -152,6 +164,7 @@ export function Dropdown({
   startIcon,
   value,
   defaultValue = null,
+  multiple = false,
   onChange,
   keyExtractor = defaultKeyExtractor,
   getItemLabel = defaultGetItemLabel,
@@ -167,14 +180,34 @@ export function Dropdown({
   const host = useContext(DropdownHostContext);
   const rootRef = useRef(null);
   const isValueControlled = value !== undefined;
-  const [selectedKey, setSelectedKey] = useState(value ?? defaultValue);
+  const [selectedKey, setSelectedKey] = useState(() =>
+    multiple ? toSelectedKeys(value ?? defaultValue) : (value ?? defaultValue),
+  );
   const [openKey, setOpenKey] = useState(null);
 
   const currentKey = isValueControlled ? value : selectedKey;
-  const selectedItem =
-    items.find((item, index) => keyExtractor(item, index) === currentKey) ?? null;
-  const title = selectedItem ? getItemLabel(selectedItem) : placeholder;
-  const selectedFlag = selectedItem && getItemFlag ? toFlagImageUri(getItemFlag(selectedItem)) : null;
+  const selectedKeys = toSelectedKeys(currentKey);
+  const selectedItems = multiple
+    ? items.filter((item, index) =>
+        selectedKeys.includes(keyExtractor(item, index)),
+      )
+    : [];
+  const selectedItem = multiple
+    ? null
+    : (items.find((item, index) => keyExtractor(item, index) === currentKey) ??
+      null);
+  const hasSelection = multiple
+    ? selectedItems.length > 0
+    : Boolean(selectedItem);
+  const title = multiple
+    ? hasSelection
+      ? selectedItems.map(getItemLabel).join(', ')
+      : placeholder
+    : selectedItem
+      ? getItemLabel(selectedItem)
+      : placeholder;
+  const selectedFlag =
+    selectedItem && getItemFlag ? toFlagImageUri(getItemFlag(selectedItem)) : null;
   const isOpen = openKey != null;
 
   const close = useCallback(() => {
@@ -221,13 +254,35 @@ export function Dropdown({
   const handleSelect = useCallback(
     item => {
       const nextKey = keyExtractor(item, items.indexOf(item));
+
+      if (multiple) {
+        const currentKeys = toSelectedKeys(currentKey);
+        const nextKeys = items
+          .map((option, index) => keyExtractor(option, index))
+          .filter(key =>
+            key === nextKey
+              ? !currentKeys.includes(key)
+              : currentKeys.includes(key),
+          );
+
+        if (!isValueControlled) {
+          setSelectedKey(nextKeys);
+        }
+
+        const nextItems = items.filter((option, index) =>
+          nextKeys.includes(keyExtractor(option, index)),
+        );
+        onChange?.(nextItems);
+        return;
+      }
+
       if (!isValueControlled) {
         setSelectedKey(nextKey);
       }
       onChange?.(item);
       close();
     },
-    [close, isValueControlled, items, keyExtractor, onChange],
+    [close, currentKey, isValueControlled, items, keyExtractor, multiple, onChange],
   );
 
   const accordionItems = useMemo(
@@ -276,7 +331,11 @@ export function Dropdown({
             ) : null}
             <Text
               numberOfLines={1}
-              style={[styles.valueText, !selectedItem && styles.placeholderText]}
+              style={[
+                styles.valueText,
+                selectedItems.length === 2 && styles.valueTextCompact,
+                !hasSelection && styles.placeholderText,
+              ]}
             >
               {title}
             </Text>
@@ -291,10 +350,18 @@ export function Dropdown({
           >
             {items.map((item, index) => {
               const itemKey = keyExtractor(item, index);
-              const selected = itemKey === currentKey;
+              const selected = multiple
+                ? selectedKeys.includes(itemKey)
+                : itemKey === currentKey;
+              const nextItemKey =
+                index < items.length - 1
+                  ? keyExtractor(items[index + 1], index + 1)
+                  : null;
               const nextSelected =
-                index < items.length - 1 &&
-                keyExtractor(items[index + 1], index + 1) === currentKey;
+                nextItemKey != null &&
+                (multiple
+                  ? selectedKeys.includes(nextItemKey)
+                  : nextItemKey === currentKey);
               const optionLabel = getItemLabel(item);
               const secondaryLabel = getItemSecondaryLabel?.(item);
               const flagUri = getItemFlag ? toFlagImageUri(getItemFlag(item)) : null;
@@ -302,8 +369,8 @@ export function Dropdown({
               return (
                 <View key={itemKey}>
                   <Pressable
-                    accessibilityRole="button"
-                    accessibilityState={{ selected }}
+                    accessibilityRole={multiple ? 'checkbox' : 'button'}
+                    accessibilityState={{ selected, checked: selected }}
                     accessibilityLabel={optionLabel}
                     onPress={() => handleSelect(item)}
                     style={({ pressed }) => [
@@ -312,9 +379,19 @@ export function Dropdown({
                       pressed && !selected && styles.optionPressed,
                     ]}
                   >
-                    {selected ? <View style={styles.optionAccent} /> : null}
+                    {selected && !multiple ? (
+                      <View style={styles.optionAccent} />
+                    ) : null}
                     {renderOption ? (
                       renderOption(item, { selected })
+                    ) : multiple ? (
+                      <View pointerEvents="none" style={styles.optionCheckboxWrap}>
+                        <CheckBox
+                          checked={selected}
+                          label={optionLabel}
+                          style={styles.optionCheckbox}
+                        />
+                      </View>
                     ) : (
                       <>
                         {flagUri ? (
@@ -436,8 +513,17 @@ const createStyles = colors =>
       fontFamily: FONT_FAMILY.regular,
       color: colors.text,
     },
+    valueTextCompact: {
+      fontSize: 14,
+    },
     placeholderText: {
       color: colors.textDisabled,
+    },
+    optionCheckboxWrap: {
+      flex: 1,
+    },
+    optionCheckbox: {
+      marginBottom: 0,
     },
     option: {
       minHeight: 44,

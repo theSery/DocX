@@ -15,6 +15,7 @@ import { palette } from '../../../theme';
 import { Typography } from '../../../components/typography/Typography';
 import AuthButton from '../../../components/buttons/AuthButton';
 import {
+  useAuthSession,
   useHomeStackHeaderScrollHandler,
   useIsCompactScreen,
   useThemedStyles,
@@ -52,6 +53,7 @@ export function SubCategoryScreen({ route, navigation }) {
   const isCompactScreen = useIsCompactScreen();
   const headerCollapsibleHeight = getHomeStackHeaderCollapsibleHeight(isCompactScreen);
   const dispatch = useAppDispatch();
+  const { isAuthenticated } = useAuthSession();
   const { showToast } = useToast();
   const categories = useAppSelector(selectCategories);
   const legalIssues = useMemo(
@@ -208,7 +210,7 @@ export function SubCategoryScreen({ route, navigation }) {
             scrollOffset={scrollY}
             scrollIntoViewOffset={headerCollapsibleHeight}
             staggeredEnter
-            showFavorite
+            showFavorite={isAuthenticated}
             onFavoritePress={onFavoritePress}
             renderHeader={category => (
               <>

@@ -27,7 +27,7 @@ const TAB_BAR_CONTENT_HEIGHT_COMPACT = 54;
 const PILL_WIDTH = 64;
 const PILL_HEIGHT = 32;
 const ICON_SIZE = 22;
-const ICON_SIZE_COMPACT = 18;
+const ICON_SIZE_COMPACT = 20;
 
 const SPRING_CONFIG = {
   damping: 18,

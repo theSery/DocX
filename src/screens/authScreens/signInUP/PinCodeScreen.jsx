@@ -18,8 +18,16 @@ import { authApi, persistAuthResponse } from '../../../api';
 const PIN_LENGTH = 4;
 
 export function PinCodeScreen({ navigation, route }) {
-  const { name, surname, patronymic, citizenship, email, phoneNumber, password } =
-    route.params ?? {};
+  const {
+    name,
+    surname,
+    patronymic,
+    citizenship,
+    notificationMethod,
+    email,
+    phoneNumber,
+    password,
+  } = route.params ?? {};
   const styles = useAuthScreenStyles();
   const localStyles = useThemedStyles(createStyles);
   const isCompactScreen = useIsCompactScreen();
@@ -84,7 +92,7 @@ export function PinCodeScreen({ navigation, route }) {
               surname,
               patronymic: patronymic || null,
               citizenship,
-              notificationMethod: 'electronic',
+              notificationMethod,
               password,
               pinCode,
             })
@@ -94,7 +102,7 @@ export function PinCodeScreen({ navigation, route }) {
               surname,
               patronymic: patronymic || null,
               citizenship,
-              notificationMethod: 'electronic',
+              notificationMethod,
               password,
               pinCode,
             });
@@ -137,6 +145,7 @@ export function PinCodeScreen({ navigation, route }) {
       password,
       patronymic,
       citizenship,
+      notificationMethod,
       phoneNumber,
       showToastWhileLocked,
       surname,

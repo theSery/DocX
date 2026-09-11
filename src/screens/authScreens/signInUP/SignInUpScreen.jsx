@@ -27,49 +27,53 @@ export function SignInUpScreen() {
       gradientHeight={'100%'}
       contentStyle={styles.screen}
     >
-      <View style={[layout.compact && styles.headerContentSmall,
-      styles.headerContent]}>
-        <Pressable onPress={resetToMain}>
-          <Image
-            source={backButton}
-            style={[styles.image, layout.compact && styles.imageSmall]}
-            resizeMode="cover"
-          />
-        </Pressable>
-        <Pressable onPress={resetToMain}>
-          <Typography
-            variant="h5"
-            style={{
-              color: isDarkMode
-                ? colors.mainBlue
-                : colors.buttonTextOnPrimary,
-            }}
-          >
-            Փակել
-          </Typography>
-        </Pressable>
-      </View>
-      <AnimatedView
-          animation="fadeIn"
-          duration={500}
-          style={styles.logoContainer}
-        >
-          <Image
-            source={isDarkMode ? darkLogo : whiteLogo}
-            style={layout.compact ? layout.logo : styles.logo}
-            resizeMode={layout.compact ? 'contain' : undefined}
-          />
-        </AnimatedView>
       <KeyboardAwareScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
-        // keyboardShouldPersistTaps="handled"
-        // keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}
-        bottomOffset={20}
+        bottomOffset={62}
       >
-
-
+        <View style={styles.headerContainer}>
+          <View
+            style={[
+              styles.headerContent,
+              layout.compact && styles.headerContentSmall,
+            ]}
+          >
+            <Pressable onPress={resetToMain}>
+              <Image
+                source={backButton}
+                style={[styles.image, layout.compact && styles.imageSmall]}
+                resizeMode="cover"
+              />
+            </Pressable>
+            <Pressable onPress={resetToMain}>
+              <Typography
+                variant="h5"
+                style={{
+                  color: isDarkMode
+                    ? colors.mainBlue
+                    : colors.buttonTextOnPrimary,
+                }}
+              >
+                Փակել
+              </Typography>
+            </Pressable>
+          </View>
+          <AnimatedView
+            animation="fadeIn"
+            duration={500}
+            style={styles.logoContainer}
+          >
+            <Image
+              source={isDarkMode ? darkLogo : whiteLogo}
+              style={layout.compact ? layout.logo : styles.logo}
+              resizeMode={layout.compact ? 'contain' : undefined}
+            />
+          </AnimatedView>
+        </View>
         <View
           style={[
             styles.tabsSection,
@@ -79,7 +83,11 @@ export function SignInUpScreen() {
           <SignInUpTab />
         </View>
       </KeyboardAwareScrollView>
-
+      {/* <KeyboardToolbar>
+        <KeyboardToolbar.Prev />
+        <KeyboardToolbar.Next />
+        <KeyboardToolbar.Done text="Փակել" />
+      </KeyboardToolbar> */}
     </AuthScreenLayout>
   );
 }
@@ -103,7 +111,7 @@ const createStyles = () =>
     tabsSection: {
       flexGrow: 1,
       width: '100%',
-      marginTop: '30%',
+      marginTop: '20%',
     },
     tabsSectionSmall: {
       marginTop: '10%',
@@ -117,7 +125,6 @@ const createStyles = () =>
     logoContainer: {
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: 10,
     },
     logo: {
       height: 62,
@@ -128,16 +135,14 @@ const createStyles = () =>
       justifyContent: 'space-between',
       alignItems: 'center',
       flexDirection: 'row',
-      // marginBottom: '20%',
-      paddingHorizontal: 15,
-      // backgroundColor: 'red',
+      marginBottom: '20%',
     },
     headerContentSmall: {
-      // marginBottom: '0%',
+      marginBottom: '0%',
     },
     image: {
-      width: 60,
-      height: 60,
+      width: 70,
+      height: 70,
       marginLeft: -15,
     },
     imageSmall: {

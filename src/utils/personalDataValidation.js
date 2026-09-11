@@ -1,5 +1,8 @@
 import { countries } from '../data/countries';
-import { notificationMethods } from '../data/notificationMethods';
+import {
+  notificationMethods,
+  toNotificationMethodIds,
+} from '../data/notificationMethods';
 import {
   ARMENIAN_ADDRESS_PATTERN,
   ARMENIAN_LETTERS_PATTERN,
@@ -50,7 +53,11 @@ function isValidCitizenship(value) {
 }
 
 function isValidNotificationMethod(value) {
-  return notificationMethods.some(method => method.id === value);
+  const ids = toNotificationMethodIds(value);
+  return (
+    ids.length > 0 &&
+    ids.every(id => notificationMethods.some(method => method.id === id))
+  );
 }
 
 export function getMaximumBirthDate() {

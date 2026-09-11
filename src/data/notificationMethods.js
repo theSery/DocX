@@ -16,4 +16,12 @@ export const notificationMethods = [
   },
 ];
 
+export function toNotificationMethodIds(value) {
+  if (Array.isArray(value)) {
+    return value.filter(Boolean);
+  }
+
+  return value ? [value] : [];
+}
+
 export default notificationMethods;

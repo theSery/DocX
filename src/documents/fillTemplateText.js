@@ -1,4 +1,7 @@
-import { notificationMethods } from '../data/notificationMethods';
+import {
+  notificationMethods,
+  toNotificationMethodIds,
+} from '../data/notificationMethods';
 import { findCountryByCitizenship } from '../utils/personalDataValidation';
 import { escapeHtml } from './escapeHtml';
 import { formatDocumentDate, formatDocumentDateTime } from './formatDocumentDate';
@@ -229,14 +232,17 @@ function getCitizenshipDisplayName(value) {
  * @param {unknown} value
  */
 function getNotificationMethodDisplayName(value) {
-  if (!value) {
-    return '';
-  }
+  const labels = toNotificationMethodIds(value)
+    .map(id => {
+      const normalized = String(id).trim().toLowerCase();
+      return (
+        notificationMethods.find(method => method.id === normalized)?.nameHy ??
+        ''
+      );
+    })
+    .filter(Boolean);
 
-  const normalized = String(value).trim().toLowerCase();
-  return (
-    notificationMethods.find(method => method.id === normalized)?.nameHy ?? ''
-  );
+  return labels.join(', ');
 }
 
 /**

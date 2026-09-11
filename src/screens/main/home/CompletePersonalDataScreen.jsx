@@ -28,7 +28,10 @@ import AddressSvg from '../../../components/icons/AddressSvg';
 import CitizenshipSvg from '../../../components/icons/CitizenshipSvg';
 import NotificationMethodSvg from '../../../components/icons/NotificationMethodSvg';
 import { countries } from '../../../data/countries';
-import { notificationMethods } from '../../../data/notificationMethods';
+import {
+  notificationMethods,
+  toNotificationMethodIds,
+} from '../../../data/notificationMethods';
 import { FONT_FAMILY } from '../../../theme';
 import {
   ARMENIAN_ADDRESS_RULES,
@@ -234,7 +237,15 @@ function formatPlaceholderDate(value) {
 }
 
 function toEmptyFormValue(field) {
-  return DATE_FIELDS.includes(field) ? null : '';
+  if (DATE_FIELDS.includes(field)) {
+    return null;
+  }
+
+  if (field === 'notificationMethod') {
+    return [];
+  }
+
+  return '';
 }
 
 function toFormInitialValue(field, personalData, missingFields) {
@@ -475,8 +486,9 @@ export function CompletePersonalDataScreen({ navigation, route }) {
   const watchedEmail = useWatch({ control, name: 'email' }) ?? '';
   const watchedPhone = useWatch({ control, name: 'phoneNumber' }) ?? '';
   const watchedCitizenship = useWatch({ control, name: 'citizenship' }) ?? '';
-  const watchedNotificationMethod =
-    useWatch({ control, name: 'notificationMethod' }) ?? '';
+  const watchedNotificationMethod = toNotificationMethodIds(
+    useWatch({ control, name: 'notificationMethod' }),
+  );
   const showCitizenshipField = missingFields.includes('citizenship');
   const showNotificationMethodField = missingFields.includes('notificationMethod');
   const effectiveCitizenship = showCitizenshipField
@@ -487,7 +499,7 @@ export function CompletePersonalDataScreen({ navigation, route }) {
     ? Boolean(findCountryByCitizenship(watchedCitizenship))
     : true;
   const hasSelectedNotificationMethod = showNotificationMethodField
-    ? Boolean(watchedNotificationMethod)
+    ? watchedNotificationMethod.length > 0
     : true;
   const visibleProfileFields = useMemo(() => {
     const fields = missingProfileFields.filter(
@@ -609,7 +621,10 @@ export function CompletePersonalDataScreen({ navigation, route }) {
       return;
     }
 
-    if (showNotificationMethodField && !formValues.notificationMethod) {
+    if (
+      showNotificationMethodField &&
+      toNotificationMethodIds(formValues.notificationMethod).length === 0
+    ) {
       trigger('notificationMethod');
       return;
     }
@@ -732,8 +747,9 @@ export function CompletePersonalDataScreen({ navigation, route }) {
           render={({ field: { value, onChange }, fieldState: { error } }) => (
             <Dropdown
               items={notificationMethods}
-              value={value || null}
-              onChange={method => onChange(method.id)}
+              multiple
+              value={toNotificationMethodIds(value)}
+              onChange={methods => onChange(methods.map(method => method.id))}
               label={config.label}
               placeholder={config.placeholder}
               startIcon={config.startIcon}
