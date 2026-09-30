@@ -73,11 +73,12 @@ export function FavoritesScreen({ navigation }) {
       contentImageStyle: { width: 56, height: 56 },
       messageStyle: { fontSize: 14, lineHeight: 20 },
       actions: [
+        { label: 'Փակել', destructive: true },
         {
           label: template.relatedAction,
           onPress: () => navigateToFillInDetails(template, category),
         },
-        { label: 'Փակել', destructive: true },
+
       ],
     });
   };
