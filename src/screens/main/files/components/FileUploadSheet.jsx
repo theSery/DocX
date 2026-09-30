@@ -7,8 +7,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-
-import { Typography } from '../../../../components';
+import { KeyboardAvoidingView, Typography } from '../../../../components';
 import GradientButton from '../../../../components/buttons/GradientButton';
 import { FONT_FAMILY } from '../../../../theme';
 import { useTheme, useThemedStyles } from '../../../../hooks';
@@ -54,8 +53,9 @@ export function FileUploadSheet({ visible, pickedFile, onClose, onUpload, isUplo
       animationType="fade"
       onRequestClose={onClose}
     >
-      <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={() => {}}>
+      <KeyboardAvoidingView behavior="padding" automaticOffset style={styles.keyboardView}>
+        <Pressable style={styles.backdrop} onPress={onClose}>
+          <Pressable style={styles.sheet} onPress={() => {}}>
           {previewSource ? (
             <Image
               source={previewSource}
@@ -106,14 +106,18 @@ export function FileUploadSheet({ visible, pickedFile, onClose, onUpload, isUplo
               </GradientButton>
             </Pressable>
           </View>
+          </Pressable>
         </Pressable>
-      </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const createStyles = colors =>
   StyleSheet.create({
+    keyboardView: {
+      flex: 1,
+    },
     backdrop: {
       flex: 1,
       justifyContent: 'flex-end',

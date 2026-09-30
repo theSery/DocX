@@ -1,13 +1,43 @@
 import { StyleSheet, View } from 'react-native';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { AuthScreenLayout } from '../../../components/layout';
 import { useAuthScreenStyles, useTheme, useThemedFocusStatusBar, useThemedStyles } from '../../../hooks';
 import MainHeader from '../../../components/headers/MainHeader';
-import { FormField, FormScrollView } from '../../../components';
-import { useForm } from 'react-hook-form';
+import { Dropdown, DropdownHost, FormField, FormScrollView } from '../../../components';
 import UserSvg from '../../../components/icons/UserSvg';
+import CitizenshipSvg from '../../../components/icons/CitizenshipSvg';
+import NotificationMethodSvg from '../../../components/icons/NotificationMethodSvg';
+import { countries } from '../../../data/countries';
+import {
+  notificationMethods,
+  toNotificationMethodIds,
+} from '../../../data/notificationMethods';
 import { ContentTiltes } from '../../../components/titleComponents/ContentTiltles';
 import AuthButton from '../../../components/buttons/AuthButton';
 import { RegistrationPrivacyText } from './components/RegistrationPrivacyText';
+import {
+  findCountryByCitizenship,
+  toCitizenshipValue,
+} from '../../../utils/personalDataValidation';
+
+const MIN_NAME_LENGTH = 3;
+
+function hasMinLetterLength(value, message) {
+  const letterCount = String(value ?? '').replace(/\s/g, '').length;
+  return letterCount >= MIN_NAME_LENGTH || message;
+}
+
+const NAME_MIN_LENGTH_RULES = {
+  required: 'Անունը պարտադիր է',
+  validate: value =>
+    hasMinLetterLength(value, 'Անունը պետք է լինի առնվազն 3 տառ'),
+};
+
+const SURNAME_MIN_LENGTH_RULES = {
+  required: 'Ազգանունը պարտադիր է',
+  validate: value =>
+    hasMinLetterLength(value, 'Ազգանունը պետք է լինի առնվազն 3 տառ'),
+};
 
 export function RegistrationScreen({ navigation, route }) {
   const { email, phoneNumber, password } = route.params ?? {};
@@ -18,17 +48,41 @@ export function RegistrationScreen({ navigation, route }) {
   const {
     control,
     handleSubmit,
+    trigger,
     formState: { isSubmitting },
   } = useForm({
-    defaultValues: { name: '', surname: '', patronymic: '' },
+    defaultValues: {
+      name: '',
+      surname: '',
+      citizenship: '',
+      notificationMethod: [],
+    },
     mode: 'onBlur',
   });
+  const watchedCitizenship = useWatch({ control, name: 'citizenship' }) ?? '';
+  const watchedNotificationMethod = toNotificationMethodIds(
+    useWatch({ control, name: 'notificationMethod' }),
+  );
+  const hasSelectedCitizenship = Boolean(findCountryByCitizenship(watchedCitizenship));
+  const hasSelectedNotificationMethod = watchedNotificationMethod.length > 0;
 
   const onSubmit = handleSubmit(values => {
+    if (!findCountryByCitizenship(values.citizenship)) {
+      trigger('citizenship');
+      return;
+    }
+
+    if (toNotificationMethodIds(values.notificationMethod).length === 0) {
+      trigger('notificationMethod');
+      return;
+    }
+
     navigation.navigate('PinCode', {
       name: values.name,
       surname: values.surname,
-      patronymic: values.patronymic,
+      patronymic: null,
+      citizenship: values.citizenship,
+      notificationMethod: toNotificationMethodIds(values.notificationMethod),
       email,
       phoneNumber,
       password,
@@ -43,39 +97,88 @@ export function RegistrationScreen({ navigation, route }) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={localStyles.content}
       >
-        <View style={localStyles.formContainer}>
-          <ContentTiltes
-            title={'Անձնական տվյալներ'}
-            subtitle={'Գրանցումն ավարտելու համար լրացրեք տվյալները'}
-          />
-          <FormField
-            control={control}
-            name="name"
-            label="Անուն *"
-            startIcon={<UserSvg width={24} height={24} fill={colors.icons} />}
-            placeholder="Ձեր Անունը"
-          />
-          <View style={{ marginVertical: 20 }}>
-            <FormField
-              control={control}
-              name="surname"
-              label="Ազգանուն *"
-              placeholder="Ձեր Ազգանունը"
-              startIcon={<UserSvg width={24} height={24} fill={colors.icons} />}
+        <DropdownHost style={localStyles.formContainer}>
+          <View style={localStyles.formContainer}>
+            <ContentTiltes
+              title={'Անձնական տվյալներ'}
+              subtitle={'Գրանցումն ավարտելու համար լրացրեք տվյալները'}
             />
+            <Controller
+              control={control}
+              name="citizenship"
+              rules={{ required: 'Քաղաքացիությունը պարտադիր է' }}
+              render={({ field: { value, onChange }, fieldState: { error } }) => (
+                <Dropdown
+                  items={countries}
+                  value={findCountryByCitizenship(value)?.id ?? null}
+                  onChange={country => onChange(toCitizenshipValue(country))}
+                  label="Քաղաքացիություն *"
+                  placeholder="Քաղաքացիություն"
+                  startIcon={
+                    <CitizenshipSvg width={20} height={20} fill={colors.icons} />
+                  }
+                  getItemLabel={country => country.nameHy}
+                  getItemSecondaryLabel={country => country.nameEn}
+                  getItemFlag={country => country.flagSvg}
+                  error={error?.message}
+                />
+              )}
+            />
+            <View style={{ marginTop: 20 }}>
+              <Controller
+                control={control}
+                name="notificationMethod"
+                rules={{ required: 'Ծանուցման եղանակը պարտադիր է' }}
+                render={({ field: { value, onChange }, fieldState: { error } }) => (
+                  <Dropdown
+                    items={notificationMethods}
+                    multiple
+                    value={toNotificationMethodIds(value)}
+                    onChange={methods =>
+                      onChange(methods.map(method => method.id))
+                    }
+                    label="Ծանուցման եղանակ *"
+                    placeholder="Ծանուցման եղանակ"
+                    startIcon={
+                      <NotificationMethodSvg
+                        width={20}
+                        height={20}
+                        fill={colors.icons}
+                      />
+                    }
+                    getItemLabel={method => method.nameHy}
+                    error={error?.message}
+                  />
+                )}
+              />
+            </View>
+            <View style={{ marginTop: 20 }}>
+              <FormField
+                control={control}
+                name="name"
+                label="Անուն *"
+                startIcon={<UserSvg width={24} height={24} fill={colors.icons} />}
+                placeholder="Ձեր Անունը"
+                rules={NAME_MIN_LENGTH_RULES}
+              />
+            </View>
+            <View style={{ marginVertical: 20 }}>
+              <FormField
+                control={control}
+                name="surname"
+                label="Ազգանուն *"
+                placeholder="Ձեր Ազգանունը"
+                startIcon={<UserSvg width={24} height={24} fill={colors.icons} />}
+                rules={SURNAME_MIN_LENGTH_RULES}
+              />
+            </View>
           </View>
-          <FormField
-            control={control}
-            name="patronymic"
-            label="Հայրանուն *"
-            placeholder="Ձեր Հայրանունը"
-            startIcon={<UserSvg width={24} height={24} fill={colors.icons} />}
-          />
-        </View>
+        </DropdownHost>
 
         <View style={{ flex: 1, justifyContent: 'flex-end' }}>
           <RegistrationPrivacyText />
           <AuthButton
+            disabled={!hasSelectedCitizenship || !hasSelectedNotificationMethod}
             title="Ստեղծել PIN"
             onPress={onSubmit}
             isLoading={isSubmitting}

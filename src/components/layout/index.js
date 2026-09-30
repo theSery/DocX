@@ -1,3 +1,4 @@
+export { KeyboardAvoidingView } from '../keyboard';
 export { AuthScreenLayout } from './AuthScreenLayout';
 export {
   AUTH_SCREEN_CONTENT_PADDING_VERTICAL,

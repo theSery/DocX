@@ -1,19 +1,72 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Linking,
   Modal,
   Pressable,
   StyleSheet,
   View,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import CloseSvg from '../icons/CloseSvg';
 import { Typography } from '../typography';
 import { useTheme, useThemedStyles } from '../../hooks';
 
+const BODY_ENTER_MS = 180;
+const FADE_EASING = Easing.out(Easing.quad);
+
 function getLegalDocumentPayload(response) {
   return response?.data?.data ?? response?.data ?? response;
 }
+
+function isExternalUrl(url) {
+  return /^(https?:|mailto:|tel:)/i.test(url);
+}
+
+function isWebViewInternalUrl(url) {
+  if (!url) {
+    return true;
+  }
+
+  return (
+    url === 'about:blank' ||
+    url.startsWith('about:srcdoc') ||
+    url.startsWith('data:') ||
+    url.startsWith('file://')
+  );
+}
+
+function openInBrowser(url) {
+  if (!isExternalUrl(url)) {
+    return;
+  }
+
+  Linking.openURL(url).catch(() => {});
+}
+
+const LINK_INTERCEPT_SCRIPT = `
+(function() {
+  document.addEventListener('click', function(event) {
+    var anchor = event.target && event.target.closest ? event.target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+    var href = anchor.href || anchor.getAttribute('href') || '';
+    var target = (anchor.getAttribute('target') || '').toLowerCase();
+    if (target === '_blank' && href) {
+      event.preventDefault();
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'open-url', url: href }));
+    }
+  }, true);
+})();
+true;
+`;
 
 function buildLegalDocumentHtml(content, colors) {
   return `<!DOCTYPE html>
@@ -45,6 +98,14 @@ export function LegalDocumentContent({ title, fetchDocument, logKey }) {
   const [content, setContent] = useState('');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(Boolean(fetchDocument));
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    opacity.value = withTiming(1, {
+      duration: BODY_ENTER_MS,
+      easing: FADE_EASING,
+    });
+  }, [opacity]);
 
   useEffect(() => {
     if (!fetchDocument) {
@@ -88,43 +149,77 @@ export function LegalDocumentContent({ title, fetchDocument, logKey }) {
     [colors, content],
   );
 
+  const handleShouldStartLoadWithRequest = useCallback(request => {
+    if (isWebViewInternalUrl(request.url)) {
+      return true;
+    }
+
+    openInBrowser(request.url);
+    return false;
+  }, []);
+
+  const handleOpenWindow = useCallback(({ nativeEvent }) => {
+    openInBrowser(nativeEvent?.targetUrl);
+  }, []);
+
+  const handleMessage = useCallback(event => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data);
+      if (data?.type === 'open-url') {
+        openInBrowser(data.url);
+      }
+    } catch {
+      // Ignore malformed messages from the document HTML.
+    }
+  }, []);
+
+  const fadeStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  let body = null;
+
   if (isLoading) {
-    return (
+    body = (
       <View style={styles.centered}>
         <ActivityIndicator color={colors.icons} />
       </View>
     );
-  }
-
-  if (error) {
-    return (
+  } else if (error) {
+    body = (
       <View style={styles.centered}>
         <Typography variant="h5" tone="secondary" style={styles.message}>
           {error}
         </Typography>
       </View>
     );
-  }
-
-  if (!content) {
-    return (
+  } else if (!content) {
+    body = (
       <View style={styles.section}>
         <Typography variant="h5" tone="secondary">
           {title}
         </Typography>
       </View>
     );
+  } else {
+    body = (
+      <WebView
+        originWhitelist={['*']}
+        source={{ html }}
+        style={styles.webView}
+        nestedScrollEnabled
+        showsVerticalScrollIndicator={false}
+        javaScriptEnabled
+        setSupportMultipleWindows
+        injectedJavaScript={LINK_INTERCEPT_SCRIPT}
+        onMessage={handleMessage}
+        onShouldStartLoadWithRequest={handleShouldStartLoadWithRequest}
+        onOpenWindow={handleOpenWindow}
+      />
+    );
   }
 
-  return (
-    <WebView
-      originWhitelist={['*']}
-      source={{ html }}
-      style={styles.webView}
-      nestedScrollEnabled
-      showsVerticalScrollIndicator={false}
-    />
-  );
+  return <Animated.View style={[styles.fill, fadeStyle]}>{body}</Animated.View>;
 }
 
 export function PrivacyPolicyModal({ visible, onClose, title, fetchDocument, logKey }) {
@@ -152,7 +247,7 @@ export function PrivacyPolicyModal({ visible, onClose, title, fetchDocument, log
               accessibilityRole="button"
               accessibilityLabel="Close"
             >
-              <CloseSvg width={18} height={18} fill={colors.icons} />
+              <CloseSvg width={10} height={10} fill={colors.icons} />
             </Pressable>
           </View>
 
@@ -173,6 +268,10 @@ export function PrivacyPolicyModal({ visible, onClose, title, fetchDocument, log
 
 const createContentStyles = () =>
   StyleSheet.create({
+    fill: {
+      flex: 1,
+      minHeight: 0,
+    },
     webView: {
       flex: 1,
       backgroundColor: 'transparent',
@@ -207,11 +306,11 @@ const createModalStyles = colors =>
       paddingHorizontal: 20,
       paddingTop: 20,
       paddingBottom: 20,
-      shadowColor: colors.shadow,
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.2,
-      shadowRadius: 16,
-      elevation: 12,
+      // shadowColor: colors.shadow,
+      // shadowOffset: { width: 0, height: 8 },
+      // shadowOpacity: 0.2,
+      // shadowRadius: 16,
+      // elevation: 12,
     },
     header: {
       flexDirection: 'row',

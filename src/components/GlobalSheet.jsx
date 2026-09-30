@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Image,
   Modal,
   Platform,
   Pressable,
@@ -14,6 +13,7 @@ import { FONT_FAMILY, palette } from '../theme';
 import { Typography } from './typography';
 import WarningSvg from './icons/WarningSvg';
 import GradientButton from './buttons/GradientButton';
+import { CachedImage } from './image';
 import { SkiaVideoPlayer } from './videoPlayer';
 
 let showSheetHandler = null;
@@ -237,7 +237,7 @@ function DefaultSheetContent({ sheet, styles, onActionPress, gradientSurfaceKey 
   return (
     <View style={styles.warningContainer}>
       {sheet.content ? (
-        <Image
+        <CachedImage
           source={resolveImageSource(sheet.content)}
           style={[styles.contentImage, sheet.contentImageStyle]}
           resizeMode="contain"
@@ -312,7 +312,7 @@ function InfoSheetContent({ sheet, styles, onActionPress }) {
           {/* <SkiaVideoPlayer youtubeUrl={sheet.videoUrl} /> */}
         </View>
       ) : imageSource ? (
-        <Image
+        <CachedImage
           source={imageSource}
           style={styles.infoImage}
           resizeMode="cover"

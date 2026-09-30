@@ -34,3 +34,18 @@ export function getStableImageKey(url) {
   // Keep the filename-heavy tail unique while staying within filesystem limits.
   return sanitized.length > 180 ? sanitized.slice(-180) : sanitized;
 }
+
+/**
+ * True when the URL path is an SVG (query string ignored).
+ * React Native Image cannot render SVG; those URIs need react-native-svg.
+ *
+ * @param {string | null | undefined} url
+ * @returns {boolean}
+ */
+export function isSvgUrl(url) {
+  if (typeof url !== 'string' || !url) {
+    return false;
+  }
+  const path = url.split('?')[0].split('#')[0];
+  return /\.svg$/i.test(path);
+}

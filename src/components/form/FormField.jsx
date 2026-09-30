@@ -1,13 +1,15 @@
-import React, { useRef, useState } from 'react';
-import { Controller } from 'react-hook-form';
+import React, { createContext, useContext, useState } from 'react';
+import { Controller, useFormState } from 'react-hook-form';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
+import { dismissOpenDropdowns } from '../dropdown';
 import { Typography } from '../typography';
 import { FONT_FAMILY } from '../../theme';
-import { useTheme, useThemedStyles } from '../../hooks';
+import { useIsCompactScreen, useTheme, useThemedStyles } from '../../hooks';
 import EyeIconSvg from '../icons/EyeIconSvg';
 import CloseIcon from '../icons/CloseIcon';
-import { useEnsureInputVisible } from './formKeyboard';
+
+export const FormFieldNativeIdContext = createContext(undefined);
 
 const INPUT_RADIUS = 16;
 const ARMENIA_PHONE_PREFIX = '+374 ';
@@ -47,6 +49,16 @@ function localDigitsFromStoredValue(value) {
   return value.replace(/^\+374/, '').replace(/\D/g, '').slice(0, LOCAL_PHONE_LENGTH);
 }
 
+function getVisibleError(error, isSubmitted) {
+  if (!error) {
+    return null;
+  }
+  if (error.type === 'required' && !isSubmitted) {
+    return null;
+  }
+  return error;
+}
+
 const createStyles = colors =>
   StyleSheet.create({
     inputRow: {
@@ -59,6 +71,9 @@ const createStyles = colors =>
       backgroundColor: colors.input,
       paddingHorizontal: 16,
       gap: 10,
+    },
+    inputRowCompact: {
+      height: 40,
     },
     inputRowSearch: {
       backgroundColor: colors.pureWhite,
@@ -117,20 +132,23 @@ export function FormField({
   autoCapitalize = 'none',
   labelVariant = 'h6',
   editable = true,
+  nativeID,
 }) {
   const styles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
   const { colors } = useTheme();
+  const contextNativeID = useContext(FormFieldNativeIdContext);
+  const resolvedNativeID = nativeID ?? contextNativeID;
   const resolvedKeyboardType =
     keyboardType ??
     (name === 'email' ? 'email-address' : name === 'phone' || name === 'phoneNumber' ? 'phone-pad' : 'default');
   const isPhoneField = name === 'phone' || name === 'phoneNumber';
   const [isSecureVisible, setIsSecureVisible] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const inputContainerRef = useRef(null);
-  const { onInputFocus, onInputBlur } = useEnsureInputVisible(inputContainerRef);
 
   const showDefaultEyeToggle = secureTextEntry && endButton == null;
   const isMasked = secureTextEntry && !isSecureVisible;
+  const { isSubmitted } = useFormState({ control });
 
   return (
     <Controller
@@ -138,6 +156,7 @@ export function FormField({
       name={name}
       rules={rules}
       render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => {
+        const visibleError = getVisibleError(error, isSubmitted);
         const handlePhoneChange = text => {
           const localDigits = extractLocalPhoneDigits(
             text.startsWith('+374') ? text : `${ARMENIA_PHONE_PREFIX}${text}`,
@@ -153,33 +172,32 @@ export function FormField({
           <View style={{ gap: isSearch ? 0 : 8 }}>
             {label ? <Typography variant={labelVariant}>{label}</Typography> : null}
             <View
-              ref={inputContainerRef}
-              collapsable={false}
               style={[
                 styles.inputRow,
+                isCompactScreen && styles.inputRowCompact,
                 isSearch && styles.inputRowSearch,
                 isSearch && isFocused && styles.inputRowSearchFocused,
-                error && styles.inputError,
+                visibleError && styles.inputError,
               ]}
             >
               {startIcon ? <View style={styles.inputIcon}>{startIcon}</View> : null}
               <TextInput
+                nativeID={resolvedNativeID}
                 style={styles.input}
                 placeholder={placeholder}
                 placeholderTextColor={colors.textDisabled}
                 value={displayValue}
                 onChangeText={isPhoneField ? handlePhoneChange : onChange}
                 onFocus={() => {
+                  dismissOpenDropdowns();
                   if (isSearch) {
                     setIsFocused(true);
                   }
-                  onInputFocus();
                 }}
                 onBlur={() => {
                   if (isSearch) {
                     setIsFocused(false);
                   }
-                  onInputBlur();
                   onBlur();
                 }}
                 autoCapitalize={autoCapitalize}
@@ -219,8 +237,8 @@ export function FormField({
                 </Pressable>
               ) : null}
             </View>
-            {error?.message ? (
-              <Text style={styles.errorText}>{error.message}</Text>
+            {visibleError?.message ? (
+              <Text style={styles.errorText}>{visibleError.message}</Text>
             ) : null}
           </View>
         );

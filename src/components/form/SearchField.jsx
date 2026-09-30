@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { FONT_FAMILY } from '../../theme';
-import { useTheme, useThemedStyles } from '../../hooks';
+import { useIsCompactScreen, useTheme, useThemedStyles } from '../../hooks';
 import CloseIcon from '../icons/CloseIcon';
 
 const INPUT_RADIUS = 16;
@@ -19,6 +19,9 @@ const createStyles = colors =>
       backgroundColor: colors.input,
       paddingHorizontal: 16,
       gap: 10,
+    },
+    inputRowCompact: {
+      height: 40,
     },
     inputRowSearch: {
       backgroundColor: colors.pureWhite,
@@ -70,13 +73,16 @@ export function SearchField({
 }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
+  const isCompactScreen = useIsCompactScreen();
   const [isFocused, setIsFocused] = useState(false);
   const showClearButton = isDropdownOpen && Boolean(value);
+  const closeIconSize = isCompactScreen ? 10 : 15;
 
   return (
     <View
       style={[
         styles.inputRow,
+        isCompactScreen && styles.inputRowCompact,
         styles.inputRowSearch,
         isFocused && styles.inputRowSearchFocused,
         isDropdownOpen ? styles.inputRowDropdownOpen : styles.inputRowDropdownClosed,
@@ -105,7 +111,11 @@ export function SearchField({
           accessibilityRole="button"
           accessibilityLabel="Մաքրել"
         >
-          <CloseIcon width={15} height={15} fill={colors.textSecondary} />
+          <CloseIcon
+            width={closeIconSize}
+            height={closeIconSize}
+            fill={colors.textSecondary}
+          />
         </Pressable>
       ) : null}
     </View>

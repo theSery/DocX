@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedRef,
@@ -7,11 +7,13 @@ import Animated, {
 } from 'react-native-reanimated';
 import { AuthScreenLayout } from '../../../components/layout';
 import { useAuth } from '../../../contexts';
+import { setAndroidSystemBars } from '../../../utils/systemBars';
 import onboardingData from './data';
 import { CustomButton } from './components/CustomButton';
 import { Pagination } from './components/Pagination';
 import { RenderItem } from './components/RenderItem';
 import { MainContainer } from './components/MainContainer';
+import { useResponsiveLayout } from '../../../hooks';
 
 export function OnboardingScreen({ navigation }) {
   const { completeOnboarding } = useAuth();
@@ -19,6 +21,8 @@ export function OnboardingScreen({ navigation }) {
   const x = useSharedValue(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMainContainer, setIsMainContainer] = useState(true);
+  const [listHeight, setListHeight] = useState(0);
+  const layout = useResponsiveLayout();
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
     if (viewableItems[0]?.index != null) {
       setCurrentIndex(viewableItems[0].index);
@@ -40,9 +44,26 @@ export function OnboardingScreen({ navigation }) {
   }, [completeOnboarding, navigation]);
 
   const renderItem = useCallback(
-    ({ item, index }) => <RenderItem item={item} index={index} x={x} />,
-    [x],
+    ({ item, index }) => (
+      <RenderItem
+        item={item}
+        index={index}
+        x={x}
+        layout={layout}
+        slideHeight={listHeight}
+      />
+    ),
+    [layout, listHeight, x],
   );
+
+  const handleListLayout = useCallback(event => {
+    const nextHeight = Math.round(event.nativeEvent.layout.height);
+    setListHeight(current => (current === nextHeight ? current : nextHeight));
+  }, []);
+
+  useEffect(() => {
+    setAndroidSystemBars(isMainContainer);
+  }, [isMainContainer]);
 
   const keyExtractor = useCallback(item => item.id.toString(), []);
 
@@ -54,14 +75,22 @@ export function OnboardingScreen({ navigation }) {
     <AuthScreenLayout
       withGradient
       gradientIsLight={!isMainContainer}
-      contentStyle={styles.layoutContent}>
-      <StatusBar barStyle={!isMainContainer ? 'dark-content' : 'light-content'} />
+      contentStyle={[
+        styles.layoutContent,
+        layout.compact ? { marginTop: layout.topOffset } : null,
+      ]}>
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle={!isMainContainer ? 'dark-content' : 'light-content'}
+      />
       {isMainContainer ? (
-        <MainContainer handlePress={handlePress} />
+        <MainContainer handlePress={handlePress} layout={layout} />
       ) : (
-        <View style={styles.container}>
+        <View style={styles.container} onLayout={layout.compact ? handleListLayout : undefined}>
           <Animated.FlatList
             ref={flatListRef}
+            style={styles.list}
             onScroll={onScroll}
             data={onboardingData}
             renderItem={renderItem}
@@ -77,7 +106,16 @@ export function OnboardingScreen({ navigation }) {
               viewAreaCoveragePercentThreshold: 10,
             }}
           />
-          <View style={styles.bottomContainer}>
+          <View
+            style={[
+              styles.bottomContainer,
+              layout.compact
+                ? {
+                    bottom: layout.bottomOffset,
+                    paddingVertical: layout.controlsPadding,
+                  }
+                : null,
+            ]}>
             <CustomButton
               flatListRef={flatListRef}
               currentIndex={currentIndex}
@@ -112,6 +150,9 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
   },
+  list: {
+    flex: 1,
+  },
   bottomContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -122,5 +163,6 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 0,
     right: 0,
+    zIndex: 2,
   },
 });

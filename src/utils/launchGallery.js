@@ -31,7 +31,7 @@ function toPickerAssets(files) {
  * (common below API 33 / without Play Services), falls back to the document picker.
  */
 export function launchGallery(options, callback) {
-  launchImageLibrary(options, async response => {
+  launchImageLibrary({ ...options, mediaType: 'photo' }, async response => {
     if (!isPhotoPickerUnavailable(response)) {
       callback(response);
       return;

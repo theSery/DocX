@@ -8,6 +8,7 @@ import { authApi, userApi } from '../../../api';
 import {
   useGlobalStyles,
   useOtpInput,
+  useResponsiveLayout,
   useTemporaryFocusStatusBar,
   useThemedStyles,
   useToast,
@@ -54,6 +55,11 @@ const createStyles = colors =>
       color: colors.text,
       fontFamily: FONT_FAMILY.regular,
     },
+    subtitleCompact: {
+      marginTop: 4,
+      marginBottom: 16,
+      letterSpacing: 0,
+    },
     otpSection: {
       width: '100%',
       marginTop: 8,
@@ -93,6 +99,7 @@ const createStyles = colors =>
 export function ConfirmEmailCodeScreen() {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
+  const layout = useResponsiveLayout();
   const navigation = useNavigation();
   const route = useRoute();
   const { showToast } = useToast();
@@ -230,11 +237,17 @@ export function ConfirmEmailCodeScreen() {
         <Typography variant="h4" style={styles.screenTitle}>
           Հաստատման կոդ
         </Typography>
-        <Typography variant="h6" style={styles.subtitle}>
+        <Typography
+          variant="h6"
+          style={[styles.subtitle, layout.compact && styles.subtitleCompact]}
+        >
           {`Մուտքագրեք Ձեր (${email}) էլ.-փոստին ուղարկված կոդը`}
         </Typography>
         <View style={styles.otpSection}>
-          <OtpInputRowCode {...otpInputProps} />
+          <OtpInputRowCode
+            {...otpInputProps}
+            boxSize={layout.compact ? 40 : 48}
+          />
         </View>
         <View style={styles.resendContainer}>
           <Typography style={styles.resendHelper}>Չե՞ք ստացել կոդը</Typography>

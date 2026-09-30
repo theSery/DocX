@@ -75,7 +75,7 @@ export function FillDates({
               ]}
             >
               <View style={styles.factButtonContent}>
-                <Typography variant="h5" style={styles.factButtonText}>
+                <Typography variant="h5" style={{width: showInfoBadge ? '90%' : '100%'}}>
                   {fact.name}
                 </Typography>
                 {showInfoBadge ? (
@@ -156,7 +156,7 @@ const createStyles = colors =>
       justifyContent: 'center',
     },
     factButtonText: {
-      width: '90%',
+      width: '0%',
     },
     infoBadge: {
       position: 'absolute',

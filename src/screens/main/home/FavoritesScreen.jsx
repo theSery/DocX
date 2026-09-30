@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
 
-import { favoriteTemplatesApi } from '../../../api';
 import { Accordion } from '../../../components/accordion';
 import AuthButton from '../../../components/buttons/AuthButton';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
@@ -18,99 +17,40 @@ import {
   useThemedStyles,
   useToast,
 } from '../../../hooks';
-import { useAppSelector } from '../../../store';
+import { useAppDispatch, useAppSelector } from '../../../store';
+import { selectCategories } from '../../../store/slices/categoriesSlice';
+import {
+  removeFavoriteTemplate,
+  selectFavoriteTemplateIds,
+  selectFavoriteTemplatesStatus,
+} from '../../../store/slices/favoriteTemplatesSlice';
+import { collectFavoriteLegalIssues } from '../../../store/utils/applyFavoriteFlags';
 import { palette } from '../../../theme';
 import { TAB_BAR_HEIGHT, TOP_HEADER_HEIGHT, WIDTH } from '../../../utils/dimensions';
-import { resolveImageSource } from '../../../utils/imageCache';
 import { SPACING } from './components/CategoriesList';
 
 const LIST_PANEL_TOP = TOP_HEADER_HEIGHT * 0.1018;
-
-function parseFavoriteTemplateIds(payload) {
-  const raw = payload?.data ?? payload;
-  if (!Array.isArray(raw)) {
-    return [];
-  }
-  return raw
-    .map(value => (typeof value === 'object' ? value?.id ?? value?.templateId : value))
-    .filter(id => id != null)
-    .map(Number);
-}
-
-function collectFavoriteLegalIssues(categories, favoriteIds) {
-  if (!favoriteIds?.length) {
-    return [];
-  }
-
-  const idSet = new Set(favoriteIds.map(Number));
-  const result = [];
-
-  for (const category of categories ?? []) {
-    for (const subCategory of category.subCategories ?? []) {
-      for (const legalIssue of subCategory.legalIssues ?? []) {
-        const templates = (legalIssue.templates ?? []).filter(template =>
-          idSet.has(Number(template.id)),
-        );
-
-        if (templates.length === 0) {
-          continue;
-        }
-
-        result.push({
-          ...legalIssue,
-          iconUrl:
-            legalIssue.iconUrl || subCategory.iconUrl || category.iconUrl,
-          templates,
-        });
-      }
-    }
-  }
-
-  return result;
-}
 
 export function FavoritesScreen({ navigation }) {
   const styles = useThemedStyles(createStyles);
   const { colors } = useTheme();
   const { showToast } = useToast();
-  const { items } = useAppSelector(state => state.categories);
-  const [favoriteIds, setFavoriteIds] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const items = useAppSelector(selectCategories);
+  const favoriteIds = useAppSelector(selectFavoriteTemplateIds);
+  const favoritesStatus = useAppSelector(selectFavoriteTemplatesStatus);
   const { onScroll, onScrollViewLayout, onContentSizeChange } =
     useHomeStackHeaderScrollHandler(false);
   const scrollRef = useAnimatedRef();
   const insets = useSafeAreaInsets();
   const scrollBottomPadding = insets.bottom + TAB_BAR_HEIGHT + 24;
 
-  useEffect(() => {
-    const controller = new AbortController();
-
-    (async () => {
-      try {
-        setIsLoading(true);
-        const response = await favoriteTemplatesApi.getFavoriteTemplateIds({
-          signal: controller.signal,
-        });
-        const payload = response?.data ?? response;
-        console.log('favorite-templates/ids', payload);
-        setFavoriteIds(parseFavoriteTemplateIds(payload));
-      } catch (error) {
-        if (error?.type === 'cancel') {
-          return;
-        }
-        console.log('favorite-templates/ids error', error);
-        setFavoriteIds([]);
-      } finally {
-        setIsLoading(false);
-      }
-    })();
-
-    return () => controller.abort();
-  }, []);
+  const isLoading =
+    favoritesStatus === 'idle' || favoritesStatus === 'loading';
 
   const favoriteItems = useMemo(
-    () => collectFavoriteLegalIssues(items, favoriteIds ?? []),
-    [favoriteIds, items],
+    () => collectFavoriteLegalIssues(items),
+    [items],
   );
 
   const navigateToFillInDetails = (template, category) => {
@@ -127,17 +67,18 @@ export function FavoritesScreen({ navigation }) {
   const onChooseTemplate = (template, category) => {
     const categoryIconUrl = category.iconUrl;
     showGlobalSheet({
-      content: resolveImageSource(categoryIconUrl) ?? { uri: categoryIconUrl },
+      content: { uri: categoryIconUrl },
       message: category.name,
       description: template.name,
       contentImageStyle: { width: 56, height: 56 },
       messageStyle: { fontSize: 14, lineHeight: 20 },
       actions: [
+        { label: 'Փակել', destructive: true },
         {
           label: template.relatedAction,
           onPress: () => navigateToFillInDetails(template, category),
         },
-        { label: 'Փակել', destructive: true },
+
       ],
     });
   };
@@ -145,10 +86,7 @@ export function FavoritesScreen({ navigation }) {
   const removeFavorite = useCallback(
     async templateId => {
       try {
-        await favoriteTemplatesApi.removeFavoriteTemplate({ templateId });
-        setFavoriteIds(current =>
-          (current ?? []).filter(id => Number(id) !== Number(templateId)),
-        );
+        await dispatch(removeFavoriteTemplate({ templateId })).unwrap();
         showToast({
           title: 'Հաջողություն',
           body: 'Ձևանմուշը հեռացվել է ընտրյալներից։',
@@ -163,7 +101,7 @@ export function FavoritesScreen({ navigation }) {
         });
       }
     },
-    [showToast],
+    [dispatch, showToast],
   );
 
   const onRemoveFavoritePress = useCallback(
@@ -185,7 +123,7 @@ export function FavoritesScreen({ navigation }) {
   );
 
   const renderBody = () => {
-    if (isLoading || favoriteIds == null) {
+    if (isLoading) {
       return (
         <View style={styles.centeredState}>
           <ActivityIndicator size="large" color={colors.primary} />
@@ -276,7 +214,8 @@ export function FavoritesScreen({ navigation }) {
           <View style={styles.contentContainer}>
           <ContentTiltes
             title="Նախընտրածներ"
-            subtitle={`Դուք ունեք ${favoriteIds?.length ?? 0} նախընտրած`}
+            subtitle={`Դուք ունեք ${favoriteIds.length} նախընտրած`}
+            isMarginBottom={true}
           />
           </View>
      
@@ -301,7 +240,7 @@ const createStyles = colors =>
     },
     contentContainer: {
       marginTop: -5,
-      marginBottom: -10,
+      // marginBottom: -10,
     },
     scrollContentEmpty: {
       flexGrow: 1,
@@ -327,19 +266,21 @@ const createStyles = colors =>
       textAlign: 'center',
     },
     subCategoryIcon: {
-      width: 50,
-      height: 50,
+      width: 32,
+      height: 32,
       resizeMode: 'contain',
-      backgroundColor: palette.skyBlue,
-      padding: 10,
-      borderRadius: 16,
     },
     subCategoryName: {
       letterSpacing: 0.4,
     },
     subCategoryIconWrap: {
-      marginRight: 12,
-      
+      width: 56,
+      height: 56,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: palette.skyBlue,
+      borderRadius: 12,
+      marginRight: 10,
     },
     subCategoryTextWrap: {
       flex: 1,

@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Canvas, Path, Skia } from '@shopify/react-native-skia';
 import { useForm } from 'react-hook-form';
 import { useNavigation } from '@react-navigation/native';
@@ -12,9 +13,8 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { AUTH_SCREEN_HORIZONTAL_PADDING } from '../../../../components/layout/authLayoutConstants';
 import { FONT_FAMILY } from '../../../../theme';
-import { FormField, FormScrollView, Typography } from '../../../../components';
+import { FormField, Typography } from '../../../../components';
 import { LoginTabs } from './LoginTabs';
 import { RegistrationPhoneNumber } from './RegistrationPhoneNumber';
 import { RegistrationPrivacyText } from './RegistrationPrivacyText';
@@ -29,7 +29,6 @@ const CORNER_RADIUS = 30;
 const CONTAINER_TOP = 56;
 const TAB_TIMING = { duration: 350 };
 const CONTENT_PADDING = 24;
-const SCREEN_HEIGHT = Dimensions.get('window').height / 2;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function TabLabel({ activeTab, index, label, activeColor, inactiveColor }) {
@@ -103,13 +102,8 @@ function RegistrationForm({ onSwitchToPhone }) {
   });
 
   return (
-    <View
-      style={[
-        styles.form,
-        { height: SCREEN_HEIGHT, justifyContent: 'space-between' },
-      ]}
-    >
-      <>
+    <View style={[styles.form, styles.formColumn]}>
+      <View>
         <Typography variant="h4" style={styles.loginTitle}>
           ՍՏԵՂԾԵԼ ՆՈՐ ՀԱՇԻՎ
         </Typography>
@@ -154,15 +148,17 @@ function RegistrationForm({ onSwitchToPhone }) {
               value === getValues('password') || 'Գաղտնաբառերը չեն համընկնում',
           }}
         />
-      </>
+      </View>
 
-      <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+      <View style={styles.formActions}>
         <RegistrationPrivacyText />
         <AuthButton
           title="Գրանցվել"
           onPress={onSubmit}
           isLoading={isLoading}
         />
+        
+        
         {/* <View style={styles.dividerRow}>
           <View style={styles.dividerLine} />
           <Typography style={styles.dividerText}>Կամ</Typography>
@@ -187,6 +183,7 @@ function RegistrationForm({ onSwitchToPhone }) {
 
 export function SignInUpTab({ onPhoneLogin }) {
   const styles = useThemedStyles(createStyles);
+  const insets = useSafeAreaInsets();
   const { colors, isDarkMode } = useTheme();
   const tabActiveColor = isDarkMode
     ? colors.buttonTextOnPrimary
@@ -331,11 +328,7 @@ export function SignInUpTab({ onPhoneLogin }) {
         </Pressable>
       </View>
 
-      <FormScrollView
-        style={styles.formArea}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <View style={[styles.formArea, { paddingBottom: insets.bottom + 16 }]}>
         <View style={styles.formsStack}>
           {tabIndex === 0 ? (
             <Animated.View
@@ -349,11 +342,7 @@ export function SignInUpTab({ onPhoneLogin }) {
             </Animated.View>
           ) : (
             <Animated.View
-              style={[
-                styles.formPanel,
-                styles.formPanelOverlay,
-                registerFormStyle,
-              ]}
+              style={[styles.formPanel, registerFormStyle]}
               pointerEvents={tabIndex === 1 ? 'auto' : 'none'}
             >
               {registerChannel === 'phone' ? (
@@ -368,7 +357,7 @@ export function SignInUpTab({ onPhoneLogin }) {
             </Animated.View>
           )}
         </View>
-      </FormScrollView>
+      </View>
     </View>
   );
 }
@@ -377,8 +366,7 @@ const createStyles = colors =>
   StyleSheet.create({
   container: {
     flex: 1,
-    height: '100%',
-    marginHorizontal: -AUTH_SCREEN_HORIZONTAL_PADDING,
+    width: '100%',
   },
   tabRow: {
     flexDirection: 'row',
@@ -396,26 +384,27 @@ const createStyles = colors =>
     letterSpacing: 2,
   },
   formArea: {
-    flex: 1,
+    flexGrow: 1,
     zIndex: 1,
-  },
-  scrollContent: {
     paddingHorizontal: CONTENT_PADDING,
     paddingTop: 8,
   },
   formsStack: {
-    height: '100%',
+    flexGrow: 1,
   },
   formPanel: {
     width: '100%',
-    height: '100%',
-  },
-  formPanelOverlay: {
-    ...StyleSheet.absoluteFill,
-    top: 0,
+    flexGrow: 1,
   },
   form: {
     marginTop: 20,
+  },
+  formColumn: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
+  },
+  formActions: {
+    marginTop: 24,
   },
   loginTitle: {
     fontFamily: FONT_FAMILY.medium,

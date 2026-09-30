@@ -1,3 +1,8 @@
+import {
+  notificationMethods,
+  toNotificationMethodIds,
+} from '../data/notificationMethods';
+import { findCountryByCitizenship } from '../utils/personalDataValidation';
 import { escapeHtml } from './escapeHtml';
 import { formatDocumentDate, formatDocumentDateTime } from './formatDocumentDate';
 import { isDateDataType } from '../utils/variableDataTypes';
@@ -11,7 +16,7 @@ const SIGNATURE_DATE_SPAN_PATTERN =
 const SIGN_SPAN_PATTERN =
   /<span\b[^>]*\bdata-label="sign"[^>]*>[\s\S]*?<\/span>/gi;
 
-const HTML_VARIABLES = new Set(['past', 'hodvac', 'text2']);
+const HTML_VARIABLES = new Set(['past', 'hodvac', 'text2', 'attached_documents']);
 
 // Their default text must never be shown; they are kept as empty anchors so
 // injectSignatureAtPlaceholder can place the signature image and date later.
@@ -21,6 +26,8 @@ const REGISTRATION_ADDRESS_LABEL = 'Հաշվառման հասցե՝';
 const NOTIFICATION_ADDRESS_LABEL = 'Ծանուցման հասցե՝';
 const REGISTRATION_ADDRESS_DATA_LABEL = 'userRegistrationAddress';
 const NOTIFICATION_ADDRESS_DATA_LABEL = 'userNotificationAddress';
+const PATRONYMIC_LABEL = 'Հայրանունը՝';
+const PATRONYMIC_DATA_LABELS = ['userPatronymic', 'userPatronymics'];
 
 /**
  * @param {string} value
@@ -80,6 +87,32 @@ function applyNotificationAddressVisibility(html, hasNotificationAddress) {
 }
 
 /**
+ * @param {unknown} value
+ */
+function hasPatronymicValue(value) {
+  return typeof value === 'string' && value.trim() !== '';
+}
+
+/**
+ * @param {string} html
+ * @param {Record<string, unknown> | null | undefined} personalData
+ */
+function applyPatronymicVisibility(html, personalData) {
+  if (hasPatronymicValue(personalData?.patronymic)) {
+    return html;
+  }
+
+  return PATRONYMIC_DATA_LABELS.reduce(
+    (nextHtml, dataLabel) =>
+      stripUnusedAddressLine(nextHtml, {
+        label: PATRONYMIC_LABEL,
+        dataLabel,
+      }),
+    html,
+  );
+}
+
+/**
  * @param {string} html
  */
 function stripOuterParagraph(html) {
@@ -105,6 +138,79 @@ function buildNumberedHtmlList(items) {
 }
 
 /**
+ * @param {unknown} document
+ */
+function getAttachedDocumentName(document) {
+  if (typeof document === 'string') {
+    return document.trim();
+  }
+
+  const nestedName = document?.attachedDocument?.name;
+  const name = typeof nestedName === 'string' ? nestedName : document?.name;
+
+  return typeof name === 'string' ? name.trim() : '';
+}
+
+/**
+ * @param {...({ id?: number; name?: string }[] | undefined)} lists
+ */
+function mergeAttachedDocuments(...lists) {
+  const attachedDocuments = [];
+  const seen = new Set();
+
+  lists.forEach(list => {
+    (list ?? []).forEach(document => {
+      const name = getAttachedDocumentName(document);
+
+      if (!name) {
+        return;
+      }
+
+      const id =
+        document?.attachedDocument?.id ??
+        document?.attachedDocumentId ??
+        document?.id;
+      const key =
+        id != null && id !== '' ? `id:${String(id)}` : `name:${name}`;
+
+      if (seen.has(key)) {
+        return;
+      }
+
+      seen.add(key);
+      attachedDocuments.push({
+        id,
+        name,
+      });
+    });
+  });
+
+  return attachedDocuments;
+}
+
+/**
+ * @param {{ id?: number; name?: string }[]} attachedDocuments
+ */
+function buildAttachedDocumentsHtml(attachedDocuments) {
+  const namedDocuments = mergeAttachedDocuments(attachedDocuments);
+
+  if (!namedDocuments.length) {
+    return '';
+  }
+
+  return namedDocuments
+    .map((document, index) => `${index + 1}. ${escapeHtml(document.name)}`)
+    .join('<br/>');
+}
+
+/**
+ * @param {unknown} value
+ */
+function isEmptyVariableValue(value) {
+  return value == null || (typeof value === 'string' && value.trim() === '');
+}
+
+/**
  * @param {string[]} items
  */
 function joinHtmlBlocks(items) {
@@ -113,6 +219,30 @@ function joinHtmlBlocks(items) {
   }
 
   return items.join('');
+}
+
+/**
+ * @param {unknown} value
+ */
+function getCitizenshipDisplayName(value) {
+  return findCountryByCitizenship(value)?.nameHy ?? '';
+}
+
+/**
+ * @param {unknown} value
+ */
+function getNotificationMethodDisplayName(value) {
+  const labels = toNotificationMethodIds(value)
+    .map(id => {
+      const normalized = String(id).trim().toLowerCase();
+      return (
+        notificationMethods.find(method => method.id === normalized)?.nameHy ??
+        ''
+      );
+    })
+    .filter(Boolean);
+
+  return labels.join(', ');
 }
 
 /**
@@ -135,6 +265,10 @@ function mapPersonalDataToVariables(personalData, hasNotificationAddress) {
     userDateOfIssue: dateOfIssue,
     userDataOfIssue: dateOfIssue,
     userFromWhom: personalData.fromWhom ?? '',
+    userCitizenship: getCitizenshipDisplayName(personalData.citizenship),
+    userNotificationMethod: getNotificationMethodDisplayName(
+      personalData.notificationMethod,
+    ),
     userRegistrationAddress: hasNotificationAddress
       ? ''
       : (personalData.registrationAddress ?? ''),
@@ -150,6 +284,8 @@ function mapPersonalDataToVariables(personalData, hasNotificationAddress) {
  * @param {{
  *   variableValues?: Record<string, unknown>;
  *   variableDataTypes?: Record<string, string>;
+ *   attachedDocuments?: { id?: number; name?: string }[];
+ *   formAttachedDocuments?: { id?: number; name?: string }[];
  *   past?: string[];
  *   text2?: string[];
  *   articles?: string[];
@@ -166,9 +302,11 @@ function mapDocumentFillToVariables(documentFill = {}) {
         : value ?? '',
     ]),
   );
-
   return {
     ...configuredVariables,
+    attached_documents: buildAttachedDocumentsHtml(
+      documentFill.formAttachedDocuments,
+    ),
     past: buildNumberedHtmlList(documentFill.past),
     hodvac: [analyticalHtml, articlesHtml].filter(Boolean).join(''),
     text2: analyticalHtml,
@@ -202,6 +340,8 @@ export function injectSignatureAtPlaceholder(templateText, imageSrc) {
  *   documentFill?: {
  *     variableValues?: Record<string, unknown>;
  *     variableDataTypes?: Record<string, string>;
+ *     attachedDocuments?: { id?: number; name?: string }[];
+ *     formAttachedDocuments?: { id?: number; name?: string }[];
  *     past?: string[];
  *     text2?: string[];
  *     articles?: string[];
@@ -220,9 +360,9 @@ export function fillTemplateText(
   const showNotificationAddress = Boolean(
     hasNotificationAddress ?? personalData?.hasNotificationAddress,
   );
-  const templateWithVisibleAddress = applyNotificationAddressVisibility(
-    templateText,
-    showNotificationAddress,
+  const templateWithVisibleFields = applyPatronymicVisibility(
+    applyNotificationAddressVisibility(templateText, showNotificationAddress),
+    personalData,
   );
 
   const variables = {
@@ -230,21 +370,21 @@ export function fillTemplateText(
     ...mapDocumentFillToVariables(documentFill),
   };
 
-  return templateWithVisibleAddress.replace(VARIABLE_SPAN_PATTERN, (match, label) => {
+  return templateWithVisibleFields.replace(VARIABLE_SPAN_PATTERN, (match, label) => {
     if (SIGNATURE_PLACEHOLDER_LABELS.has(label)) {
       return `<span data-label="${label}"></span>`;
     }
 
-    if (!(label in variables)) {
-      return match;
+    if (!(label in variables) || isEmptyVariableValue(variables[label])) {
+      return '';
     }
 
     const value = variables[label];
 
     if (HTML_VARIABLES.has(label)) {
-      return value || '';
+      return value;
     }
 
-    return escapeHtml(String(value ?? ''));
+    return escapeHtml(String(value));
   });
 }

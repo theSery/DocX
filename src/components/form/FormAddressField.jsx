@@ -4,7 +4,6 @@ import {
   ActivityIndicator,
   Dimensions,
   Keyboard,
-  KeyboardAvoidingView,
   Modal,
   Platform,
   Pressable,
@@ -14,14 +13,13 @@ import {
   TextInput,
   View,
 } from 'react-native';
-
+import { KeyboardAvoidingView } from '../keyboard';
 import { Typography } from '../typography';
 import { FONT_FAMILY } from '../../theme';
-import { useTheme, useThemedStyles } from '../../hooks';
+import { useIsCompactScreen, useTheme, useThemedStyles } from '../../hooks';
 import { ENV } from '../../config/env';
 import LocationSvg from '../icons/LocationSvg';
 import CloseIcon from '../icons/CloseIcon';
-import { useEnsureInputVisible } from './formKeyboard';
 import {
   ARMENIAN_ADDRESS_RULES,
   hasNonArmenianLetters,
@@ -523,6 +521,9 @@ const createStyles = colors =>
       paddingHorizontal: 16,
       gap: 10,
     },
+    inputRowCompact: {
+      height: 40,
+    },
     textInput: {
       flex: 1,
       height: 45,
@@ -532,6 +533,9 @@ const createStyles = colors =>
       fontFamily: FONT_FAMILY.regular,
       color: colors.text,
       backgroundColor: 'transparent',
+    },
+    textInputCompact: {
+      height: 40,
     },
     inputError: {
       borderColor: colors.error,
@@ -795,6 +799,7 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
   styles,
   colors,
 }) {
+  const isCompactScreen = useIsCompactScreen();
   const [suggestionsLayout, setSuggestionsLayout] = useState({
     placement: 'below',
     maxHeight: SUGGESTIONS_MAX_HEIGHT,
@@ -827,8 +832,6 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
   const initialNormalizedAddressRef = useRef('');
   const initialBuildingRef = useRef('');
   const unitFieldsRef = useRef({ building: '', apartment: '', house: '' });
-  const { onInputFocus, onInputBlur } = useEnsureInputVisible(inputContainerRef);
-
   const clearLayoutTimeouts = useCallback(() => {
     layoutTimeoutsRef.current.forEach(clearTimeout);
     layoutTimeoutsRef.current = [];
@@ -1180,14 +1183,8 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
     clearBlurTimeout();
     setIsFocused(true);
     onFocusChange?.(true);
-    onInputFocus();
     scheduleSuggestionsLayoutUpdate();
-  }, [
-    clearBlurTimeout,
-    onFocusChange,
-    onInputFocus,
-    scheduleSuggestionsLayoutUpdate,
-  ]);
+  }, [clearBlurTimeout, onFocusChange, scheduleSuggestionsLayoutUpdate]);
 
   const handleBlur = useCallback(() => {
     clearBlurTimeout();
@@ -1197,16 +1194,9 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
       setPredictions([]);
       onFocusChange?.(false);
       clearLayoutTimeouts();
-      onInputBlur();
       onBlur();
     }, 180);
-  }, [
-    clearBlurTimeout,
-    clearLayoutTimeouts,
-    onBlur,
-    onFocusChange,
-    onInputBlur,
-  ]);
+  }, [clearBlurTimeout, clearLayoutTimeouts, onBlur, onFocusChange]);
 
   const showSuggestions = isFocused && predictions.length > 0;
   const canConfirmAddress =
@@ -1219,7 +1209,7 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
       style={[styles.field, isFocused && styles.fieldFocused]}
     >
       <View style={[styles.autocompleteWrapper, hasError && styles.inputError]}>
-        <View style={styles.inputRow}>
+        <View style={[styles.inputRow, isCompactScreen && styles.inputRowCompact]}>
           {startIcon ? <View style={styles.inputIcon}>{startIcon}</View> : null}
           <TextInput
             ref={inputRef}
@@ -1230,7 +1220,7 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
             placeholder={placeholder}
             placeholderTextColor={colors.textDisabled}
             autoCorrect={false}
-            style={styles.textInput}
+            style={[styles.textInput, isCompactScreen && styles.textInputCompact]}
           />
           {inputText ? (
             <Pressable
@@ -1282,7 +1272,8 @@ const AddressAutocompleteInput = memo(function AddressAutocompleteInput({
       >
         <KeyboardAvoidingView
           style={styles.confirmKeyboardView}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior="padding"
+          automaticOffset
         >
           <Pressable style={styles.confirmBackdrop} onPress={closeConfirmModal}>
             <Pressable style={styles.confirmSheet} onPress={() => {}}>

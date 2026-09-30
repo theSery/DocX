@@ -5,7 +5,7 @@ import Svg, { Path } from 'react-native-svg';
 import { FONT_FAMILY } from '../../../../theme';
 import { Typography } from '../../../../components';
 import DeleteSvg from '../../../../components/icons/DeleteSvg';
-import { useTheme, useThemedStyles } from '../../../../hooks';
+import { useResponsiveLayout, useTheme, useThemedStyles } from '../../../../hooks';
 import { runBiometricOrPromptSettings } from '../../../../utils/biometricAuth';
 
 const PASSCODE_LENGTH = 4;
@@ -84,13 +84,26 @@ function PasscodeDots({ filledCount, length, styles }) {
   );
 }
 
-function KeypadButton({ children, onPress, accessibilityLabel, styles }) {
+function KeypadButton({
+  children,
+  onPress,
+  accessibilityLabel,
+  styles,
+  keySize,
+  placeholder = false,
+}) {
   return (
     <Pressable
       onPress={onPress}
+      disabled={placeholder}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      style={({ pressed }) => [styles.key, pressed && styles.keyPressed]}
+      style={({ pressed }) => [
+        styles.key,
+        { width: keySize, height: keySize, flexShrink: 0 },
+        placeholder && styles.keyPlaceholder,
+        pressed && !placeholder && styles.keyPressed,
+      ]}
     >
       {children}
     </Pressable>
@@ -107,13 +120,21 @@ export function Passcode({
   disabled = false,
 }) {
   const styles = useThemedStyles(createStyles);
+  const layout = useResponsiveLayout();
   const { colors } = useTheme();
+  const keySize = layout.compact ? 60 : 80;
+  const keyGap = layout.compact ? 20 : 14;
+  const deleteIconSize = layout.compact ? 28 : 30;
   const [isCheckingBiometric, setIsCheckingBiometric] = useState(false);
   const isCompletingRef = useRef(false);
   const passcode = useMemo(
     () => (Array.isArray(value) ? value : []),
     [value],
   );
+
+  if (passcode.length < length) {
+    isCompletingRef.current = false;
+  }
 
   useEffect(() => {
     if (passcode.length < length) {
@@ -179,24 +200,40 @@ export function Passcode({
           onPress={() => handleDigitPress(key.value)}
           accessibilityLabel={`Digit ${key.value}`}
           styles={styles}
+          keySize={keySize}
         >
-          <Typography variant="h1" style={styles.keyDigit}>
+          <Typography
+            variant="h1"
+            style={[styles.keyDigit, layout.compact && styles.keyDigitCompact]}
+          >
             {key.value}
           </Typography>
         </KeypadButton>
       );
     }
     if (key.type === 'biometric') {
+      if (!hasBiometric) {
+        return (
+          <KeypadButton
+            key="biometric"
+            styles={styles}
+            keySize={keySize}
+            placeholder
+          />
+        );
+      }
+
       // Icon visibility is controlled only by hasBiometric (screen flow),
       // never by whether Face ID permission is currently granted.
       return (
         <KeypadButton
           key="biometric"
-          onPress={hasBiometric ? handleBiometric : undefined}
+          onPress={handleBiometric}
           accessibilityLabel="Biometric authentication"
           styles={styles}
+          keySize={keySize}
         >
-          {hasBiometric ? <FaceIdIcon color={colors.icons} /> : null}
+          <FaceIdIcon color={colors.icons} />
         </KeypadButton>
       );
     }
@@ -206,25 +243,33 @@ export function Passcode({
         onPress={handleBackspace}
         accessibilityLabel="Delete last digit"
         styles={styles}
+        keySize={keySize}
       >
-        <DeleteSvg width={34} height={34} fill={colors.icons} />
+        <DeleteSvg width={deleteIconSize} height={deleteIconSize} fill={colors.icons} />
       </KeypadButton>
     );
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, layout.compact && styles.containerCompact]}>
       <PasscodeDots
         filledCount={passcode.length}
         length={length}
         styles={styles}
       />
       <View
-        style={styles.keypad}
+        style={[
+          styles.keypad,
+          layout.compact && styles.keypadCompact,
+          layout.compact && { width: keySize * 3 + keyGap * 2 },
+        ]}
         pointerEvents={disabled ? 'none' : 'auto'}
       >
         {KEYPAD_ROWS.map((row, rowIndex) => (
-          <View key={`row-${rowIndex}`} style={styles.keypadRow}>
+          <View
+            key={`row-${rowIndex}`}
+            style={[styles.keypadRow, layout.compact && styles.keypadRowCompact]}
+          >
             {row.map(renderKey)}
           </View>
         ))}
@@ -238,11 +283,18 @@ const DOT_SIZE = 14;
 const createStyles = colors =>
   StyleSheet.create({
     container: {
-      marginTop: 20,
+      marginTop: 10,
       width: '100%',
+      paddingHorizontal: 10,
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 52,
+      gap: 36,
+    },
+    containerCompact: {
+      marginTop: 4,
+      justifyContent: 'flex-start',
+      gap: 24,
+      paddingBottom: 0,
     },
     dotsRow: {
       flexDirection: 'row',
@@ -264,13 +316,22 @@ const createStyles = colors =>
       borderColor: colors.icons,
     },
     keypad: {
-      width: '80%',
-      gap: 34,
+      width: '100%',
+      gap: 30,
+    },
+    keypadCompact: {
+      width: 'auto',
+      alignSelf: 'center',
+      gap: 16,
     },
     keypadRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       gap: 14,
+    },
+    keypadRowCompact: {
+      justifyContent: 'space-between',
+      gap: 16,
     },
     key: {
       height: 88,
@@ -285,12 +346,20 @@ const createStyles = colors =>
     keyPressed: {
       opacity: 0.6,
     },
+    keyPlaceholder: {
+      borderWidth: 0,
+      backgroundColor: 'transparent',
+    },
     keyDigit: {
       fontFamily: FONT_FAMILY.semiBold,
-      fontSize: 32,
-      lineHeight: 38,
+      fontSize: 28,
+      lineHeight: 32,
       letterSpacing: 0.5,
       includeFontPadding: false,
+    },
+    keyDigitCompact: {
+      fontSize: 26,
+      lineHeight: 30,
     },
   });
 

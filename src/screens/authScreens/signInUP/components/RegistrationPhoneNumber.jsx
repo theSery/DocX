@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Dimensions, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useForm } from 'react-hook-form';
 import { useNavigation } from '@react-navigation/native';
 import { FONT_FAMILY } from '../../../../theme';
@@ -30,7 +30,6 @@ import {
 
 const PHONE_PATTERN = PHONE_NUMBER_PATTERN;
 const PHONE_REGISTER_PURPOSE = 'register';
-const SCREEN_HEIGHT = Dimensions.get('window').height / 2;
 const INPUT_RADIUS = 16;
 
 function OrDivider() {
@@ -67,13 +66,8 @@ function PhonePasswordForm({ phoneNumber }) {
   });
 
   return (
-    <View
-      style={[
-        styles.form,
-        { height: SCREEN_HEIGHT, justifyContent: 'space-between' },
-      ]}
-    >
-      <>
+    <View style={[styles.form, styles.formColumn]}>
+      <View>
         <Typography variant="h4" style={styles.loginTitle}>
           ՍՏԵՂԾԵԼ ՆՈՐ ՀԱՇԻՎ
         </Typography>
@@ -104,9 +98,9 @@ function PhonePasswordForm({ phoneNumber }) {
               value === getValues('password') || 'Գաղտնաբառերը չեն համընկնում',
           }}
         />
-      </>
+      </View>
 
-      <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+      <View style={styles.formActions}>
         <RegistrationPrivacyText />
         <AuthButton
           title="Գրանցվել"
@@ -232,13 +226,8 @@ function PhoneOtpVerification({ phoneNumber, onSwitchToMail }) {
   }
 
   return (
-    <View
-      style={[
-        styles.form,
-        { height: SCREEN_HEIGHT, justifyContent: 'space-between' },
-      ]}
-    >
-      <>
+    <View style={[styles.form, styles.formColumn]}>
+      <View>
         <Typography variant="h4" style={styles.loginTitle}>
           ՀԵՌԱԽՈՍԱՀԱՄԱՐԻ ՀԱՍՏԱՏՈՒՄ
         </Typography>
@@ -263,9 +252,9 @@ function PhoneOtpVerification({ phoneNumber, onSwitchToMail }) {
             </Typography>
           )}
         </View>
-      </>
+      </View>
 
-      <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+      <View style={styles.formActions}>
         <AuthButton
           title="Հաստատել կոդը"
           onPress={handleVerifyCode}
@@ -336,13 +325,8 @@ export function RegistrationPhoneNumber({ onSwitchToMail }) {
   }
 
   return (
-    <View
-      style={[
-        styles.form,
-        { height: SCREEN_HEIGHT, justifyContent: 'space-between' },
-      ]}
-    >
-      <>
+    <View style={[styles.form, styles.formColumn]}>
+      <View>
         <Typography variant="h4" style={styles.loginTitle}>
           ԳՐԱՆՑՈՒՄ ՀԵՌԱԽՈՍԱՀԱՄԱՐՈՎ
         </Typography>
@@ -365,9 +349,9 @@ export function RegistrationPhoneNumber({ onSwitchToMail }) {
         {submitError ? (
           <Typography style={styles.errorText}>{submitError}</Typography>
         ) : null}
-      </>
+      </View>
 
-      <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+      <View style={styles.formActions}>
         <RegistrationPrivacyText />
         <AuthButton
           title="Ուղարկել կոդը"
@@ -384,6 +368,13 @@ const createStyles = colors =>
   StyleSheet.create({
     form: {
       marginTop: 20,
+    },
+    formColumn: {
+      flexGrow: 1,
+      justifyContent: 'space-between',
+    },
+    formActions: {
+      marginTop: 24,
     },
     loginTitle: {
       fontFamily: FONT_FAMILY.medium,

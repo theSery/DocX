@@ -1,17 +1,21 @@
 import { Image, Pressable, StyleSheet, View } from 'react-native';
+import {
+  KeyboardAwareScrollView,
+  KeyboardToolbar,
+} from 'react-native-keyboard-controller';
 import { AuthScreenLayout } from '../../../components/layout';
+import { AUTH_SCREEN_HORIZONTAL_PADDING } from '../../../components/layout/authLayoutConstants';
 import { AnimatedView, Typography } from '../../../components';
 import whiteLogo from '../../../assets/images/whiteLogo.webp';
 import darkLogo from '../../../assets/images/darkLogo.webp';
 import backButton from '../../../assets/images/backButton.webp';
 import { SignInUpTab } from './components/SignInUpTab';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { resetToMain } from '../../../navigation/navigationRef';
-import { useTheme, useThemedFocusStatusBar, useThemedStyles } from '../../../hooks';
+import { useResponsiveLayout, useTheme, useThemedFocusStatusBar, useThemedStyles } from '../../../hooks';
 
 export function SignInUpScreen() {
-  const insets = useSafeAreaInsets();
   const styles = useThemedStyles(createStyles);
+  const layout = useResponsiveLayout();
   const { isDarkMode, colors } = useTheme();
   useThemedFocusStatusBar({ inverted: true });
 
@@ -23,35 +27,67 @@ export function SignInUpScreen() {
       gradientHeight={'100%'}
       contentStyle={styles.screen}
     >
-      <View style={styles.headerContainer}>
-        <View style={styles.headerContent}>
-          <Pressable onPress={resetToMain}>
-            <Image source={backButton} style={styles.image} resizeMode="cover" />
-          </Pressable>
-          <Pressable onPress={resetToMain}>
-            <Typography
-              variant="h5"
-              style={{
-                color: isDarkMode
-                  ? colors.mainBlue
-                  : colors.buttonTextOnPrimary,
-              }}
-            >
-              Փակել
-            </Typography>
-          </Pressable>
+      <KeyboardAwareScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        showsVerticalScrollIndicator={false}
+        bottomOffset={62}
+      >
+        <View style={styles.headerContainer}>
+          <View
+            style={[
+              styles.headerContent,
+              layout.compact && styles.headerContentSmall,
+            ]}
+          >
+            <Pressable onPress={resetToMain}>
+              <Image
+                source={backButton}
+                style={[styles.image, layout.compact && styles.imageSmall]}
+                resizeMode="cover"
+              />
+            </Pressable>
+            <Pressable onPress={resetToMain}>
+              <Typography
+                variant="h5"
+                style={{
+                  color: isDarkMode
+                    ? colors.mainBlue
+                    : colors.buttonTextOnPrimary,
+                }}
+              >
+                Փակել
+              </Typography>
+            </Pressable>
+          </View>
+          <AnimatedView
+            animation="fadeIn"
+            duration={500}
+            style={styles.logoContainer}
+          >
+            <Image
+              source={isDarkMode ? darkLogo : whiteLogo}
+              style={layout.compact ? layout.logo : styles.logo}
+              resizeMode={layout.compact ? 'contain' : undefined}
+            />
+          </AnimatedView>
         </View>
-        <AnimatedView
-          animation="fadeIn"
-          duration={500}
-          style={styles.logoContainer}
+        <View
+          style={[
+            styles.tabsSection,
+            layout.compact && styles.tabsSectionSmall,
+          ]}
         >
-          <Image source={isDarkMode ? darkLogo : whiteLogo} style={styles.logo} />
-        </AnimatedView>
-      </View>
-      <View style={[styles.tabsSection, { marginBottom: -insets.bottom }]}>
-        <SignInUpTab />
-      </View>
+          <SignInUpTab />
+        </View>
+      </KeyboardAwareScrollView>
+      {/* <KeyboardToolbar>
+        <KeyboardToolbar.Prev />
+        <KeyboardToolbar.Next />
+        <KeyboardToolbar.Done text="Փակել" />
+      </KeyboardToolbar> */}
     </AuthScreenLayout>
   );
 }
@@ -60,19 +96,31 @@ const createStyles = () =>
   StyleSheet.create({
     screen: {
       flex: 1,
-      justifyContent: 'flex-start',
-      alignItems: 'stretch',
+      width: '100%',
+      paddingHorizontal: 0,
+      paddingBottom: 0,
+    },
+    scroll: {
+      flex: 1,
+      width: '100%',
+    },
+    scrollContent: {
+      flexGrow: 1,
       width: '100%',
     },
     tabsSection: {
-      flex: 1,
+      flexGrow: 1,
       width: '100%',
       marginTop: '20%',
+    },
+    tabsSectionSmall: {
+      marginTop: '10%',
     },
     headerContainer: {
       width: '100%',
       justifyContent: 'space-between',
       alignItems: 'center',
+      paddingHorizontal: AUTH_SCREEN_HORIZONTAL_PADDING,
     },
     logoContainer: {
       alignItems: 'center',
@@ -87,11 +135,18 @@ const createStyles = () =>
       justifyContent: 'space-between',
       alignItems: 'center',
       flexDirection: 'row',
-      marginBottom: '10%',
+      marginBottom: '20%',
+    },
+    headerContentSmall: {
+      marginBottom: '0%',
     },
     image: {
       width: 70,
       height: 70,
       marginLeft: -15,
+    },
+    imageSmall: {
+      width: 60,
+      height: 60,
     },
   });

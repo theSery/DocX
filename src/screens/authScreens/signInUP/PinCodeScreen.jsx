@@ -4,6 +4,7 @@ import { AuthScreenLayout } from '../../../components/layout';
 import {
   useAuthScreenStyles,
   useAuthSession,
+  useIsCompactScreen,
   useThemedFocusStatusBar,
   useThemedStyles,
   useToast,
@@ -17,10 +18,19 @@ import { authApi, persistAuthResponse } from '../../../api';
 const PIN_LENGTH = 4;
 
 export function PinCodeScreen({ navigation, route }) {
-  const { name, surname, patronymic, email, phoneNumber, password } =
-    route.params ?? {};
+  const {
+    name,
+    surname,
+    patronymic,
+    citizenship,
+    notificationMethod,
+    email,
+    phoneNumber,
+    password,
+  } = route.params ?? {};
   const styles = useAuthScreenStyles();
   const localStyles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
   const { showToast } = useToast();
   useThemedFocusStatusBar();
   const { login } = useAuthSession();
@@ -80,7 +90,9 @@ export function PinCodeScreen({ navigation, route }) {
               phoneNumber,
               name,
               surname,
-              patronymic,
+              patronymic: patronymic || null,
+              citizenship,
+              notificationMethod,
               password,
               pinCode,
             })
@@ -88,7 +100,9 @@ export function PinCodeScreen({ navigation, route }) {
               email,
               name,
               surname,
-              patronymic,
+              patronymic: patronymic || null,
+              citizenship,
+              notificationMethod,
               password,
               pinCode,
             });
@@ -130,6 +144,8 @@ export function PinCodeScreen({ navigation, route }) {
       name,
       password,
       patronymic,
+      citizenship,
+      notificationMethod,
       phoneNumber,
       showToastWhileLocked,
       surname,
@@ -203,8 +219,14 @@ export function PinCodeScreen({ navigation, route }) {
           <ContentTiltes
             title={title}
             subtitle={'Մուտք լինելու համար խնդրում ենք մուտքագրել PIN-ը'}
+            isMarginBottom={true}
           />
-          <View style={localStyles.passcodeContainer}>
+          <View
+            style={[
+              localStyles.passcodeContainer,
+              isCompactScreen && localStyles.passcodeContainerCompact,
+            ]}
+          >
             <Passcode
               hasBiometric={false}
               disabled={isInputLocked || isLoading}
@@ -226,14 +248,19 @@ const createStyles = () =>
       alignItems: 'center',
       justifyContent: 'flex-start',
       width: '100%',
-      marginBottom: 20,
     },
     formContainer: {
+      flex: 1,
       width: '100%',
     },
     passcodeContainer: {
+      flex: 1,
       width: '100%',
       alignItems: 'center',
-      justifyContent: 'center',
+      paddingHorizontal: 10,
+    },
+    passcodeContainerCompact: {
+      flex: 0,
+      marginTop: -8,
     },
   });

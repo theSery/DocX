@@ -1,12 +1,15 @@
+import { useState } from 'react';
 import {
   Pressable,
   ScrollView,
   StyleSheet,
   View,
 } from 'react-native';
-import { AnimatedView, Typography } from '../../../components';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AnimatedView, DocumentLoadingOverlay, Typography } from '../../../components';
 import {
   useGlobalStyles,
+  useIsCompactScreen,
   useThemedFocusStatusBar,
   useThemedStyles,
   useTheme,
@@ -25,6 +28,21 @@ import TrashSvg from '../../../components/icons/TrashSvg';
 import PinCodeSvg from '../../../components/icons/PinCodeSvg';
 import { showGlobalSheet } from '../../../components/GlobalSheet';
 import { accountApi } from '../../../api';
+import { TAB_BAR_HEIGHT } from '../../../utils/dimensions';
+
+function parseDeletionPreview(response) {
+  const payload = response?.data?.data ?? response?.data ?? {};
+
+  return {
+    filesCount: Number(payload.filesCount) || 0,
+    documentsCount: Number(payload.documentsCount) || 0,
+    complaintsCount: Number(payload.complaintsCount) || 0,
+  };
+}
+
+function buildDeletionDescription({ filesCount, documentsCount, complaintsCount }) {
+  return `Հաշիվը ջնջելով կորցնում եք հասանելիությունը բոլոր տվյալներին, Ձեր կողմից ստեղծված բոլոր փաստաթղթերին։ Կջնջվեն ${filesCount} ֆայլ, ${documentsCount} փաստաթուղթ և ${complaintsCount} բողոք։`;
+}
 
 const ACCOUNT_MENU = [
   {
@@ -87,6 +105,9 @@ const createStyles = (colors) =>
       alignItems: 'center',
       width: '100%',
       marginTop: 30,
+    },
+    contentCompact: {
+      marginTop: 3,
     },
     balanceContainer: {
       flexDirection: 'row',
@@ -158,13 +179,19 @@ const createStyles = (colors) =>
       marginTop: 20,
       fontSize: 8,
     },
+    scrollContent: {
+      flexGrow: 1,
+    },
   });
 
 export function AccountScreen({ navigation }) {
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
+  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { showToast } = useToast();
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   useThemedFocusStatusBar({ inverted: true });
 
   const handleDeleteAccountPress = async () => {
@@ -185,16 +212,34 @@ export function AccountScreen({ navigation }) {
     }
   };
 
-  const handleDeleteAccountConfirmPress = () => {
-    showGlobalSheet({
-      message: 'Դուք պատրաստվում եք ջնջել Ձեր հաշիվը',
-      description:
-        'Հաշիվը ջնջելով կորցնում եք հասանելիությունը բոլոր տվյալներին, Ձեր կողմից ստեղծված բոլոր փաստաթղթերին',
-      actions: [
-        { label: 'Ջնջել', destructive: true, onPress: handleDeleteAccountPress },
-        { label: 'Չեղարկել' },
-      ],
-    });
+  const handleDeleteAccountConfirmPress = async () => {
+    if (isPreviewLoading) {
+      return;
+    }
+
+    setIsPreviewLoading(true);
+
+    try {
+      const response = await accountApi.getDeletionPreview();
+      const preview = parseDeletionPreview(response);
+
+      showGlobalSheet({
+        message: 'Դուք պատրաստվում եք ջնջել Ձեր հաշիվը',
+        description: buildDeletionDescription(preview),
+        actions: [
+          { label: 'Ջնջել', destructive: true, onPress: handleDeleteAccountPress },
+          { label: 'Չեղարկել' },
+        ],
+      });
+    } catch (error) {
+      showToast({
+        title: 'Տվյալների բեռնումը ձախողվեց',
+        body: error?.message || 'Տեղի ունեցավ սխալ։ Փորձեք կրկին։',
+        type: 'error',
+      });
+    } finally {
+      setIsPreviewLoading(false);
+    }
   };
 
   const navigateToScreen = (screen, { requiresFaceId } = {}) => {
@@ -206,8 +251,21 @@ export function AccountScreen({ navigation }) {
   };
 
   return (
-    <ScrollView style={[globalStyles.screen, styles.screen]}>
-      <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
+    <>
+    <ScrollView
+      style={[globalStyles.screen, styles.screen]}
+      contentContainerStyle={[
+        styles.scrollContent,
+        { paddingBottom: insets.bottom + TAB_BAR_HEIGHT + 24 },
+      ]}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+    >
+      <AnimatedView
+        animation="fadeIn"
+        duration={500}
+        style={[styles.content, isCompactScreen && styles.contentCompact]}
+      >
         <View style={styles.balanceContainer}>
           <View style={styles.balanceRow}>
             {/* <WalletSvg fill={palette.lightGray} width={50} height={50} />
@@ -290,5 +348,7 @@ export function AccountScreen({ navigation }) {
         </Typography>
       </AnimatedView>
     </ScrollView>
+    <DocumentLoadingOverlay visible={isPreviewLoading} />
+    </>
   );
 }

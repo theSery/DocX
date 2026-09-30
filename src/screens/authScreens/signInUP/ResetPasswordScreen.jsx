@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useForm } from 'react-hook-form';
 import { AuthScreenLayout } from '../../../components/layout';
 import {
@@ -59,12 +60,12 @@ export function ResetPasswordScreen({ navigation, route }) {
   return (
     <AuthScreenLayout style={[styles.screen]}>
       <MainHeader onPress={() => navigation.goBack()} isHome={true} />
-      <ScrollView
+      <KeyboardAwareScrollView
         style={localStyles.formArea}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
-        automaticallyAdjustKeyboardInsets
+        bottomOffset={24}
         contentContainerStyle={localStyles.scrollContent}
       >
         <View style={localStyles.content}>
@@ -115,7 +116,7 @@ export function ResetPasswordScreen({ navigation, route }) {
             />
           </View>
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </AuthScreenLayout>
   );
 }

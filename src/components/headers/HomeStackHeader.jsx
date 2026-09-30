@@ -8,17 +8,19 @@ import Animated, {
 } from 'react-native-reanimated';
 import MainHeader from './MainHeader';
 import FavoritesButton from '../buttons/FavoritesButton';
-import { useAuthSession, useThemedStyles } from '../../hooks';
+import { useAuthSession, useIsCompactScreen, useThemedStyles } from '../../hooks';
 import { SearchComponent } from '../titleComponents/SearchComponent';
 import { CachedImage } from '../image';
 import { Typography } from '../typography';
-import { FONT_FAMILY } from '../../theme';
+import { FONT_FAMILY, palette } from '../../theme';
 import { useHomeStackHeaderScroll } from '../../context/HomeStackHeaderScrollContext';
 import {
   getHomeStackHeaderCollapseProgress,
   getHomeStackHeaderHeight,
 } from './homeStackHeaderAnimation';
 import {
+  getHomeStackHeaderCollapsibleHeight,
+  getHomeStackHeaderExpandedHeight,
   HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
   HOME_STACK_HEADER_EXPANDED_HEIGHT,
 } from './stackHeaderConstants';
@@ -52,10 +54,13 @@ const HeaderTitleBlock = ({ styles, title, subtitle, iconUrl }) => {
   if (iconUrl) {
     return (
       <View style={styles.titleWithIconRow}>
+        <View style={styles.categoryIconWrap}>
         <CachedImage
           source={{ uri: iconUrl }}
           style={styles.categoryIcon}
         />
+        </View>
+   
         {title ? (
           <Typography
             variant="h2"
@@ -95,6 +100,8 @@ const StaticHomeStackHeader = ({
   searchScope,
   iconUrl,
   extraHeight = 0,
+  expandedHeight = HOME_STACK_HEADER_EXPANDED_HEIGHT,
+  collapsibleHeight = HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
 }) => (
   <View
     style={[
@@ -102,9 +109,8 @@ const StaticHomeStackHeader = ({
       {
         height:
           (showSearch
-            ? HOME_STACK_HEADER_EXPANDED_HEIGHT
-            : HOME_STACK_HEADER_EXPANDED_HEIGHT +
-              HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT) + extraHeight,
+            ? expandedHeight
+            : expandedHeight + collapsibleHeight) + extraHeight,
       },
     ]}
   >
@@ -144,6 +150,8 @@ const CollapsibleHomeStackHeader = ({
   showSearch,
   searchScope,
   extraHeight = 0,
+  expandedHeight = HOME_STACK_HEADER_EXPANDED_HEIGHT,
+  collapsibleHeight = HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT,
 }) => {
   const { scrollY, collapseScrollEnd, collapseEnabled } =
     useHomeStackHeaderScroll();
@@ -163,7 +171,9 @@ const CollapsibleHomeStackHeader = ({
       collapseEnabled.value,
     );
     return {
-      height: getHomeStackHeaderHeight(progress, showSearch) + extraHeightSv.value,
+      height:
+        getHomeStackHeaderHeight(progress, showSearch, expandedHeight) +
+        extraHeightSv.value,
     };
   });
 
@@ -185,7 +195,7 @@ const CollapsibleHomeStackHeader = ({
           translateY: interpolate(
             progress,
             [0, 1],
-            [0, -HOME_STACK_HEADER_COLLAPSIBLE_HEIGHT * 0.35],
+            [0, -collapsibleHeight * 0.35],
             Extrapolation.CLAMP,
           ),
         },
@@ -252,6 +262,9 @@ const HomeStackHeader = ({
   route,
 }) => {
   const styles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
+  const expandedHeight = getHomeStackHeaderExpandedHeight(isCompactScreen);
+  const collapsibleHeight = getHomeStackHeaderCollapsibleHeight(isCompactScreen);
   const { isAuthenticated } = useAuthSession();
   const searchScope = resolveSearchScope(route);
   const favoritesPress = isAuthenticated ? onFavoritesPress : undefined;
@@ -274,6 +287,8 @@ const HomeStackHeader = ({
         searchScope={resolvedSearchScope}
         iconUrl={iconUrl}
         extraHeight={extraHeight}
+        expandedHeight={expandedHeight}
+        collapsibleHeight={collapsibleHeight}
       />
     );
   }
@@ -288,6 +303,8 @@ const HomeStackHeader = ({
       showSearch={showSearch}
       searchScope={resolvedSearchScope}
       extraHeight={extraHeight}
+      expandedHeight={expandedHeight}
+      collapsibleHeight={collapsibleHeight}
     />
   );
 };
@@ -320,7 +337,9 @@ const createStyles = colors =>
       bottom: 0,
     },
     headerRow: {
-      paddingTop: 10,
+      paddingTop: 5,
+
+      paddingBottom: 5,
     },
     titleContainer: {
       // marginTop: 10,
@@ -332,8 +351,8 @@ const createStyles = colors =>
       gap: 12,
     },
     categoryIcon: {
-      width: 46,
-      height: 46,
+      width: 36,
+      height: 36,
       borderRadius: 10,
       overflow: 'hidden',
       resizeMode: 'contain',
@@ -361,5 +380,14 @@ const createStyles = colors =>
       paddingTop: 8,
       paddingBottom: 4,
       marginTop: 0,
+    },
+    categoryIconWrap: {
+      width: 46,
+      height: 46,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: palette.skyBlue,
+      borderRadius: 12,
+      marginRight: 10,
     },
   });

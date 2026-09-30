@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StatusBar } from 'react-native';
+import { Platform, StatusBar } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAuth } from '../contexts';
 import { useSplash } from '../components/layout/SplashGate';
@@ -15,7 +15,13 @@ import {
   selectCategories,
   selectCategoriesStatus,
 } from '../store/slices/categoriesSlice';
+import {
+  fetchFavoriteTemplateIds,
+  selectFavoriteTemplatesStatus,
+} from '../store/slices/favoriteTemplatesSlice';
+import { useResponsiveLayout } from '../hooks';
 import { prefetchCategoryIcons } from '../utils/imageCache';
+import { setAndroidSystemBars } from '../utils/systemBars';
 import { animation } from './constants';
 import { ResetPinNavigator } from './AuthStacks/ResetPinNavigator';
 
@@ -36,6 +42,10 @@ function resolveInitialRoute(hasCompletedOnboarding, startupRoute) {
 }
 
 function BootstrapLoadingScreen() {
+  const layout = useResponsiveLayout();
+  const lottieSize = layout.scaleSize(150);
+  const logoSize = layout.scaleSize(140);
+
   return (
     <GradientBackground isLight={false}>
       <LottieAnimation
@@ -43,25 +53,26 @@ function BootstrapLoadingScreen() {
         autoPlay
         loop
         style={{
-          width: 150,
-          height: 150,
+          width: lottieSize,
+          height: lottieSize,
           position: 'absolute',
-          bottom: 30,
-          left: 30,
+          bottom: layout.compact ? layout.bottomOffset : 30,
+          left: layout.scaleSize(30),
         }}
       />
-      <LogoIcon width={140} height={140} />
+      <LogoIcon width={logoSize} height={logoSize} />
     </GradientBackground>
   );
 }
 
 export function RootNavigator() {
-  const { isReady, hasCompletedOnboarding } = useAuth();
+  const { isReady, hasCompletedOnboarding, isSign } = useAuth();
   const { isSplashDone, startupRoute } = useSplash();
 
   const dispatch = useAppDispatch();
   const categories = useAppSelector(selectCategories);
   const categoriesStatus = useAppSelector(selectCategoriesStatus);
+  const favoritesStatus = useAppSelector(selectFavoriteTemplatesStatus);
 
   const [criticalIconsReady, setCriticalIconsReady] = useState(false);
 
@@ -70,6 +81,16 @@ export function RootNavigator() {
       dispatch(fetchCategoryHierarchy(CATEGORIES_PAGE));
     }
   }, [dispatch, categoriesStatus]);
+
+  useEffect(() => {
+    if (!isReady || !isSign) {
+      return;
+    }
+
+    if (favoritesStatus === 'idle') {
+      dispatch(fetchFavoriteTemplateIds());
+    }
+  }, [dispatch, favoritesStatus, isReady, isSign]);
 
   useEffect(() => {
     if (categoriesStatus === 'failed') {
@@ -103,11 +124,24 @@ export function RootNavigator() {
     categoriesStatus === 'loading' ||
     (categoriesStatus === 'succeeded' && !criticalIconsReady);
 
-  const isAppLoading = !isSplashDone || !isReady || isCategoriesBootstrapping;
+  const isFavoritesBootstrapping =
+    isSign &&
+    (favoritesStatus === 'idle' || favoritesStatus === 'loading');
+
+  const isAppLoading =
+    !isSplashDone ||
+    !isReady ||
+    isCategoriesBootstrapping ||
+    isFavoritesBootstrapping;
 
   useEffect(() => {
     if (isAppLoading) {
       StatusBar.setBarStyle('light-content', true);
+      if (Platform.OS === 'android') {
+        StatusBar.setTranslucent(true);
+        StatusBar.setBackgroundColor('transparent');
+      }
+      setAndroidSystemBars(true);
     }
   }, [isAppLoading]);
 

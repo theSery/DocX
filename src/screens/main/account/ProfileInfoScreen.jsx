@@ -1,15 +1,27 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useGlobalStyles, useThemedFocusStatusBar, useThemedStyles, useTheme, useToast } from '../../../hooks';
+import {
+  KeyboardAwareScrollView,
+  KeyboardToolbar,
+} from 'react-native-keyboard-controller';
+import { useGlobalStyles, useThemedFocusStatusBar, useTheme, useToast } from '../../../hooks';
 import {
   AnimatedView,
+  Dropdown,
+  DropdownHost,
   FormDateField,
   FormField,
-  FormScrollView,
   Typography,
 } from '../../../components';
-import { useForm, useWatch } from 'react-hook-form';
+import { countries } from '../../../data/countries';
+import {
+  notificationMethods,
+  toNotificationMethodIds,
+} from '../../../data/notificationMethods';
+import NotificationMethodSvg from '../../../components/icons/NotificationMethodSvg';
+import { Controller, useForm, useWatch } from 'react-hook-form';
+import CitizenshipSvg from '../../../components/icons/CitizenshipSvg';
 import MailIconSvg from '../../../components/icons/MailIconSvg';
 import UserSvg from '../../../components/icons/UserSvg';
 import { FONT_FAMILY, palette } from '../../../theme';
@@ -72,7 +84,7 @@ const CONTACT_INFO_FIELDS = [
     rules: ARMENIAN_NAME_RULES,
   },
   {
-    name: 'middleName',
+    name: 'patronymic',
     label: 'Հայրանուն *',
     Icon: UserSvg,
     placeholder: 'Ձեր Հայրանուն',
@@ -81,12 +93,13 @@ const CONTACT_INFO_FIELDS = [
   },
 ];
 
-const createStyles = colors =>
-  StyleSheet.create({
+const createStyles = isDarkMode => {
+  const accentColor = isDarkMode ? palette.skyBlue : palette.mainBlue;
+
+  return StyleSheet.create({
     screen: {
       flex: 1,
       paddingHorizontal: 16,
-      
     },
     contentContainer: {
       paddingBottom: 32,
@@ -101,6 +114,9 @@ const createStyles = colors =>
     screenTitle: {
       letterSpacing: 0.9,
     },
+    dropdownHost: {
+      width: '100%',
+    },
     formFieldContainer: {
       width: '100%',
       marginTop: 20,
@@ -114,12 +130,12 @@ const createStyles = colors =>
       justifyContent: 'center',
       marginTop: 20,
       borderWidth: 1,
-      borderColor: palette.mainBlue,
+      borderColor: accentColor,
       marginBottom: 12,
     },
     primaryButtonText: {
       fontFamily: FONT_FAMILY.regular,
-      color: palette.mainBlue,
+      color: accentColor,
       letterSpacing: 1.2,
     },
     buttonPressed: {
@@ -127,30 +143,55 @@ const createStyles = colors =>
     },
     phoneText: {
       fontFamily: FONT_FAMILY.semiBold,
-      color: palette.mainBlue,
+      color: accentColor,
       letterSpacing: 1.2,
       marginTop: 8,
       fontSize: 12,
     },
   });
+};
 
 const EMPTY_FORM_VALUES = {
   email: '',
   name: '',
   lastName: '',
-  middleName: '',
+  patronymic: '',
   phone: '',
   birthDate: null,
+  citizenship: '',
+  notificationMethod: [],
 };
+
+function toCitizenshipValue(country) {
+  return country?.nameEn?.trim().toLowerCase() ?? '';
+}
+
+function findCountryByCitizenship(value) {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = String(value).trim().toLowerCase();
+  return (
+    countries.find(country => toCitizenshipValue(country) === normalized) ??
+    null
+  );
+}
+
+function isArmenianCitizenship(value) {
+  return findCountryByCitizenship(value)?.nameEn === 'Armenia';
+}
 
 function mapPersonalDataToFormValues(data) {
   return {
     email: data.email ?? '',
     name: data.name ?? '',
     lastName: data.surname ?? '',
-    middleName: data.patronymic ?? '',
+    patronymic: data.patronymic ?? '',
     phone: data.phoneNumber ?? '',
     birthDate: data.birthday ? new Date(data.birthday) : null,
+    citizenship: data.citizenship ?? '',
+    notificationMethod: toNotificationMethodIds(data.notificationMethod),
   };
 }
 
@@ -158,10 +199,14 @@ function mapFormValuesToPersonalData(values) {
   return {
     name: values.name,
     surname: values.lastName,
-    patronymic: values.middleName,
+    patronymic: isArmenianCitizenship(values.citizenship)
+      ? values.patronymic
+      : null,
     phoneNumber: values.phone,
     birthday:
       values.birthDate instanceof Date ? values.birthDate.toISOString() : null,
+    citizenship: values.citizenship,
+    notificationMethod: values.notificationMethod,
   };
 }
 
@@ -175,8 +220,8 @@ function resolveFormValuesAfterUpdate(submittedValues, apiData) {
 
 export function ProfileInfoScreen() {
   const globalStyles = useGlobalStyles();
-  const styles = useThemedStyles(createStyles);
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
+  const styles = useMemo(() => createStyles(isDarkMode), [isDarkMode]);
   useThemedFocusStatusBar({ inverted: true });
   const navigation = useNavigation();
   const { showToast } = useToast();
@@ -203,6 +248,17 @@ export function ProfileInfoScreen() {
 
   const watchedEmail = useWatch({ control, name: 'email' }) ?? '';
   const watchedPhone = useWatch({ control, name: 'phone' }) ?? '';
+  const watchedCitizenship = useWatch({ control, name: 'citizenship' }) ?? '';
+  const watchedNotificationMethod = toNotificationMethodIds(
+    useWatch({ control, name: 'notificationMethod' }),
+  );
+  const hasSelectedCitizenship = Boolean(
+    findCountryByCitizenship(watchedCitizenship),
+  );
+  const isArmenianCitizen = isArmenianCitizenship(watchedCitizenship);
+  const contactInfoFields = CONTACT_INFO_FIELDS.filter(
+    field => field.name !== 'patronymic' || isArmenianCitizen,
+  );
   const storedPhone = personalData?.phoneNumber ?? '';
   const isPhoneChanged = watchedPhone !== storedPhone;
   const isChangedPhoneVerified =
@@ -211,7 +267,10 @@ export function ProfileInfoScreen() {
   const showPhoneVerificationUi =
     !isPhoneVerified || (isPhoneChanged && !isChangedPhoneVerified);
   const isSaveDisabled =
-    isSubmitting || (isPhoneChanged && !isChangedPhoneVerified);
+    isSubmitting ||
+    (isPhoneChanged && !isChangedPhoneVerified) ||
+    !hasSelectedCitizenship ||
+    watchedNotificationMethod.length === 0;
 
   useEffect(() => {
     if (personalDataStatus !== 'succeeded' || !personalData) {
@@ -287,6 +346,10 @@ export function ProfileInfoScreen() {
   };
 
   const onSubmit = handleSubmit(async data => {
+    if (!findCountryByCitizenship(data.citizenship)) {
+      return;
+    }
+
     try {
       const response = await dispatch(
         updatePersonalData(mapFormValuesToPersonalData(data)),
@@ -313,19 +376,71 @@ export function ProfileInfoScreen() {
       });
     }
   });
-
+console.log(personalData, 'personalData');
   return (
-    <FormScrollView
+    <>
+    <KeyboardAwareScrollView
       style={[globalStyles.screen, styles.screen]}
       showsVerticalScrollIndicator={false}
+      // keyboardShouldPersistTaps="handled"
+      // keyboardDismissMode="on-drag"
+      bottomOffset={20}
       contentContainerStyle={styles.contentContainer}
     >
+      <DropdownHost style={styles.dropdownHost}>
       <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
         <Typography variant="h4" style={styles.screenTitle}>
           Անձնական տվյալներ
         </Typography>
         <View style={styles.formFieldContainer}>
-          {CONTACT_INFO_FIELDS.map(field => (
+          <Controller
+            control={control}
+            name="citizenship"
+            rules={{ required: 'Քաղաքացիությունը պարտադիր է' }}
+            render={({ field: { value, onChange }, fieldState: { error } }) => (
+              <Dropdown
+                items={countries}
+                value={findCountryByCitizenship(value)?.id ?? null}
+                onChange={country => onChange(toCitizenshipValue(country))}
+                label="Քաղաքացիություն *"
+                placeholder="Քաղաքացիություն"
+                startIcon={
+                  <CitizenshipSvg width={20} height={20} fill={colors.icons} />
+                }
+                getItemLabel={country => country.nameHy}
+                getItemSecondaryLabel={country => country.nameEn}
+                getItemFlag={country => country.flagSvg}
+                error={error?.message}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="notificationMethod"
+            rules={{ required: 'Ծանուցման եղանակը պարտադիր է' }}
+            render={({ field: { value, onChange }, fieldState: { error } }) => (
+              <Dropdown
+                items={notificationMethods}
+                multiple
+                value={toNotificationMethodIds(value)}
+                onChange={methods =>
+                  onChange(methods.map(method => method.id))
+                }
+                label="Ծանուցման եղանակ *"
+                placeholder="Ծանուցման եղանակ"
+                startIcon={
+                  <NotificationMethodSvg
+                    width={20}
+                    height={20}
+                    fill={colors.icons}
+                  />
+                }
+                getItemLabel={method => method.nameHy}
+                error={error?.message}
+              />
+            )}
+          />
+          {contactInfoFields.map(field => (
             <Fragment key={field.name}>
               <FormField
                 control={control}
@@ -411,12 +526,25 @@ export function ProfileInfoScreen() {
         </Pressable>
       ) : null}
       <AuthButton
-        disabled={isSaveDisabled}
+        disabled={isSaveDisabled || !hasSelectedCitizenship}
         title={'Պահպանել'}
-        onPress={onSubmit}
+        onPress={() => {
+          if (!hasSelectedCitizenship) {
+            trigger('citizenship');
+            return;
+          }
+          onSubmit();
+        }}
         isLoading={isLoading}
         style={{ marginBottom: TAB_BAR_BOTTOM_OFFSET, marginTop: !showPhoneVerificationUi ? 30 : 10 }}
       />
-    </FormScrollView>
+      </DropdownHost>
+    </KeyboardAwareScrollView>
+    {/* <KeyboardToolbar>
+      <KeyboardToolbar.Prev />
+      <KeyboardToolbar.Next />
+      <KeyboardToolbar.Done text="Փակել" />
+    </KeyboardToolbar> */}
+    </>
   );
 }

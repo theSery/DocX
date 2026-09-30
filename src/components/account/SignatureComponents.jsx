@@ -2,10 +2,10 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
-  ScrollView,
   StyleSheet,
   View,
 } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import {
@@ -25,7 +25,7 @@ import { useGlobalStyles, useThemedStyles, useToast } from '../../hooks';
 import { FONT_FAMILY, palette } from '../../theme';
 import { useAppDispatch } from '../../store';
 import { setHasSignature } from '../../store/slices/personalDataSlice';
-import { WIDTH } from '../../utils/dimensions';
+import { HEIGHT, WIDTH } from '../../utils/dimensions';
 import { extractHandwritingToTransparentPng } from '../../utils/handwritingExtractor';
 import { runAfterSheetDismiss } from '../../utils/runAfterSheetDismiss';
 import TrashSvg from '../icons/TrashSvg';
@@ -37,6 +37,7 @@ import UndoSvg from '../icons/UndoSvg';
 const INPUT_RADIUS = 16;
 const STROKE_COLOR = '#0047AB';
 const STROKE_WIDTH = 3;
+const SIGNATURE_CANVAS_HEIGHT = Math.round(HEIGHT * 0.6);
 
 function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveSuccess, fromDocumentFlow = false }) {
   const canvasRef = useCanvasRef();
@@ -258,7 +259,7 @@ function SignatureDrawCanvas({ signatureUrl, handleDeleteSignaturePress, onSaveS
   }, [paths]);
 
   return (
-    <View style={[styles.drawContainer, {height: fromDocumentFlow ? '75%' : '80%'}]}>
+    <View style={styles.drawContainer}>
       {fromDocumentFlow ? (
         <Typography variant="h6" tone="secondary" style={styles.documentFlowHint}>
           Շարունակելու համար ստեղծեք ձեր ստորագրությունը
@@ -409,10 +410,12 @@ export function SignatureComponents({ onSaveSuccess, fromDocumentFlow = false })
   return (
     <ScrollView
       style={globalStyles.screen}
-      contentContainerStyle={[globalStyles.container, styles.screenContent]}
+      contentContainerStyle={styles.screenContent}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="on-drag"
+      nestedScrollEnabled
+      bounces
     >
 
       <SignatureDrawCanvas
@@ -428,7 +431,10 @@ export function SignatureComponents({ onSaveSuccess, fromDocumentFlow = false })
 const createStyles = colors =>
   StyleSheet.create({
     screenContent: {
-      paddingBottom: 32,
+      flexGrow: 1,
+      backgroundColor: colors.background,
+      paddingHorizontal: 20,
+      paddingBottom: 40,
       gap: 16,
       paddingTop: 20,
     },
@@ -443,11 +449,10 @@ const createStyles = colors =>
     },
     drawContainer: {
       alignItems: 'center',
-      height: '80%',
     },
     paper: {
       width: WIDTH - 40,
-      height: '100%',
+      height: SIGNATURE_CANVAS_HEIGHT,
       backgroundColor: '#FAFBFF',
       borderWidth: 1,
       borderColor: colors.border,

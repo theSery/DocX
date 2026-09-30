@@ -1,19 +1,20 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { HEIGHT } from '../../../../utils/dimensions';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { TAB_BAR_HEIGHT } from '../../../../utils/dimensions';
 import ArrowSvg from '../../../../components/icons/ArrowSvg';
 import { CachedImage } from '../../../../components/image';
 import { StaggeredAnimatedView } from '../../../../components/animation';
-import { FONT_FAMILY } from '../../../../theme';
+import { FONT_FAMILY, palette } from '../../../../theme';
 import {
   useGlobalStyles,
   useHomeStackHeaderScrollHandler,
+  useIsCompactScreen,
   useThemedStyles,
   useTheme,
 } from '../../../../hooks';
 
 export const SPACING = 10;
-export const ITEM_HEIGHT = HEIGHT * 0.2;
 
 export function CategoriesList({
   navigation,
@@ -23,18 +24,27 @@ export function CategoriesList({
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
   const { colors, isDarkMode } = useTheme();
+  const isCompactScreen = useIsCompactScreen();
+  const insets = useSafeAreaInsets();
+  const arrowSize = isCompactScreen ? 14 : 16;
   const { onScroll, onScrollViewLayout, onContentSizeChange } =
     useHomeStackHeaderScrollHandler(collapsibleHeader);
+  const scrollBottomPadding = insets.bottom + TAB_BAR_HEIGHT + 24;
 
   return (
     <View style={styles.container}>
       <Animated.FlatList
         data={categories}
+        style={styles.list}
         onScroll={onScroll}
         onLayout={onScrollViewLayout}
         onContentSizeChange={onContentSizeChange}
         scrollEventThrottle={collapsibleHeader ? 16 : undefined}
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[
+          styles.contentContainer,
+          { paddingBottom: scrollBottomPadding },
+        ]}
+        showsVerticalScrollIndicator={false}
         keyExtractor={item => item.id.toString()}
         renderItem={({ item, index }) => (
           <StaggeredAnimatedView
@@ -42,7 +52,10 @@ export function CategoriesList({
             style={[globalStyles.cardShadow, styles.categoryItem]}
           >
             <TouchableOpacity
-              style={styles.categoryItemImage}
+              style={[
+                styles.categoryItemImage,
+                isCompactScreen && styles.categoryItemImageCompact,
+              ]}
               onPress={() => navigation.navigate('Category', { item })}
             >
               <View style={styles.categoryItemHeaderRow}>
@@ -53,19 +66,28 @@ export function CategoriesList({
                 />
                 </View>
      
-                <Text style={styles.categoryItemText}>{item.name}</Text>
+                <Text
+                  style={[
+                    styles.categoryItemText,
+                    isCompactScreen && styles.categoryItemTextCompact,
+                  ]}
+                >
+                  {item.name}
+                </Text>
                 <View style={styles.categoryItemArrowContainer}>
-                  <ArrowSvg width={20} height={20} fill={colors.iconAccent} />
+                  <ArrowSvg width={arrowSize} height={arrowSize} fill={colors.iconAccent} />
                 </View>
               </View>
             </TouchableOpacity>
           </StaggeredAnimatedView>
         )}
       />
-      <Image
-        source={require('../../../../assets/images/Femidi.webp')}
-        style={[styles.image, { opacity: isDarkMode ? 1 : 0.4 }]}
-      />
+      {isCompactScreen ? null : (
+        <Image
+          source={require('../../../../assets/images/Femidi.webp')}
+          style={[styles.image, { opacity: isDarkMode ? 1 : 0.4 }]}
+        />
+      )}
     </View>
   );
 }
@@ -76,31 +98,44 @@ const createStyles = colors =>
     container: {
       flex: 1,
     },
+    list: {
+      flex: 1,
+    },
     categoryItemImage: {
       flex: 1,
-      padding: SPACING,
+      // padding: SPACING,
+    },
+    categoryItemImageCompact: {
+      padding: 5,
     },
     categoryItemImageContainer: {
-      width: "15%",
-      // height: 20,
+      width: 56,
+      height: 56,
       justifyContent: 'center',
       alignItems: 'center',
+      backgroundColor: palette.skyBlue,
+      borderRadius: 12,
+      marginRight: 10,
 
     },
     categoryItemText: {
-      fontSize: 16,
+      fontSize: 15,
       fontFamily: FONT_FAMILY.medium,
       color: colors.text,
       letterSpacing: 0.9,
-      width: '75%',
+      width: '72%',
+    },
+    categoryItemTextCompact: {
+      fontSize: 14,
+      letterSpacing: 0.3,
     },
     categoryItemImageIcon: {
-      width: 56,
-      height: 56,
+      width: 32,
+      height: 32,
       resizeMode: 'contain',
-      borderRadius: 10,
+      // borderRadius: 10,
       // marginLeft: 10,
-      marginRight: 10,
+      // marginRight: 10,
     },
     categoryItem: {
       marginBottom: SPACING,
@@ -134,7 +169,6 @@ const createStyles = colors =>
       bottom: 50,
       left: 0,
       right: 0,
-      // top: 0,
       zIndex: -1000,
     },
   });

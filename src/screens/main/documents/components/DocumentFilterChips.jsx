@@ -184,7 +184,7 @@ export function DocumentFilterChips({
 const createStyles = colors =>
   StyleSheet.create({
     wrapper: {
-      marginVertical: 14,
+      marginBottom: 14,
     },
     loginTitle: {
       letterSpacing: 2,

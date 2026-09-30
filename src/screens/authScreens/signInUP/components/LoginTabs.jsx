@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
-  Dimensions,
   Image,
   Pressable,
   StyleSheet,
@@ -19,7 +18,7 @@ import PhoneSvg from '../../../../components/icons/PhoneSvg';
 import bg from '../../../../assets/images/bg.webp';
 import { OtpInputRowCode } from './OtpInputRowCode';
 import { authApi, persistAuthResponse, smsApi } from '../../../../api';
-import { useAuthSession, useOtpInput, useTheme, useThemedStyles, useToast } from '../../../../hooks';
+import { useAuthSession, useIsCompactScreen, useOtpInput, useTheme, useThemedStyles, useToast } from '../../../../hooks';
 import { saveUserCredentials } from '../../../../utils/secureStorage';
 import { PASSWORD_STRENGTH_RULE } from '../../../../utils/patterns';
 import {
@@ -42,7 +41,6 @@ const LOGIN_TITLES = {
   phoneOtp: 'ՀԵՌԱԽՈՍԱՀԱՄԱՐԻ ՀԱՍՏԱՏՈՒՄ',
   resetPassword: 'ՎԵՐԱԿԱՆԳՆԵԼ ԳԱՂՏՆԱԲԱՌԸ',
 };
-const SCREEN_HEIGHT = Dimensions.get('window').height / 2.2;
 const FADE_OUT_MS = 160;
 const FADE_IN_MS = 220;
 
@@ -59,10 +57,12 @@ function OrDivider() {
 
 function OutlineButton({ title, onPress, icon }) {
   const styles = useThemedStyles(createStyles);
+  const isCompactScreen = useIsCompactScreen();
   return (
     <Pressable
       style={({ pressed }) => [
         styles.outlineButton,
+        isCompactScreen && styles.outlineButtonCompact,
         pressed && styles.buttonPressed,
         { justifyContent: 'center' },
       ]}
@@ -140,7 +140,7 @@ function PhoneOtpVerification({ phoneNumber, handleTabPress, onResendCode }) {
   };
 
   return (
-    <View style={{ justifyContent: 'space-between', height: SCREEN_HEIGHT }}>
+    <View style={styles.formColumn}>
       <>
         <Typography style={styles.otpSubtitle}>{phoneNumber}</Typography>
 
@@ -250,7 +250,7 @@ function MailLogin({ handleTabPress, isResetPassword, onForgotPassword }) {
 
   if (isResetPassword) {
     return (
-      <View style={{ justifyContent: 'space-between', height: SCREEN_HEIGHT }}>
+      <View style={styles.formColumn}>
         <View style={{ marginBottom: 0 }}>
           <FormField
             control={control}
@@ -287,9 +287,9 @@ function MailLogin({ handleTabPress, isResetPassword, onForgotPassword }) {
   }
 
   return (
-    <View style={{ justifyContent: 'space-between', height: SCREEN_HEIGHT }}>
-      <>
-        <View style={{ marginBottom: 0 }}>
+    <View style={styles.formColumn}>
+      <View>
+        <View style={{ marginBottom: 20 }}>
           <FormField
             control={control}
             name="email"
@@ -319,15 +319,14 @@ function MailLogin({ handleTabPress, isResetPassword, onForgotPassword }) {
             }}
           />
           <Pressable style={styles.forgotLink} hitSlop={8} onPress={onForgotPassword}>
-            <Typography style={styles.forgotLinkText}>
+            <Typography scaleOnCompact={false} style={styles.forgotLinkText}>
               Մոռացե՞լ եք գաղտնաբառը
             </Typography>
           </Pressable>
         </View>
-      </>
+      </View>
 
-      <>
-        <View style={styles.actions}>
+      <View style={styles.actions}>
           <AuthButton
             title="Մուտք գործել"
             onPress={handleSignIn}
@@ -341,7 +340,6 @@ function MailLogin({ handleTabPress, isResetPassword, onForgotPassword }) {
             icon={<PhoneSvg width={20} height={20} fill={colors.icons} />}
           />
         </View>
-      </>
     </View>
   );
 }
@@ -384,7 +382,7 @@ function PhoneResetRequest({ defaultPhone, handleTabPress, onCodeSent }) {
   });
 
   return (
-    <View style={{ justifyContent: 'space-between', height: SCREEN_HEIGHT }}>
+    <View style={styles.formColumn}>
       <FormField
         control={control}
         name="phone"
@@ -529,7 +527,7 @@ function PhoneResetOtp({ phoneNumber, handleTabPress, onVerified }) {
   };
 
   return (
-    <View style={{ justifyContent: 'space-between', height: SCREEN_HEIGHT }}>
+    <View style={styles.formColumn}>
       <>
         <Typography style={styles.otpSubtitle}>{phoneNumber}</Typography>
         <OtpInputRowCode {...otpInputProps} />
@@ -608,7 +606,7 @@ function PhoneResetPassword({ phoneNumber, handleTabPress, onComplete }) {
   });
 
   return (
-    <View style={{ justifyContent: 'space-between', height: SCREEN_HEIGHT }}>
+    <View style={styles.formColumn}>
       <View>
         <FormField
           control={control}
@@ -745,7 +743,7 @@ function PhoneLogin({ handleTabPress, onForgotPassword, onResetComplete }) {
   }
 
   return (
-    <View style={{ justifyContent: 'space-between', height: SCREEN_HEIGHT }}>
+    <View style={styles.formColumn}>
       <View>
         <FormField
           control={control}
@@ -782,7 +780,7 @@ function PhoneLogin({ handleTabPress, onForgotPassword, onResetComplete }) {
           hitSlop={8}
           onPress={handleForgotPassword}
         >
-          <Typography style={styles.forgotLinkText}>
+          <Typography scaleOnCompact={false} style={styles.forgotLinkText}>
             Մոռացե՞լ եք գաղտնաբառը
           </Typography>
         </Pressable>
@@ -976,7 +974,7 @@ export function LoginTabs({ onPhoneLogin, onActiveTabChange }) {
     <View style={[styles.form, styles.formTop]}>
       <Animated.View
         style={{
-          height: '100%',
+          flexGrow: 1,
           opacity: contentOpacity,
           transform: [{ translateY: contentTranslateY }],
         }}
@@ -1007,8 +1005,11 @@ const createStyles = colors =>
   },
   formTop: {
     marginTop: 20,
-    flex: 1,
-    height: '100%',
+    flexGrow: 1,
+  },
+  formColumn: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
   },
   actions: {
     marginTop: 20,
@@ -1050,6 +1051,9 @@ const createStyles = colors =>
     flexDirection: 'row',
     gap: 10,
     paddingHorizontal: 16,
+  },
+  outlineButtonCompact: {
+    height: 40,
   },
   outlineButtonText: {
     // width: '80%',

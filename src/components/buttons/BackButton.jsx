@@ -5,11 +5,17 @@ import ligtBlackButton from '../../assets/images/ligtBlackButton.webp';
 import ArrowSvg from '../icons/ArrowSvg';
 import { useTheme } from '../../hooks';
 
-const BackButton = ({ onPress, isHome = false }) => {
+const BackButton = ({ onPress, isHome = false, size = 45 }) => {
   const { isDarkMode } = useTheme();
+  const buttonStyle = { width: size, height: size };
+  const iconSize = Math.round(size * (14 / 45));
 
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.container}>
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.7}
+      style={[styles.container, buttonStyle]}
+    >
       <ImageBackground
         source={isDarkMode ? ligtBlackButton : leftIconBg}
         style={styles.image}
@@ -17,8 +23,8 @@ const BackButton = ({ onPress, isHome = false }) => {
         resizeMode="cover"
       >
         <ArrowSvg
-          width={14}
-          height={14}
+          width={iconSize}
+          height={iconSize}
           rotate={180}
           fill={isDarkMode ? '#FFFFFF' : '#01174D'}
         />

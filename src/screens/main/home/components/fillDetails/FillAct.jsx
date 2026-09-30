@@ -1,11 +1,19 @@
 import { useEffect, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useWatch } from 'react-hook-form';
-import { FormDateField, FormField } from '../../../../../components';
+import {
+  CheckBox,
+  FormDateField,
+  FormField,
+  RadioButton,
+  RadioGroup,
+  Typography,
+} from '../../../../../components';
 import CalendarSvg from '../../../../../components/icons/CalendarSvg';
 import ActNumberSvg from '../../../../../components/icons/ActNumberSvg';
 import UserSvg from '../../../../../components/icons/UserSvg';
 import { useTheme } from '../../../../../hooks';
+import { FONT_FAMILY } from '../../../../../theme';
 import { ARMENIAN_NAME_RULES } from '../../../../../utils/patterns';
 import {
   addDays,
@@ -13,7 +21,10 @@ import {
   isDateDataType,
 } from '../../../../../utils/variableDataTypes';
 import { useAppDispatch } from '../../../../../store';
-import { syncVariableValues } from '../../../../../store/slices/documentFillSlice';
+import {
+  syncOptionSelections,
+  syncVariableValues,
+} from '../../../../../store/slices/documentFillSlice';
 import { sortBySequence } from '../../../../../utils/templateFactGroups';
 
 const ACT_DATE_FIELD = 'Act_date';
@@ -125,6 +136,99 @@ function getFieldConfig(variable, iconColor) {
   };
 }
 
+function selectedIdsForGroup(selectionMap, groupId) {
+  const rawSelected = selectionMap?.[groupId];
+
+  if (Array.isArray(rawSelected)) {
+    return rawSelected;
+  }
+
+  return rawSelected != null ? [rawSelected] : [];
+}
+
+function OptionGroupField({
+  group,
+  groupId,
+  selectedOptions,
+  onSelectOption,
+  setRadioOptions,
+  radioOptions,
+  errorMessage,
+}) {
+  const { colors } = useTheme();
+  const options = useMemo(
+    () => sortBySequence(group?.options ?? []),
+    [group?.options],
+  );
+  const title =
+    group?.required && group?.type !== 'checkbox'
+      ? `${group.title} *`
+      : group?.title;
+  const error = errorMessage ? (
+    <Typography variant="h6" style={{ color: colors.error }}>
+      {errorMessage}
+    </Typography>
+  ) : null;
+
+  if (group?.type === 'checkbox') {
+    const selectedIds = selectedIdsForGroup(selectedOptions, groupId);
+
+    return (
+      <View style={styles.optionGroup}>
+        {title ? (
+          <Typography variant="h5" style={styles.optionGroupTitle}>
+            {title}
+          </Typography>
+        ) : null}
+        <View style={styles.optionList}>
+          {options.map(option => (
+            <CheckBox
+              key={option.id}
+              checked={selectedIds.includes(option.id)}
+              label={option.value}
+              onChange={() => onSelectOption?.(option, groupId)}
+            />
+          ))}
+        </View>
+        {error}
+      </View>
+    );
+  }
+
+  if (group?.type === 'radio') {
+    return (
+      <View style={styles.optionGroup}>
+        {title ? (
+          <Typography variant="h5" style={styles.optionGroupTitle}>
+            {title}
+          </Typography>
+        ) : null}
+        <RadioGroup
+          style={styles.optionList}
+          value={radioOptions?.[groupId] ?? null}
+          onChange={value =>
+            setRadioOptions(prev => ({
+              ...prev,
+              [groupId]: value,
+            }))
+          }
+        >
+          {options.map(option => (
+            <RadioButton
+              key={option.id}
+              value={option.id}
+              label={option.value}
+            />
+          ))}
+        </RadioGroup>
+        {error}
+      </View>
+    );
+  }
+
+  return null;
+}
+
 function resolveLinkedDateFields(variables = []) {
   const names = new Set(variables.map(variable => variable?.name).filter(Boolean));
   const actDateField = names.has(ACT_DATE_FIELD) ? ACT_DATE_FIELD : null;
@@ -135,13 +239,27 @@ function resolveLinkedDateFields(variables = []) {
   return { actDateField, receiveDateField };
 }
 
-export function FillAct({ control, variables = [] }) {
+export function FillAct({
+  control,
+  variables = [],
+  optionGroups = [],
+  selectedOptions = {},
+  onSelectOption,
+  setRadioOptions,
+  radioOptions = {},
+  optionGroupErrors = {},
+  solutionAttachments = [],
+}) {
   const dispatch = useAppDispatch();
   const { colors } = useTheme();
   const variableValues = useWatch({ control });
   const sortedVariables = useMemo(
     () => sortBySequence(variables),
     [variables],
+  );
+  const sortedOptionGroups = useMemo(
+    () => sortBySequence(optionGroups),
+    [optionGroups],
   );
   const linkedDateFields = useMemo(
     () => resolveLinkedDateFields(sortedVariables),
@@ -151,6 +269,25 @@ export function FillAct({ control, variables = [] }) {
   useEffect(() => {
     dispatch(syncVariableValues({ variables: sortedVariables, values: variableValues }));
   }, [dispatch, variableValues, sortedVariables]);
+
+  useEffect(() => {
+    dispatch(
+      syncOptionSelections({
+        optionGroups: sortedOptionGroups,
+        selectedOptions,
+        radioOptions,
+        solutionAttachments,
+        variables: sortedVariables,
+      }),
+    );
+  }, [
+    dispatch,
+    radioOptions,
+    selectedOptions,
+    solutionAttachments,
+    sortedOptionGroups,
+    sortedVariables,
+  ]);
 
   return (
     <View style={styles.container}>
@@ -192,6 +329,22 @@ export function FillAct({ control, variables = [] }) {
           />
         );
       })}
+      {sortedOptionGroups.map((group, index) => {
+        const groupId = group.id ?? index;
+
+        return (
+          <OptionGroupField
+            key={groupId}
+            group={group}
+            groupId={groupId}
+            selectedOptions={selectedOptions}
+            onSelectOption={onSelectOption}
+            setRadioOptions={setRadioOptions}
+            radioOptions={radioOptions}
+            errorMessage={optionGroupErrors[groupId]}
+          />
+        );
+      })}
     </View>
   );
 }
@@ -200,5 +353,15 @@ const styles = StyleSheet.create({
   container: {
     gap: 20,
     paddingTop: 16,
+  },
+  optionGroup: {
+    gap: 12,
+  },
+  optionGroupTitle: {
+    fontFamily: FONT_FAMILY.bold,
+  },
+  optionList: {
+    gap: 12,
+    marginTop: 10,
   },
 });

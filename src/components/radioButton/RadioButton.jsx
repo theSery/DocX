@@ -5,15 +5,16 @@ import { Typography } from '../typography';
 import { useThemedStyles } from '../../hooks';
 import { useRadioGroup } from './RadioGroupContext';
 
-const OUTER_SIZE = 22;
-const INNER_SIZE = 12;
+const OUTER_SIZE = 26;
+const INNER_SIZE = 16;
 
 const createStyles = colors =>
   StyleSheet.create({
     row: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 10,
+      gap: 15,
+      marginBottom: 5,
     },
     radioOuter: {
       width: OUTER_SIZE,
@@ -88,7 +89,7 @@ export function RadioButton({
         {isSelected ? <View style={styles.radioInner} /> : null}
       </View>
       {label ? (
-        <Typography variant="h6" tone="secondary" style={styles.label}>
+        <Typography variant="h6"  style={styles.label}>
           {label}
         </Typography>
       ) : null}

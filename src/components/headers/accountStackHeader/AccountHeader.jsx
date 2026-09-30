@@ -3,7 +3,7 @@ import { StyleSheet, View, ImageBackground, Pressable } from 'react-native';
 import ligtBlueButton from '../../../assets/images/ligtBlueButton.webp';
 import { Typography } from '../../typography';
 import { palette } from '../../../theme';
-import { useTheme, useThemedStyles } from '../../../hooks';
+import { useIsCompactScreen, useTheme, useThemedStyles } from '../../../hooks';
 import LogoutSvg from '../../icons/LogoutSvg';
 import ArrowSvg from '../../icons/ArrowSvg';
 import { showGlobalSheet } from '../../GlobalSheet';
@@ -33,7 +33,10 @@ const createStyles = () =>
       borderRadius: 100,
       justifyContent: 'center',
       alignItems: 'center',
-   
+    },
+    buttonCompact: {
+      width: 40,
+      height: 40,
     },
     image: {
       width: '100%',
@@ -47,20 +50,33 @@ const createStyles = () =>
     },
     title: {
       color: palette.white,
-      fontSize: 24,
+      fontSize: 22,
+      lineHeight: 32,
     },
     titleCompact: {
       color: palette.white,
+      fontSize: 18,
+      lineHeight: 20,
+      textAlign: 'center',
+    },
+    titleSmall: {
       fontSize: 20,
       lineHeight: 24,
-      textAlign: 'center',
+    },
+    titleCompactSmall: {
+      fontSize: 16,
+      lineHeight: 20,
     },
   });
 
 const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutButton }) => {
   const styles = useThemedStyles(createStyles);
   const { isDarkMode } = useTheme();
+  const isCompactScreen = useIsCompactScreen();
   const titleColor = isDarkMode ? palette.mainBlue : palette.white;
+  const arrowSize = isCompactScreen ? 16 : 18;
+  const logoutWidth = isCompactScreen ? 13 : 15;
+  const logoutHeight = isCompactScreen ? 16 : 18;
 
   const handleLogoutPress = () => {
     showGlobalSheet({
@@ -76,7 +92,10 @@ const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutBu
     <View style={styles.container}>
       <View style={[styles.backButtonContainer, {alignItems: 'flex-start',}]}>
         {isBackButton ? (
-          <Pressable onPress={onPress} style={styles.button}>
+          <Pressable
+            onPress={onPress}
+            style={[styles.button, isCompactScreen && styles.buttonCompact]}
+          >
             <ImageBackground
               source={ligtBlueButton}
               style={styles.image}
@@ -85,19 +104,23 @@ const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutBu
             >
               <ArrowSvg
                 fill={palette.white}
-                width={18}
-                height={15}
+                width={arrowSize}
+                height={isCompactScreen ? 13 : 15}
                 rotate={180}
               />
             </ImageBackground>
           </Pressable>
-        ) : null}
+        ) : <View style={{ width: 45, height: 45 }} />}
       </View>
       <View style={styles.logoContainer}>
         <Typography
           variant="h2"
           tone="onDark"
-          style={[isBackButton ? styles.titleCompact : styles.title, { color: titleColor }]}
+          style={[
+            isBackButton ? styles.titleCompact : styles.title,
+            isCompactScreen && (isBackButton ? styles.titleCompactSmall : styles.titleSmall),
+            { color: titleColor },
+          ]}
         >
           {title}
 
@@ -105,17 +128,20 @@ const AccountHeader = ({ onPress, onLogoutPress, title, isBackButton, isLogoutBu
       </View>
       <View style={[styles.backButtonContainer, {alignItems: 'flex-end',}]}>
         {isLogoutButton ? (
-          <Pressable onPress={handleLogoutPress} style={styles.button}>
+          <Pressable
+            onPress={handleLogoutPress}
+            style={[styles.button, isCompactScreen && styles.buttonCompact]}
+          >
             <ImageBackground
               source={ligtBlueButton}
               style={styles.image}
               imageStyle={styles.imageInner}
               resizeMode="cover"
             >
-              <LogoutSvg fill={palette.white} width={15} height={18} />
+              <LogoutSvg fill={palette.white} width={logoutWidth} height={logoutHeight} />
             </ImageBackground>
           </Pressable>
-        ) : null}
+        ) : <View style={{ width: 45, height: 45 }} />}
       </View>
     </View>
   );

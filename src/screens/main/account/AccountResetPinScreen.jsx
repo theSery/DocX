@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { AnimatedView, Typography } from '../../../components';
 import AuthButton from '../../../components/buttons/AuthButton';
 import LottieAnimation from '../../../components/animation/LottieAnimation';
@@ -17,7 +18,9 @@ import { ContentTiltes } from '../../../components/titleComponents/ContentTiltle
 import { authApi, persistAuthResponse } from '../../../api';
 import {
   useGlobalStyles,
+  useIsCompactScreen,
   useOtpInput,
+  useResponsiveLayout,
   useTemporaryFocusStatusBar,
   useTheme,
   useThemedStyles,
@@ -39,22 +42,26 @@ import { Passcode } from '../../authScreens/signInUP/components/Passcode';
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PIN_LENGTH = 4;
 
-function CompletedPinVerification({ otpInputProps, styles }) {
+function CompletedPinVerification({ otpInputProps, styles, iconStyle, otpBoxSize }) {
   return (
     <>
       <AnimatedView animation="fadeIn" style={styles.emailCheckContainer}>
         <Image
           source={emailCheck}
-          style={styles.emailCheckIcon}
-          resizeMode="cover"
+          style={iconStyle}
+          resizeMode="contain"
         />
       </AnimatedView>
-      <OtpInputRowCode {...otpInputProps} style={styles.otpInputRow} />
+      <OtpInputRowCode
+        {...otpInputProps}
+        boxSize={otpBoxSize}
+        style={styles.otpInputRow}
+      />
     </>
   );
 }
 
-function SuccessPinVerification({ styles, colors }) {
+function SuccessPinVerification({ styles, colors, iconStyle, lottieSize }) {
   return (
     <>
       <AnimatedView
@@ -64,8 +71,8 @@ function SuccessPinVerification({ styles, colors }) {
       >
         <Image
           source={openMail}
-          style={styles.emailCheckIcon}
-          resizeMode="cover"
+          style={iconStyle}
+          resizeMode="contain"
         />
         <AnimatedView
           animation="fadeIn"
@@ -78,7 +85,7 @@ function SuccessPinVerification({ styles, colors }) {
             loop={true}
             timing={2000}
             duration={2000}
-            style={{ width: 80, height: 80 }}
+            style={{ width: lottieSize, height: lottieSize }}
           />
         </AnimatedView>
       </AnimatedView>
@@ -101,6 +108,8 @@ export function AccountResetPinScreen() {
   const navigation = useNavigation();
   const globalStyles = useGlobalStyles();
   const styles = useThemedStyles(createStyles);
+  const layout = useResponsiveLayout();
+  const isCompactScreen = useIsCompactScreen();
   const { colors } = useTheme();
   const { showToast } = useToast();
 
@@ -408,6 +417,14 @@ export function AccountResetPinScreen() {
   );
 
   const needsEmailInput = emailResolved && !email.trim();
+  const emailCheckIconStyle = layout.compact
+    ? {
+        width: layout.scaleSize(220),
+        height: layout.scaleSize(248),
+      }
+    : styles.emailCheckIcon;
+  const lottieSize = layout.compact ? layout.scaleSize(80) : 80;
+  const otpBoxSize = layout.compact ? 40 : 48;
   const pinTitle =
     pinStep === 'confirm' ? 'Կրկնեք նոր PIN կոդը' : 'Սահմանել նոր PIN կոդը';
   const pinSubtitle =
@@ -425,8 +442,13 @@ export function AccountResetPinScreen() {
           contentContainerStyle={styles.contentContainer}
         >
           <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
-            <ContentTiltes title={pinTitle} subtitle={pinSubtitle} />
-            <View style={styles.passcodeContainer}>
+            <ContentTiltes title={pinTitle} subtitle={pinSubtitle} isMarginBottom={true}/>
+            <View
+              style={[
+                styles.passcodeContainer,
+                isCompactScreen && styles.passcodeContainerCompact,
+              ]}
+            >
               <Passcode
                 hasBiometric={false}
                 disabled={isInputLocked || isResetting}
@@ -443,12 +465,12 @@ export function AccountResetPinScreen() {
 
   return (
     <View style={[globalStyles.screen, styles.screen]}>
-      <ScrollView
+      <KeyboardAwareScrollView
         style={styles.scroll}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
-        automaticallyAdjustKeyboardInsets
+        bottomOffset={24}
         contentContainerStyle={styles.scrollContent}
       >
         <AnimatedView animation="fadeIn" duration={500} style={styles.content}>
@@ -459,6 +481,7 @@ export function AccountResetPinScreen() {
                 ? `Մուտքագրեք Ձեր (${email.trim()}) էլ-փոստին ուղարկված կոդը`
                 : 'Մուտքագրեք Ձեր էլ-փոստը և ուղարկված կոդը'
             }
+            isMarginBottom={true}
           />
           {!isSuccess && needsEmailInput && (
             <TextInput
@@ -471,6 +494,7 @@ export function AccountResetPinScreen() {
               autoCorrect={false}
               style={[
                 styles.emailInput,
+                layout.compact && styles.emailInputCompact,
                 {
                   color: colors.icons,
                   borderColor: colors.cardSelected,
@@ -487,28 +511,35 @@ export function AccountResetPinScreen() {
             >
               {isSendingOtp ? (
                 <ActivityIndicator
-                  color={palette.mainBlue}
+                  color={palette.skyBlue}
                   style={styles.resetPinLoader}
                 />
               ) : (
-                <Text style={styles.privacyText}>
+                <Typography style={styles.privacyText}>
                   {otpSent
                     ? 'Կրկին ուղարկել կոդը'
                     : 'Ուղարկել կոդը էլ. փոստին'}
-                </Text>
+                </Typography>
               )}
             </Pressable>
           )}
           {isSuccess ? (
-            <SuccessPinVerification styles={styles} colors={colors} />
+            <SuccessPinVerification
+              styles={styles}
+              colors={colors}
+              iconStyle={emailCheckIconStyle}
+              lottieSize={lottieSize}
+            />
           ) : (
             <CompletedPinVerification
               otpInputProps={otpInputProps}
               styles={styles}
+              iconStyle={emailCheckIconStyle}
+              otpBoxSize={otpBoxSize}
             />
           )}
         </AnimatedView>
-      </ScrollView>
+      </KeyboardAwareScrollView>
       <View style={[styles.footer, { paddingBottom: TAB_BAR_BOTTOM_OFFSET + 20}]}>
         <AuthButton
           title={isSuccess ? 'Սահմանել նոր PIN' : 'Հաստատել կոդը'}
@@ -542,14 +573,18 @@ const createStyles = colors =>
     content: {
       width: '100%',
       alignItems: 'center',
-      paddingTop: 20,
+      // paddingTop: 20,
    
     },
     passcodeContainer: {
       width: '100%',
       alignItems: 'center',
       justifyContent: 'center',
-   
+      paddingHorizontal: 20,
+    },
+    passcodeContainerCompact: {
+      flex: 0,
+      marginTop: -8,
     },
     otpInputRow: {
       gap: 10,
@@ -593,11 +628,16 @@ const createStyles = colors =>
       fontFamily: FONT_FAMILY.regular,
       marginBottom: 16,
     },
+    emailInputCompact: {
+      height: 40,
+      paddingVertical: 0,
+      fontSize: 14,
+    },
     privacyText: {
       fontSize: 14,
       lineHeight: 26,
       fontFamily: FONT_FAMILY.regular,
-      color: palette.mainBlue,
+      // color: palette.mainBlue,
       textAlign: 'center',
       textDecorationLine: 'underline',
     },

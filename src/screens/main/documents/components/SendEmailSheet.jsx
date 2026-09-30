@@ -2,18 +2,15 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Keyboard,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   TextInput,
   View,
 } from 'react-native';
-
 import { complaintsApi, personalDocumentsApi } from '../../../../api';
-import { Typography } from '../../../../components';
+import { KeyboardAvoidingView, Typography } from '../../../../components';
 import GradientButton from '../../../../components/buttons/GradientButton';
-import { getAndroidKeyboardOverlayInset } from '../../../../components/form/formKeyboard';
 import MailIconSvg from '../../../../components/icons/MailIconSvg';
 import { useTheme, useThemedStyles, useToast } from '../../../../hooks';
 import { useAppSelector } from '../../../../store';
@@ -24,30 +21,13 @@ import { resolveSendAttachedDocuments } from '../utils/mapComplaintToDocument';
 
 const SHEET_PADDING_BOTTOM = 32;
 
-function resolveKeyboardInset(event) {
-  const end = event?.endCoordinates;
-  if (!end) {
-    return 0;
-  }
-
-  const keyboardTop = typeof end.screenY === 'number' ? end.screenY : null;
-  const keyboardHeight = typeof end.height === 'number' ? end.height : 0;
-
-  if (Platform.OS === 'ios') {
-    return keyboardHeight;
-  }
-
-  return getAndroidKeyboardOverlayInset(keyboardTop, keyboardHeight);
-}
-
 function unwrapComplaint(response) {
   return response?.data?.data ?? response?.data ?? null;
 }
 
 /**
  * Bottom sheet for sending a document to an email address.
- * Grows bottom padding by the keyboard inset so content stays above the
- * keyboard while the sheet keeps its natural content height.
+ * KeyboardAvoidingView lifts the sheet above the keyboard on both platforms.
  */
 export function SendEmailSheet({
   visible,
@@ -64,35 +44,14 @@ export function SendEmailSheet({
 
   const [email, setEmail] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [keyboardInset, setKeyboardInset] = useState(0);
   const isSendingRef = useRef(false);
 
   useEffect(() => {
     if (!visible) {
       setEmail('');
       setIsSending(false);
-      setKeyboardInset(0);
       isSendingRef.current = false;
-      return undefined;
     }
-
-    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
-
-    const handleShow = event => {
-      setKeyboardInset(resolveKeyboardInset(event));
-    };
-    const handleHide = () => {
-      setKeyboardInset(0);
-    };
-
-    const showSub = Keyboard.addListener(showEvent, handleShow);
-    const hideSub = Keyboard.addListener(hideEvent, handleHide);
-
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
   }, [visible]);
 
   const trimmedEmail = email.trim();
@@ -198,20 +157,18 @@ export function SendEmailSheet({
       animationType="fade"
       onRequestClose={handleClose}
     >
-      <Pressable style={styles.backdrop} onPress={handleClose}>
-        <Pressable
-          style={[
-            styles.sheet,
-            { paddingBottom: SHEET_PADDING_BOTTOM + keyboardInset },
-          ]}
-          onPress={() => {}}
-        >
-          <ScrollView
-            keyboardShouldPersistTaps="always"
-            scrollEnabled={false}
-            bounces={false}
-            contentContainerStyle={styles.sheetContent}
+      <KeyboardAvoidingView behavior="padding" automaticOffset style={styles.keyboardView}>
+        <Pressable style={styles.backdrop} onPress={handleClose}>
+          <Pressable
+            style={[styles.sheet, { paddingBottom: SHEET_PADDING_BOTTOM }]}
+            onPress={() => {}}
           >
+            <ScrollView
+              keyboardShouldPersistTaps="always"
+              scrollEnabled={false}
+              bounces={false}
+              contentContainerStyle={styles.sheetContent}
+            >
             <View style={styles.iconWrap}>
               <MailIconSvg width={28} height={22} fill={colors.icons} />
             </View>
@@ -267,15 +224,19 @@ export function SendEmailSheet({
                 </View>
               </Pressable>
             </View>
-          </ScrollView>
+            </ScrollView>
+          </Pressable>
         </Pressable>
-      </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const createStyles = colors =>
   StyleSheet.create({
+    keyboardView: {
+      flex: 1,
+    },
     backdrop: {
       flex: 1,
       justifyContent: 'flex-end',

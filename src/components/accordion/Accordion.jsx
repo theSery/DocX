@@ -43,6 +43,8 @@ function defaultKeyExtractor(item, index) {
  *   renderContent?: (item: object) => React.ReactNode;
  *   duration?: number;
  *   initialOpenKey?: string | number | null;
+ *   openKey?: string | number | null;
+ *   onOpenChange?: (key: string | number | null) => void;
  *   openRequestId?: string | number | null;
  *   scrollRef?: import('react-native-reanimated').AnimatedRef<any>;
  *   scrollOffset?: import('react-native-reanimated').SharedValue<number>;
@@ -51,12 +53,15 @@ function defaultKeyExtractor(item, index) {
  *   itemStyle?:
  *     | import('react-native').StyleProp<import('react-native').ViewStyle>
  *     | ((item: object, state: { isOpen: boolean }) => import('react-native').StyleProp<import('react-native').ViewStyle>);
+ *   headerStyle?: import('react-native').StyleProp<import('react-native').ViewStyle>;
  *   contentStyle?:
  *     | import('react-native').StyleProp<import('react-native').ViewStyle>
  *     | ((item: object, state: { isOpen: boolean }) => import('react-native').StyleProp<import('react-native').ViewStyle>);
  *   staggeredEnter?: boolean;
  *   itemAnimation?: string | import('react-native-reanimated').IEntryExitAnimationBuilder;
  *   itemAnimationConfig?: object | ((item: object, index: number) => object);
+ *   showFavorite?: boolean;
+ *   onFavoritePress?: (item: object) => void;
  * }} props
  */
 export function Accordion({
@@ -66,19 +71,27 @@ export function Accordion({
   renderContent,
   duration = DEFAULT_DURATION,
   initialOpenKey = null,
+  openKey: controlledOpenKey,
+  onOpenChange,
   openRequestId = null,
   scrollRef,
   scrollOffset,
   scrollIntoViewOffset = 0,
   style,
   itemStyle,
+  headerStyle,
   contentStyle,
   staggeredEnter = false,
   itemAnimation,
   itemAnimationConfig,
+  showFavorite = false,
+  onFavoritePress,
 }) {
-  const [openKey, setOpenKey] = useState(initialOpenKey);
-  const openKeyRef = useRef(initialOpenKey);
+  const isControlled = controlledOpenKey !== undefined;
+  const [openKey, setOpenKey] = useState(
+    isControlled ? controlledOpenKey : initialOpenKey,
+  );
+  const openKeyRef = useRef(isControlled ? controlledOpenKey : initialOpenKey);
   // Index of the item currently opening (-1 when none). Read on the UI thread
   // by closing items to decide whether scroll compensation is needed.
   const openingIndex = useSharedValue(-1);
@@ -91,9 +104,12 @@ export function Accordion({
       const nextKey = openKeyRef.current === key ? null : key;
       openKeyRef.current = nextKey;
       openingIndex.value = nextKey === null ? -1 : index;
-      setOpenKey(nextKey);
+      if (!isControlled) {
+        setOpenKey(nextKey);
+      }
+      onOpenChange?.(nextKey);
     },
-    [openingIndex],
+    [isControlled, onOpenChange, openingIndex],
   );
 
   const handleItemLayout = useCallback((key, y) => {
@@ -104,20 +120,38 @@ export function Accordion({
     setOffsetVersion(version => version + 1);
   }, []);
 
+  const syncOpenKey = useCallback(
+    nextKey => {
+      const index =
+        nextKey == null
+          ? -1
+          : items?.findIndex((item, i) => keyExtractor(item, i) === nextKey) ??
+            -1;
+      openKeyRef.current = nextKey;
+      openingIndex.value = index;
+      setOpenKey(nextKey);
+    },
+    [items, keyExtractor, openingIndex],
+  );
+
   // Search (and similar) can request a specific open item while this screen is
   // already mounted; sync open state without relying on remount.
   useEffect(() => {
-    if (initialOpenKey == null) {
+    if (isControlled || initialOpenKey == null) {
       return;
     }
 
-    const index =
-      items?.findIndex((item, i) => keyExtractor(item, i) === initialOpenKey) ??
-      -1;
-    openKeyRef.current = initialOpenKey;
-    openingIndex.value = index;
-    setOpenKey(initialOpenKey);
-  }, [initialOpenKey, items, keyExtractor, openRequestId, openingIndex]);
+    syncOpenKey(initialOpenKey);
+  }, [initialOpenKey, isControlled, openRequestId, syncOpenKey]);
+
+  // Parents (dropdowns, search) can force open/close while this screen is mounted.
+  useEffect(() => {
+    if (!isControlled) {
+      return;
+    }
+
+    syncOpenKey(controlledOpenKey);
+  }, [controlledOpenKey, isControlled, syncOpenKey]);
 
   // Bring the search-selected item into view once per open request.
   useEffect(() => {
@@ -169,11 +203,17 @@ export function Accordion({
             openingIndex={openingIndex}
             scrollRef={scrollRef}
             scrollOffset={scrollOffset}
+            showFavorite={showFavorite}
+            isFavorite={Boolean(item?.favorite)}
+            onFavoritePress={
+              onFavoritePress ? () => onFavoritePress(item) : undefined
+            }
             style={
               typeof itemStyle === 'function'
                 ? itemStyle(item, { isOpen })
                 : itemStyle
             }
+            headerStyle={headerStyle}
             contentStyle={
               typeof contentStyle === 'function'
                 ? contentStyle(item, { isOpen })
@@ -212,14 +252,7 @@ export function Accordion({
           );
         }
 
-        const animationConfig = itemAnimationConfig
-          ? typeof itemAnimationConfig === 'function'
-            ? itemAnimationConfig(item, index)
-            : itemAnimationConfig
-          : staggeredEnter
-            ? getStaggeredEnterConfig(index)
-            : undefined;
-
+ 
         return (
           <View
             key={key}

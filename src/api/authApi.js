@@ -42,12 +42,23 @@ export const authApi = {
     });
   },
 
-  registerPersonal({ email, name, surname, patronymic, password, pinCode }) {
+  registerPersonal({
+    email,
+    name,
+    surname,
+    patronymic,
+    citizenship,
+    notificationMethod,
+    password,
+    pinCode,
+  }) {
     return axiosClient.post('/auth/register/personal', {
       email,
       name,
       surname,
       patronymic,
+      citizenship,
+      notificationMethod,
       password,
       pinCode,
     });
@@ -58,6 +69,8 @@ export const authApi = {
     name,
     surname,
     patronymic,
+    citizenship,
+    notificationMethod,
     password,
     pinCode,
   }) {
@@ -66,6 +79,8 @@ export const authApi = {
       name,
       surname,
       patronymic,
+      citizenship,
+      notificationMethod,
       password,
       pinCode,
     });

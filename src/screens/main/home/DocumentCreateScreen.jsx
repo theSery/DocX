@@ -28,7 +28,10 @@ import {
 } from '../../../components/DocumentLoadingOverlay';
 import { AnimatedView } from '../../../components/animation';
 import { useAppDispatch, useAppSelector } from '../../../store';
-import { selectDocumentFill } from '../../../store/slices/documentFillSlice';
+import {
+  selectDocumentFill,
+  selectFormAttachedDocuments,
+} from '../../../store/slices/documentFillSlice';
 import {
   selectHasNotificationAddress,
   selectPersonalData,
@@ -92,6 +95,7 @@ export function DocumentCreateScreen({ route, navigation }) {
   const personalData = useAppSelector(selectPersonalData);
   const hasNotificationAddress = useAppSelector(selectHasNotificationAddress);
   const documentFill = useAppSelector(selectDocumentFill);
+  const formAttachedDocuments = useAppSelector(selectFormAttachedDocuments);
   const personalDocuments = useAppSelector(selectPersonalDocuments);
   const personalDocumentsStatus = useAppSelector(selectPersonalDocumentsStatus);
   const {
@@ -272,15 +276,41 @@ export function DocumentCreateScreen({ route, navigation }) {
 
   const userId = personalData?.id ?? personalData?.userId;
 
-  const solutionAttachments = useMemo(
-    () => templateSolution?.solutionAttachments ?? [],
-    [templateSolution?.solutionAttachments],
-  );
+  const solutionAttachments = useMemo(() => {
+    const documents = Array.isArray(formAttachedDocuments)
+      ? formAttachedDocuments
+      : [];
+    const seenIds = new Set();
+
+    return documents.reduce((attachments, document) => {
+      if (document?.uploadable !== true) {
+        return attachments;
+      }
+
+      const id =
+        document?.id ??
+        document?.attachedDocumentId ??
+        document?.attachedDocument?.id;
+
+      if (id != null) {
+        const key = String(id);
+        if (seenIds.has(key)) {
+          return attachments;
+        }
+        seenIds.add(key);
+      }
+
+      attachments.push(document);
+      return attachments;
+    }, []);
+  }, [formAttachedDocuments]);
 
   const attachmentRows = useMemo(() => {
     return solutionAttachments.map((attachment, index) => {
       const attachedDocumentId =
-        attachment?.attachedDocumentId ?? attachment?.attachedDocument?.id;
+        attachment?.attachedDocumentId ??
+        attachment?.attachedDocument?.id ??
+        attachment?.id;
       const key = String(attachedDocumentId);
       const name =
         attachment?.attachedDocument?.name ??
@@ -380,6 +410,8 @@ export function DocumentCreateScreen({ route, navigation }) {
       dispatch(fetchPersonalDocuments({ page: 1, limit: 100 }));
     }
   }, [dispatch, personalDocumentsStatus]);
+
+ 
 
   useEffect(() => {
     setHasTypingFinished(false);
